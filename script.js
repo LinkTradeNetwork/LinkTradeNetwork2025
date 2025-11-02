@@ -1,16 +1,16 @@
-// API helper function - points to your Google Apps Script
+// API helper function - updated URL
 async function postJSON(data) {
   try {
-    const response = await fetch('https://script.google.com/macros/s/AKfycbzXuEhYvkD8Kzu_X6K32shXtJjxAdysAyuAA5p-Y1BlAefAjFxLJp2dRAJ_yE7G1EGL/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycby-XLAHGZeXtEGGFuPuVNsi95onx4Muwc8lc_8qf6N7EJc9diM2Zm7EO5qo2X4ejUz6/exec', {
       method: 'POST',
-      mode: 'no-cors', // Required for Google Apps Script
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify(data)
     });
     
-    // Note: 'no-cors' mode means we can't read the response
-    // Google Apps Script will handle the logic server-side
-    return { success: true };
+    const result = await response.json();
+    return result;
   } catch (error) {
     console.error('API Error:', error);
     return { success: false, error: error.message };
