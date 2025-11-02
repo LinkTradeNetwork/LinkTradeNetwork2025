@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LinkTradeNetwork • Sign In</title>
+<style>
+  :root { --bg:#0b0f17; --panel:#101726; --ink:#eaf0ff; --muted:#a9b7d0; --line:#26324b; --brand:#ea6a00; --ok:#22c55e; --err:#ef4444; }
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+  .wrap{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;flex-direction:column}
+  .logo-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .logo{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#4facfe,#00f2fe);display:grid;place-items:center;font-size:28px}
+  .brand-name{font-size:24px;font-weight:800;color:var(--ink)}
+  .trades{display:flex;gap:10px;margin-bottom:32px;flex-wrap:wrap;justify-content:center;max-width:600px}
+  .trade-badge{background:#1f2937;border:1px solid #2a3956;color:var(--muted);padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 16px rgba(0,0,0,.35);padding:24px 20px;width:100%;max-width:440px}
+  h1{text-align:center;margin-bottom:6px}
+  p.sub{text-align:center;color:var(--muted);margin-bottom:18px}
+  label{display:block;margin-top:10px;font-size:14px;color:var(--muted)}
+  input{width:100%;margin-top:4px;background:#0d1422;color:#eaf0ff;border:1px solid #2a3956;border-radius:10px;padding:10px;font-size:14px}
+  input:focus{outline:none;border-color:#3d5278}
+  .name-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .agree{display:flex;gap:8px;margin-top:8px;font-size:13px}
+  .agree a{color:#6b94f7;text-decoration:none}
+  .agree a:hover{text-decoration:underline}
+  button{width:100%;margin-top:14px;background:var(--brand);color:#fff;border:0;border-radius:10px;padding:12px;font-weight:700;font-size:15px;cursor:pointer}
+  button:hover{background:#c35700}
+  .msg{margin-top:10px;font-size:13px}
+  .err{color:var(--err)} .ok{color:var(--ok)}
+  .otp-box{margin-top:18px;display:none}
+  .otp-inputs{display:flex;gap:8px;margin:10px 0}
+  .otp-inputs input{width:44px;height:48px;text-align:center;font-size:20px;border:1px solid #2a3956;border-radius:10px;background:#0d1422;color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo-header">
+    <div class="logo">🌍</div>
+    <div class="brand-name">LinkTradeNetwork</div>
+  </div>
+
+  <div class="trades">
+    <span class="trade-badge">Plumbing</span>
+    <span class="trade-badge">Electrical</span>
+    <span class="trade-badge">HVAC</span>
+    <span class="trade-badge">Low Voltage Cabling</span>
+    <span class="trade-badge">Physical Security</span>
+    <span class="trade-badge">General Contractor</span>
+    <span class="trade-badge">Supervisors</span>
+  </div>
+
+  <div class="card">
+    <h1>Sign In</h1>
+    <p class="sub">Verify your email to continue</p>
+
+    <div id="joinStep">
+      <div class="name-grid">
+        <div>
+          <label>First Name</label>
+          <input id="firstName" placeholder="John" />
+        </div>
+        <div>
+          <label>Last Name</label>
+          <input id="lastName" placeholder="Doe" />
+        </div>
+      </div>
+      <label>Email</label>
+      <input id="email" type="email" placeholder="you@example.com" />
+      <label class="agree">
+        <input id="consent" type="checkbox">
+        <span>I agree to the <a href="/terms.html" target="_blank">Terms &amp; Conditions</a>.</span>
+      </label>
+      <button id="joinBtn">Sign In</button>
+      <div id="joinMsg" class="msg"></div>
+    </div>
+
+    <div id="otpStep" class="otp-box">
+      <div>Enter the 6-digit code sent to <b id="otpEmail"></b>.</div>
+      <div class="otp-inputs">
+        <input maxlength="1"><input maxlength="1"><input maxlength="1">
+        <input maxlength="1"><input maxlength="1"><input maxlength="1">
+      </div>
+      <button id="verifyBtn">Verify</button>
+      <button id="resendBtn" style="background:#374151;margin-top:10px">Resend</button>
+      <div id="otpMsg" class="msg"></div>
+    </div>
+
+    <div id="doneStep" class="msg ok" style="display:none">
+      ✅ Verified — redirecting…
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const joinBtn=$('#joinBtn'), joinMsg=$('#joinMsg');
+const otpBox=$('#otpStep'), otpMsg=$('#otpMsg'), otpEmail=$('#otpEmail');
+const verifyBtn=$('#verifyBtn'), resendBtn=$('#resendBtn');
+const firstNameInput=$('#firstName'), lastNameInput=$('#lastName'), emailInput=$('#email'), consent=$('#consent');
+const codeInputs=$$('#otpStep input');
+let currentEmail='', currentFirstName='', currentLastName='';
+
+function code(){return codeInputs.map(i=>i.value).join('');}
+codeInputs.forEach((inp,i)=>{
+  inp.addEventListener('input',()=>{inp.value=inp.value.replace(/\D/g,'');if(inp.value && i<5)codeInputs[i+1].focus();});
+});
+
+joinBtn.onclick=async()=>{
+  const firstName=firstNameInput.value.trim(), lastName=lastNameInput.value.trim(), email=emailInput.value.trim().toLowerCase();
+  if(!firstName||!lastName||!email){joinMsg.textContent='First name, last name, and email required';joinMsg.className='msg err';return;}
+  if(!consent.checked){joinMsg.textContent='Please agree to the Terms.';joinMsg.className='msg err';return;}
+  joinMsg.textContent='Sending code…';joinBtn.disabled=true;
+  const fullName = `${firstName} ${lastName}`;
+  try{
+    const r=await postJSON({action:'signup',name:fullName,email,consent:true,userAgent:navigator.userAgent});
+    if(r.success){
+      currentEmail=email;currentFirstName=firstName;currentLastName=lastName;otpEmail.textContent=email;
+      $('#joinStep').style.display='none';otpBox.style.display='block';
+    }else throw new Error(r.error||'Failed');
+  }catch(e){joinMsg.textContent=e.message;joinMsg.className='msg err';}
+  joinBtn.disabled=false;
+};
+
+verifyBtn.onclick=async()=>{
+  const c=code();
+  if(c.length!==6){otpMsg.textContent='Enter full code';otpMsg.className='msg err';return;}
+  try{
+    const r=await postJSON({action:'verify',email:currentEmail,code:c});
+    if(r.success){
+      // ✅ Save user with firstName and lastName separately
+      localStorage.setItem('ltn_user', JSON.stringify({
+        firstName: currentFirstName,
+        lastName: currentLastName,
+        name: `${currentFirstName} ${currentLastName}`,
+        email: currentEmail
+      }));
+      
+      otpBox.style.display='none';$('#doneStep').style.display='block';
+      
+      // ✅ REDIRECT TO FRONT.HTML (Your main home page)
+      setTimeout(()=>{ 
+        window.location.replace("/front.html"); 
+      }, 900);
+    }else throw new Error(r.error||'Invalid');
+  }catch(e){otpMsg.textContent=e.message;otpMsg.className='msg err';}
+};
+
+resendBtn.onclick=async()=>{
+  const fullName = `${currentFirstName} ${currentLastName}`;
+  try{
+    const r=await postJSON({action:'resend',email:currentEmail,name:fullName});
+    otpMsg.textContent=r.success?'New code sent':'Resend failed';
+    otpMsg.className='msg '+(r.success?'ok':'err');
+  }catch(e){otpMsg.textContent=e.message;otpMsg.className='msg err';}
+};
+</script>
+</body>
+</html>
