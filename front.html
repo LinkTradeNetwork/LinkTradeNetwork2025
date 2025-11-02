@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LinkTradeNetwork • Dashboard</title>
+<style>
+  :root { --bg:#0b0f17; --panel:#101726; --ink:#eaf0ff; --muted:#a9b7d0; --line:#26324b; --brand:#ea6a00; --ok:#22c55e; --warn:#f59e0b; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.6}
+  
+  /* Header */
+  .header{background:var(--panel);border-bottom:1px solid var(--line);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+  .logo-section{display:flex;align-items:center;gap:12px}
+  .logo{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4facfe,#00f2fe);display:grid;place-items:center;font-size:22px}
+  .brand-name{font-size:20px;font-weight:800}
+  .user-section{display:flex;align-items:center;gap:16px}
+  .user-info{text-align:right}
+  .user-name{font-weight:600;font-size:15px}
+  .user-email{font-size:12px;color:var(--muted)}
+  .logout-btn{background:var(--brand);color:#fff;border:0;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px}
+  .logout-btn:hover{background:#c35700}
+  
+  /* Main Content */
+  .container{max-width:1200px;margin:0 auto;padding:24px 20px}
+  
+  .welcome{background:linear-gradient(135deg,#667eea,#764ba2);padding:32px;border-radius:16px;margin-bottom:32px;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+  .welcome h1{font-size:32px;margin-bottom:8px}
+  .welcome p{font-size:16px;opacity:0.9}
+  
+  /* Quick Actions */
+  .section-title{font-size:22px;font-weight:700;margin-bottom:16px;color:var(--ink)}
+  .quick-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:32px}
+  .action-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;cursor:pointer;transition:all 0.2s}
+  .action-card:hover{border-color:var(--brand);transform:translateY(-2px);box-shadow:0 4px 12px rgba(234,106,0,.2)}
+  .action-icon{font-size:32px;margin-bottom:12px}
+  .action-title{font-size:18px;font-weight:600;margin-bottom:6px}
+  .action-desc{font-size:14px;color:var(--muted)}
+  
+  /* Stats Grid */
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:32px}
+  .stat-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+  .stat-value{font-size:32px;font-weight:800;color:var(--brand);margin-bottom:4px}
+  .stat-label{font-size:14px;color:var(--muted)}
+  
+  /* Recent Activity */
+  .activity-list{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+  .activity-item{padding:16px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px}
+  .activity-item:last-child{border-bottom:0}
+  .activity-icon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:20px;background:rgba(234,106,0,.1)}
+  .activity-content{flex:1}
+  .activity-title{font-weight:600;font-size:15px;margin-bottom:2px}
+  .activity-time{font-size:13px;color:var(--muted)}
+  
+  /* Trades Filter */
+  .trades-filter{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+  .trade-btn{background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s}
+  .trade-btn:hover,.trade-btn.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+  
+  @media(max-width:768px){
+    .header{flex-direction:column;gap:12px;text-align:center}
+    .user-section{flex-direction:column;gap:12px}
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo-section">
+    <div class="logo">🌍</div>
+    <div class="brand-name">LinkTradeNetwork</div>
+  </div>
+  <div class="user-section">
+    <div class="user-info">
+      <div class="user-name" id="userName">Loading...</div>
+      <div class="user-email" id="userEmail"></div>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="welcome">
+    <h1>Welcome back, <span id="welcomeName">Professional</span>! 👋</h1>
+    <p>Manage your projects, connect with other trades, and grow your business.</p>
+  </div>
+
+  <h2 class="section-title">Quick Actions</h2>
+  <div class="quick-actions">
+    <div class="action-card">
+      <div class="action-icon">📋</div>
+      <div class="action-title">Find Projects</div>
+      <div class="action-desc">Browse available jobs in your area</div>
+    </div>
+    <div class="action-card">
+      <div class="action-icon">🤝</div>
+      <div class="action-title">Network</div>
+      <div class="action-desc">Connect with other trade professionals</div>
+    </div>
+    <div class="action-card">
+      <div class="action-icon">📊</div>
+      <div class="action-title">My Projects</div>
+      <div class="action-desc">View and manage ongoing work</div>
+    </div>
+    <div class="action-card">
+      <div class="action-icon">💬</div>
+      <div class="action-title">Messages</div>
+      <div class="action-desc">Chat with clients and partners</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Your Stats</h2>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">12</div>
+      <div class="stat-label">Active Projects</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">48</div>
+      <div class="stat-label">Completed Jobs</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">4.9</div>
+      <div class="stat-label">Rating ⭐</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">156</div>
+      <div class="stat-label">Network Connections</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Browse by Trade</h2>
+  <div class="trades-filter">
+    <button class="trade-btn active">All Trades</button>
+    <button class="trade-btn">Plumbing</button>
+    <button class="trade-btn">Electrical</button>
+    <button class="trade-btn">HVAC</button>
+    <button class="trade-btn">Low Voltage Cabling</button>
+    <button class="trade-btn">Physical Security</button>
+    <button class="trade-btn">General Contractor</button>
+  </div>
+
+  <h2 class="section-title">Recent Activity</h2>
+  <div class="activity-list">
+    <div class="activity-item">
+      <div class="activity-icon">🔧</div>
+      <div class="activity-content">
+        <div class="activity-title">New project available: Commercial HVAC Install</div>
+        <div class="activity-time">2 hours ago</div>
+      </div>
+    </div>
+    <div class="activity-item">
+      <div class="activity-icon">✅</div>
+      <div class="activity-content">
+        <div class="activity-title">Project completed: Residential Electrical Upgrade</div>
+        <div class="activity-time">1 day ago</div>
+      </div>
+    </div>
+    <div class="activity-item">
+      <div class="activity-icon">👤</div>
+      <div class="activity-content">
+        <div class="activity-title">John Martinez wants to connect</div>
+        <div class="activity-time">2 days ago</div>
+      </div>
+    </div>
+    <div class="activity-item">
+      <div class="activity-icon">⭐</div>
+      <div class="activity-content">
+        <div class="activity-title">You received a 5-star review</div>
+        <div class="activity-time">3 days ago</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Check if user is logged in
+const user = JSON.parse(localStorage.getItem('ltn_user') || 'null');
+if (!user) {
+  window.location.replace('/index.html');
+}
+
+// Display user info
+document.getElementById('userName').textContent = user.name || 'User';
+document.getElementById('userEmail').textContent = user.email || '';
+document.getElementById('welcomeName').textContent = user.firstName || user.name.split(' ')[0] || 'Professional';
+
+// Logout function
+function logout() {
+  localStorage.removeItem('ltn_user');
+  window.location.replace('/index.html');
+}
+
+// Trade filter buttons
+const tradeBtns = document.querySelectorAll('.trade-btn');
+tradeBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tradeBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    console.log('Filter by:', btn.textContent);
+  });
+});
+</script>
+
+</body>
+</html>
