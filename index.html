@@ -5,31 +5,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>LinkTradeNetwork • Sign In</title>
 <style>
-  :root { --bg:#0b0f17; --panel:#101726; --ink:#eaf0ff; --muted:#a9b7d0; --line:#26324b; --brand:#ea6a00; --ok:#22c55e; --err:#ef4444; }
-  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+  :root { 
+    --bg:#f0f4f8; 
+    --panel:#ffffff; 
+    --ink:#1e293b; 
+    --muted:#64748b; 
+    --line:#e2e8f0; 
+    --brand:#ea6a00; 
+    --ok:#22c55e; 
+    --err:#ef4444; 
+    --accent:#0ea5e9;
+  }
+  *{box-sizing:border-box} 
+  body{
+    margin:0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color:var(--ink);
+    font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+    min-height:100vh;
+  }
   .wrap{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;flex-direction:column}
   .logo-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-  .logo{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#4facfe,#00f2fe);display:grid;place-items:center;font-size:28px}
-  .brand-name{font-size:24px;font-weight:800;color:var(--ink)}
+  .logo{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#4facfe,#00f2fe);display:grid;place-items:center;font-size:28px;box-shadow:0 4px 12px rgba(79,172,254,0.3)}
+  .brand-name{font-size:24px;font-weight:800;color:#ffffff;text-shadow:0 2px 4px rgba(0,0,0,0.1)}
   .trades{display:flex;gap:10px;margin-bottom:32px;flex-wrap:wrap;justify-content:center;max-width:600px}
-  .trade-badge{background:#1f2937;border:1px solid #2a3956;color:var(--muted);padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 16px rgba(0,0,0,.35);padding:24px 20px;width:100%;max-width:440px}
-  h1{text-align:center;margin-bottom:6px}
-  p.sub{text-align:center;color:var(--muted);margin-bottom:18px}
-  label{display:block;margin-top:10px;font-size:14px;color:var(--muted)}
-  input{width:100%;margin-top:4px;background:#0d1422;color:#eaf0ff;border:1px solid #2a3956;border-radius:10px;padding:10px;font-size:14px}
-  input:focus{outline:none;border-color:#3d5278}
-  .name-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .agree{display:flex;gap:8px;margin-top:8px;font-size:13px}
-  .agree a{color:#6b94f7;text-decoration:none}
+  .trade-badge{background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.3);color:#ffffff;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:32px 28px;width:100%;max-width:440px}
+  h1{text-align:center;margin-bottom:6px;color:var(--ink);font-size:28px}
+  p.sub{text-align:center;color:var(--muted);margin-bottom:18px;font-size:15px}
+  label{display:block;margin-top:12px;font-size:14px;color:var(--ink);font-weight:500}
+  input{width:100%;margin-top:6px;background:#f8fafc;color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px;font-size:14px;transition:all 0.2s}
+  input:focus{outline:none;border-color:var(--accent);background:#ffffff;box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
+  .name-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .agree{display:flex;gap:8px;margin-top:12px;font-size:13px;align-items:center}
+  .agree input[type="checkbox"]{width:auto;margin:0}
+  .agree a{color:var(--accent);text-decoration:none;font-weight:600}
   .agree a:hover{text-decoration:underline}
-  button{width:100%;margin-top:14px;background:var(--brand);color:#fff;border:0;border-radius:10px;padding:12px;font-weight:700;font-size:15px;cursor:pointer}
-  button:hover{background:#c35700}
-  .msg{margin-top:10px;font-size:13px}
-  .err{color:var(--err)} .ok{color:var(--ok)}
+  button{width:100%;margin-top:16px;background:var(--brand);color:#fff;border:0;border-radius:10px;padding:14px;font-weight:700;font-size:15px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 12px rgba(234,106,0,0.3)}
+  button:hover{background:#c35700;transform:translateY(-1px);box-shadow:0 6px 16px rgba(234,106,0,0.4)}
+  button:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+  .msg{margin-top:12px;font-size:13px;font-weight:500;padding:8px 12px;border-radius:8px}
+  .err{color:var(--err);background:#fef2f2;border:1px solid #fecaca} 
+  .ok{color:var(--ok);background:#f0fdf4;border:1px solid #bbf7d0}
   .otp-box{margin-top:18px;display:none}
-  .otp-inputs{display:flex;gap:8px;margin:10px 0}
-  .otp-inputs input{width:44px;height:48px;text-align:center;font-size:20px;border:1px solid #2a3956;border-radius:10px;background:#0d1422;color:#fff}
+  .otp-inputs{display:flex;gap:10px;margin:14px 0;justify-content:center}
+  .otp-inputs input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border:2px solid var(--line);border-radius:10px;background:#f8fafc;color:var(--ink)}
+  .otp-inputs input:focus{border-color:var(--accent);background:#ffffff}
+  #resendBtn{background:#64748b;box-shadow:0 4px 12px rgba(100,116,139,0.2)}
+  #resendBtn:hover{background:#475569}
+  .otp-box > div:first-child{text-align:center;color:var(--muted);font-size:14px}
+  .otp-box > div:first-child b{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -75,13 +100,13 @@
     </div>
 
     <div id="otpStep" class="otp-box">
-      <div>Enter the 6-digit code sent to <b id="otpEmail"></b>.</div>
+      <div>Enter the 6-digit code sent to <b id="otpEmail"></b></div>
       <div class="otp-inputs">
         <input maxlength="1"><input maxlength="1"><input maxlength="1">
         <input maxlength="1"><input maxlength="1"><input maxlength="1">
       </div>
       <button id="verifyBtn">Verify</button>
-      <button id="resendBtn" style="background:#374151;margin-top:10px">Resend</button>
+      <button id="resendBtn">Resend Code</button>
       <div id="otpMsg" class="msg"></div>
     </div>
 
@@ -111,13 +136,14 @@ joinBtn.onclick=async()=>{
   const firstName=firstNameInput.value.trim(), lastName=lastNameInput.value.trim(), email=emailInput.value.trim().toLowerCase();
   if(!firstName||!lastName||!email){joinMsg.textContent='First name, last name, and email required';joinMsg.className='msg err';return;}
   if(!consent.checked){joinMsg.textContent='Please agree to the Terms.';joinMsg.className='msg err';return;}
-  joinMsg.textContent='Sending code…';joinBtn.disabled=true;
+  joinMsg.textContent='Sending code…';joinMsg.className='msg ok';joinBtn.disabled=true;
   const fullName = `${firstName} ${lastName}`;
   try{
     const r=await postJSON({action:'signup',name:fullName,email,consent:true,userAgent:navigator.userAgent});
     if(r.success){
       currentEmail=email;currentFirstName=firstName;currentLastName=lastName;otpEmail.textContent=email;
       $('#joinStep').style.display='none';otpBox.style.display='block';
+      joinMsg.textContent='';
     }else throw new Error(r.error||'Failed');
   }catch(e){joinMsg.textContent=e.message;joinMsg.className='msg err';}
   joinBtn.disabled=false;
@@ -126,10 +152,10 @@ joinBtn.onclick=async()=>{
 verifyBtn.onclick=async()=>{
   const c=code();
   if(c.length!==6){otpMsg.textContent='Enter full code';otpMsg.className='msg err';return;}
+  verifyBtn.disabled=true;
   try{
     const r=await postJSON({action:'verify',email:currentEmail,code:c});
     if(r.success){
-      // ✅ Save user with firstName and lastName separately
       localStorage.setItem('ltn_user', JSON.stringify({
         firstName: currentFirstName,
         lastName: currentLastName,
@@ -139,21 +165,23 @@ verifyBtn.onclick=async()=>{
       
       otpBox.style.display='none';$('#doneStep').style.display='block';
       
-      // ✅ REDIRECT TO FRONT.HTML (Your main home page)
       setTimeout(()=>{ 
         window.location.replace("/front.html"); 
       }, 900);
     }else throw new Error(r.error||'Invalid');
   }catch(e){otpMsg.textContent=e.message;otpMsg.className='msg err';}
+  verifyBtn.disabled=false;
 };
 
 resendBtn.onclick=async()=>{
   const fullName = `${currentFirstName} ${currentLastName}`;
+  resendBtn.disabled=true;
   try{
     const r=await postJSON({action:'resend',email:currentEmail,name:fullName});
-    otpMsg.textContent=r.success?'New code sent':'Resend failed';
+    otpMsg.textContent=r.success?'New code sent!':'Resend failed';
     otpMsg.className='msg '+(r.success?'ok':'err');
   }catch(e){otpMsg.textContent=e.message;otpMsg.className='msg err';}
+  setTimeout(()=>resendBtn.disabled=false, 3000);
 };
 </script>
 </body>
