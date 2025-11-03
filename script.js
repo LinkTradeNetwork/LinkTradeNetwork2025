@@ -1,18 +1,35 @@
-// API helper function - updated URL
+<script>
+// ===== API CONFIG =====
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZEsZ1IYeqPxPmhLxI5EhhEIImy5qeZwA4oOjRa7UQ3Ctr9CQhnarY7tfmgRSeUOIY/exec';
+
+// No custom headers -> avoids CORS preflight on Apps Script
 async function postJSON(data) {
   try {
-    const response = await fetch('https://script.google.com/macros/s/AKfycby-XLAHGZeXtEGGFuPuVNsi95onx4Muwc8lc_8qf6N7EJc9diM2Zm7EO5qo2X4ejUz6/exec', {
+    const res = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      redirect: 'follow'
     });
-    
-    const result = await response.json();
-    return result;
-  } catch (error) {
-    console.error('API Error:', error);
-    return { success: false, error: error.message };
+    const text = await res.text();
+    try { return JSON.parse(text); } catch { return { success:false, error:text }; }
+  } catch (err) {
+    console.error('API Error:', err);
+    return { success:false, error: String(err && err.message || err) };
   }
 }
+
+/* Optional helpers if you want to call from other pages:
+   await signup({ name, email, consent:true, userAgent:navigator.userAgent })
+   await verify({ email, code })
+   await resend({ email, name })
+*/
+function signup({ name, email, consent, userAgent }) {
+  return postJSON({ action:'signup', name, email, consent, userAgent });
+}
+function verify({ email, code }) {
+  return postJSON({ action:'verify', email, code });
+}
+function resend({ email, name }) {
+  return postJSON({ action:'resend', email, name });
+}
+</script>
