@@ -1,496 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>LinkTradeNetwork • Home</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LinkTradeNetwork • Skilled Trades</title>
 <style>
-  :root{
-    --bg:#0b0f17;        /* page background */
-    --ink:#eaf0ff;       /* primary text */
-    --muted:#a9b7d0;     /* secondary text */
-    --line:#24314a;      /* borders */
-    --panel:#101726;     /* cards */
-    --panel-2:#0f1625;   /* alt cards */
-    --brand:#ea6a00;     /* orange brand */
-    --brand-2:#c35700;   /* brand hover */
-    --ok:#22c55e; --warn:#f59e0b; --err:#ef4444; --info:#3b82f6;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;background:var(--bg);color:var(--ink);
-    font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
-    line-height:1.5;
-  }
-
-  /* Topbar */
-  .topbar{
-    position:sticky;top:0;z-index:50;
-    background:var(--panel);border-bottom:1px solid var(--line);
-  }
-  .topbar-inner{
-    max-width:1200px;margin:0 auto;padding:10px 16px;
-    display:grid;grid-template-columns:200px 1fr 320px;gap:12px;align-items:center;
-  }
-  .brand{display:flex;align-items:center;gap:10px}
-  .logo{
-    width:36px;height:36px;border-radius:9px;display:grid;place-items:center;
-    background:linear-gradient(135deg,#4facfe,#00f2fe);font-weight:800;font-size:18px;color:#0b0f17;
-  }
-  .brand-name{font-weight:800;letter-spacing:.2px}
-  .search{display:flex;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;gap:8px}
-  .search input{
-    background:transparent;border:0;outline:0;color:var(--ink);width:100%;
-  }
-  .nav{
-    display:flex;justify-content:flex-end;align-items:center;gap:10px;
-  }
-  .nav a, .btn{
-    color:var(--ink);text-decoration:none;font-weight:600;
-    background:transparent;border:1px solid var(--line);padding:8px 12px;border-radius:10px;font-size:14px;
-  }
-  .btn-primary{background:var(--brand);border-color:var(--brand);color:#fff}
-  .btn-primary:hover{background:var(--brand-2)}
-  .avatar{width:32px;height:32px;border-radius:50%;background:#182238;display:grid;place-items:center;font-size:13px}
-
-  /* Layout */
-  .shell{max-width:1200px;margin:0 auto;padding:18px 16px}
-  .grid{
-    display:grid;grid-template-columns:280px 1fr 320px;gap:16px;
-  }
-
-  /* Cards */
-  .card{
-    background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    box-shadow:0 6px 18px rgba(0,0,0,.18);
-  }
-  .card .hd{padding:14px 16px;border-bottom:1px solid var(--line);font-weight:800}
-  .card .bd{padding:16px}
-  .soft{background:var(--panel-2)}
-
-  /* Left rail: profile */
-  .profile{
-    display:grid;gap:12px;
-  }
-  .profile .banner{
-    height:70px;background:linear-gradient(135deg,#667eea33,#00f2fe22),radial-gradient(120px 40px at 10% 0%,#ea6a0033,transparent);
-    border-top-left-radius:14px;border-top-right-radius:14px;
-  }
-  .profile .top{display:flex;gap:12px;margin-top:-22px;align-items:end;padding:0 16px}
-  .profile .pfp{width:56px;height:56px;border-radius:50%;background:#1a2233;border:2px solid var(--panel)}
-  .profile .name{font-weight:800}
-  .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-  .kpis .k{background:#0f1729;border:1px solid var(--line);border-radius:10px;padding:10px}
-  .k .v{font-weight:800;font-size:18px;color:var(--brand)}
-  .progress{height:8px;background:#0e1627;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
-  .progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--ok),#7dd3fc)}
-
-  /* Composer */
-  .composer{display:grid;gap:10px}
-  .composer textarea{
-    width:100%;min-height:80px;border-radius:10px;border:1px solid var(--line);
-    background:#0f1729;color:var(--ink);padding:12px;resize:vertical
-  }
-  .row{display:flex;gap:10px;flex-wrap:wrap}
-  .pill{
-    border:1px solid var(--line);background:#0f1729;color:var(--muted);
-    padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;cursor:pointer
-  }
-  .pill.active{background:var(--brand);border-color:var(--brand);color:#fff}
-
-  /* Feed jobs/updates */
-  .feed{display:grid;gap:12px}
-  .job{display:grid;gap:8px}
-  .job .title{font-weight:800}
-  .job .meta{color:var(--muted);font-size:13px}
-  .tags{display:flex;gap:6px;flex-wrap:wrap}
-  .tag{background:#182238;border:1px solid var(--line);font-size:11px;padding:4px 8px;border-radius:999px}
-  .apply{display:flex;gap:8px;margin-top:6px}
-  .apply .btn{font-size:13px;padding:8px 12px}
-
-  /* Right rail */
-  .panel-list{display:grid;gap:10px}
-  .li{padding:10px;border-bottom:1px solid var(--line)}
-  .li:last-child{border-bottom:0}
-  .small{font-size:13px;color:var(--muted)}
-
-  /* Trades filter bar */
-  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-  .fbtn{
-    border:1px solid var(--line);background:#0f1729;color:var(--muted);
-    padding:8px 12px;border-radius:999px;font-weight:700;font-size:12px;cursor:pointer
-  }
-  .fbtn.active{background:var(--brand);color:#fff;border-color:var(--brand)}
-
-  /* Responsive */
-  @media(max-width:1024px){
-    .topbar-inner{grid-template-columns:1fr;gap:8px}
-    .grid{grid-template-columns:1fr;gap:16px}
-  }
+:root{
+  --bg:#0b0f17;--ink:#eaf0ff;--muted:#a9b7d0;--line:#24314a;
+  --panel:#101726;--panel2:#0f1625;--brand:#ea6a00;--brand2:#c35700;
+}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
+font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+.topbar{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.topbar-inner{max-width:1200px;margin:auto;padding:10px 16px;display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-badge{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#4facfe,#00f2fe);display:grid;place-items:center;color:#0b0f17;font-weight:800}
+.nav a,.btn{color:var(--ink);text-decoration:none;font-weight:600;padding:8px 12px;border-radius:10px;font-size:14px}
+.btn-primary{background:var(--brand);border:none;color:#fff}
+.btn-primary:hover{background:var(--brand2)}
+.shell{max-width:1200px;margin:auto;padding:20px;display:grid;gap:20px;grid-template-columns:280px 1fr 300px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+.card .hd{padding:12px 16px;font-weight:800;border-bottom:1px solid var(--line)}
+.card .bd{padding:16px}
+.profile .pfp{width:64px;height:64px;border-radius:50%;background:#182238;margin-bottom:10px}
+.small{font-size:13px;color:var(--muted)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.fbtn{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#0f1625;color:var(--muted);font-size:12px;cursor:pointer}
+.fbtn.active{background:var(--brand);color:#fff}
+.job{margin-bottom:12px}
+.job .title{font-weight:800}
+.job .meta{font-size:13px;color:var(--muted)}
+.tag{background:#182238;border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:11px;margin-right:4px}
+.apply{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:900px){.shell{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- Top navigation -->
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="brand">
-      <div class="logo">LTN</div>
-      <div class="brand-name">LinkTradeNetwork</div>
+    <div class="logo">
+      <div class="logo-badge">LTN</div>
+      <strong>LinkTradeNetwork</strong>
     </div>
-    <label class="search" aria-label="Search">
-      🔎 <input id="search" type="search" placeholder="Search jobs, trades, companies…" />
-    </label>
     <nav class="nav">
-      <a href="/front.html">Home</a>
-      <a href="/jobs.html">Jobs</a>
-      <a href="/network.html">Network</a>
-      <a href="/messages.html">Messages</a>
-      <button class="btn btn-primary" id="postJobBtn">Post a Job</button>
-      <div class="avatar" id="avatarInitials">U</div>
+      <a href="#">Home</a>
+      <a href="#">Jobs</a>
+      <a href="#">Network</a>
+      <a href="#">Messages</a>
+      <button class="btn-primary">Post a Job</button>
     </nav>
   </div>
 </header>
 
 <main class="shell">
-  <div class="grid">
-    <!-- LEFT: Profile -->
-    <aside>
-      <section class="card profile">
-        <div class="banner"></div>
-        <div class="top">
-          <div class="pfp"></div>
-          <div>
-            <div class="name" id="profName">Loading…</div>
-            <div class="small" id="profTrade">Skilled Professional</div>
-          </div>
-        </div>
-        <div class="bd">
-          <div class="kpis">
-            <div class="k">
-              <div class="v" id="kConnections">0</div>
-              <div class="small">Connections</div>
-            </div>
-            <div class="k">
-              <div class="v" id="kReviews">0</div>
-              <div class="small">5★ Reviews</div>
-            </div>
-          </div>
-          <div style="margin:12px 0 6px;font-weight:800">Profile strength</div>
-          <div class="progress"><span id="profProgress" style="width:52%"></span></div>
-          <div class="row" style="margin-top:12px">
-            <a class="btn" href="/my-profile.html">Edit Profile</a>
-            <a class="btn" href="/verified.html">Verified Credentials</a>
-          </div>
-        </div>
-      </section>
-
-      <section class="card soft">
-        <div class="hd">Shortcuts</div>
-        <div class="bd row">
-          <a class="btn" href="/build-profile.html">Build Profile</a>
-          <a class="btn" href="/landingpage.html">Landing</a>
-          <a class="btn" href="/network.html">Invite</a>
-        </div>
-      </section>
-    </aside>
-
-    <!-- CENTER: Feed -->
-    <section>
-      <!-- Composer -->
-      <div class="card">
-        <div class="hd">Share with your network</div>
-        <div class="bd composer">
-          <textarea id="composerText" placeholder="Share progress, ask for subs, or post a tip for your trade…"></textarea>
-          <div class="row">
-            <button class="pill" data-pick="photo">📷 Photo</button>
-            <button class="pill" data-pick="file">📎 Attachment</button>
-            <button class="pill" data-pick="video">🎬 Video</button>
-            <span style="flex:1"></span>
-            <button class="btn btn-primary" id="shareBtn">Post</button>
-          </div>
-          <div class="row" id="tradePills" aria-label="Select trade for post">
-            <!-- filled by JS with your trade set -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Feed Filters -->
-      <div class="row" style="margin:12px 0">
-        <div class="filters" id="filters"></div>
-        <span style="flex:1"></span>
-        <small class="small" id="resultCount">Showing 0 items</small>
-      </div>
-
-      <!-- Feed List -->
-      <div class="feed" id="feed">
-
-        <!-- JOB CARD TEMPLATE EXAMPLES -->
-        <!-- Low Voltage Cabling -->
-        <article class="card job" data-kind="job" data-trade="Low Voltage Cabling">
-          <div class="bd">
-            <div class="title">Low Voltage Tech – VA Hospital TR buildout (Madison)</div>
-            <div class="meta">Starboard Industries • Madison, WI • $42–$55/hr • Contract</div>
-            <div class="tags">
-              <span class="tag">Low Voltage Cabling</span>
-              <span class="tag">Fiber Termination</span>
-              <span class="tag">TR Build</span>
-            </div>
-            <div class="apply">
-              <a class="btn btn-primary" href="/jobs.html">Apply</a>
-              <button class="btn" data-save>Save</button>
-              <button class="btn" data-share>Share</button>
-            </div>
-          </div>
-        </article>
-
-        <!-- Electrical -->
-        <article class="card job" data-kind="job" data-trade="Electrical">
-          <div class="bd">
-            <div class="title">Journeyman Electrician – Panel upgrade & conduit</div>
-            <div class="meta">NorthPoint Electric • Milwaukee, WI • $38–$50/hr • Full-time</div>
-            <div class="tags">
-              <span class="tag">Electrical</span><span class="tag">Conduit</span><span class="tag">NFPA 70</span>
-            </div>
-            <div class="apply">
-              <a class="btn btn-primary" href="/jobs.html">Apply</a>
-              <button class="btn" data-save>Save</button>
-              <button class="btn" data-share>Share</button>
-            </div>
-          </div>
-        </article>
-
-        <!-- Plumbing -->
-        <article class="card job" data-kind="job" data-trade="Plumbing">
-          <div class="bd">
-            <div class="title">Commercial Plumber – Rough-in & fixtures</div>
-            <div class="meta">Ridgeway Plumbing • Madison, WI • $34–$46/hr • Full-time</div>
-            <div class="tags">
-              <span class="tag">Plumbing</span><span class="tag">PEX/Copper</span><span class="tag">Backflow</span>
-            </div>
-            <div class="apply">
-              <a class="btn btn-primary" href="/jobs.html">Apply</a>
-              <button class="btn" data-save>Save</button>
-              <button class="btn" data-share>Share</button>
-            </div>
-          </div>
-        </article>
-
-        <!-- HVAC -->
-        <article class="card job" data-kind="job" data-trade="HVAC">
-          <div class="bd">
-            <div class="title">Commercial HVAC Install – RTUs & controls</div>
-            <div class="meta">Metro Mechanical • Sun Prairie, WI • $36–$48/hr • Contract</div>
-            <div class="tags">
-              <span class="tag">HVAC</span><span class="tag">Controls</span><span class="tag">Sheet Metal</span>
-            </div>
-            <div class="apply">
-              <a class="btn btn-primary" href="/jobs.html">Apply</a>
-              <button class="btn" data-save>Save</button>
-              <button class="btn" data-share>Share</button>
-            </div>
-          </div>
-        </article>
-
-        <!-- Physical Security -->
-        <article class="card job" data-kind="job" data-trade="Physical Security">
-          <div class="bd">
-            <div class="title">Security Installer – IP Cameras & Access Control</div>
-            <div class="meta">MGMGroup Solution LLC • Madison, WI • $30–$44/hr • Full-time</div>
-            <div class="tags">
-              <span class="tag">Physical Security</span><span class="tag">CCTV</span><span class="tag">Access Control</span>
-            </div>
-            <div class="apply">
-              <a class="btn btn-primary" href="/jobs.html">Apply</a>
-              <button class="btn" data-save>Save</button>
-              <button class="btn" data-share>Share</button>
-            </div>
-          </div>
-        </article>
-
-        <!-- General Contractor -->
-        <article class="card job" data-kind="job" data-trade="General Contractor">
-          <div class="bd">
-            <div class="title">GC – Small TI Buildout, fast-track</div>
-            <div class="meta">Harbor Build • Dane County, WI • $75–$95/hr • Contract</div>
-            <div class="tags">
-              <span class="tag">General Contractor</span><span class="tag">Scheduling</span><span class="tag">Sub Mgmt</span>
-            </div>
-            <div class="apply">
-              <a class="btn btn-primary" href="/jobs.html">Apply</a>
-              <button class="btn" data-save>Save</button>
-              <button class="btn" data-share>Share</button>
-            </div>
-          </div>
-        </article>
-
-        <!-- Sprinkler Systems -->
-        <article class="card job" data-kind="job" data-trade="Sprinkler Systems">
-          <div class="bd">
-            <div class="title">Fire Sprinkler Fitter – Wet/Dry systems</div>
-            <div class="meta">SafeFlow Fire • Madison, WI • $34–$45/hr • Full-time</div>
-            <div class="tags">
-              <span class="tag">Sprinkler Systems</span><span class="tag">NFPA 13</span><span class="tag">Inspection</span>
-            </div>
-            <div class="apply">
-              <a class="btn btn-primary" href="/jobs.html">Apply</a>
-              <button class="btn" data-save>Save</button>
-              <button class="btn" data-share>Share</button>
-            </div>
-          </div>
-        </article>
-
+  <!-- Left profile -->
+  <aside>
+    <section class="card profile">
+      <div class="hd">Your Profile</div>
+      <div class="bd" style="text-align:center">
+        <div class="pfp"></div>
+        <div><strong>Your Name</strong></div>
+        <div class="small">Your Trade / Company</div>
+        <p class="small" style="margin-top:10px">Build your profile to connect with contractors, subcontractors, and skilled trades.</p>
+        <button class="btn-primary" style="width:100%;margin-top:10px">Build Profile</button>
       </div>
     </section>
+  </aside>
 
-    <!-- RIGHT: Insights / Trending / Companies -->
-    <aside>
-      <section class="card">
-        <div class="hd">Trending jobs</div>
-        <div class="bd panel-list" id="trending">
-          <div class="li">Low Voltage Tech • <span class="small">Madison</span></div>
-          <div class="li">Journeyman Electrician • <span class="small">Milwaukee</span></div>
-          <div class="li">HVAC Installer • <span class="small">Sun Prairie</span></div>
-          <div class="li">Fire Sprinkler Fitter • <span class="small">Dane County</span></div>
+  <!-- Middle feed -->
+  <section>
+    <div class="card">
+      <div class="hd">Skilled Trade Opportunities</div>
+      <div class="bd">
+        <div class="filters">
+          <button class="fbtn active">All</button>
+          <button class="fbtn">Low Voltage</button>
+          <button class="fbtn">Electrical</button>
+          <button class="fbtn">Plumbing</button>
+          <button class="fbtn">HVAC</button>
+          <button class="fbtn">General Contractor</button>
+          <button class="fbtn">Physical Security</button>
+          <button class="fbtn">Sprinkler</button>
         </div>
-      </section>
 
-      <section class="card soft">
-        <div class="hd">Companies hiring</div>
-        <div class="bd panel-list">
-          <div class="li">Starboard Industries</div>
-          <div class="li">MGMGroup Solution LLC</div>
-          <div class="li">NorthPoint Electric</div>
-          <div class="li">Metro Mechanical</div>
-        </div>
-      </section>
+        <article class="job">
+          <div class="title">Low Voltage Cable Installer – Hospital Retrofit</div>
+          <div class="meta">Madison, WI • Contract • $42–$55/hr</div>
+          <div><span class="tag">Low Voltage</span><span class="tag">Fiber</span><span class="tag">Cabling</span></div>
+          <div class="apply"><button class="btn-primary">Apply</button><button class="btn">Save</button></div>
+        </article>
 
-      <section class="card">
-        <div class="hd">Safety & credentials</div>
-        <div class="bd">
-          <div class="small">Boost trust with verified licenses and safety certs.</div>
-          <div class="row" style="margin-top:10px">
-            <a class="btn btn-primary" href="/verified.html">Get Verified</a>
-            <a class="btn" href="/my-profile.html">Add Licenses</a>
-          </div>
-        </div>
-      </section>
-    </aside>
-  </div>
+        <article class="job">
+          <div class="title">Journeyman Electrician – Conduit & Lighting</div>
+          <div class="meta">Milwaukee, WI • Full-time • $38–$50/hr</div>
+          <div><span class="tag">Electrical</span><span class="tag">Conduit</span></div>
+          <div class="apply"><button class="btn-primary">Apply</button><button class="btn">Save</button></div>
+        </article>
+
+        <article class="job">
+          <div class="title">Commercial HVAC Installer – Rooftop Units</div>
+          <div class="meta">Sun Prairie, WI • Contract • $36–$48/hr</div>
+          <div><span class="tag">HVAC</span><span class="tag">Controls</span></div>
+          <div class="apply"><button class="btn-primary">Apply</button><button class="btn">Save</button></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Right info -->
+  <aside>
+    <section class="card">
+      <div class="hd">Get Started</div>
+      <div class="bd small">
+        <p>Join the network built for skilled trades:</p>
+        <ul>
+          <li>Find real trade jobs</li>
+          <li>Connect with local contractors</li>
+          <li>Show verified credentials</li>
+        </ul>
+        <button class="btn-primary" style="width:100%">Sign Up Free</button>
+      </div>
+    </section>
+  </aside>
 </main>
 
 <script>
-/* ----- Auth gate ----- */
-const user = JSON.parse(localStorage.getItem('ltn_user') || 'null');
-if(!user){ window.location.replace('/index.html'); }
-
-/* ----- Topbar user initials ----- */
-function initials(name=''){ return name.split(' ').map(s=>s[0]).filter(Boolean).slice(0,2).join('').toUpperCase() || 'U'; }
-document.getElementById('avatarInitials').textContent = initials(user.name || '');
-
-/* ----- Profile fill-in ----- */
-document.getElementById('profName').textContent = user.name || 'Professional';
-document.getElementById('profTrade').textContent = user.trade || (user.userType || 'Skilled Professional');
-document.getElementById('kConnections').textContent = user.connections || 156;
-document.getElementById('kReviews').textContent = user.reviews || 48;
-document.getElementById('profProgress').style.width = (user.profileStrength || 68) + '%';
-
-/* ----- Trades list & filters ----- */
-const TRADES = [
-  'All Trades',
-  'Low Voltage Cabling',
-  'Electrical',
-  'Plumbing',
-  'HVAC',
-  'General Contractor',
-  'Physical Security',
-  'Sprinkler Systems'
-];
-
-// build pills in composer
-const tradePills = document.getElementById('tradePills');
-['Low Voltage Cabling','Electrical','Plumbing','HVAC','General Contractor','Physical Security','Sprinkler Systems'].forEach(t=>{
-  const b = document.createElement('button');
-  b.className='pill'; b.textContent=t; b.dataset.trade = t;
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
-    b.classList.add('active');
+document.querySelectorAll('.fbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
   });
-  tradePills.appendChild(b);
-});
-
-// build filter bar
-const filters = document.getElementById('filters');
-TRADES.forEach((t,i)=>{
-  const f=document.createElement('button');
-  f.className = 'fbtn' + (i===0?' active':'');
-  f.textContent = t;
-  f.addEventListener('click',()=>{
-    document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));
-    f.classList.add('active');
-    filterFeed(t);
-  });
-  filters.appendChild(f);
-});
-
-/* ----- Feed filter logic ----- */
-const feed = document.getElementById('feed');
-const resultCount = document.getElementById('resultCount');
-function filterFeed(trade){
-  let shown=0;
-  [...feed.children].forEach(card=>{
-    const t = card.getAttribute('data-trade') || '';
-    const match = (trade==='All Trades') || (t===trade);
-    card.style.display = match ? '' : 'none';
-    if(match) shown++;
-  });
-  resultCount.textContent = `Showing ${shown} item${shown===1?'':'s'}`;
-}
-// init
-filterFeed('All Trades');
-
-/* ----- Search (simple match on title/meta/tags) ----- */
-document.getElementById('search').addEventListener('input', (e)=>{
-  const q = e.target.value.trim().toLowerCase();
-  let shown=0;
-  [...feed.children].forEach(card=>{
-    const text = card.textContent.toLowerCase();
-    const ok = !q || text.includes(q);
-    card.style.display = ok ? '' : 'none';
-    if(ok) shown++;
-  });
-  resultCount.textContent = `Showing ${shown} item${shown===1?'':'s'}`;
-});
-
-/* ----- Post/Share (stub) ----- */
-document.getElementById('shareBtn').addEventListener('click', ()=>{
-  const txt = (document.getElementById('composerText').value || '').trim();
-  const tradeSel = document.querySelector('.pill.active')?.dataset.trade || 'All Trades';
-  if(!txt){ alert('Type something to post.'); return; }
-
-  const post = document.createElement('article');
-  post.className = 'card job';
-  post.setAttribute('data-kind','update');
-  post.setAttribute('data-trade', tradeSel==='All Trades' ? '' : tradeSel);
-  post.innerHTML = `
-    <div class="bd">
-      <div class="title">${user.name || 'Professional'} • Update</div>
-      <div class="meta">${new Date().toLocaleString()}</div>
-      <p style="margin-top:8px">${txt.replace(/</g,'&lt;')}</p>
-      <div class="tags">${tradeSel && tradeSel!=='All Trades' ? `<span class="tag">${tradeSel}</span>`:''}</div>
-    </div>
-  `;
-  feed.prepend(post);
-  document.getElementById('composerText').value = '';
-  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
-  filterFeed('All Trades');
-});
-
-/* ----- Post a Job CTA ----- */
-document.getElementById('postJobBtn').addEventListener('click', ()=>{
-  window.location.href = '/jobs.html';
 });
 </script>
+
 </body>
 </html>
+
