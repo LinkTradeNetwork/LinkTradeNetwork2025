@@ -1,206 +1,174 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>LinkTradeNetwork • Sign In</title>
-<style>
-  :root { 
-    --bg:#f0f4f8; 
-    --panel:#ffffff; 
-    --ink:#1e293b; 
-    --muted:#64748b; 
-    --line:#e2e8f0; 
-    --brand:#ea6a00; 
-    --ok:#22c55e; 
-    --err:#ef4444; 
-    --accent:#0ea5e9;
-  }
-  *{box-sizing:border-box} 
-  body{
-    margin:0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color:var(--ink);
-    font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
-    min-height:100vh;
-  }
-  .wrap{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;flex-direction:column}
-  .logo-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-  .logo{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#4facfe,#00f2fe);display:grid;place-items:center;font-size:28px;box-shadow:0 4px 12px rgba(79,172,254,0.3)}
-  .brand-name{font-size:24px;font-weight:800;color:#ffffff;text-shadow:0 2px 4px rgba(0,0,0,0.1)}
-  .trades{display:flex;gap:10px;margin-bottom:32px;flex-wrap:wrap;justify-content:center;max-width:600px}
-  .trade-badge{background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.3);color:#ffffff;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:32px 28px;width:100%;max-width:440px}
-  h1{text-align:center;margin-bottom:6px;color:var(--ink);font-size:28px}
-  p.sub{text-align:center;color:var(--muted);margin-bottom:18px;font-size:15px}
-  label{display:block;margin-top:12px;font-size:14px;color:var(--ink);font-weight:500}
-  input{width:100%;margin-top:6px;background:#f8fafc;color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px;font-size:14px;transition:all 0.2s}
-  input:focus{outline:none;border-color:var(--accent);background:#ffffff;box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
-  .name-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .agree{display:flex;gap:8px;margin-top:12px;font-size:13px;align-items:center}
-  .agree input[type="checkbox"]{width:auto;margin:0}
-  .agree a{color:var(--accent);text-decoration:none;font-weight:600}
-  .agree a:hover{text-decoration:underline}
-  button{width:100%;margin-top:16px;background:var(--brand);color:#fff;border:0;border-radius:10px;padding:14px;font-weight:700;font-size:15px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 12px rgba(234,106,0,0.3)}
-  button:hover{background:#c35700;transform:translateY(-1px);box-shadow:0 6px 16px rgba(234,106,0,0.4)}
-  button:disabled{opacity:0.6;cursor:not-allowed;transform:none}
-  .msg{margin-top:12px;font-size:13px;font-weight:500;padding:8px 12px;border-radius:8px}
-  .err{color:var(--err);background:#fef2f2;border:1px solid #fecaca} 
-  .ok{color:var(--ok);background:#f0fdf4;border:1px solid #bbf7d0}
-  .otp-box{margin-top:18px;display:none}
-  .otp-inputs{display:flex;gap:10px;margin:14px 0;justify-content:center}
-  .otp-inputs input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border:2px solid var(--line);border-radius:10px;background:#f8fafc;color:var(--ink)}
-  .otp-inputs input:focus{border-color:var(--accent);background:#ffffff}
-  #resendBtn{background:#64748b;box-shadow:0 4px 12px rgba(100,116,139,0.2)}
-  #resendBtn:hover{background:#475569}
-  .otp-box > div:first-child{text-align:center;color:var(--muted);font-size:14px}
-  .otp-box > div:first-child b{color:var(--ink)}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="logo-header">
-    <div class="logo">🌍</div>
-    <div class="brand-name">LinkTradeNetwork</div>
-  </div>
-
-  <div class="trades">
-    <span class="trade-badge">Plumbing</span>
-    <span class="trade-badge">Electrical</span>
-    <span class="trade-badge">HVAC</span>
-    <span class="trade-badge">Low Voltage Cabling</span>
-    <span class="trade-badge">Physical Security</span>
-    <span class="trade-badge">General Contractor</span>
-    <span class="trade-badge">Supervisors</span>
-  </div>
-
-  <div class="card">
-    <h1>Sign In</h1>
-    <p class="sub">Verify your email to continue</p>
-
-    <div id="joinStep">
-      <div class="name-grid">
-        <div>
-          <label>First Name</label>
-          <input id="firstName" placeholder="John" />
-        </div>
-        <div>
-          <label>Last Name</label>
-          <input id="lastName" placeholder="Doe" />
-        </div>
-      </div>
-      <label>Email</label>
-      <input id="email" type="email" placeholder="you@example.com" />
-      <label class="agree">
-        <input id="consent" type="checkbox">
-        <span>I agree to the <a href="/terms.html" target="_blank">Terms &amp; Conditions</a>.</span>
-      </label>
-      <button id="joinBtn">Sign In</button>
-      <div id="joinMsg" class="msg"></div>
-    </div>
-
-    <div id="otpStep" class="otp-box">
-      <div>Enter the 6-digit code sent to <b id="otpEmail"></b></div>
-      <div class="otp-inputs">
-        <input maxlength="1"><input maxlength="1"><input maxlength="1">
-        <input maxlength="1"><input maxlength="1"><input maxlength="1">
-      </div>
-      <button id="verifyBtn">Verify</button>
-      <button id="resendBtn">Resend Code</button>
-      <div id="otpMsg" class="msg"></div>
-    </div>
-
-    <div id="doneStep" class="msg ok" style="display:none">
-      ✅ Verified — redirecting…
-    </div>
-  </div>
-</div>
-
 <script>
-// API helper function with Google Apps Script URL
+// ========= CONFIG =========
+const APPS_SCRIPT_URL =
+  'https://script.google.com/macros/s/AKfycbwZEsZ1IYeqPxPmhLxI5EhhEIImy5qeZwA4oOjRa7UQ3Ctr9CQhnarY7tfmgRSeUOIY/exec';
+
+// ========= CORE API (no custom headers -> no CORS preflight) =========
 async function postJSON(data) {
   try {
-    const response = await fetch('https://script.google.com/macros/s/AKfycby-XLAHGZeXtEGGFuPuVNsi95onx4Muwc8lc_8qf6N7EJc9diM2Zm7EO5qo2X4ejUz6/exec', {
+    const res = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      redirect: 'follow'
     });
-    
-    const result = await response.json();
-    return result;
-  } catch (error) {
-    console.error('API Error:', error);
-    return { success: false, error: error.message };
+    const text = await res.text();
+    try { return JSON.parse(text); } catch { return { success:false, error:text }; }
+  } catch (err) {
+    console.error('API Error:', err);
+    return { success:false, error:String(err && err.message || err) };
   }
 }
 
-const $ = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
-const joinBtn=$('#joinBtn'), joinMsg=$('#joinMsg');
-const otpBox=$('#otpStep'), otpMsg=$('#otpMsg'), otpEmail=$('#otpEmail');
-const verifyBtn=$('#verifyBtn'), resendBtn=$('#resendBtn');
-const firstNameInput=$('#firstName'), lastNameInput=$('#lastName'), emailInput=$('#email'), consent=$('#consent');
-const codeInputs=$$('#otpStep input');
-let currentEmail='', currentFirstName='', currentLastName='';
+// Convenience wrappers if you want to call from other pages too
+function signup({ name, email, consent, userAgent }) {
+  return postJSON({ action: 'signup', name, email, consent, userAgent });
+}
+function verify({ email, code }) {
+  return postJSON({ action: 'verify', email, code });
+}
+function resend({ email, name }) {
+  return postJSON({ action: 'resend', email, name });
+}
 
-function code(){return codeInputs.map(i=>i.value).join('');}
-codeInputs.forEach((inp,i)=>{
-  inp.addEventListener('input',()=>{inp.value=inp.value.replace(/\D/g,'');if(inp.value && i<5)codeInputs[i+1].focus();});
+// ========= DOM HOOKS =========
+const $  = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+const joinBtn   = $('#joinBtn');
+const joinMsg   = $('#joinMsg');
+const otpBox    = $('#otpStep');
+const otpMsg    = $('#otpMsg');
+const otpEmail  = $('#otpEmail');
+const verifyBtn = $('#verifyBtn');
+const resendBtn = $('#resendBtn');
+
+const firstNameInput = $('#firstName');
+const lastNameInput  = $('#lastName');
+const emailInput     = $('#email');
+const consent        = $('#consent');
+
+const codeInputs = $$('#otpStep input');
+
+let currentEmail = '';
+let currentFirst = '';
+let currentLast  = '';
+
+function getCode() { return codeInputs.map(i => i.value).join(''); }
+
+// Auto-advance OTP boxes & digits only
+codeInputs.forEach((inp, i) => {
+  inp.addEventListener('input', () => {
+    inp.value = inp.value.replace(/\D/g,'');
+    if (inp.value && i < codeInputs.length - 1) codeInputs[i + 1].focus();
+  });
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !inp.value && i > 0) codeInputs[i - 1].focus();
+  });
 });
 
-joinBtn.onclick=async()=>{
-  const firstName=firstNameInput.value.trim(), lastName=lastNameInput.value.trim(), email=emailInput.value.trim().toLowerCase();
-  if(!firstName||!lastName||!email){joinMsg.textContent='First name, last name, and email required';joinMsg.className='msg err';return;}
-  if(!consent.checked){joinMsg.textContent='Please agree to the Terms.';joinMsg.className='msg err';return;}
-  joinMsg.textContent='Sending code…';joinMsg.className='msg ok';joinBtn.disabled=true;
-  const fullName = `${firstName} ${lastName}`;
-  try{
-    const r=await postJSON({action:'signup',name:fullName,email,consent:true,userAgent:navigator.userAgent});
-    if(r.success){
-      currentEmail=email;currentFirstName=firstName;currentLastName=lastName;otpEmail.textContent=email;
-      $('#joinStep').style.display='none';otpBox.style.display='block';
-      joinMsg.textContent='';
-    }else throw new Error(r.error||'Failed');
-  }catch(e){joinMsg.textContent=e.message;joinMsg.className='msg err';}
-  joinBtn.disabled=false;
-};
+// ========= HANDLERS =========
+joinBtn?.addEventListener('click', async () => {
+  const first = (firstNameInput?.value || '').trim();
+  const last  = (lastNameInput?.value || '').trim();
+  const email = (emailInput?.value || '').trim().toLowerCase();
 
-verifyBtn.onclick=async()=>{
-  const c=code();
-  if(c.length!==6){otpMsg.textContent='Enter full code';otpMsg.className='msg err';return;}
-  verifyBtn.disabled=true;
-  try{
-    const r=await postJSON({action:'verify',email:currentEmail,code:c});
-    if(r.success){
+  if (!first || !last || !email) {
+    joinMsg.textContent = 'First name, last name, and email required';
+    joinMsg.className = 'msg err';
+    return;
+  }
+  if (!consent?.checked) {
+    joinMsg.textContent = 'Please agree to the Terms.';
+    joinMsg.className = 'msg err';
+    return;
+  }
+
+  joinBtn.disabled = true;
+  joinMsg.textContent = 'Checking…';
+  joinMsg.className = 'msg ok';
+
+  try {
+    const name = `${first} ${last}`;
+    const r = await signup({
+      name,
+      email,
+      consent: true,
+      userAgent: navigator.userAgent
+    });
+
+    // If already verified → skip OTP & sign in
+    if (r && r.success && r.verified && r.requiresOtp === false) {
+      localStorage.setItem('ltn_user', JSON.stringify({ firstName:first, lastName:last, name, email }));
+      window.location.replace('/front.html');
+      return;
+    }
+
+    // Otherwise show OTP step
+    if (r && r.success) {
+      currentEmail = email; currentFirst = first; currentLast = last;
+      otpEmail.textContent = email;
+      $('#joinStep').style.display = 'none';
+      otpBox.style.display = 'block';
+      codeInputs[0].focus();
+      joinMsg.textContent = '';
+      return;
+    }
+
+    throw new Error((r && r.error) || 'Failed to start sign-in');
+  } catch (err) {
+    joinMsg.textContent = String(err && err.message || err);
+    joinMsg.className = 'msg err';
+  } finally {
+    joinBtn.disabled = false;
+  }
+});
+
+verifyBtn?.addEventListener('click', async () => {
+  const code = getCode();
+  if (code.length !== 6) {
+    otpMsg.textContent = 'Enter full 6-digit code';
+    otpMsg.className = 'msg err';
+    return;
+  }
+
+  verifyBtn.disabled = true;
+  otpMsg.textContent = 'Verifying…';
+  otpMsg.className = 'msg ok';
+
+  try {
+    const r = await verify({ email: currentEmail, code });
+    if (r && r.success) {
       localStorage.setItem('ltn_user', JSON.stringify({
-        firstName: currentFirstName,
-        lastName: currentLastName,
-        name: `${currentFirstName} ${currentLastName}`,
+        firstName: currentFirst,
+        lastName:  currentLast,
+        name: `${currentFirst} ${currentLast}`,
         email: currentEmail
       }));
-      
-      otpBox.style.display='none';$('#doneStep').style.display='block';
-      
-      setTimeout(()=>{ 
-        window.location.replace("/front.html"); 
-      }, 900);
-    }else throw new Error(r.error||'Invalid');
-  }catch(e){otpMsg.textContent=e.message;otpMsg.className='msg err';}
-  verifyBtn.disabled=false;
-};
+      otpBox.style.display = 'none';
+      $('#doneStep').style.display = 'block';
+      setTimeout(() => window.location.replace('/front.html'), 900);
+      return;
+    }
+    throw new Error((r && r.error) || 'Verification failed');
+  } catch (err) {
+    otpMsg.textContent = String(err && err.message || err);
+    otpMsg.className = 'msg err';
+  } finally {
+    verifyBtn.disabled = false;
+  }
+});
 
-resendBtn.onclick=async()=>{
-  const fullName = `${currentFirstName} ${currentLastName}`;
-  resendBtn.disabled=true;
-  try{
-    const r=await postJSON({action:'resend',email:currentEmail,name:fullName});
-    otpMsg.textContent=r.success?'New code sent!':'Resend failed';
-    otpMsg.className='msg '+(r.success?'ok':'err');
-  }catch(e){otpMsg.textContent=e.message;otpMsg.className='msg err';}
-  setTimeout(()=>resendBtn.disabled=false, 3000);
-};
+resendBtn?.addEventListener('click', async () => {
+  resendBtn.disabled = true;
+  try {
+    const r = await resend({ email: currentEmail, name: `${currentFirst} ${currentLast}` });
+    otpMsg.textContent = (r && r.success) ? 'New code sent!' : (r && r.error) || 'Resend failed';
+    otpMsg.className = 'msg ' + ((r && r.success) ? 'ok' : 'err');
+  } catch (err) {
+    otpMsg.textContent = String(err && err.message || err);
+    otpMsg.className = 'msg err';
+  } finally {
+    setTimeout(() => (resendBtn.disabled = false), 3000);
+  }
+});
 </script>
-</body>
-</html>
