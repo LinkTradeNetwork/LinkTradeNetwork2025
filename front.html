@@ -1,9 +1,71 @@
-<!-- …everything above unchanged … -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LinkTradeNetwork • Skilled Trades</title>
+<style>
+:root{
+  --bg:#0b0f17;--ink:#eaf0ff;--muted:#a9b7d0;--line:#24314a;
+  --panel:#101726;--panel2:#0f1625;--brand:#ea6a00;--brand2:#c35700;
+}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
+font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+.topbar{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.topbar-inner{max-width:1200px;margin:auto;padding:10px 16px;display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-badge{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#4facfe,#00f2fe);display:grid;place-items:center;color:#0b0f17;font-weight:800}
+.nav a,.btn{color:var(--ink);text-decoration:none;font-weight:600;padding:8px 12px;border-radius:10px;font-size:14px}
+.btn-primary{background:var(--brand);border:none;color:#fff}
+.btn-primary:hover{background:var(--brand2)}
+.shell{max-width:1200px;margin:auto;padding:20px;display:grid;gap:20px;grid-template-columns:280px 1fr 300px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+.card .hd{padding:12px 16px;font-weight:800;border-bottom:1px solid var(--line)}
+.card .bd{padding:16px}
+.profile .pfp{width:64px;height:64px;border-radius:50%;background:#182238;margin-bottom:10px}
+.small{font-size:13px;color:var(--muted)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.fbtn{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#0f1625;color:var(--muted);font-size:12px;cursor:pointer}
+.fbtn.active{background:var(--brand);color:#fff}
+.job{margin-bottom:12px}
+.job .title{font-weight:800}
+.job .meta{font-size:13px;color:var(--muted)}
+.tag{background:#182238;border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:11px;margin-right:4px}
+.apply{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:900px){.shell{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">
+      <div class="logo-badge">LTN</div>
+      <strong>LinkTradeNetwork</strong>
+    </div>
+    <nav class="nav">
+      <a href="#">Home</a>
+      <a href="#">Jobs</a>
+      <a href="#">Network</a>
+      <a href="#">Messages</a>
+      <button class="btn-primary">Post a Job</button>
+    </nav>
+  </div>
+</header>
 
 <main class="shell">
   <!-- Left profile -->
   <aside>
-    <!-- …unchanged… -->
+    <section class="card profile">
+      <div class="hd">Your Profile</div>
+      <div class="bd" style="text-align:center">
+        <div class="pfp"></div>
+        <div><strong>Your Name</strong></div>
+        <div class="small">Your Trade / Company</div>
+        <p class="small" style="margin-top:10px">Build your profile to connect with contractors, subcontractors, and skilled trades.</p>
+        <button class="btn-primary" style="width:100%;margin-top:10px">Build Profile</button>
+      </div>
+    </section>
   </aside>
 
   <!-- Middle feed -->
@@ -22,15 +84,13 @@
           <button class="fbtn">Sprinkler</button>
         </div>
 
-        <!-- Low Voltage job: location text changed -->
         <article class="job">
           <div class="title">Low Voltage Cable Installer – Hospital Retrofit</div>
-          <div class="meta">Hospital work • Contract • $42–$55/hr</div>
+          <div class="meta">• Contract • $42–$55/hr</div>
           <div><span class="tag">Low Voltage</span><span class="tag">Fiber</span><span class="tag">Cabling</span></div>
           <div class="apply"><button class="btn-primary">Apply</button><button class="btn">Save</button></div>
         </article>
 
-        <!-- Other jobs unchanged -->
         <article class="job">
           <div class="title">Journeyman Electrician – Conduit & Lighting</div>
           <div class="meta">Milwaukee, WI • Full-time • $38–$50/hr</div>
@@ -50,10 +110,31 @@
 
   <!-- Right info -->
   <aside>
-    <!-- …unchanged… -->
+    <section class="card">
+      <div class="hd">Get Started</div>
+      <div class="bd small">
+        <p>Join the network built for skilled trades:</p>
+        <ul>
+          <li>Find real trade jobs</li>
+          <li>Connect with local contractors</li>
+          <li>Show verified credentials</li>
+        </ul>
+        <button class="btn-primary" style="width:100%">Sign Up Free</button>
+      </div>
+    </section>
   </aside>
 </main>
 
-<!-- …everything below unchanged … -->
+<script>
+document.querySelectorAll('.fbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
 
 
