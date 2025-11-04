@@ -683,7 +683,7 @@ textarea.form-control {
       </div>
     </section>
     
-    <!-- Mobile App Promotion -->
+    <!-- Mobile App Promotion (Simplified) -->
     <section class="card" style="margin-top:20px">
       <div class="hd">Get The LTN Mobile App</div>
       <div class="bd" style="padding:0">
@@ -693,20 +693,9 @@ textarea.form-control {
           </svg>
           <h3 style="margin:0 0 10px;font-size:18px">Find Trade Jobs On The Go</h3>
           <p style="margin:0 0 15px">Get instant job alerts, apply with one tap, and chat with employers directly from your phone.</p>
-          <div style="display:flex;gap:10px;justify-content:center">
-            <button class="btn-secondary" style="display:flex;align-items:center;gap:5px">
-              <svg style="width:20px;height:20px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              App Store
-            </button>
-            <button class="btn-secondary" style="display:flex;align-items:center;gap:5px">
-              <svg style="width:20px;height:20px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              Google Play
-            </button>
-          </div>
+          <button class="btn-secondary" style="display:inline-block;padding:12px 24px;font-size:16px">
+            Get The LTN App
+          </button>
         </div>
       </div>
     </section>
@@ -782,35 +771,51 @@ textarea.form-control {
 </main>
 
 <script>
-// Toggle filter buttons
-document.querySelectorAll('.fbtn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if(btn.parentElement.classList.contains('filters') && 
-       !btn.parentElement.parentElement.classList.contains('form-group')) {
-      document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    } else {
-      btn.classList.toggle('active');
-    }
+// Improved filter button functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // Get filter groups (containers with 'filters' class)
+  const filterGroups = document.querySelectorAll('.filters');
+  
+  filterGroups.forEach(group => {
+    // For each filter group, add click listeners to its buttons
+    const buttons = group.querySelectorAll('.fbtn');
+    
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Check if this is the main jobs filter (not inside a form-group)
+        if (!group.parentElement.classList.contains('form-group')) {
+          // Single selection mode: deactivate all others, activate only the clicked one
+          buttons.forEach(btn => {
+            btn.classList.remove('active');
+          });
+          button.classList.add('active');
+          
+          // Here you would add code to filter the job listings based on selection
+          const filter = button.textContent.trim();
+          console.log(`Filtering jobs for: ${filter}`);
+          
+        } else {
+          // Multi-selection mode (for the skills selection in the job posting form)
+          button.classList.toggle('active');
+          
+          // Here you would add code to update the selected skills
+          const selectedSkills = Array.from(buttons)
+            .filter(btn => btn.classList.contains('active'))
+            .map(btn => btn.textContent.trim());
+          console.log('Selected skills:', selectedSkills);
+        }
+      });
+    });
   });
-});
+  
+  // Keep the existing functionality for profile uploads
+  document.getElementById('profile-upload').addEventListener('click', () => {
+    document.getElementById('file-upload').click();
+  });
 
-// Profile image upload functionality
-document.getElementById('profile-upload').addEventListener('click', () => {
-  document.getElementById('file-upload').click();
-});
-
-document.getElementById('profile-image-area').addEventListener('click', () => {
-  // Simulate profile image selection
-  alert("Profile image upload functionality would go here");
-});
-
-// Simulate job filtering
-document.querySelectorAll('.filters .fbtn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const filter = btn.textContent.trim();
-    console.log(`Filtering for: ${filter}`);
-    // In a real application, this would filter the job listings
+  document.getElementById('profile-image-area').addEventListener('click', () => {
+    // Simulate profile image selection
+    alert("Profile image upload functionality would go here");
   });
 });
 </script>
