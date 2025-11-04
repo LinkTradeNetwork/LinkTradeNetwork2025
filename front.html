@@ -343,7 +343,7 @@ textarea.form-control {
   position: relative;
 }
 
-/* New AI Search Styles */
+/* AI Search Styles */
 .ai-results {
   padding: 12px;
   color: var(--ink);
@@ -895,31 +895,10 @@ document.addEventListener('DOMContentLoaded', function() {
     alert("Profile image upload functionality would go here");
   });
   
-  // AI-Powered Search Functionality
+  // AI-Powered Search with Brainybot Integration
   const searchInput = document.getElementById('ai-search-input');
   const resultsContainer = document.getElementById('ai-results-container');
   let searchTimeout;
-  
-  // Function to record searches to the Apps Script
-  function trackSearch(query) {
-    // Get the email from localStorage (assuming it was stored during login)
-    const userEmail = localStorage.getItem('userEmail');
-    
-    // If we have an email, record this search using the signin API
-    if (userEmail) {
-      fetch('https://script.google.com/macros/s/AKfycbwqu-PRM-XrYKVzj1OZzg5MUbtivsr4zRF8dJWf5KF6abR941aXSVwpk04bS1pyfwUc/exec', {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'signin',
-          email: userEmail,
-          userAgent: navigator.userAgent,
-          searchQuery: query // Add the search query as additional data
-        })
-      })
-      .then(response => response.json())
-      .catch(error => console.error('Error logging search:', error));
-    }
-  }
   
   // Function to show the "AI is thinking" animation
   function showThinking() {
@@ -939,75 +918,92 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
   }
   
-  // Function to handle AI search
-  function performAISearch(query) {
+  // Function to perform AI search using our Apps Script backend
+  async function performAISearch(query) {
     if (!query.trim()) {
       resultsContainer.style.display = 'none';
       return;
     }
     
-    // Show "thinking" animation
+    // Show thinking animation
     showThinking();
     
-    // Track this search
-    trackSearch(query);
-    
-    // For demonstration, we'll simulate AI results
-    // In production, replace this with your actual AI API call
-    setTimeout(() => {
-      // Sample AI responses based on trade-related queries
-      let aiResponse;
+    try {
+      // Get user email from localStorage (if available)
+      const userEmail = localStorage.getItem('userEmail') || '';
       
-      if (query.toLowerCase().includes('electrical') || query.toLowerCase().includes('electrician')) {
-        aiResponse = `
-          <div class="ai-result">
-            <div class="ai-result-title">Electrical Jobs</div>
-            <p>I found 18 electrical jobs near Milwaukee. Top paying positions start at $42/hr for licensed journeyman electricians.</p>
-            <a href="#" style="color:var(--brand);font-weight:500;text-decoration:none;">View electrical jobs →</a>
-          </div>
-          <div class="ai-result">
-            <div class="ai-result-title">Electrical Certifications</div>
-            <p>Wisconsin requires licensing for electrical work. The journeyman license requires 8,000 hours of supervised work and passing the state exam.</p>
-          </div>
+      // Call our Apps Script endpoint with the new URL
+      const response = await fetch('https://script.google.com/macros/s/AKfycbytHBc_BcLno_aB5jJD_oriaFawyhO5tO_jf0faByTsBMEJntjJJJTViDBAcRGlR9sO/exec', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'ai-search',
+          query: query,
+          email: userEmail
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Error connecting to AI service');
+      }
+      
+      // Format and display the AI response
+      const aiResponse = data.response;
+      
+      let formattedHTML = `
+        <div class="ai-result">
+          <div class="ai-result-title">${aiResponse.title || `Results for "${query}"`}</div>
+          <p>${aiResponse.content || 'No results found.'}</p>
+      `;
+      
+      // Add suggestions if available
+      if (aiResponse.suggestions && aiResponse.suggestions.length > 0) {
+        formattedHTML += `
+          <div style="margin-top:10px">
+            <div style="font-weight:500;margin-bottom:5px">Try asking about:</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px">
         `;
-      } else if (query.toLowerCase().includes('hvac')) {
-        aiResponse = `
-          <div class="ai-result">
-            <div class="ai-result-title">HVAC Opportunities</div>
-            <p>There are 12 HVAC positions available in your area. The average pay range is $36-48/hr depending on experience and certifications.</p>
-            <a href="#" style="color:var(--brand);font-weight:500;text-decoration:none;">View HVAC jobs →</a>
-          </div>
-        `;
-      } else if (query.toLowerCase().includes('license') || query.toLowerCase().includes('certification')) {
-        aiResponse = `
-          <div class="ai-result">
-            <div class="ai-result-title">Trade Licensing Resources</div>
-            <p>LinkTradeNetwork offers guidance on obtaining licenses in plumbing, electrical, HVAC, and general contracting fields.</p>
-            <a href="#" style="color:var(--brand);font-weight:500;text-decoration:none;">View licensing resources →</a>
-          </div>
-        `;
-      } else {
-        aiResponse = `
-          <div class="ai-result">
-            <div class="ai-result-title">Search Results for "${query}"</div>
-            <p>I can help you find jobs, information about licensing requirements, training opportunities, and connect you with other professionals in the trades.</p>
-            <p>Try searching for specific trades like "electrical," "plumbing," "HVAC," or ask about certifications needed for your field.</p>
+        
+        aiResponse.suggestions.forEach(suggestion => {
+          formattedHTML += `
+            <span style="background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px 10px;font-size:12px;cursor:pointer" 
+                  onclick="document.getElementById('ai-search-input').value='${suggestion}';document.getElementById('ai-search-input').dispatchEvent(new Event('input'))">
+              ${suggestion}
+            </span>
+          `;
+        });
+        
+        formattedHTML += `
+            </div>
           </div>
         `;
       }
       
-      resultsContainer.innerHTML = aiResponse;
-    }, 1500); // Simulate AI processing time
+      formattedHTML += `</div>`;
+      
+      resultsContainer.innerHTML = formattedHTML;
+      
+    } catch (error) {
+      console.error('Error in AI search:', error);
+      resultsContainer.innerHTML = `
+        <div class="ai-result">
+          <div class="ai-result-title">Error</div>
+          <p>Sorry, I couldn't process your request. Please try again later.</p>
+        </div>
+      `;
+    }
   }
   
-  // Event listener for search input
+  // Event listener for search input with debounce
   searchInput.addEventListener('input', function() {
     const query = this.value;
     
-    // Clear previous timeout to prevent multiple rapid searches
     clearTimeout(searchTimeout);
     
-    // Set a small delay to avoid searching on every keystroke
     searchTimeout = setTimeout(() => {
       performAISearch(query);
     }, 500);
@@ -1026,6 +1022,20 @@ document.addEventListener('DOMContentLoaded', function() {
       performAISearch(this.value);
     }
   });
+  
+  // Add keyboard navigation
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && this.value.trim()) {
+      performAISearch(this.value);
+    }
+  });
+  
+  // Track user login to store email (to be used if you have a login system)
+  function storeUserEmail(email) {
+    if (email && typeof email === 'string') {
+      localStorage.setItem('userEmail', email);
+    }
+  }
 });
 </script>
 
