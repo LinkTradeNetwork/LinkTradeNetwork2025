@@ -1,6 +1,6 @@
 <script>
 // ===== API CONFIG =====
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqu-PRM-XrYKVzj1OZzg5MUbtivsr4zRF8dJWf5KF6abR941aXSVwpk04bS1pyfwUc/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytHBc_BcLno_aB5jJD_oriaFawyhO5tO_jf0faByTsBMEJntjJJJTViDBAcRGlR9sO/exec';
 
 // No custom headers -> avoids CORS preflight on Apps Script
 async function postJSON(data) {
