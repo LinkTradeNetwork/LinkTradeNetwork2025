@@ -436,7 +436,7 @@ textarea.form-control {
         <svg id="ai-icon" style="position:absolute;left:10px;top:10px;width:18px;height:18px;opacity:0.8;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
         </svg>
-        <div class="ai-label" style="position:absolute;right:8px;top:10px;font-size:10px;background:var(--brand);color:white;padding:1px 6px;border-radius:10px;opacity:0.9;font-weight:600;">AI POWERED</div>
+        <div class="ai-label" style="position:absolute;right:8px;top:10px;font-size:10px;background:var(--brand);color:white;padding:1px 6px;border-radius:10px;opacity:0.9;font-weight:600;">LTN AI</div>
       </div>
       <div id="ai-results-container" class="ai-results" style="display:none;position:absolute;top:45px;left:0;right:0;background:white;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.15);z-index:100;max-height:400px;overflow-y:auto;">
       </div>
@@ -895,7 +895,7 @@ document.addEventListener('DOMContentLoaded', function() {
     alert("Profile image upload functionality would go here");
   });
   
-  // AI-Powered Search with Brainybot Integration
+  // AI-Powered Search with LinkTradeNetwork AI
   const searchInput = document.getElementById('ai-search-input');
   const resultsContainer = document.getElementById('ai-results-container');
   let searchTimeout;
@@ -946,6 +946,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       
       const data = await response.json();
+      console.log("AI Response:", data); // Debug logging
       
       if (!data.success) {
         throw new Error(data.error || 'Error connecting to AI service');
@@ -992,7 +993,7 @@ document.addEventListener('DOMContentLoaded', function() {
       resultsContainer.innerHTML = `
         <div class="ai-result">
           <div class="ai-result-title">Error</div>
-          <p>Sorry, I couldn't process your request. Please try again later.</p>
+          <p>Sorry, I couldn't process your request. Please try again. (Error: ${error.message})</p>
         </div>
       `;
     }
