@@ -76,6 +76,10 @@ textarea.form-control{min-height:100px;resize:vertical}
 .ai-result:last-child{border-bottom:none}
 .ai-result-title{font-weight:600;margin-bottom:4px}
 
+/* NEW: better placeholder contrast + keep popover on top */
+#ai-search-input::placeholder { color: rgba(255,255,255,.85); }
+#ai-results-container { z-index: 9999 !important; }
+
 @media(max-width:1100px){.shell{grid-template-columns:1fr 1fr}.right-sidebar{grid-column:span 2}}
 @media(max-width:768px){.shell{grid-template-columns:1fr}.right-sidebar{grid-column:span 1}.nav{margin-top:10px}.search-container{max-width:100%;margin-bottom:10px}}
 </style>
@@ -149,7 +153,7 @@ textarea.form-control{min-height:100px;resize:vertical}
     <div class="card">
       <div class="hd"><span>Skilled Trade Opportunities</span><span class="badge badge-warning">12 new today</span></div>
       <div class="bd">
-        <div class="filters">
+        <div class="filters" id="jobs-filter-bar">
           <button class="fbtn active">All</button>
           <button class="fbtn">Low Voltage</button>
           <button class="fbtn">Electrical</button>
@@ -160,36 +164,15 @@ textarea.form-control{min-height:100px;resize:vertical}
           <button class="fbtn">Sprinkler</button>
         </div>
 
-        <div class="jobs-container">
-          <article class="job featured">
-            <div class="title">Low Voltage Cable Installer – Hospital Retrofit</div>
-            <div class="meta">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor"/><path d="M19 10C19 14.4183 12 20 12 20C12 20 5 14.4183 5 10C5 6.13401 8.13401 3 12 3C15.866 3 19 6.13401 19 10Z" stroke="currentColor"/></svg>
-              Madison, WI <span class="meta-dot"></span> Contract <span class="meta-dot"></span> $42–$55/hr
-            </div>
-            <div class="tags"><span class="tag">Low Voltage</span><span class="tag">Fiber</span><span class="tag">Cabling</span><span class="tag">Experience: 3+ years</span></div>
-            <div class="apply"><button class="btn-primary">Apply Now</button><button class="btn-secondary">Save</button></div>
-          </article>
-
-          <article class="job">
-            <div class="title">Journeyman Electrician – Conduit & Lighting</div>
-            <div class="meta">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor"/><path d="M19 10C19 14.4183 12 20 12 20C12 20 5 14.4183 5 10C5 6.13401 8.13401 3 12 3C15.866 3 19 6.13401 19 10Z" stroke="currentColor"/></svg>
-              Milwaukee, WI <span class="meta-dot"></span> Full-time <span class="meta-dot"></span> $38–$50/hr
-            </div>
-            <div class="tags"><span class="tag">Electrical</span><span class="tag">Conduit</span><span class="tag">Licensed</span></div>
-            <div class="apply"><button class="btn-primary">Apply Now</button><button class="btn-secondary">Save</button></div>
-          </article>
-
-          <article class="job">
-            <div class="title">Commercial HVAC Installer – Rooftop Units</div>
-            <div class="meta">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor"/><path d="M19 10C19 14.4183 12 20 12 20C12 20 5 14.4183 5 10C5 6.13401 8.13401 3 12 3C15.866 3 19 6.13401 19 10Z" stroke="currentColor"/></svg>
-              Sun Prairie, WI <span class="meta-dot"></span> Contract <span class="meta-dot"></span> $36–$48/hr
-            </div>
-            <div class="tags"><span class="tag">HVAC</span><span class="tag">Controls</span><span class="tag">Experience: 2+ years</span></div>
-            <div class="apply"><button class="btn-primary">Apply Now</button><button class="btn-secondary">Save</button></div>
-          </article>
+        <!-- DYNAMIC JOB LIST + PAGING (replaces demo cards) -->
+        <div id="jobs-list" class="jobs-container"></div>
+        <div id="jobs-empty" class="small" style="display:none;color:var(--muted);padding:8px 4px">
+          No jobs found. Try another trade, keyword, or location.
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button id="jobs-prev" class="btn btn-secondary" disabled>Prev</button>
+          <button id="jobs-next" class="btn btn-secondary" disabled>Next</button>
+          <div class="small" id="jobs-count" style="margin-left:auto;color:var(--muted)"></div>
         </div>
       </div>
     </div>
@@ -291,9 +274,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const buttons = group.querySelectorAll('.fbtn');
     buttons.forEach(b => b.addEventListener('click', () => {
       if (!group.parentElement.classList.contains('form-group')) {
+        // Jobs filter bar (single select)
         buttons.forEach(x => x.classList.remove('active'));
         b.classList.add('active');
+        const trade = b.textContent.trim().toLowerCase();
+        loadJobs({ trade: trade === 'all' ? '' : trade, offset: 0 });
       } else {
+        // Multi-select tags in Job Posting form
         b.classList.toggle('active');
       }
     }));
@@ -348,7 +335,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!query.trim()){ box.style.display='none'; return; }
     thinking();
 
-    // quick ping: if your web app isn't public, Google returns HTML login
     const ping = await pingExec();
     if (!ping.ok){
       const diag = ping.html
@@ -365,13 +351,12 @@ document.addEventListener('DOMContentLoaded', function() {
       const email = localStorage.getItem('userEmail') || '';
       const res = await fetch(WEBAPP_URL, {
         method:'POST',
-        headers:{ 'Content-Type':'text/plain;charset=utf-8' }, // avoid CORS preflight with GAS
+        headers:{ 'Content-Type':'text/plain;charset=utf-8' }, // avoids CORS preflight with GAS
         body: JSON.stringify({ action:'ai-search', query, email }),
         signal: controller.signal
       });
       clearTimeout(t);
 
-      // If GAS returns HTML (e.g., not-public), catch it early:
       const ct = res.headers.get('content-type') || '';
       if (ct.includes('text/html')){
         friendlyFallback(query, "Apps Script returned HTML (likely not public). Set access to Anyone and use the /exec URL.");
@@ -385,7 +370,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const data = await res.json();
       if (!data.success){
-        // Show backend reason (often "Error connecting to AI service...")
         friendlyFallback(query, data.error || "Unknown backend error.");
         return;
       }
@@ -393,9 +377,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const ai = data.response || {};
       const title = ai.title || `Results for "${query}"`;
       const content = ai.content || 'No results found.';
-      let html = `<div class="ai-result"><div class="ai-result-title">${title}</div><p>${content}</p></div>`;
       box.style.display='block';
-      box.innerHTML = html;
+      box.innerHTML = `<div class="ai-result"><div class="ai-result-title">${title}</div><p>${content}</p></div>`;
 
     }catch(err){
       clearTimeout(t);
@@ -409,17 +392,98 @@ document.addEventListener('DOMContentLoaded', function() {
   input.addEventListener('input', function(){ debounced(this.value); });
   input.addEventListener('focus', function(){ if (this.value.trim()) aiSearch(this.value); });
   input.addEventListener('keydown', e=>{ if (e.key==='Enter' && input.value.trim()) aiSearch(input.value); });
-
-  document.addEventListener('click', e=>{
-    if (!input.contains(e.target) && !box.contains(e.target)) box.style.display='none';
-  });
+  // NEW: Esc closes the popover
+  input.addEventListener('keydown', e => { if (e.key === 'Escape') { box.style.display='none'; box.innerHTML=''; } });
+  document.addEventListener('click', e=>{ if (!input.contains(e.target) && !box.contains(e.target)) box.style.display='none'; });
 
   // Helper to store email post-login
   window.storeUserEmail = function(email){
     if (email && typeof email === 'string') localStorage.setItem('userEmail', email);
   };
+
+  /* ===== JOB SEARCH (server-backed, no AI tokens) ===== */
+  window.JOBS_STATE = { q:'', location:'', trade:'', limit:10, offset:0, total:0 };
+
+  function renderJobs_(items){
+    const list = document.getElementById('jobs-list');
+    const empty = document.getElementById('jobs-empty');
+    const prev = document.getElementById('jobs-prev');
+    const next = document.getElementById('jobs-next');
+    const count = document.getElementById('jobs-count');
+
+    list.innerHTML = '';
+    if (!items || !items.length){
+      empty.style.display = 'block';
+      prev.disabled = true; next.disabled = true;
+      count.textContent = '';
+      return;
+    }
+    empty.style.display = 'none';
+
+    items.forEach(j => {
+      const el = document.createElement('article');
+      el.className = 'job';
+      const when = j.postedAt ? new Date(j.postedAt) : null;
+      el.innerHTML = `
+        <div class="title">${j.title || 'Job'}</div>
+        <div class="meta">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z" stroke="currentColor"/><path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z" stroke="currentColor"/></svg>
+          ${[j.city,j.state].filter(Boolean).join(', ')} <span class="meta-dot"></span> ${j.type || '—'} <span class="meta-dot"></span> ${j.pay || ''}
+          ${when ? `<span class="meta-dot"></span> ${when.toLocaleDateString()}` : ''}
+        </div>
+        <div class="tags">
+          ${(j.tradeTags||'').split(',').filter(Boolean).slice(0,4).map(t=>`<span class="tag">${t.trim()}</span>`).join('')}
+        </div>
+        <div class="apply">
+          ${j.link ? `<a class="btn btn-primary" href="${j.link}" target="_blank" rel="noopener">Apply Now</a>` : `<button class="btn-primary" disabled>Apply</button>`}
+          <button class="btn-secondary">Save</button>
+        </div>
+      `;
+      list.appendChild(el);
+    });
+
+    const { offset, limit, total } = window.JOBS_STATE;
+    const end = Math.min(offset + limit, total);
+    prev.disabled = offset <= 0;
+    next.disabled = end >= total;
+    count.textContent = total ? `${offset + 1}–${end} of ${total}` : '';
+  }
+
+  async function loadJobs(opts={}){
+    window.JOBS_STATE = { ...window.JOBS_STATE, ...opts };
+    const { q, location, trade, limit, offset } = window.JOBS_STATE;
+
+    try{
+      const res = await fetch(WEBAPP_URL, {
+        method:'POST',
+        headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action:'job-search', query:q, location, trade, limit, offset })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Job search failed');
+
+      window.JOBS_STATE.total = data.total || 0;
+      renderJobs_(data.results || []);
+    }catch(e){
+      console.error('job-search error:', e);
+      renderJobs_([]);
+    }
+  }
+
+  document.getElementById('jobs-prev').addEventListener('click', ()=>{
+    const { offset, limit } = window.JOBS_STATE;
+    if (offset > 0) loadJobs({ offset: Math.max(0, offset - limit) });
+  });
+  document.getElementById('jobs-next').addEventListener('click', ()=>{
+    const { offset, limit, total } = window.JOBS_STATE;
+    if (offset + limit < total) loadJobs({ offset: offset + limit });
+  });
+
+  // initial jobs load
+  loadJobs();
 });
 </script>
 
 </body>
 </html>
+
