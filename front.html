@@ -6,26 +6,16 @@
 <title>LinkTradeNetwork • Skilled Trades</title>
 <style>
 :root{
-  --bg:#f0f4f8;
-  --ink:#293241;
-  --muted:#5d7290;
-  --line:#cfd9e6;
-  --panel:#ffffff;
-  --panel2:#f8fafc;
-  --brand:#ea6a00;
-  --brand2:#c35700;
-  --accent:#3d5a80;
+  --bg:#f0f4f8;--ink:#293241;--muted:#5d7290;--line:#cfd9e6;--panel:#ffffff;--panel2:#f8fafc;
+  --brand:#ea6a00;--brand2:#c35700;--accent:#3d5a80
 }
 *{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--ink);
-  font-family:'Poppins',system-ui,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5;
-}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Poppins',system-ui,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}
 .topbar{background:var(--accent);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;color:white}
 .topbar-inner{max-width:1200px;margin:auto;padding:12px 16px;display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}
 .logo{display:flex;align-items:center;gap:12px}
-.logo-badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#ff7e00,#ffaa00);display:grid;place-items:center;color:white;font-weight:800;font-size:18px;box-shadow:0 2px 5px rgba(0,0,0,0.2)}
-.logo-text {font-size:18px;font-weight:700}
+.logo-badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#ff7e00,#ffaa00);display:grid;place-items:center;color:white;font-weight:800;font-size:18px;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+.logo-text{font-size:18px;font-weight:700}
 .nav{display:flex;align-items:center;gap:8px}
 .nav a,.btn{color:white;text-decoration:none;font-weight:600;padding:8px 16px;border-radius:8px;font-size:15px;transition:all .2s}
 .nav a:hover{background:rgba(255,255,255,.1)}
@@ -85,8 +75,6 @@ textarea.form-control{min-height:100px;resize:vertical}
 .ai-result{padding:12px;border-bottom:1px solid var(--line)}
 .ai-result:last-child{border-bottom:none}
 .ai-result-title{font-weight:600;margin-bottom:4px}
-.ai-search-wrapper input:focus + #ai-icon{opacity:1}
-.ai-search-wrapper input:focus{outline:none;box-shadow:0 0 0 2px rgba(234,106,0,.2)}
 
 @media(max-width:1100px){.shell{grid-template-columns:1fr 1fr}.right-sidebar{grid-column:span 2}}
 @media(max-width:768px){.shell{grid-template-columns:1fr}.right-sidebar{grid-column:span 1}.nav{margin-top:10px}.search-container{max-width:100%;margin-bottom:10px}}
@@ -104,9 +92,7 @@ textarea.form-control{min-height:100px;resize:vertical}
     <div class="search-container">
       <div class="ai-search-wrapper" style="position:relative;">
         <input type="text" id="ai-search-input" class="form-control" placeholder="Ask LTN AI anything..." style="background:rgba(255,255,255,.15);border:none;color:white;padding-left:35px">
-        <svg id="ai-icon" style="position:absolute;left:10px;top:10px;width:18px;height:18px;opacity:.8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-        </svg>
+        <svg id="ai-icon" style="position:absolute;left:10px;top:10px;width:18px;height:18px;opacity:.8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
         <div class="ai-label" style="position:absolute;right:8px;top:10px;font-size:10px;background:var(--brand);color:white;padding:1px 6px;border-radius:10px;opacity:.9;font-weight:600">LTN AI</div>
       </div>
       <div id="ai-results-container" class="ai-results" style="display:none;position:absolute;top:45px;left:0;right:0;background:white;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,.15);z-index:100;max-height:400px;overflow-y:auto"></div>
@@ -211,7 +197,6 @@ textarea.form-control{min-height:100px;resize:vertical}
     <div class="card" style="margin-top:24px">
       <div class="hd">Success Stories</div>
       <div class="bd">
-        <!-- (kept same content for brevity) -->
         <div style="display:flex;align-items:center;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--line)">
           <div style="width:80px;height:80px;background:var(--panel2);border-radius:50%;margin-right:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center">
             <svg style="width:40px;height:40px;opacity:.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
@@ -222,7 +207,6 @@ textarea.form-control{min-height:100px;resize:vertical}
             <p style="margin:0">"I found my current position through LinkTradeNetwork within 2 weeks of creating my profile. The job pays 20% more than my previous position and has better hours."</p>
           </div>
         </div>
-        <!-- more stories ... -->
         <button class="btn-primary" style="width:100%;margin-top:20px">Share Your Success Story</button>
       </div>
     </div>
@@ -230,7 +214,6 @@ textarea.form-control{min-height:100px;resize:vertical}
     <div class="card" style="margin-top:24px">
       <div class="hd">Post a New Job</div>
       <div class="bd">
-        <!-- form kept as-is -->
         <div class="form-group"><label>Job Title</label><input type="text" class="form-control" placeholder="e.g. Experienced Plumber for Commercial Project"></div>
         <div class="form-group"><label>Job Type</label><select class="form-control"><option>Full-time</option><option>Contract</option><option>Part-time</option><option>Project-based</option></select></div>
         <div class="form-group"><label>Location</label><input type="text" class="form-control" placeholder="City, State"></div>
@@ -258,7 +241,7 @@ textarea.form-control{min-height:100px;resize:vertical}
       <div class="hd">Get The LTN Mobile App</div>
       <div class="bd" style="padding:0">
         <div style="background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;padding:20px;text-align:center;border-radius:0 0 12px 12px">
-          <svg style="width:60px;height:60px;margin-bottom:10px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <svg style="width:60px;height:60px;margin-bottom:10px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 01-2 2z"/></svg>
           <h3 style="margin:0 0 10px;font-size:18px">Find Trade Jobs On The Go</h3>
           <p style="margin:0 0 15px">Get instant job alerts, apply with one tap, and chat with employers directly from your phone.</p>
           <button class="btn-secondary" style="display:inline-block;padding:12px 24px;font-size:16px">Get The LTN App</button>
@@ -280,10 +263,10 @@ textarea.form-control{min-height:100px;resize:vertical}
       <div class="hd">Quick Resources</div>
       <div class="bd small">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <a href="#" style="text-decoration:none"><div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;color:var(--ink)"><svg style="width:24px;height:24px;margin:0 auto 8px;display:block;opacity:.7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><div>License Info</div></div></a>
+          <a href="#" style="text-decoration:none"><div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;color:var(--ink)"><svg style="width:24px;height:24px;margin:0 auto 8px;display:block;opacity:.7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h2l2-2 4-4M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><div>License Info</div></div></a>
           <a href="#" style="text-decoration:none"><div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;color:var(--ink)"><svg style="width:24px;height:24px;margin:0 auto 8px;display:block;opacity:.7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><div>Training</div></div></a>
           <a href="#" style="text-decoration:none"><div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;color:var(--ink)"><svg style="width:24px;height:24px;margin:0 auto 8px;display:block;opacity:.7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><div>Certifications</div></div></a>
-          <a href="#" style="text-decoration:none"><div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;color:var(--ink)"><svg style="width:24px;height:24px;margin:0 auto 8px;display:block;opacity:.7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg><div>Support</div></div></a>
+          <a href="#" style="text-decoration:none"><div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;color:var(--ink)"><svg style="width:24px;height:24px;margin:0 auto 8px;display:block;opacity:.7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9"/></svg><div>Support</div></div></a>
         </div>
       </div>
     </section>
@@ -292,132 +275,146 @@ textarea.form-control{min-height:100px;resize:vertical}
 
 <script>
 /* ===== CONFIG: set your Apps Script Web App URL (the /exec URL) ===== */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz7BrmaTrHOOkIybS3FYQvznhGdtUJVeCReBycUbX2Lfs1msi0-H-2NXqav8rREGnGA/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzVZY_rBf7iRxeOX4f_56nXhgQaHnqhj8IWDPh19GwCRsJUVKbwjt3onqjeWRQZZn05/exec";
 
-/* ===== Utility: debounce ===== */
-function debounce(fn, ms){let t;return (...args)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,args),ms)}}
+/* ===== Utility ===== */
+function debounce(fn, ms){let t;return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
+const isHtmlResponse = (res) => {
+  const ct = res.headers.get('content-type') || '';
+  return ct.includes('text/html');
+};
 
 /* ===== Filter buttons behavior ===== */
 document.addEventListener('DOMContentLoaded', function() {
   const filterGroups = document.querySelectorAll('.filters');
   filterGroups.forEach(group => {
     const buttons = group.querySelectorAll('.fbtn');
-    buttons.forEach(button => {
-      button.addEventListener('click', () => {
-        if (!group.parentElement.classList.contains('form-group')) {
-          buttons.forEach(btn => btn.classList.remove('active'));
-          button.classList.add('active');
-          console.log('Filtering jobs for:', button.textContent.trim());
-        } else {
-          button.classList.toggle('active');
-          const selected = Array.from(buttons).filter(b => b.classList.contains('active')).map(b => b.textContent.trim());
-          console.log('Selected skills:', selected);
-        }
-      });
-    });
+    buttons.forEach(b => b.addEventListener('click', () => {
+      if (!group.parentElement.classList.contains('form-group')) {
+        buttons.forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+      } else {
+        b.classList.toggle('active');
+      }
+    }));
   });
 
-  /* ===== Profile upload stubs ===== */
   document.getElementById('profile-upload').addEventListener('click', () => {
     document.getElementById('file-upload').click();
   });
-  document.getElementById('profile-image-area').addEventListener('click', () => {
-    alert("Profile image upload functionality would go here");
-  });
 
-  /* ===== LTN AI Search (fixed fetch to avoid preflight) ===== */
-  const searchInput = document.getElementById('ai-search-input');
-  const resultsContainer = document.getElementById('ai-results-container');
+  /* ===== LTN AI Search (diagnostics + robust handling) ===== */
+  const input = document.getElementById('ai-search-input');
+  const box   = document.getElementById('ai-results-container');
 
-  function showThinking() {
-    resultsContainer.style.display = 'block';
-    resultsContainer.innerHTML = `
-      <div class="ai-thinking">
-        <svg style="width:20px;height:20px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-        </svg>
-        <span>LTN AI is thinking</span>
-        <div class="ai-thinking-dots"><span></span><span></span><span></span></div>
+  function thinking(){ box.style.display='block'; box.innerHTML =
+    `<div class="ai-thinking">
+      <svg style="width:20px;height:20px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+      </svg>
+      <span>LTN AI is thinking</span>
+      <div class="ai-thinking-dots"><span></span><span></span><span></span></div>
+    </div>`; }
+
+  function friendlyFallback(query, reason){
+    box.style.display='block';
+    box.innerHTML = `
+      <div class="ai-result">
+        <div class="ai-result-title">LTN AI is temporarily unavailable</div>
+        <p class="small" style="color:var(--muted)">${reason}</p>
+        <p>Here are some quick ideas related to "<b>${query.replace(/</g,'&lt;')}</b>":</p>
+        <ul style="margin:0 0 8px 18px">
+          <li>Check local licensing requirements and apprenticeship paths.</li>
+          <li>Look up prevailing wages for your county and trade.</li>
+          <li>Search for nearby union halls or training centers.</li>
+        </ul>
+        <p class="small" style="color:var(--muted)">Try again in a moment.</p>
       </div>`;
   }
 
-  async function performAISearch(query) {
-    if (!query.trim()) { resultsContainer.style.display = 'none'; return; }
-    showThinking();
+  async function pingExec(){
+    try{
+      const r = await fetch(WEBAPP_URL, { method:'GET' });
+      if (!r.ok) return { ok:false, code:r.status, html:isHtmlResponse(r) };
+      if (isHtmlResponse(r)) return { ok:false, code:200, html:true };
+      const j = await r.json().catch(()=>null);
+      return { ok: !!j, code:r.status, html:false, body:j };
+    }catch(e){
+      return { ok:false, code:'NETWORK', html:false, error:String(e) };
+    }
+  }
+
+  async function aiSearch(query){
+    if (!query.trim()){ box.style.display='none'; return; }
+    thinking();
+
+    // quick ping: if your web app isn't public, Google returns HTML login
+    const ping = await pingExec();
+    if (!ping.ok){
+      const diag = ping.html
+        ? "Your Apps Script Web App is not public. In Apps Script: Manage deployments → Web app → Who has access = Anyone. Use the /exec URL."
+        : `The Web App is unreachable (status: ${ping.code}).`;
+      friendlyFallback(query, diag);
+      return;
+    }
 
     const controller = new AbortController();
-    const timeout = setTimeout(()=>controller.abort(), 15000); // 15s safety timeout
+    const t = setTimeout(()=>controller.abort(), 15000);
 
-    try {
-      const userEmail = localStorage.getItem('userEmail') || '';
-
+    try{
+      const email = localStorage.getItem('userEmail') || '';
       const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        // IMPORTANT: use text/plain to avoid Apps Script CORS preflight issues
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'ai-search', query, email: userEmail }),
+        method:'POST',
+        headers:{ 'Content-Type':'text/plain;charset=utf-8' }, // avoid CORS preflight with GAS
+        body: JSON.stringify({ action:'ai-search', query, email }),
         signal: controller.signal
       });
+      clearTimeout(t);
 
-      clearTimeout(timeout);
+      // If GAS returns HTML (e.g., not-public), catch it early:
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('text/html')){
+        friendlyFallback(query, "Apps Script returned HTML (likely not public). Set access to Anyone and use the /exec URL.");
+        return;
+      }
 
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (!res.ok){
+        friendlyFallback(query, `Backend returned HTTP ${res.status}.`);
+        return;
+      }
+
       const data = await res.json();
-      if (!data.success) throw new Error(data.error || 'Search failed');
+      if (!data.success){
+        // Show backend reason (often "Error connecting to AI service...")
+        friendlyFallback(query, data.error || "Unknown backend error.");
+        return;
+      }
 
       const ai = data.response || {};
       const title = ai.title || `Results for "${query}"`;
       const content = ai.content || 'No results found.';
+      let html = `<div class="ai-result"><div class="ai-result-title">${title}</div><p>${content}</p></div>`;
+      box.style.display='block';
+      box.innerHTML = html;
 
-      let html = `
-        <div class="ai-result">
-          <div class="ai-result-title">${title}</div>
-          <p>${content}</p>
-      `;
-
-      if (ai.suggestions && ai.suggestions.length) {
-        html += `<div style="margin-top:10px">
-          <div style="font-weight:500;margin-bottom:5px">Try asking about:</div>
-          <div style="display:flex;flex-wrap:wrap;gap:5px">`;
-        ai.suggestions.forEach(s => {
-          const esc = String(s).replace(/"/g,'&quot;');
-          html += `<span style="background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px 10px;font-size:12px;cursor:pointer"
-                     onclick="document.getElementById('ai-search-input').value='${esc}';document.getElementById('ai-search-input').dispatchEvent(new Event('input'))">${esc}</span>`;
-        });
-        html += `</div></div>`;
-      }
-      html += `</div>`;
-      resultsContainer.innerHTML = html;
-
-    } catch (err) {
-      clearTimeout(timeout);
-      const msg = (err.name === 'AbortError') ? 'Request timed out.' : (err.message || 'Failed to fetch');
-      resultsContainer.innerHTML = `
-        <div class="ai-result">
-          <div class="ai-result-title">Error</div>
-          <p>Sorry, I couldn't process your request. Please try again. (Error: ${msg})</p>
-        </div>`;
+    }catch(err){
+      clearTimeout(t);
+      const msg = (err.name === 'AbortError') ? 'Request timed out.' : (err.message || 'Network error.');
+      friendlyFallback(query, msg);
       console.error('AI search error:', err);
     }
   }
 
-  const debouncedSearch = debounce(q => performAISearch(q), 500);
-  searchInput.addEventListener('input', function(){ debouncedSearch(this.value); });
+  const debounced = debounce(q=>aiSearch(q), 500);
+  input.addEventListener('input', function(){ debounced(this.value); });
+  input.addEventListener('focus', function(){ if (this.value.trim()) aiSearch(this.value); });
+  input.addEventListener('keydown', e=>{ if (e.key==='Enter' && input.value.trim()) aiSearch(input.value); });
 
-  document.addEventListener('click', e => {
-    if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
-      resultsContainer.style.display = 'none';
-    }
+  document.addEventListener('click', e=>{
+    if (!input.contains(e.target) && !box.contains(e.target)) box.style.display='none';
   });
 
-  searchInput.addEventListener('focus', function(){
-    if (this.value.trim()) performAISearch(this.value);
-  });
-  searchInput.addEventListener('keydown', function(e){
-    if (e.key === 'Enter' && this.value.trim()) performAISearch(this.value);
-  });
-
-  // Helper to store email after your login flow (if you use it)
+  // Helper to store email post-login
   window.storeUserEmail = function(email){
     if (email && typeof email === 'string') localStorage.setItem('userEmail', email);
   };
