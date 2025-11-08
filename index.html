@@ -117,13 +117,13 @@
 </div>
 
 <script>
-// --- CONFIG: set this to your *current* Apps Script Web App URL ---
-const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwKdJnXJg1goXGG8Mash76KYtqFZpx0MpsLe1eSuACGFAENXwvYdGTmUyri4GWU2Q/exec";
-// If your Manage deployments shows a different URL, paste that here.
+// --- SET YOUR LIVE WEB APP URL HERE (from Apps Script > Deploy > Manage deployments) ---
+const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbw34WEeu0OnWRw_cz9sz5Em4IuzD2QZ5WiB0eTTlXgb_l11f466y764VcQHi87GrwQArA/exec";
+// If your Manage deployments shows a different URL, paste it above. It must match your live deployment.
 
-// POST helper (kept same headers pattern you used)
 async function postJSON(data) {
   try {
+    // Using text/plain avoids a preflight and works well with Apps Script
     const response = await fetch(ENDPOINT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -155,7 +155,7 @@ codeInputs.forEach((inp,i)=>{
 });
 
 joinBtn.onclick=async()=>{
-  const firstName=firstNameInput.value.trim(), lastName=lastNameInput.value.trim(), email=emailInput.value.trim().toLowerCase();
+  const firstName=firstNameInput.value.trim(), lastName=lastNameInput.value.trim(), email=(emailInput.value||"").trim().toLowerCase();
   if(!firstName||!lastName||!email){joinMsg.textContent='First name, last name, and email required';joinMsg.className='msg err';return;}
   if(!consent.checked){joinMsg.textContent='Please agree to the Terms.';joinMsg.className='msg err';return;}
   joinMsg.textContent='Sending code…';joinMsg.className='msg ok';joinBtn.disabled=true;
@@ -191,7 +191,7 @@ verifyBtn.onclick=async()=>{
   verifyBtn.disabled=false;
 };
 
-// ✅ Minimal fix: use the action your backend handles for resends
+// Resend uses the backend's expected action: "request-otp"
 resendBtn.onclick=async()=>{
   const fullName = `${currentFirstName} ${currentLastName}`;
   resendBtn.disabled=true;
