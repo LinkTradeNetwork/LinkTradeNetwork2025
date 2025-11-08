@@ -76,9 +76,19 @@ textarea.form-control{min-height:100px;resize:vertical}
 .ai-result:last-child{border-bottom:none}
 .ai-result-title{font-weight:600;margin-bottom:4px}
 
-/* NEW: better placeholder contrast + keep popover on top */
 #ai-search-input::placeholder { color: rgba(255,255,255,.85); }
 #ai-results-container { z-index: 9999 !important; }
+
+/* NEW: Sponsors Styles */
+.sponsors-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.sponsor-card{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;align-items:center;text-align:center;transition:all .2s;text-decoration:none;color:var(--ink)}
+.sponsor-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(0,0,0,.08);transform:translateY(-2px)}
+.sponsor-logo{max-width:120px;max-height:50px;object-fit:contain;margin-bottom:10px}
+.sponsor-placeholder{width:100%;padding:20px;border:2px dashed var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:15px;font-weight:600;margin-bottom:10px;background:var(--panel)}
+.sponsor-description{font-size:13px;color:var(--muted);margin:0;line-height:1.4}
+.sponsor-featured{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none}
+.sponsor-featured .sponsor-description{color:rgba(255,255,255,.9)}
+.sponsor-featured .sponsor-placeholder{border-color:rgba(255,255,255,.3);color:white;background:rgba(255,255,255,.1)}
 
 @media(max-width:1100px){.shell{grid-template-columns:1fr 1fr}.right-sidebar{grid-column:span 2}}
 @media(max-width:768px){.shell{grid-template-columns:1fr}.right-sidebar{grid-column:span 1}.nav{margin-top:10px}.search-container{max-width:100%;margin-bottom:10px}}
@@ -164,7 +174,6 @@ textarea.form-control{min-height:100px;resize:vertical}
           <button class="fbtn">Sprinkler</button>
         </div>
 
-        <!-- DYNAMIC JOB LIST + PAGING (replaces demo cards) -->
         <div id="jobs-list" class="jobs-container"></div>
         <div id="jobs-empty" class="small" style="display:none;color:var(--muted);padding:8px 4px">
           No jobs found. Try another trade, keyword, or location.
@@ -211,7 +220,17 @@ textarea.form-control{min-height:100px;resize:vertical}
 
   <!-- RIGHT -->
   <aside class="right-sidebar">
+    <!-- NEW: SPONSORS SECTION -->
     <section class="card">
+      <div class="hd">Our Sponsors</div>
+      <div class="bd">
+        <div id="sponsors-container" class="sponsors-grid">
+          <div class="small" style="text-align:center;padding:20px;color:var(--muted)">Loading sponsors...</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:20px">
       <div class="hd">Get Connected</div>
       <div class="bd small">
         <p>Join the network built for skilled trades professionals:</p>
@@ -257,8 +276,8 @@ textarea.form-control{min-height:100px;resize:vertical}
 </main>
 
 <script>
-/* ===== CONFIG: set your Apps Script Web App URL (the /exec URL) ===== */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxi6T_04SEBkKAgAxPyqu9Uzsn76No-7JESp7Wi_XKFqBj-RVtkBwK6lALg126KIH8/exec";
+/* ===== CONFIG ===== */
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwydsl3Dng2EGj8mMm1fu6U__kuGT1XOHN4betIDyyQkGYQy2YjxtFpt8Nk5c0Zo18/exec";
 
 /* ===== Utility ===== */
 function debounce(fn, ms){let t;return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
@@ -267,6 +286,48 @@ const isHtmlResponse = (res) => {
   return ct.includes('text/html');
 };
 
+/* ===== NEW: Load Sponsors ===== */
+async function loadSponsors() {
+  const container = document.getElementById('sponsors-container');
+  
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'get-sponsors' })
+    });
+
+    if (!res.ok) throw new Error('Failed to load sponsors');
+    
+    const data = await res.json();
+    
+    if (!data.success || !data.sponsors || data.sponsors.length === 0) {
+      container.innerHTML = '<div class="small" style="text-align:center;padding:20px;color:var(--muted)">No sponsors yet.</div>';
+      return;
+    }
+
+    // Render sponsors
+    container.innerHTML = data.sponsors.map((sponsor, index) => {
+      const isFeatured = index === 0; // First sponsor is featured (Brainybot.net)
+      const cardClass = isFeatured ? 'sponsor-card sponsor-featured' : 'sponsor-card';
+      
+      return `
+        <a href="${sponsor.link}" target="_blank" rel="noopener noreferrer" class="${cardClass}">
+          ${sponsor.logoUrl 
+            ? `<img src="${sponsor.logoUrl}" alt="${sponsor.name}" class="sponsor-logo">`
+            : `<div class="sponsor-placeholder">${sponsor.name}</div>`
+          }
+          <p class="sponsor-description">${sponsor.description}</p>
+        </a>
+      `;
+    }).join('');
+
+  } catch (error) {
+    console.error('Error loading sponsors:', error);
+    container.innerHTML = '<div class="small" style="text-align:center;padding:20px;color:var(--muted)">Unable to load sponsors.</div>';
+  }
+}
+
 /* ===== Filter buttons behavior ===== */
 document.addEventListener('DOMContentLoaded', function() {
   const filterGroups = document.querySelectorAll('.filters');
@@ -274,13 +335,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const buttons = group.querySelectorAll('.fbtn');
     buttons.forEach(b => b.addEventListener('click', () => {
       if (!group.parentElement.classList.contains('form-group')) {
-        // Jobs filter bar (single select)
         buttons.forEach(x => x.classList.remove('active'));
         b.classList.add('active');
         const trade = b.textContent.trim().toLowerCase();
         loadJobs({ trade: trade === 'all' ? '' : trade, offset: 0 });
       } else {
-        // Multi-select tags in Job Posting form
         b.classList.toggle('active');
       }
     }));
@@ -290,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('file-upload').click();
   });
 
-  /* ===== LTN AI Search (diagnostics + robust handling) ===== */
+  /* ===== LTN AI Search ===== */
   const input = document.getElementById('ai-search-input');
   const box   = document.getElementById('ai-results-container');
 
@@ -351,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const email = localStorage.getItem('userEmail') || '';
       const res = await fetch(WEBAPP_URL, {
         method:'POST',
-        headers:{ 'Content-Type':'text/plain;charset=utf-8' }, // avoids CORS preflight with GAS
+        headers:{ 'Content-Type':'text/plain;charset=utf-8' },
         body: JSON.stringify({ action:'ai-search', query, email }),
         signal: controller.signal
       });
@@ -392,16 +451,14 @@ document.addEventListener('DOMContentLoaded', function() {
   input.addEventListener('input', function(){ debounced(this.value); });
   input.addEventListener('focus', function(){ if (this.value.trim()) aiSearch(this.value); });
   input.addEventListener('keydown', e=>{ if (e.key==='Enter' && input.value.trim()) aiSearch(input.value); });
-  // NEW: Esc closes the popover
   input.addEventListener('keydown', e => { if (e.key === 'Escape') { box.style.display='none'; box.innerHTML=''; } });
   document.addEventListener('click', e=>{ if (!input.contains(e.target) && !box.contains(e.target)) box.style.display='none'; });
 
-  // Helper to store email post-login
   window.storeUserEmail = function(email){
     if (email && typeof email === 'string') localStorage.setItem('userEmail', email);
   };
 
-  /* ===== JOB SEARCH (server-backed, no AI tokens) ===== */
+  /* ===== JOB SEARCH ===== */
   window.JOBS_STATE = { q:'', location:'', trade:'', limit:10, offset:0, total:0 };
 
   function renderJobs_(items){
@@ -479,8 +536,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (offset + limit < total) loadJobs({ offset: offset + limit });
   });
 
-  // initial jobs load
+  // Initial loads
   loadJobs();
+  loadSponsors(); // NEW: Load sponsors on page load
 });
 </script>
 
