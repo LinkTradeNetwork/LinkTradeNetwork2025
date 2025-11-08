@@ -1,37 +1,21 @@
 {
-  "routes": [
-    {
-      "route": "/api/*",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/*",
-      "serve": "/mobile-app.html",
-      "statusCode": 200
-    }
-  ],
   "navigationFallback": {
-    "rewrite": "/mobile-app.html",
-    "exclude": ["/icons/*", "/screenshots/*", "*.{css,js,json,png,jpg,svg,ico}"]
+    "rewrite": "/front.html",
+    "exclude": [
+      "/assets/*",
+      "/*.{css,js,png,jpg,jpeg,gif,svg,ico,webp}"
+    ]
+  },
+  "globalHeaders": {
+    "content-security-policy": "default-src 'self'; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://*.googleusercontent.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin"
   },
   "mimeTypes": {
     ".json": "application/json",
     ".js": "text/javascript",
     ".css": "text/css",
-    ".png": "image/png",
-    ".jpg": "image/jpeg",
-    ".svg": "image/svg+xml"
-  },
-  "globalHeaders": {
-    "cache-control": "public, max-age=3600",
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "DENY",
-    "X-XSS-Protection": "1; mode=block"
-  },
-  "responseOverrides": {
-    "404": {
-      "rewrite": "/mobile-app.html",
-      "statusCode": 200
-    }
+    ".html": "text/html"
   }
 }
+
