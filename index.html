@@ -28,33 +28,37 @@
   .logo-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
   .logo{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#4facfe,#00f2fe);display:grid;place-items:center;font-size:28px;box-shadow:0 4px 12px rgba(79,172,254,0.3)}
   .brand-name{font-size:24px;font-weight:800;color:#ffffff;text-shadow:0 2px 4px rgba(0,0,0,0.1)}
-  .trades{display:flex;gap:10px;margin-bottom:32px;flex-wrap:wrap;justify-content:center;max-width:600px}
+  .trades{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;justify-content:center;max-width:600px}
   .trade-badge{background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.3);color:#ffffff;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:32px 28px;width:100%;max-width:440px}
-  h1{text-align:center;margin-bottom:6px;color:var(--ink);font-size:28px}
-  p.sub{text-align:center;color:var(--muted);margin-bottom:18px;font-size:15px}
-  label{display:block;margin-top:12px;font-size:14px;color:var(--ink);font-weight:500}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:26px 24px;width:100%;max-width:460px}
+  h1{text-align:center;margin-bottom:6px;color:var(--ink);font-size:26px}
+  p.sub{text-align:center;color:var(--muted);margin-bottom:14px;font-size:15px}
+  label{display:block;margin-top:10px;font-size:14px;color:var(--ink);font-weight:500}
   input{width:100%;margin-top:6px;background:#f8fafc;color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px;font-size:14px;transition:all 0.2s}
   input:focus{outline:none;border-color:var(--accent);background:#ffffff;box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
   .name-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .agree{display:flex;gap:8px;margin-top:12px;font-size:13px;align-items:center}
+  .agree{display:flex;gap:8px;margin-top:10px;font-size:13px;align-items:center}
   .agree input[type="checkbox"]{width:auto;margin:0}
   .agree a{color:var(--accent);text-decoration:none;font-weight:600}
   .agree a:hover{text-decoration:underline}
-  button{width:100%;margin-top:16px;background:var(--brand);color:#fff;border:0;border-radius:10px;padding:14px;font-weight:700;font-size:15px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 12px rgba(234,106,0,0.3)}
+  button{width:100%;margin-top:14px;background:var(--brand);color:#fff;border:0;border-radius:10px;padding:14px;font-weight:700;font-size:15px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 12px rgba(234,106,0,0.3)}
   button:hover{background:#c35700;transform:translateY(-1px);box-shadow:0 6px 16px rgba(234,106,0,0.4)}
   button:disabled{opacity:0.6;cursor:not-allowed;transform:none}
-  .msg{margin-top:12px;font-size:13px;font-weight:500;padding:8px 12px;border-radius:8px}
+  .msg{margin-top:10px;font-size:13px;font-weight:500;padding:8px 12px;border-radius:8px}
   .err{color:var(--err);background:#fef2f2;border:1px solid #fecaca} 
   .ok{color:var(--ok);background:#f0fdf4;border:1px solid #bbf7d0}
-  .otp-box{margin-top:18px;display:none}
-  .otp-inputs{display:flex;gap:10px;margin:14px 0;justify-content:center}
+  .otp-box{margin-top:14px;display:none}
+  .otp-inputs{display:flex;gap:10px;margin:12px 0;justify-content:center}
   .otp-inputs input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border:2px solid var(--line);border-radius:10px;background:#f8fafc;color:var(--ink)}
   .otp-inputs input:focus{border-color:var(--accent);background:#ffffff}
   #resendBtn{background:#64748b;box-shadow:0 4px 12px rgba(100,116,139,0.2)}
   #resendBtn:hover{background:#475569}
   .otp-box > div:first-child{text-align:center;color:var(--muted);font-size:14px}
   .otp-box > div:first-child b{color:var(--ink)}
+  /* Tabs */
+  .tabs{display:flex;gap:8px;margin:0 auto 14px;max-width:460px}
+  .tab{flex:1;text-align:center;background:#eef2ff;border:1px solid #c7d2fe;border-radius:9999px;padding:10px;font-weight:700;color:#3730a3;cursor:pointer}
+  .tab.active{background:#3730a3;color:white;border-color:#3730a3}
 </style>
 </head>
 <body>
@@ -74,10 +78,16 @@
     <span class="trade-badge">Supervisors</span>
   </div>
 
-  <div class="card">
-    <h1>Sign In</h1>
-    <p class="sub">Verify your email to continue</p>
+  <div class="tabs">
+    <div class="tab active" id="tab-signup">Sign Up</div>
+    <div class="tab" id="tab-signin">Sign In</div>
+  </div>
 
+  <div class="card">
+    <h1 id="cardTitle">Sign Up</h1>
+    <p class="sub" id="cardSub">First time here? Verify your email to continue</p>
+
+    <!-- Sign Up -->
     <div id="joinStep">
       <div class="name-grid">
         <div>
@@ -95,19 +105,27 @@
         <input id="consent" type="checkbox">
         <span>I agree to the <a href="/terms.html" target="_blank">Terms &amp; Conditions</a>.</span>
       </label>
-      <button id="joinBtn">Sign In</button>
+      <button id="joinBtn">Get One-Time Code</button>
       <div id="joinMsg" class="msg"></div>
+
+      <div id="otpStep" class="otp-box">
+        <div>Enter the 6-digit code sent to <b id="otpEmail"></b></div>
+        <div class="otp-inputs">
+          <input maxlength="1"><input maxlength="1"><input maxlength="1">
+          <input maxlength="1"><input maxlength="1"><input maxlength="1">
+        </div>
+        <button id="verifyBtn">Verify</button>
+        <button id="resendBtn">Resend Code</button>
+        <div id="otpMsg" class="msg"></div>
+      </div>
     </div>
 
-    <div id="otpStep" class="otp-box">
-      <div>Enter the 6-digit code sent to <b id="otpEmail"></b></div>
-      <div class="otp-inputs">
-        <input maxlength="1"><input maxlength="1"><input maxlength="1">
-        <input maxlength="1"><input maxlength="1"><input maxlength="1">
-      </div>
-      <button id="verifyBtn">Verify</button>
-      <button id="resendBtn">Resend Code</button>
-      <div id="otpMsg" class="msg"></div>
+    <!-- Sign In (no OTP if verified) -->
+    <div id="signinStep" style="display:none;">
+      <label>Email</label>
+      <input id="signinEmail" type="email" placeholder="you@example.com" />
+      <button id="signinBtn">Sign In</button>
+      <div id="signinMsg" class="msg"></div>
     </div>
 
     <div id="doneStep" class="msg ok" style="display:none">
@@ -118,12 +136,10 @@
 
 <script>
 // --- SET YOUR LIVE WEB APP URL HERE (from Apps Script > Deploy > Manage deployments) ---
-const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbw34WEeu0OnWRw_cz9sz5Em4IuzD2QZ5WiB0eTTlXgb_l11f466y764VcQHi87GrwQArA/exec";
-// If your Manage deployments shows a different URL, paste it above. It must match your live deployment.
+const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbykdsR1OqP-xkGnnGi-42v4atqIh39hXNo6RMfCUAMdf6CyxV9RbwdgC-MYEWUY-Vc/exec";
 
 async function postJSON(data) {
   try {
-    // Using text/plain avoids a preflight and works well with Apps Script
     const response = await fetch(ENDPOINT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -136,13 +152,42 @@ async function postJSON(data) {
   }
 }
 
-const $ = s => document.querySelector(s);
+const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
+
+// Tabs
+const tabSignup = $('#tab-signup');
+const tabSignin = $('#tab-signin');
+const cardTitle = $('#cardTitle');
+const cardSub   = $('#cardSub');
+const joinStep  = $('#joinStep');
+const signinStep= $('#signinStep');
+
+tabSignup.onclick = () => {
+  tabSignup.classList.add('active'); tabSignin.classList.remove('active');
+  cardTitle.textContent = 'Sign Up';
+  cardSub.textContent   = 'First time here? Verify your email to continue';
+  joinStep.style.display = 'block';
+  signinStep.style.display = 'none';
+};
+
+tabSignin.onclick = () => {
+  tabSignin.classList.add('active'); tabSignup.classList.remove('active');
+  cardTitle.textContent = 'Sign In';
+  cardSub.textContent   = 'Already verified? Sign in with your email — no code needed';
+  joinStep.style.display = 'none';
+  signinStep.style.display = 'block';
+};
+
+// Sign Up elements
 const joinBtn=$('#joinBtn'), joinMsg=$('#joinMsg');
 const otpBox=$('#otpStep'), otpMsg=$('#otpMsg'), otpEmail=$('#otpEmail');
 const verifyBtn=$('#verifyBtn'), resendBtn=$('#resendBtn');
 const firstNameInput=$('#firstName'), lastNameInput=$('#lastName'), emailInput=$('#email'), consent=$('#consent');
 const codeInputs=$$('#otpStep input');
+
+// Sign In elements
+const signinEmail=$('#signinEmail'), signinBtn=$('#signinBtn'), signinMsg=$('#signinMsg');
 
 let currentEmail='', currentFirstName='', currentLastName='';
 
@@ -154,8 +199,9 @@ codeInputs.forEach((inp,i)=>{
   });
 });
 
+// Sign Up: request code
 joinBtn.onclick=async()=>{
-  const firstName=firstNameInput.value.trim(), lastName=lastNameInput.value.trim(), email=(emailInput.value||"").trim().toLowerCase();
+  const firstName=(firstNameInput.value||"").trim(), lastName=(lastNameInput.value||"").trim(), email=(emailInput.value||"").trim().toLowerCase();
   if(!firstName||!lastName||!email){joinMsg.textContent='First name, last name, and email required';joinMsg.className='msg err';return;}
   if(!consent.checked){joinMsg.textContent='Please agree to the Terms.';joinMsg.className='msg err';return;}
   joinMsg.textContent='Sending code…';joinMsg.className='msg ok';joinBtn.disabled=true;
@@ -164,13 +210,13 @@ joinBtn.onclick=async()=>{
     const r=await postJSON({action:'signup',name:fullName,email,consent:true,userAgent:navigator.userAgent});
     if(r.success){
       currentEmail=email;currentFirstName=firstName;currentLastName=lastName;otpEmail.textContent=email;
-      document.getElementById('joinStep').style.display='none';otpBox.style.display='block';
-      joinMsg.textContent='';
+      otpBox.style.display='block'; joinMsg.textContent='';
     }else throw new Error(r.error||'Failed');
   }catch(e){joinMsg.textContent=e.message;joinMsg.className='msg err';}
   joinBtn.disabled=false;
 };
 
+// Sign Up: verify OTP
 verifyBtn.onclick=async()=>{
   const c=code();
   if(c.length!==6){otpMsg.textContent='Enter full code';otpMsg.className='msg err';return;}
@@ -180,18 +226,18 @@ verifyBtn.onclick=async()=>{
     if(r.success){
       localStorage.setItem('ltn_user', JSON.stringify({
         firstName: currentFirstName,
-        lastName: currentLastName,
-        name: `${currentFirstName} ${currentLastName}`,
-        email: currentEmail
+        lastName:  currentLastName,
+        name:      `${currentFirstName} ${currentLastName}`,
+        email:     currentEmail
       }));
-      otpBox.style.display='none';document.getElementById('doneStep').style.display='block';
+      otpBox.style.display='none';$('#doneStep').style.display='block';
       setTimeout(()=>{ window.location.replace("/front.html"); }, 900);
-    }else throw new Error(r.error||'Invalid');
+    }else throw new Error(r.error||'Invalid or expired code');
   }catch(e){otpMsg.textContent=e.message;otpMsg.className='msg err';}
   verifyBtn.disabled=false;
 };
 
-// Resend uses the backend's expected action: "request-otp"
+// Sign Up: resend OTP
 resendBtn.onclick=async()=>{
   const fullName = `${currentFirstName} ${currentLastName}`;
   resendBtn.disabled=true;
@@ -201,6 +247,36 @@ resendBtn.onclick=async()=>{
     otpMsg.className='msg '+(r.success?'ok':'err');
   }catch(e){otpMsg.textContent=e.message;otpMsg.className='msg err';}
   setTimeout(()=>resendBtn.disabled=false, 3000);
+};
+
+// Sign In: no OTP — backend checks Verified
+signinBtn.onclick=async()=>{
+  const email=(signinEmail.value||"").trim().toLowerCase();
+  if(!email){signinMsg.textContent='Email required';signinMsg.className='msg err';return;}
+  signinBtn.disabled = true;
+  signinMsg.textContent = 'Signing in…'; signinMsg.className='msg ok';
+  try{
+    const r=await postJSON({action:'signin',email,userAgent:navigator.userAgent});
+    if(r.success){
+      // optional: save minimal user
+      localStorage.setItem('ltn_user', JSON.stringify({ email, name: (r.user && r.user.name) || "" }));
+      window.location.replace("/front.html");
+    }else{
+      // If backend says this email needs OTP, flip to Sign Up tab and show message
+      if (r.requiresOtp) {
+        tabSignup.click();
+        joinMsg.textContent = r.error || 'Please Sign Up to receive a code.';
+        joinMsg.className = 'msg err';
+        emailInput.value = email; // carry over the email
+      } else {
+        signinMsg.textContent = r.error || 'Unable to sign in';
+        signinMsg.className   = 'msg err';
+      }
+    }
+  }catch(e){
+    signinMsg.textContent = e.message; signinMsg.className='msg err';
+  }
+  signinBtn.disabled = false;
 };
 </script>
 </body>
