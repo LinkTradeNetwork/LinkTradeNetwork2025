@@ -60,7 +60,7 @@
 <body>
 <div class="wrap">
   <div class="logo-header">
-    <div class="logo">🌍</div>
+    <div class="logo">🌐</div>
     <div class="brand-name">LinkTradeNetwork</div>
   </div>
 
@@ -117,13 +117,13 @@
 </div>
 
 <script>
-// API helper function with Google Apps Script URL
+// ⚠️ UPDATED API URL
 async function postJSON(data) {
   try {
     const response = await fetch('https://script.google.com/macros/s/AKfycbwydsl3Dng2EGj8mMm1fu6U__kuGT1XOHN4betIDyyQkGYQy2YjxtFpt8Nk5c0Zo18/exec', {
       method: 'POST',
       headers: { 
-        'Content-Type': 'application/json'
+        'Content-Type': 'text/plain;charset=utf-8'
       },
       body: JSON.stringify(data)
     });
@@ -204,3 +204,26 @@ resendBtn.onclick=async()=>{
 </script>
 </body>
 </html>
+```
+
+---
+
+## STEP 2: Upload This to GitHub
+```
+1. Go to: https://github.com/LinkTradeNetwork/LinkTradeNetwork2025
+2. Click "index.html"
+3. Click pencil ✏️ to edit
+4. DELETE all the old code
+5. PASTE the code above
+6. Scroll down
+7. Commit message: "Update API URL in index.html"
+8. Click "Commit changes"
+```
+
+---
+
+## STEP 3: Wait and Test
+```
+1. Wait 2 minutes for Azure to deploy
+2. Go to: https://victorious-flower-0573617f3.azurestaticapps.net
+3. Test the login!
