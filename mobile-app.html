@@ -1,1 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#3d5a80">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LTN">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Find skilled trade jobs on the go. Connect with contractors, apply instantly, and advance your career.">
 
+<!-- PWA Icons -->
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="manifest" href="./manifest.json">
+
+<title>Link Trade Network • Mobile</title>
+
+<style>
+:root{
+  --bg:#f0f4f8;--ink:#293241;--muted:#5d7290;--line:#cfd9e6;--panel:#ffffff;
+  --brand:#ea6a00;--brand2:#c35700;--accent:#3d5a80;
+  --safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;line-height:1.5;padding-bottom:calc(70px + var(--safe-bottom));overflow-x:hidden}
+
+/* Header */
+.header{background:var(--accent);color:white;padding:max(12px,var(--safe-top)) 16px 12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.header-inner{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-badge{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#ff7e00,#ffaa00);display:grid;place-items:center;font-weight:800;font-size:16px}
+.logo-text{font-size:16px;font-weight:700}
+.header-actions{display:flex;gap:8px}
+.icon-btn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.15);border:none;display:grid;place-items:center;cursor:pointer;transition:all .2s}
+.icon-btn:active{transform:scale(.95);background:rgba(255,255,255,.25)}
+
+/* Search Bar */
+.search-bar{padding:12px 16px;background:white;border-bottom:1px solid var(--line)}
+.search-input{width:100%;padding:12px 40px 12px 16px;border:1px solid var(--line);border-radius:12px;font-size:15px;background:var(--bg)}
+.search-input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(234,106,0,.1)}
+
+/* Filters */
+.filters{padding:12px 16px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.filters::-webkit-scrollbar{display:none}
+.filter-btn{padding:8px 16px;border:1px solid var(--line);border-radius:20px;background:white;font-size:14px;font-weight:500;white-space:nowrap;cursor:pointer;transition:all .2s}
+.filter-btn.active{background:var(--brand);color:white;border-color:var(--brand)}
+
+/* Content */
+.content{padding:16px}
+.card{background:white;border:1px solid var(--line);border-radius:12px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);overflow:hidden}
+.card-header{padding:16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#ffffff,#f8fafc)}
+.card-title{font-weight:700;font-size:17px;margin:0 0 4px}
+.card-meta{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.card-body{padding:16px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.tag{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;color:var(--accent)}
+.btn{display:block;width:100%;padding:12px;border-radius:10px;border:none;font-weight:600;font-size:15px;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--brand);color:white}
+.btn-primary:active{background:var(--brand2);transform:scale(.98)}
+.btn-secondary{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.btn-secondary:active{background:#e1e7ed}
+
+/* Bottom Nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 0 calc(8px + var(--safe-bottom));z-index:100;box-shadow:0 -2px 8px rgba(0,0,0,.05)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;color:var(--muted);text-decoration:none;font-size:11px;cursor:pointer;transition:all .2s}
+.nav-item.active{color:var(--brand)}
+.nav-item svg{width:24px;height:24px}
+.nav-item:active{transform:scale(.95)}
+
+/* Screens */
+.screen{display:none}
+.screen.active{display:block}
+
+/* Profile Card */
+.profile-card{display:flex;align-items:center;gap:12px;padding:16px;background:white;border-radius:12px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.profile-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:grid;place-items:center;font-size:24px;font-weight:700;color:white}
+.profile-info{flex:1}
+.profile-name{font-weight:700;font-size:16px;margin:0 0 2px}
+.profile-role{font-size:14px;color:var(--muted)}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+.stat{background:white;border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+.stat-number{font-size:28px;font-weight:700;color:var(--accent);margin:0 0 4px}
+.stat-label{font-size:13px;color:var(--muted)}
+
+/* AI Chat */
+.ai-chat{max-height:400px;overflow-y:auto;padding:16px;background:white;border-radius:12px;margin-bottom:16px}
+.ai-message{margin-bottom:16px;padding:12px;border-radius:12px;background:var(--bg);line-height:1.5}
+.ai-message.user{background:var(--brand);color:white;margin-left:20%;text-align:right}
+.ai-input-group{display:flex;gap:8px}
+.ai-input{flex:1;padding:12px;border:1px solid var(--line);border-radius:12px;font-size:15px}
+
+/* Loading */
+.loading{text-align:center;padding:40px;color:var(--muted)}
+.spinner{width:40px;height:40px;border:4px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Empty State */
+.empty{text-align:center;padding:40px;color:var(--muted)}
+.empty svg{width:80px;height:80px;margin:0 auto 16px;opacity:.3}
+
+/* Install Prompt */
+.install-prompt{position:fixed;bottom:80px;left:16px;right:16px;background:var(--accent);color:white;padding:16px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.2);display:none;z-index:200}
+.install-prompt.show{display:block;animation:slideUp .3s}
+@keyframes slideUp{from{transform:translateY(100px);opacity:0}to{transform:translateY(0);opacity:1}}
+.install-prompt-content{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.install-prompt-icon{font-size:32px}
+.install-prompt-title{font-weight:700;margin:0 0 4px}
+.install-prompt-text{font-size:13px;opacity:.9}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-badge">LTN</div>
+      <div class="logo-text">Link Trade Network</div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="notifications-btn" aria-label="Notifications">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- HOME SCREEN -->
+<div class="screen active" id="home-screen">
+  <!-- Search -->
+  <div class="search-bar">
+    <input type="text" class="search-input" id="home-search" placeholder="Search jobs, trades, locations...">
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <button class="filter-btn active" data-trade="all">All</button>
+    <button class="filter-btn" data-trade="electrical">Electrical</button>
+    <button class="filter-btn" data-trade="plumbing">Plumbing</button>
+    <button class="filter-btn" data-trade="hvac">HVAC</button>
+    <button class="filter-btn" data-trade="low voltage">Low Voltage</button>
+    <button class="filter-btn" data-trade="welding">Welding</button>
+  </div>
+
+  <!-- Jobs List -->
+  <div class="content">
+    <div id="jobs-list"></div>
+    <div id="jobs-loading" class="loading" style="display:none">
+      <div class="spinner"></div>
+      <div>Loading jobs...</div>
+    </div>
+    <div id="jobs-empty" class="empty" style="display:none">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <div>No jobs found</div>
+      <div style="font-size:13px">Try different filters or search terms</div>
+    </div>
+  </div>
+</div>
+
+<!-- AI SCREEN -->
+<div class="screen" id="ai-screen">
+  <div class="content">
+    <h2 style="margin:0 0 16px">LTN AI Assistant</h2>
+    <div class="ai-chat" id="ai-chat">
+      <div class="ai-message">
+        👋 Hi! I'm LTN AI. Ask me about:
+        <br>• Trade jobs and certifications
+        <br>• Apprenticeship programs
+        <br>• Career advice for skilled trades
+        <br>• Licensing requirements
+      </div>
+    </div>
+    <div class="ai-input-group">
+      <input type="text" class="ai-input" id="ai-input" placeholder="Ask me anything...">
+      <button class="btn btn-primary" id="ai-send" style="width:auto;padding:12px 24px">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div class="screen" id="profile-screen">
+  <div class="content">
+    <div class="profile-card">
+      <div class="profile-avatar">JD</div>
+      <div class="profile-info">
+        <div class="profile-name">John Doe</div>
+        <div class="profile-role">Electrician • 5 years exp</div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-number">24</div>
+        <div class="stat-label">Applications</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">8</div>
+        <div class="stat-label">Saved Jobs</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">42</div>
+        <div class="stat-label">Connections</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">95%</div>
+        <div class="stat-label">Profile Complete</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <button class="btn btn-primary" style="margin-bottom:10px">Edit Profile</button>
+        <button class="btn btn-secondary" style="margin-bottom:10px">My Applications</button>
+        <button class="btn btn-secondary" style="margin-bottom:10px">Settings</button>
+        <button class="btn btn-secondary">Sign Out</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="#" class="nav-item active" data-screen="home">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+    <span>Jobs</span>
+  </a>
+  <a href="#" class="nav-item" data-screen="ai">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+    <span>AI</span>
+  </a>
+  <a href="#" class="nav-item" data-screen="profile">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+    <span>Profile</span>
+  </a>
+</nav>
+
+<!-- Install Prompt -->
+<div class="install-prompt" id="install-prompt">
+  <div class="install-prompt-content">
+    <div class="install-prompt-icon">📱</div>
+    <div>
+      <div class="install-prompt-title">Install LTN App</div>
+      <div class="install-prompt-text">Add to your home screen for the best experience</div>
+    </div>
+  </div>
+  <button class="btn btn-primary" id="install-btn" style="margin-bottom:8px">Install Now</button>
+  <button class="btn btn-secondary" id="install-dismiss">Not Now</button>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbwydsl3Dng2EGj8mMm1fu6U__kuGT1XOHN4betIDyyQkGYQy2YjxtFpt8Nk5c0Zo18/exec';
+
+// Screen Navigation
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', (e) => {
+    e.preventDefault();
+    const screen = e.currentTarget.dataset.screen;
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(screen + '-screen').classList.add('active');
+    e.currentTarget.classList.add('active');
+  });
+});
+
+// Filter Buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const trade = btn.dataset.trade === 'all' ? '' : btn.dataset.trade;
+    loadJobs({ trade, offset: 0 });
+  });
+});
+
+// Jobs Loading
+let jobsState = { trade: '', query: '', offset: 0, limit: 20 };
+
+async function loadJobs(opts = {}) {
+  jobsState = { ...jobsState, ...opts };
+  const list = document.getElementById('jobs-list');
+  const loading = document.getElementById('jobs-loading');
+  const empty = document.getElementById('jobs-empty');
+
+  list.innerHTML = '';
+  loading.style.display = 'block';
+  empty.style.display = 'none';
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'job-search',
+        query: jobsState.query,
+        trade: jobsState.trade,
+        limit: jobsState.limit,
+        offset: jobsState.offset
+      })
+    });
+
+    const data = await res.json();
+    loading.style.display = 'none';
+
+    if (!data.success || !data.results || data.results.length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+
+    data.results.forEach(job => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-header">
+          <div class="card-title">${job.title || 'Job'}</div>
+          <div class="card-meta">
+            <span>📍 ${[job.city, job.state].filter(Boolean).join(', ')}</span>
+            <span>💰 ${job.pay || 'Competitive'}</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="tags">
+            ${(job.tradeTags || '').split(',').filter(Boolean).slice(0, 3).map(t => 
+              `<span class="tag">${t.trim()}</span>`
+            ).join('')}
+          </div>
+          <p style="font-size:14px;color:var(--muted);margin:0 0 12px">${job.company || ''}</p>
+          ${job.link ? `<a href="${job.link}" target="_blank" class="btn btn-primary">Apply Now</a>` : ''}
+        </div>
+      `;
+      list.appendChild(card);
+    });
+
+  } catch (error) {
+    console.error('Job loading error:', error);
+    loading.style.display = 'none';
+    empty.style.display = 'block';
+  }
+}
+
+// AI Chat
+document.getElementById('ai-send').addEventListener('click', sendAIMessage);
+document.getElementById('ai-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendAIMessage();
+});
+
+async function sendAIMessage() {
+  const input = document.getElementById('ai-input');
+  const chat = document.getElementById('ai-chat');
+  const query = input.value.trim();
+
+  if (!query) return;
+
+  // Add user message
+  const userMsg = document.createElement('div');
+  userMsg.className = 'ai-message user';
+  userMsg.textContent = query;
+  chat.appendChild(userMsg);
+  input.value = '';
+  chat.scrollTop = chat.scrollHeight;
+
+  // Add thinking indicator
+  const thinking = document.createElement('div');
+  thinking.className = 'ai-message';
+  thinking.innerHTML = '💭 Thinking...';
+  chat.appendChild(thinking);
+  chat.scrollTop = chat.scrollHeight;
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'ai-search',
+        query: query,
+        email: localStorage.getItem('userEmail') || ''
+      })
+    });
+
+    const data = await res.json();
+    thinking.remove();
+
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'ai-message';
+    aiMsg.textContent = data.success && data.response ? data.response.content : 'Sorry, I had trouble with that. Try again?';
+    chat.appendChild(aiMsg);
+    chat.scrollTop = chat.scrollHeight;
+
+  } catch (error) {
+    thinking.remove();
+    const errMsg = document.createElement('div');
+    errMsg.className = 'ai-message';
+    errMsg.textContent = 'Connection error. Please try again.';
+    chat.appendChild(errMsg);
+    chat.scrollTop = chat.scrollHeight;
+  }
+}
+
+// PWA Install
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  
+  // Show custom install prompt after 3 seconds
+  setTimeout(() => {
+    document.getElementById('install-prompt').classList.add('show');
+  }, 3000);
+});
+
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  
+  if (outcome === 'accepted') {
+    console.log('App installed');
+  }
+  
+  deferredPrompt = null;
+  document.getElementById('install-prompt').classList.remove('show');
+});
+
+document.getElementById('install-dismiss').addEventListener('click', () => {
+  document.getElementById('install-prompt').classList.remove('show');
+});
+
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(() => {
+    console.log('Service Worker registered');
+  });
+}
+
+// Initial load
+loadJobs();
+</script>
+
+</body>
+</html>
