@@ -253,6 +253,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,Bl
 </div>
 
 <script>
+// ⚠️ IMPORTANT: CHANGE THIS TO YOUR APPS SCRIPT URL
 const API_URL = 'https://script.google.com/macros/s/AKfycbwydsl3Dng2EGj8mMm1fu6U__kuGT1XOHN4betIDyyQkGYQy2YjxtFpt8Nk5c0Zo18/exec';
 
 // Screen Navigation
@@ -407,7 +408,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
   
-  // Show custom install prompt after 3 seconds
   setTimeout(() => {
     document.getElementById('install-prompt').classList.add('show');
   }, 3000);
@@ -444,3 +444,16 @@ loadJobs();
 
 </body>
 </html>
+```
+
+---
+
+## STEP 3: Paste and Save
+```
+1. Select ALL the code above (click in the box, Ctrl+A)
+2. Copy it (Ctrl+C)
+3. Go to GitHub (mobile-app.html editor)
+4. Paste it (Ctrl+V)
+5. Scroll down to bottom
+6. Type commit message: "Update mobile app with full code"
+7. Click "Commit changes"
