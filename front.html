@@ -544,7 +544,7 @@ select.form-control{cursor:pointer}
 
 <script>
 /* ===== CONFIG ===== */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwydsl3Dng2EGj8mMm1fu6U__kuGT1XOHN4betIDyyQkGYQy2YjxtFpt8Nk5c0Zo18/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxPC75k0PVGULCWNkABK2Cc7uSo3xcAdven3r8KBrTyEeVdJBHuhDZvMLp6ciyenxi2_A/exec";
 
 /* ===== Utility ===== */
 function debounce(fn, ms){let t;return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
@@ -605,7 +605,7 @@ const ProfileManager = {
     });
   },
 
-  handleImageUpload(file) {
+  async handleImageUpload(file) {
     if (!file) return;
     
     if (!file.type.startsWith('image/')) {
@@ -614,10 +614,41 @@ const ProfileManager = {
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const imageData = e.target.result;
-      localStorage.setItem('profileImage', imageData);
-      this.displayProfileImage(imageData);
+      const email = localStorage.getItem('userEmail');
+      
+      if (!email) {
+        // Fallback to localStorage if not signed in
+        localStorage.setItem('profileImage', imageData);
+        this.displayProfileImage(imageData);
+        return;
+      }
+
+      try {
+        // Upload to backend
+        const res = await fetch(WEBAPP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'upload-image',
+            email: email,
+            imageData: imageData,
+            fileName: file.name
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          this.displayProfileImage(imageData);
+          alert('Profile image uploaded successfully!');
+        } else {
+          alert('Failed to upload image: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Failed to upload image. Please try again.');
+      }
     };
     reader.readAsDataURL(file);
   },
@@ -633,6 +664,7 @@ const ProfileManager = {
   handleDocumentUpload(files) {
     if (!files || files.length === 0) return;
 
+    // For now, store in localStorage (you can enhance this to upload to Drive later)
     const documents = JSON.parse(localStorage.getItem('profileDocuments') || '[]');
     
     Array.from(files).forEach(file => {
@@ -682,10 +714,41 @@ const ProfileManager = {
     this.displayDocuments();
   },
 
-  openModal() {
-    const profile = this.getProfile();
+  async openModal() {
+    const email = localStorage.getItem('userEmail');
     
-    document.getElementById('input-name').value = profile.name || '';
+    if (!email) {
+      // Fallback to localStorage
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      this.populateForm(profile);
+      document.getElementById('profile-modal').classList.add('active');
+      return;
+    }
+
+    try {
+      // Load from backend
+      const res = await fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'get-profile', email: email })
+      });
+
+      const data = await res.json();
+      if (data.success && data.profile) {
+        this.populateForm(data.profile);
+      } else {
+        // New profile - pre-fill email
+        document.getElementById('input-email').value = email;
+      }
+    } catch (error) {
+      console.error('Load profile error:', error);
+    }
+    
+    document.getElementById('profile-modal').classList.add('active');
+  },
+
+  populateForm(profile) {
+    document.getElementById('input-name').value = profile.fullName || profile.name || '';
     document.getElementById('input-email').value = profile.email || '';
     document.getElementById('input-phone').value = profile.phone || '';
     document.getElementById('input-trade').value = profile.trade || '';
@@ -695,18 +758,23 @@ const ProfileManager = {
     document.getElementById('input-bio').value = profile.bio || '';
     document.getElementById('input-skills').value = profile.skills || '';
     document.getElementById('input-certifications').value = profile.certifications || '';
-    
-    document.getElementById('profile-modal').classList.add('active');
   },
 
   closeModal() {
     document.getElementById('profile-modal').classList.remove('active');
   },
 
-  saveProfile() {
+  async saveProfile() {
+    const email = document.getElementById('input-email').value.trim();
+    
+    if (!email) {
+      alert('Email is required');
+      return;
+    }
+
     const profile = {
-      name: document.getElementById('input-name').value.trim(),
-      email: document.getElementById('input-email').value.trim(),
+      email: email,
+      fullName: document.getElementById('input-name').value.trim(),
       phone: document.getElementById('input-phone').value.trim(),
       trade: document.getElementById('input-trade').value,
       experience: document.getElementById('input-experience').value,
@@ -714,44 +782,80 @@ const ProfileManager = {
       state: document.getElementById('input-state').value,
       bio: document.getElementById('input-bio').value.trim(),
       skills: document.getElementById('input-skills').value.trim(),
-      certifications: document.getElementById('input-certifications').value.trim(),
-      updatedAt: new Date().toISOString()
+      certifications: document.getElementById('input-certifications').value.trim()
     };
 
-    if (!profile.name || !profile.email || !profile.trade || !profile.city || !profile.state) {
+    if (!profile.fullName || !profile.trade || !profile.city || !profile.state) {
       alert('Please fill in all required fields (marked with *)');
       return;
     }
 
-    localStorage.setItem('userProfile', JSON.stringify(profile));
-    this.displayProfile();
-    this.closeModal();
-    alert('Profile saved successfully!');
-  },
+    try {
+      // Save to backend
+      const res = await fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'save-profile', ...profile })
+      });
 
-  getProfile() {
-    return JSON.parse(localStorage.getItem('userProfile') || '{}');
-  },
-
-  loadProfile() {
-    const profile = this.getProfile();
-    const imageData = localStorage.getItem('profileImage');
-    
-    if (imageData) {
-      this.displayProfileImage(imageData);
+      const data = await res.json();
+      
+      if (data.success) {
+        // Store email for future use
+        localStorage.setItem('userEmail', email);
+        
+        this.displayProfile(profile);
+        this.closeModal();
+        alert('Profile saved successfully!');
+      } else {
+        alert('Failed to save profile: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Save profile error:', error);
+      alert('Failed to save profile. Please try again.');
     }
+  },
+
+  async loadProfile() {
+    const email = localStorage.getItem('userEmail');
     
-    this.displayProfile();
+    if (!email) {
+      // Try localStorage fallback
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      this.displayProfile(profile);
+      return;
+    }
+
+    try {
+      const res = await fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'get-profile', email: email })
+      });
+
+      const data = await res.json();
+      
+      if (data.success && data.profile) {
+        this.displayProfile(data.profile);
+        
+        // Load profile image if exists
+        if (data.profile.profileImageUrl) {
+          this.displayProfileImage(data.profile.profileImageUrl);
+        }
+      }
+    } catch (error) {
+      console.error('Load profile error:', error);
+    }
   },
 
   loadDocuments() {
     this.displayDocuments();
   },
 
-  displayProfile() {
-    const profile = this.getProfile();
+  displayProfile(profile) {
+    if (!profile) profile = {};
     
-    document.getElementById('display-name').textContent = profile.name || 'Your Name';
+    document.getElementById('display-name').textContent = profile.fullName || profile.name || 'Your Name';
     document.getElementById('display-trade').textContent = profile.trade 
       ? (profile.experience ? `${profile.trade} • ${profile.experience} years` : profile.trade)
       : 'Your Trade';
