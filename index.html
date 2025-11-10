@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <title>LinkTradeNetwork • Sign In</title>
 <style>
   :root { 
@@ -11,60 +13,389 @@
     --ink:#1e293b; 
     --muted:#64748b; 
     --line:#e2e8f0; 
-    --brand:#ea6a00; 
+    --brand:#ea6a00;
+    --brand2:#c35700; 
     --ok:#22c55e; 
     --err:#ef4444; 
-    --accent:#0ea5e9;
+    --accent:#3d5a80;
   }
-  *{box-sizing:border-box} 
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent} 
   body{
     margin:0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #ffa366 0%, #ff8c3a 50%, #ff7e2e 100%);
     color:var(--ink);
-    font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+    font-family:'Poppins',Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
     min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
   }
-  .wrap{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;flex-direction:column}
-  .logo-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-  .logo{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#4facfe,#00f2fe);display:grid;place-items:center;font-size:28px;box-shadow:0 4px 12px rgba(79,172,254,0.3)}
-  .brand-name{font-size:24px;font-weight:800;color:#ffffff;text-shadow:0 2px 4px rgba(0,0,0,0.1)}
-  .trades{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;justify-content:center;max-width:600px}
-  .trade-badge{background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.3);color:#ffffff;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:26px 24px;width:100%;max-width:460px}
-  h1{text-align:center;margin-bottom:6px;color:var(--ink);font-size:26px}
-  p.sub{text-align:center;color:var(--muted);margin-bottom:14px;font-size:15px}
-  label{display:block;margin-top:10px;font-size:14px;color:var(--ink);font-weight:500}
-  input{width:100%;margin-top:6px;background:#f8fafc;color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px;font-size:14px;transition:all 0.2s}
-  input:focus{outline:none;border-color:var(--accent);background:#ffffff;box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
-  .name-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .agree{display:flex;gap:8px;margin-top:10px;font-size:13px;align-items:center}
-  .agree input[type="checkbox"]{width:auto;margin:0}
-  .agree a{color:var(--accent);text-decoration:none;font-weight:600}
-  .agree a:hover{text-decoration:underline}
-  button{width:100%;margin-top:14px;background:var(--brand);color:#fff;border:0;border-radius:10px;padding:14px;font-weight:700;font-size:15px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 12px rgba(234,106,0,0.3)}
-  button:hover{background:#c35700;transform:translateY(-1px);box-shadow:0 6px 16px rgba(234,106,0,0.4)}
-  button:disabled{opacity:0.6;cursor:not-allowed;transform:none}
-  .msg{margin-top:10px;font-size:13px;font-weight:500;padding:8px 12px;border-radius:8px}
-  .err{color:var(--err);background:#fef2f2;border:1px solid #fecaca} 
-  .ok{color:var(--ok);background:#f0fdf4;border:1px solid #bbf7d0}
-  .otp-box{margin-top:14px;display:none}
-  .otp-inputs{display:flex;gap:10px;margin:12px 0;justify-content:center}
-  .otp-inputs input{width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;border:2px solid var(--line);border-radius:10px;background:#f8fafc;color:var(--ink)}
-  .otp-inputs input:focus{border-color:var(--accent);background:#ffffff}
-  #resendBtn{background:#64748b;box-shadow:0 4px 12px rgba(100,116,139,0.2)}
-  #resendBtn:hover{background:#475569}
-  .otp-box > div:first-child{text-align:center;color:var(--muted);font-size:14px}
-  .otp-box > div:first-child b{color:var(--ink)}
+  .wrap{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    flex-direction:column;
+  }
+  .logo-header{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:20px;
+    animation:fadeInDown 0.6s ease-out;
+  }
+  @keyframes fadeInDown{
+    from{opacity:0;transform:translateY(-20px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  .logo{
+    width:56px;
+    height:56px;
+    border-radius:16px;
+    background:linear-gradient(135deg,#ea6a00,#c35700);
+    display:grid;
+    place-items:center;
+    font-size:32px;
+    box-shadow:0 8px 24px rgba(234,106,0,0.4);
+    font-weight:800;
+    color:#f5f5f5;
+  }
+  .brand-name{
+    font-size:28px;
+    font-weight:800;
+    color:#f5f5f5;
+    text-shadow:0 2px 8px rgba(0,0,0,0.2);
+    letter-spacing:-0.5px;
+  }
+  .trades{
+    display:flex;
+    gap:10px;
+    margin-bottom:28px;
+    flex-wrap:wrap;
+    justify-content:center;
+    max-width:620px;
+    animation:fadeIn 0.8s ease-out 0.2s both;
+  }
+  @keyframes fadeIn{
+    from{opacity:0}
+    to{opacity:1}
+  }
+  .trade-badge{
+    background:rgba(255,255,255,0.25);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.35);
+    color:#1e293b;
+    padding:10px 18px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:600;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+    transition:all 0.2s;
+  }
+  .trade-badge:hover{
+    background:rgba(255,255,255,0.35);
+    transform:translateY(-2px);
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    padding:32px 28px;
+    width:100%;
+    max-width:480px;
+    animation:fadeInUp 0.6s ease-out 0.3s both;
+  }
+  @keyframes fadeInUp{
+    from{opacity:0;transform:translateY(30px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  h1{
+    text-align:center;
+    margin:0 0 8px;
+    color:var(--ink);
+    font-size:28px;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+  }
+  .title-logo{
+    width:42px;
+    height:42px;
+    border-radius:12px;
+    background:linear-gradient(135deg,#ea6a00,#c35700);
+    display:grid;
+    place-items:center;
+    font-size:22px;
+    box-shadow:0 4px 12px rgba(234,106,0,0.3);
+    font-weight:800;
+    color:#f5f5f5;
+    flex-shrink:0;
+  }
+  p.sub{
+    text-align:center;
+    color:var(--muted);
+    margin:0 0 20px;
+    font-size:15px;
+    line-height:1.5;
+  }
+  label{
+    display:block;
+    margin-top:16px;
+    font-size:14px;
+    color:var(--ink);
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  input{
+    width:100%;
+    background:#f8fafc;
+    color:var(--ink);
+    border:2px solid var(--line);
+    border-radius:12px;
+    padding:14px 16px;
+    font-size:16px;
+    transition:all 0.2s;
+    font-family:inherit;
+    min-height:52px;
+  }
+  input:focus{
+    outline:none;
+    border-color:var(--brand);
+    background:#ffffff;
+    box-shadow:0 0 0 4px rgba(234,106,0,0.1);
+  }
+  .name-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:16px;
+  }
+  .agree{
+    display:flex;
+    gap:10px;
+    margin-top:16px;
+    font-size:14px;
+    align-items:flex-start;
+    line-height:1.5;
+  }
+  .agree input[type="checkbox"]{
+    width:20px;
+    height:20px;
+    margin:2px 0 0 0;
+    cursor:pointer;
+    accent-color:var(--brand);
+    flex-shrink:0;
+  }
+  .agree a{
+    color:var(--brand);
+    text-decoration:none;
+    font-weight:600;
+  }
+  .agree a:hover{
+    text-decoration:underline;
+  }
+  button{
+    width:100%;
+    margin-top:20px;
+    background:linear-gradient(135deg, var(--brand) 0%, var(--brand2) 100%);
+    color:#fff;
+    border:0;
+    border-radius:12px;
+    padding:16px;
+    font-weight:700;
+    font-size:16px;
+    cursor:pointer;
+    transition:all 0.3s;
+    box-shadow:0 4px 16px rgba(234,106,0,0.4);
+    font-family:inherit;
+    min-height:52px;
+  }
+  button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(234,106,0,0.5);
+  }
+  button:active{
+    transform:translateY(0);
+  }
+  button:disabled{
+    opacity:0.6;
+    cursor:not-allowed;
+    transform:none;
+  }
+  .msg{
+    margin-top:12px;
+    font-size:14px;
+    font-weight:600;
+    padding:12px 16px;
+    border-radius:10px;
+    display:none;
+  }
+  .msg.show{display:block}
+  .err{
+    color:var(--err);
+    background:#fef2f2;
+    border:1px solid #fecaca;
+  } 
+  .ok{
+    color:var(--ok);
+    background:#f0fdf4;
+    border:1px solid #bbf7d0;
+  }
+  .otp-box{
+    margin-top:20px;
+    display:none;
+    padding-top:20px;
+    border-top:2px solid var(--line);
+  }
+  .otp-box.show{display:block}
+  .otp-inputs{
+    display:flex;
+    gap:8px;
+    margin:16px 0;
+    justify-content:center;
+  }
+  .otp-inputs input{
+    width:52px;
+    height:64px;
+    text-align:center;
+    font-size:28px;
+    font-weight:700;
+    border:2px solid var(--line);
+    border-radius:12px;
+    background:#f8fafc;
+    color:var(--ink);
+    padding:0;
+    min-height:auto;
+  }
+  .otp-inputs input:focus{
+    border-color:var(--brand);
+    background:#ffffff;
+    box-shadow:0 0 0 3px rgba(234,106,0,0.15);
+  }
+  #resendBtn{
+    background:#64748b;
+    box-shadow:0 4px 12px rgba(100,116,139,0.3);
+  }
+  #resendBtn:hover{
+    background:#475569;
+  }
+  .otp-box > div:first-child{
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.6;
+  }
+  .otp-box > div:first-child b{
+    color:var(--brand);
+    font-weight:700;
+  }
+  
   /* Tabs */
-  .tabs{display:flex;gap:8px;margin:0 auto 14px;max-width:460px}
-  .tab{flex:1;text-align:center;background:#eef2ff;border:1px solid #c7d2fe;border-radius:9999px;padding:10px;font-weight:700;color:#3730a3;cursor:pointer}
-  .tab.active{background:#3730a3;color:white;border-color:#3730a3}
+  .tabs{
+    display:flex;
+    gap:10px;
+    margin:0 auto 24px;
+    max-width:480px;
+    width:100%;
+    background:rgba(255,255,255,0.2);
+    backdrop-filter:blur(10px);
+    border-radius:14px;
+    padding:6px;
+    animation:fadeIn 0.8s ease-out 0.1s both;
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    background:transparent;
+    border:none;
+    border-radius:10px;
+    padding:12px;
+    font-weight:700;
+    font-size:15px;
+    color:rgba(255,255,255,0.8);
+    cursor:pointer;
+    transition:all 0.3s;
+    min-height:48px;
+  }
+  .tab.active{
+    background:#ffffff;
+    color:var(--brand);
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  /* Mobile Optimizations */
+  @media(max-width:640px){
+    .wrap{padding:16px}
+    .logo-header{margin-bottom:16px}
+    .logo{width:48px;height:48px;font-size:28px;border-radius:14px}
+    .brand-name{font-size:24px}
+    .trades{gap:8px;margin-bottom:20px;max-width:100%}
+    .trade-badge{padding:8px 14px;font-size:12px}
+    .card{padding:24px 20px;border-radius:16px}
+    h1{font-size:24px;margin-bottom:6px;gap:10px}
+    .title-logo{width:36px;height:36px;font-size:18px;border-radius:10px}
+    p.sub{font-size:14px;margin-bottom:16px}
+    .name-grid{gap:10px}
+    label{font-size:13px;margin-top:12px}
+    input{padding:12px 14px;font-size:16px;min-height:48px;border-radius:10px}
+    .otp-inputs{gap:6px;margin:12px 0}
+    .otp-inputs input{width:48px;height:58px;font-size:24px}
+    button{padding:14px;font-size:15px;min-height:48px;margin-top:16px}
+    .tabs{gap:8px;padding:5px}
+    .tab{padding:10px;font-size:14px;min-height:44px}
+  }
+
+  @media(max-width:400px){
+    .wrap{padding:12px}
+    .logo-header{gap:10px}
+    .brand-name{font-size:20px}
+    .trades{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+    .trade-badge{font-size:11px;padding:7px 12px}
+    .card{padding:20px 16px}
+    h1{font-size:22px;gap:8px}
+    .title-logo{width:32px;height:32px;font-size:16px;border-radius:8px}
+    p.sub{font-size:13px}
+    .name-grid{grid-template-columns:1fr;gap:0}
+    .otp-inputs{gap:5px}
+    .otp-inputs input{width:44px;height:54px;font-size:22px}
+  }
+
+  /* Landscape mode for phones */
+  @media(max-height:500px) and (orientation:landscape){
+    .wrap{padding:10px}
+    .logo-header{margin-bottom:8px}
+    .logo{width:40px;height:40px;font-size:24px}
+    .brand-name{font-size:18px}
+    .trades{display:none}
+    .card{padding:16px;max-width:90vw}
+    h1{font-size:20px;margin-bottom:4px;gap:8px}
+    .title-logo{width:28px;height:28px;font-size:14px;border-radius:8px}
+    p.sub{font-size:12px;margin-bottom:10px}
+    label{margin-top:8px;font-size:12px}
+    input{padding:10px 12px;min-height:42px}
+    button{padding:10px;min-height:42px;margin-top:10px}
+    .otp-box{margin-top:10px;padding-top:10px}
+    .otp-inputs{margin:8px 0}
+    .otp-inputs input{width:40px;height:48px;font-size:20px}
+  }
+
+  /* Success animation */
+  @keyframes successPulse{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.05)}
+  }
+  #doneStep.show{
+    animation:successPulse 0.5s ease-in-out;
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="logo-header">
-    <div class="logo">🌐</div>
+    <div class="logo">LTN</div>
     <div class="brand-name">LinkTradeNetwork</div>
   </div>
 
@@ -72,10 +403,9 @@
     <span class="trade-badge">Plumbing</span>
     <span class="trade-badge">Electrical</span>
     <span class="trade-badge">HVAC</span>
-    <span class="trade-badge">Low Voltage Cabling</span>
+    <span class="trade-badge">Low Voltage</span>
     <span class="trade-badge">Physical Security</span>
     <span class="trade-badge">General Contractor</span>
-    <span class="trade-badge">Supervisors</span>
   </div>
 
   <div class="tabs">
@@ -84,59 +414,63 @@
   </div>
 
   <div class="card">
-    <h1 id="cardTitle">Sign Up</h1>
-    <p class="sub" id="cardSub">First time here? Verify your email to continue</p>
+    <h1 id="cardTitle"><span class="title-logo">LTN</span><span>Sign Up</span></h1>
+    <p class="sub" id="cardSub">Create your account and join skilled trade professionals nationwide</p>
 
     <!-- Sign Up -->
     <div id="joinStep">
       <div class="name-grid">
         <div>
           <label>First Name</label>
-          <input id="firstName" placeholder="John" />
+          <input id="firstName" placeholder="John" autocomplete="given-name" />
         </div>
         <div>
           <label>Last Name</label>
-          <input id="lastName" placeholder="Doe" />
+          <input id="lastName" placeholder="Doe" autocomplete="family-name" />
         </div>
       </div>
-      <label>Email</label>
-      <input id="email" type="email" placeholder="you@example.com" />
+      <label>Email Address</label>
+      <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
       <label class="agree">
         <input id="consent" type="checkbox">
-        <span>I agree to the <a href="/terms.html" target="_blank">Terms &amp; Conditions</a>.</span>
+        <span>I agree to the <a href="/terms.html" target="_blank">Terms &amp; Conditions</a></span>
       </label>
-      <button id="joinBtn">Get One-Time Code</button>
+      <button id="joinBtn">Get Verification Code</button>
       <div id="joinMsg" class="msg"></div>
 
       <div id="otpStep" class="otp-box">
-        <div>Enter the 6-digit code sent to <b id="otpEmail"></b></div>
+        <div>Enter the 6-digit code sent to<br><b id="otpEmail"></b></div>
         <div class="otp-inputs">
-          <input maxlength="1"><input maxlength="1"><input maxlength="1">
-          <input maxlength="1"><input maxlength="1"><input maxlength="1">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
         </div>
-        <button id="verifyBtn">Verify</button>
+        <button id="verifyBtn">Verify & Continue</button>
         <button id="resendBtn">Resend Code</button>
         <div id="otpMsg" class="msg"></div>
       </div>
     </div>
 
-    <!-- Sign In (no OTP if verified) -->
+    <!-- Sign In -->
     <div id="signinStep" style="display:none;">
-      <label>Email</label>
-      <input id="signinEmail" type="email" placeholder="you@example.com" />
+      <label>Email Address</label>
+      <input id="signinEmail" type="email" placeholder="you@example.com" autocomplete="email" />
       <button id="signinBtn">Sign In</button>
       <div id="signinMsg" class="msg"></div>
     </div>
 
     <div id="doneStep" class="msg ok" style="display:none">
-      ✅ Verified — redirecting…
+      ✅ Success! Redirecting to your dashboard...
     </div>
   </div>
 </div>
 
 <script>
 // --- SET YOUR LIVE WEB APP URL HERE (from Apps Script > Deploy > Manage deployments) ---
-const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwpbosAvZHpO3C-7bYuQSsGgDq9QtOU2rf87jnkaX7ZiPdNxE_od3H6AYM0zvDepA8MkA/exec";
+const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwUQTCcs48FI1e9sK1o1UGJvZavFNo2YeKtmG8y5iF-tjMuH41_G4IOEtF9HHflxQZ65w/exec";
 
 async function postJSON(data) {
   try {
@@ -155,6 +489,15 @@ async function postJSON(data) {
 const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 
+// Helper to show/hide messages
+function showMsg(el, text, type) {
+  el.textContent = text;
+  el.className = `msg ${type} show`;
+}
+function hideMsg(el) {
+  el.className = 'msg';
+}
+
 // Tabs
 const tabSignup = $('#tab-signup');
 const tabSignin = $('#tab-signin');
@@ -164,19 +507,24 @@ const joinStep  = $('#joinStep');
 const signinStep= $('#signinStep');
 
 tabSignup.onclick = () => {
-  tabSignup.classList.add('active'); tabSignin.classList.remove('active');
-  cardTitle.textContent = 'Sign Up';
-  cardSub.textContent   = 'First time here? Verify your email to continue';
+  tabSignup.classList.add('active'); 
+  tabSignin.classList.remove('active');
+  cardTitle.innerHTML = '<span class="title-logo">LTN</span><span>Sign Up</span>';
+  cardSub.textContent   = 'Create your account and join skilled trade professionals nationwide';
   joinStep.style.display = 'block';
   signinStep.style.display = 'none';
+  hideMsg($('#signinMsg'));
 };
 
 tabSignin.onclick = () => {
-  tabSignin.classList.add('active'); tabSignup.classList.remove('active');
-  cardTitle.textContent = 'Sign In';
-  cardSub.textContent   = 'Already verified? Sign in with your email — no code needed';
+  tabSignin.classList.add('active'); 
+  tabSignup.classList.remove('active');
+  cardTitle.innerHTML = '<span class="title-logo">LTN</span><span>Sign In</span>';
+  cardSub.textContent   = 'Welcome back! Sign in to access your account';
   joinStep.style.display = 'none';
   signinStep.style.display = 'block';
+  hideMsg($('#joinMsg'));
+  $('#otpStep').classList.remove('show');
 };
 
 // Sign Up elements
@@ -192,37 +540,101 @@ const signinEmail=$('#signinEmail'), signinBtn=$('#signinBtn'), signinMsg=$('#si
 let currentEmail='', currentFirstName='', currentLastName='';
 
 function code(){return codeInputs.map(i=>i.value).join('');}
+
+// OTP input handling
 codeInputs.forEach((inp,i)=>{
   inp.addEventListener('input',()=>{
     inp.value=inp.value.replace(/\D/g,'');
     if(inp.value && i<5) codeInputs[i+1].focus();
   });
+  inp.addEventListener('keydown',(e)=>{
+    if(e.key==='Backspace' && !inp.value && i>0){
+      codeInputs[i-1].focus();
+    }
+  });
+  // Paste handling
+  inp.addEventListener('paste',(e)=>{
+    e.preventDefault();
+    const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'');
+    if(paste.length===6){
+      codeInputs.forEach((input,idx)=>{
+        input.value = paste[idx] || '';
+      });
+      codeInputs[5].focus();
+    }
+  });
 });
 
 // Sign Up: request code
 joinBtn.onclick=async()=>{
-  const firstName=(firstNameInput.value||"").trim(), lastName=(lastNameInput.value||"").trim(), email=(emailInput.value||"").trim().toLowerCase();
-  if(!firstName||!lastName||!email){joinMsg.textContent='First name, last name, and email required';joinMsg.className='msg err';return;}
-  if(!consent.checked){joinMsg.textContent='Please agree to the Terms.';joinMsg.className='msg err';return;}
-  joinMsg.textContent='Sending code…';joinMsg.className='msg ok';joinBtn.disabled=true;
+  const firstName=(firstNameInput.value||"").trim();
+  const lastName=(lastNameInput.value||"").trim();
+  const email=(emailInput.value||"").trim().toLowerCase();
+  
+  if(!firstName||!lastName||!email){
+    showMsg(joinMsg, 'Please fill in all fields', 'err');
+    return;
+  }
+  
+  if(!consent.checked){
+    showMsg(joinMsg, 'Please agree to the Terms & Conditions', 'err');
+    return;
+  }
+  
+  showMsg(joinMsg, 'Sending verification code...', 'ok');
+  joinBtn.disabled=true;
+  
   const fullName = `${firstName} ${lastName}`;
+  
   try{
-    const r=await postJSON({action:'signup',name:fullName,email,consent:true,userAgent:navigator.userAgent});
+    const r=await postJSON({
+      action:'signup',
+      name:fullName,
+      email,
+      consent:true,
+      userAgent:navigator.userAgent
+    });
+    
     if(r.success){
-      currentEmail=email;currentFirstName=firstName;currentLastName=lastName;otpEmail.textContent=email;
-      otpBox.style.display='block'; joinMsg.textContent='';
-    }else throw new Error(r.error||'Failed');
-  }catch(e){joinMsg.textContent=e.message;joinMsg.className='msg err';}
+      currentEmail=email;
+      currentFirstName=firstName;
+      currentLastName=lastName;
+      otpEmail.textContent=email;
+      otpBox.classList.add('show');
+      hideMsg(joinMsg);
+      codeInputs[0].focus();
+      
+      // Store email for later use
+      localStorage.setItem('userEmail', email);
+    }else{
+      throw new Error(r.error||'Failed to send code');
+    }
+  }catch(e){
+    showMsg(joinMsg, e.message, 'err');
+  }
+  
   joinBtn.disabled=false;
 };
 
 // Sign Up: verify OTP
 verifyBtn.onclick=async()=>{
   const c=code();
-  if(c.length!==6){otpMsg.textContent='Enter full code';otpMsg.className='msg err';return;}
+  
+  if(c.length!==6){
+    showMsg(otpMsg, 'Please enter the complete 6-digit code', 'err');
+    return;
+  }
+  
   verifyBtn.disabled=true;
+  verifyBtn.textContent='Verifying...';
+  
   try{
-    const r=await postJSON({action:'verify',email:currentEmail,code:c});
+    const r=await postJSON({
+      action:'verify',
+      email:currentEmail,
+      code:c
+    });
+    
     if(r.success){
       localStorage.setItem('ltn_user', JSON.stringify({
         firstName: currentFirstName,
@@ -230,54 +642,122 @@ verifyBtn.onclick=async()=>{
         name:      `${currentFirstName} ${currentLastName}`,
         email:     currentEmail
       }));
-      otpBox.style.display='none';$('#doneStep').style.display='block';
-      setTimeout(()=>{ window.location.replace("/front.html"); }, 900);
-    }else throw new Error(r.error||'Invalid or expired code');
-  }catch(e){otpMsg.textContent=e.message;otpMsg.className='msg err';}
+      
+      otpBox.classList.remove('show');
+      const doneStep = $('#doneStep');
+      doneStep.style.display='block';
+      doneStep.classList.add('show');
+      
+      setTimeout(()=>{ 
+        window.location.replace("/front.html"); 
+      }, 1200);
+    }else{
+      throw new Error(r.error||'Invalid or expired code');
+    }
+  }catch(e){
+    showMsg(otpMsg, e.message, 'err');
+    codeInputs.forEach(inp=>inp.value='');
+    codeInputs[0].focus();
+  }
+  
   verifyBtn.disabled=false;
+  verifyBtn.textContent='Verify & Continue';
 };
 
 // Sign Up: resend OTP
 resendBtn.onclick=async()=>{
   const fullName = `${currentFirstName} ${currentLastName}`;
   resendBtn.disabled=true;
+  resendBtn.textContent='Sending...';
+  
   try{
-    const r=await postJSON({action:'request-otp',email:currentEmail,name:fullName,userAgent:navigator.userAgent});
-    otpMsg.textContent=r.success?'New code sent!':'Resend failed';
-    otpMsg.className='msg '+(r.success?'ok':'err');
-  }catch(e){otpMsg.textContent=e.message;otpMsg.className='msg err';}
-  setTimeout(()=>resendBtn.disabled=false, 3000);
+    const r=await postJSON({
+      action:'request-otp',
+      email:currentEmail,
+      name:fullName,
+      userAgent:navigator.userAgent
+    });
+    
+    showMsg(otpMsg, r.success ? 'New code sent to your email!' : 'Failed to resend code', r.success ? 'ok' : 'err');
+    
+    if(r.success){
+      codeInputs.forEach(inp=>inp.value='');
+      codeInputs[0].focus();
+    }
+  }catch(e){
+    showMsg(otpMsg, e.message, 'err');
+  }
+  
+  setTimeout(()=>{
+    resendBtn.disabled=false;
+    resendBtn.textContent='Resend Code';
+  }, 3000);
 };
 
 // Sign In: no OTP — backend checks Verified
 signinBtn.onclick=async()=>{
   const email=(signinEmail.value||"").trim().toLowerCase();
-  if(!email){signinMsg.textContent='Email required';signinMsg.className='msg err';return;}
+  
+  if(!email){
+    showMsg(signinMsg, 'Please enter your email address', 'err');
+    return;
+  }
+  
   signinBtn.disabled = true;
-  signinMsg.textContent = 'Signing in…'; signinMsg.className='msg ok';
+  signinBtn.textContent = 'Signing in...';
+  showMsg(signinMsg, 'Signing you in...', 'ok');
+  
   try{
-    const r=await postJSON({action:'signin',email,userAgent:navigator.userAgent});
+    const r=await postJSON({
+      action:'signin',
+      email,
+      userAgent:navigator.userAgent
+    });
+    
     if(r.success){
-      // optional: save minimal user
-      localStorage.setItem('ltn_user', JSON.stringify({ email, name: (r.user && r.user.name) || "" }));
-      window.location.replace("/front.html");
+      localStorage.setItem('ltn_user', JSON.stringify({ 
+        email, 
+        name: (r.user && r.user.name) || "" 
+      }));
+      localStorage.setItem('userEmail', email);
+      
+      showMsg(signinMsg, 'Success! Redirecting...', 'ok');
+      
+      setTimeout(()=>{
+        window.location.replace("/front.html");
+      }, 800);
     }else{
-      // If backend says this email needs OTP, flip to Sign Up tab and show message
+      // If backend says this email needs OTP, flip to Sign Up tab
       if (r.requiresOtp) {
         tabSignup.click();
-        joinMsg.textContent = r.error || 'Please Sign Up to receive a code.';
-        joinMsg.className = 'msg err';
-        emailInput.value = email; // carry over the email
+        showMsg(joinMsg, r.error || 'Please sign up to receive a verification code', 'err');
+        emailInput.value = email;
+        firstNameInput.focus();
       } else {
-        signinMsg.textContent = r.error || 'Unable to sign in';
-        signinMsg.className   = 'msg err';
+        showMsg(signinMsg, r.error || 'Unable to sign in', 'err');
       }
     }
   }catch(e){
-    signinMsg.textContent = e.message; signinMsg.className='msg err';
+    showMsg(signinMsg, 'Connection error. Please try again.', 'err');
   }
+  
   signinBtn.disabled = false;
+  signinBtn.textContent = 'Sign In';
 };
+
+// Enter key handlers
+firstNameInput.addEventListener('keypress', e => {
+  if(e.key==='Enter') lastNameInput.focus();
+});
+lastNameInput.addEventListener('keypress', e => {
+  if(e.key==='Enter') emailInput.focus();
+});
+emailInput.addEventListener('keypress', e => {
+  if(e.key==='Enter') joinBtn.click();
+});
+signinEmail.addEventListener('keypress', e => {
+  if(e.key==='Enter') signinBtn.click();
+});
 </script>
 </body>
 </html>
