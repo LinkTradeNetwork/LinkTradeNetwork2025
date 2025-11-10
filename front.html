@@ -31,6 +31,10 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Poppins',system
 .btn-primary:hover{background:var(--brand2);transform:translateY(-2px);box-shadow:0 2px 5px rgba(0,0,0,.1)}
 .btn-secondary{background:rgba(255,255,255,.15);backdrop-filter:blur(10px)}
 .btn-secondary:hover{background:rgba(255,255,255,.25)}
+.btn-success{background:#10b981;color:white}
+.btn-success:hover{background:#059669}
+.btn-danger{background:#ef4444;color:white}
+.btn-danger:hover{background:#dc2626}
 
 /* ===== NOTIFICATION BADGE ===== */
 .notification-badge{position:absolute;top:-5px;right:-5px;background:#ef4444;color:white;border-radius:999px;padding:2px 6px;font-size:11px;font-weight:700;min-width:18px;text-align:center;line-height:1.4}
@@ -103,8 +107,10 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Poppins',system
 .profile-image-container{position:relative;width:100%;height:180px;border-radius:12px;background:var(--panel2);margin-bottom:16px;display:flex;align-items:center;justify-content:center;border:2px dashed var(--line);color:var(--muted);overflow:hidden;cursor:pointer;transition:all .2s}
 .profile-image-container:hover{border-color:var(--brand);background:rgba(234,106,0,.05)}
 .profile-image-container img{width:100%;height:100%;object-fit:cover;border-radius:12px}
-.profile-image-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:600}
+.profile-image-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:600;flex-direction:column;gap:8px}
 .profile-image-container:hover .profile-image-overlay{display:flex}
+.profile-image-overlay button{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:white;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.profile-image-overlay button:hover{background:rgba(255,255,255,.3)}
 .profile-placeholder-content{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
 .profile-placeholder-content svg{width:40px;height:40px;margin-bottom:8px;opacity:.5}
 
@@ -120,6 +126,35 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Poppins',system
 .document-remove:hover{text-decoration:underline}
 
 .small{font-size:14px;color:var(--muted)}
+
+/* ===== SUCCESS STORIES ===== */
+.story-card{border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px;background:var(--panel);transition:all .2s}
+.story-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08);transform:translateY(-2px)}
+.story-image{width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:15px}
+.story-header{display:flex;align-items:center;gap:12px;margin-bottom:15px;padding-bottom:15px;border-bottom:1px solid var(--line)}
+.story-avatar{width:60px;height:60px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:var(--accent);flex-shrink:0;overflow:hidden}
+.story-avatar img{width:100%;height:100%;object-fit:cover}
+.story-meta{flex:1}
+.story-author{font-weight:700;font-size:16px;margin-bottom:4px}
+.story-author-trade{color:var(--muted);font-size:13px;margin-bottom:4px}
+.story-location{color:var(--muted);font-size:12px;display:flex;align-items:center;gap:4px}
+.story-title{font-size:20px;font-weight:700;margin-bottom:12px;line-height:1.3}
+.story-text{line-height:1.7;margin-bottom:15px}
+.story-date{font-size:12px;color:var(--muted)}
+.story-badges{display:flex;gap:6px;margin-top:10px}
+.story-badge{background:var(--brand);color:white;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600}
+.story-badge.featured{background:#ffc107;color:#000}
+.story-actions{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.story-actions button{font-size:13px;padding:8px 16px}
+
+.my-story-card{border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:12px;background:var(--panel)}
+.my-story-title{font-weight:700;font-size:15px;margin-bottom:6px}
+.my-story-preview{color:var(--muted);font-size:13px;margin-bottom:10px;line-height:1.4}
+.my-story-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.my-story-status{font-size:12px}
+.status-approved{color:#10b981}
+.status-pending{color:#f59e0b}
+.status-featured{color:#8b5cf6}
 
 /* ===== MODAL ===== */
 .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px}
@@ -230,6 +265,9 @@ select.form-control{cursor:pointer}
   .stats{gap:8px}
   .stat-card{padding:12px}
   .stat-number{font-size:20px}
+  
+  .story-card{padding:16px}
+  .story-title{font-size:18px}
 }
 
 @media(max-width:480px){
@@ -274,6 +312,10 @@ select.form-control{cursor:pointer}
   .small{font-size:13px}
   
   button, .btn{font-size:15px;padding:10px 16px}
+  
+  .story-card{padding:14px}
+  .story-title{font-size:16px}
+  .story-header{flex-direction:column;text-align:center}
 }
 
 @media(max-width:360px){
@@ -350,7 +392,10 @@ select.form-control{cursor:pointer}
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <div>Click to add profile image</div>
           </div>
-          <div class="profile-image-overlay">Change Photo</div>
+          <div class="profile-image-overlay">
+            <button onclick="ProfileManager.selectImage(event)">Change Photo</button>
+            <button onclick="ProfileManager.deleteImage(event)" id="delete-image-btn" style="display:none;background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.4)">Delete Photo</button>
+          </div>
         </div>
         <input type="file" id="profile-image-input" accept="image/*" style="display:none">
 
@@ -376,8 +421,8 @@ select.form-control{cursor:pointer}
         </div>
 
         <div class="stats">
-          <div class="stat-card"><div class="stat-number" id="connections-count">24</div><div class="stat-label">Connections</div></div>
-          <div class="stat-card"><div class="stat-number" id="applications-count">8</div><div class="stat-label">Applications</div></div>
+          <div class="stat-card"><div class="stat-number" id="connections-count">0</div><div class="stat-label">Connections</div></div>
+          <div class="stat-card"><div class="stat-number" id="applications-count">0</div><div class="stat-label">Applications</div></div>
         </div>
 
         <p class="small">Complete your profile to improve visibility with contractors and employers.</p>
@@ -424,20 +469,20 @@ select.form-control{cursor:pointer}
       </div>
     </div>
 
+    <!-- SUCCESS STORIES SECTION -->
     <div class="card" style="margin-top:24px">
-      <div class="hd">Success Stories</div>
+      <div class="hd">
+        <span>Success Stories</span>
+        <button class="btn btn-primary" style="padding:6px 12px;font-size:13px;min-height:32px" onclick="SuccessStories.openAddModal()">Share Your Story</button>
+      </div>
       <div class="bd">
-        <div style="display:flex;align-items:center;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--line);flex-wrap:wrap;gap:15px">
-          <div style="width:80px;height:80px;background:var(--panel2);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center">
-            <svg style="width:40px;height:40px;opacity:.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-          </div>
-          <div style="flex:1;min-width:200px">
-            <div style="font-weight:700;font-size:16px">Michael Rodriguez - Electrician</div>
-            <div style="color:var(--muted);margin-bottom:5px">Milwaukee, WI</div>
-            <p style="margin:0">"I found my current position through LinkTradeNetwork within 2 weeks of creating my profile. The job pays 20% more than my previous position and has better hours."</p>
-          </div>
+        <div id="stories-container">
+          <div style="text-align:center;padding:20px;color:var(--muted)">Loading stories...</div>
         </div>
-        <button class="btn-primary" style="width:100%;margin-top:20px">Share Your Success Story</button>
+        <div style="display:flex;gap:8px;margin-top:20px;justify-content:center">
+          <button id="stories-prev" class="btn btn-secondary" onclick="SuccessStories.prevPage()" style="display:none">Previous</button>
+          <button id="stories-next" class="btn btn-secondary" onclick="SuccessStories.nextPage()" style="display:none">Load More Stories</button>
+        </div>
       </div>
     </div>
 
@@ -682,9 +727,81 @@ select.form-control{cursor:pointer}
   </div>
 </div>
 
+<!-- Add/Edit Success Story Modal -->
+<div class="modal-backdrop" id="story-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="story-modal-title">Share Your Success Story</h2>
+      <button class="modal-close" onclick="SuccessStories.closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="story-form">
+        <div class="form-group">
+          <label>Your Name *</label>
+          <input type="text" id="story-name" class="form-control" placeholder="John Smith" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Your Trade *</label>
+          <input type="text" id="story-trade" class="form-control" placeholder="Electrician" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Story Title *</label>
+          <input type="text" id="story-title" class="form-control" placeholder="From Apprentice to Master Electrician in 5 Years" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Your Story *</label>
+          <textarea id="story-text" class="form-control" style="min-height:150px" placeholder="Share your journey, challenges you overcame, and what helped you succeed..." required></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>Location (optional)</label>
+          <input type="text" id="story-location" class="form-control" placeholder="Milwaukee, WI">
+        </div>
+        
+        <div class="form-group">
+          <label>Add Photo (optional)</label>
+          <div class="upload-area" id="story-image-upload" onclick="document.getElementById('story-image-input').click()">
+            <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <div class="small">Click to add a photo</div>
+          </div>
+          <input type="file" id="story-image-input" accept="image/*" style="display:none">
+          <div id="story-image-preview" style="display:none;margin-top:10px">
+            <img id="story-image-preview-img" style="max-width:100%;border-radius:8px" alt="Preview">
+            <button type="button" class="btn btn-danger" style="margin-top:8px;width:100%" onclick="SuccessStories.removeImage()">Remove Image</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="SuccessStories.closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="save-story-btn" onclick="SuccessStories.saveStory()">Share Story</button>
+    </div>
+  </div>
+</div>
+
+<!-- My Stories Modal -->
+<div class="modal-backdrop" id="my-stories-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>My Success Stories</h2>
+      <button class="modal-close" onclick="SuccessStories.closeMyStoriesModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="my-stories-list">
+        <div style="text-align:center;padding:20px;color:var(--muted)">Loading your stories...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ===== CONFIG ===== */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwUQTCcs48FI1e9sK1o1UGJvZavFNo2YeKtmG8y5iF-tjMuH41_G4IOEtF9HHflxQZ65w/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpbosAvZHpO3C-7bYuQSsGgDq9QtOU2rf87jnkaX7ZiPdNxE_od3H6AYM0zvDepA8MkA/exec";
 
 /* ===== Utility ===== */
 function debounce(fn, ms){let t;return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
@@ -695,6 +812,8 @@ const isHtmlResponse = (res) => {
 
 /* ===== PROFILE MANAGEMENT ===== */
 const ProfileManager = {
+  currentImageUrl: null,
+
   init() {
     this.loadProfile();
     this.loadDocuments();
@@ -702,11 +821,7 @@ const ProfileManager = {
   },
 
   bindEvents() {
-    // Profile image upload
-    document.getElementById('profile-image-area').addEventListener('click', () => {
-      document.getElementById('profile-image-input').click();
-    });
-    
+    // Profile image input change
     document.getElementById('profile-image-input').addEventListener('change', (e) => {
       this.handleImageUpload(e.target.files[0]);
     });
@@ -745,6 +860,76 @@ const ProfileManager = {
     });
   },
 
+  selectImage(e) {
+    e.stopPropagation();
+    document.getElementById('profile-image-input').click();
+  },
+
+  async deleteImage(e) {
+    e.stopPropagation();
+    
+    if (!confirm('Delete your profile image?')) return;
+
+    const email = localStorage.getItem('userEmail');
+    
+    if (!email) {
+      localStorage.removeItem('profileImage');
+      this.displayPlaceholder();
+      return;
+    }
+
+    try {
+      const saveBtn = document.getElementById('save-profile');
+      const originalText = saveBtn ? saveBtn.textContent : '';
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Deleting...';
+      }
+
+      const res = await fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'delete-profile-image',
+          email: email
+        })
+      });
+
+      const data = await res.json();
+      
+      if (data.success) {
+        this.currentImageUrl = null;
+        this.displayPlaceholder();
+        alert('Profile image deleted successfully!');
+      } else {
+        alert('Failed to delete image: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Failed to delete image. Please try again.');
+    } finally {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalText;
+      }
+    }
+  },
+
+  displayPlaceholder() {
+    const container = document.getElementById('profile-image-area');
+    container.innerHTML = `
+      <div class="profile-placeholder-content">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        <div>Click to add profile image</div>
+      </div>
+      <div class="profile-image-overlay">
+        <button onclick="ProfileManager.selectImage(event)">Change Photo</button>
+      </div>
+    `;
+  },
+
   async handleImageUpload(file) {
     if (!file) return;
     
@@ -759,19 +944,24 @@ const ProfileManager = {
       const email = localStorage.getItem('userEmail');
       
       if (!email) {
-        // Fallback to localStorage if not signed in
         localStorage.setItem('profileImage', imageData);
         this.displayProfileImage(imageData);
         return;
       }
 
       try {
-        // Upload to backend
+        const saveBtn = document.getElementById('save-profile');
+        const originalText = saveBtn ? saveBtn.textContent : '';
+        if (saveBtn) {
+          saveBtn.disabled = true;
+          saveBtn.textContent = 'Uploading...';
+        }
+
         const res = await fetch(WEBAPP_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({
-            action: 'upload-image',
+            action: 'upload-profile-image',
             email: email,
             imageData: imageData,
             fileName: file.name
@@ -779,7 +969,9 @@ const ProfileManager = {
         });
 
         const data = await res.json();
+        
         if (data.success) {
+          this.currentImageUrl = data.imageUrl;
           this.displayProfileImage(imageData);
           alert('Profile image uploaded successfully!');
         } else {
@@ -788,6 +980,11 @@ const ProfileManager = {
       } catch (error) {
         console.error('Upload error:', error);
         alert('Failed to upload image. Please try again.');
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = originalText;
+        }
       }
     };
     reader.readAsDataURL(file);
@@ -797,14 +994,16 @@ const ProfileManager = {
     const container = document.getElementById('profile-image-area');
     container.innerHTML = `
       <img src="${imageData}" alt="Profile">
-      <div class="profile-image-overlay">Change Photo</div>
+      <div class="profile-image-overlay">
+        <button onclick="ProfileManager.selectImage(event)">Change Photo</button>
+        <button onclick="ProfileManager.deleteImage(event)" style="background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.4)">Delete Photo</button>
+      </div>
     `;
   },
 
   handleDocumentUpload(files) {
     if (!files || files.length === 0) return;
 
-    // For now, store in localStorage (you can enhance this to upload to Drive later)
     const documents = JSON.parse(localStorage.getItem('profileDocuments') || '[]');
     
     Array.from(files).forEach(file => {
@@ -858,7 +1057,6 @@ const ProfileManager = {
     const email = localStorage.getItem('userEmail');
     
     if (!email) {
-      // Fallback to localStorage
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       this.populateForm(profile);
       document.getElementById('profile-modal').classList.add('active');
@@ -866,7 +1064,6 @@ const ProfileManager = {
     }
 
     try {
-      // Load from backend
       const res = await fetch(WEBAPP_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -877,7 +1074,6 @@ const ProfileManager = {
       if (data.success && data.profile) {
         this.populateForm(data.profile);
       } else {
-        // New profile - pre-fill email
         document.getElementById('input-email').value = email;
       }
     } catch (error) {
@@ -905,6 +1101,9 @@ const ProfileManager = {
   },
 
   async saveProfile() {
+    const saveBtn = document.getElementById('save-profile');
+    const originalText = saveBtn.textContent;
+    
     const email = document.getElementById('input-email').value.trim();
     
     if (!email) {
@@ -922,7 +1121,8 @@ const ProfileManager = {
       state: document.getElementById('input-state').value,
       bio: document.getElementById('input-bio').value.trim(),
       skills: document.getElementById('input-skills').value.trim(),
-      certifications: document.getElementById('input-certifications').value.trim()
+      certifications: document.getElementById('input-certifications').value.trim(),
+      profileImageUrl: this.currentImageUrl || ''
     };
 
     if (!profile.fullName || !profile.trade || !profile.city || !profile.state) {
@@ -931,7 +1131,9 @@ const ProfileManager = {
     }
 
     try {
-      // Save to backend
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
       const res = await fetch(WEBAPP_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -941,7 +1143,6 @@ const ProfileManager = {
       const data = await res.json();
       
       if (data.success) {
-        // Store email for future use
         localStorage.setItem('userEmail', email);
         
         this.displayProfile(profile);
@@ -953,6 +1154,9 @@ const ProfileManager = {
     } catch (error) {
       console.error('Save profile error:', error);
       alert('Failed to save profile. Please try again.');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = originalText;
     }
   },
 
@@ -960,7 +1164,6 @@ const ProfileManager = {
     const email = localStorage.getItem('userEmail');
     
     if (!email) {
-      // Try localStorage fallback
       const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       this.displayProfile(profile);
       return;
@@ -978,8 +1181,8 @@ const ProfileManager = {
       if (data.success && data.profile) {
         this.displayProfile(data.profile);
         
-        // Load profile image if exists
         if (data.profile.profileImageUrl) {
+          this.currentImageUrl = data.profile.profileImageUrl;
           this.displayProfileImage(data.profile.profileImageUrl);
         }
       }
@@ -1003,6 +1206,333 @@ const ProfileManager = {
       (profile.city && profile.state) 
         ? `${profile.city}, ${profile.state}` 
         : 'Your Location';
+  }
+};
+
+/* ===== SUCCESS STORIES MANAGER ===== */
+const SuccessStories = {
+  currentPage: 0,
+  limit: 5,
+  total: 0,
+  currentStoryId: null,
+  currentImageData: null,
+
+  async init() {
+    this.loadStories();
+    this.bindEvents();
+  },
+
+  bindEvents() {
+    const imageInput = document.getElementById('story-image-input');
+    if (imageInput) {
+      imageInput.addEventListener('change', (e) => {
+        this.handleImageSelect(e.target.files[0]);
+      });
+    }
+  },
+
+  handleImageSelect(file) {
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.currentImageData = e.target.result;
+      document.getElementById('story-image-preview-img').src = this.currentImageData;
+      document.getElementById('story-image-preview').style.display = 'block';
+      document.getElementById('story-image-upload').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  },
+
+  removeImage() {
+    this.currentImageData = null;
+    document.getElementById('story-image-preview').style.display = 'none';
+    document.getElementById('story-image-upload').style.display = 'flex';
+    document.getElementById('story-image-input').value = '';
+  },
+
+  async loadStories() {
+    const container = document.getElementById('stories-container');
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading stories...</div>';
+
+    try {
+      const res = await fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'get-success-stories',
+          limit: this.limit,
+          offset: this.currentPage * this.limit
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        this.total = data.total;
+        this.renderStories(data.stories);
+      } else {
+        container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load stories</div>';
+      }
+    } catch (error) {
+      console.error('Error loading stories:', error);
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load stories</div>';
+    }
+  },
+
+  renderStories(stories) {
+    const container = document.getElementById('stories-container');
+    const email = localStorage.getItem('userEmail');
+
+    if (stories.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          <h3>No success stories yet</h3>
+          <p>Be the first to share your journey!</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = stories.map(story => {
+      const initials = (story.name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      const isOwner = email && story.email && email.toLowerCase() === story.email.toLowerCase();
+
+      return `
+        <div class="story-card">
+          ${story.imageUrl ? `<img src="${story.imageUrl}" class="story-image" alt="${story.title}">` : ''}
+          
+          <div class="story-header">
+            <div class="story-avatar">${initials}</div>
+            <div class="story-meta">
+              <div class="story-author">${story.name}</div>
+              <div class="story-author-trade">${story.trade}</div>
+              ${story.location ? `
+                <div class="story-location">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z"/>
+                    <path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z"/>
+                  </svg>
+                  ${story.location}
+                </div>
+              ` : ''}
+            </div>
+          </div>
+
+          <h3 class="story-title">${story.title}</h3>
+          <p class="story-text">${story.story}</p>
+          
+          <div class="story-date">
+            Shared on ${new Date(story.createdAt).toLocaleDateString()}
+            ${story.featured ? '<span class="story-badge featured">⭐ Featured</span>' : ''}
+          </div>
+
+          ${isOwner ? `
+            <div class="story-actions">
+              <button class="btn btn-secondary" onclick="SuccessStories.editStory('${story.storyId}')">Edit</button>
+              <button class="btn btn-danger" onclick="SuccessStories.deleteStory('${story.storyId}')">Delete</button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+
+    // Pagination
+    document.getElementById('stories-prev').style.display = this.currentPage > 0 ? 'inline-block' : 'none';
+    document.getElementById('stories-next').style.display = (this.currentPage + 1) * this.limit < this.total ? 'inline-block' : 'none';
+  },
+
+  nextPage() {
+    this.currentPage++;
+    this.loadStories();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  prevPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadStories();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  },
+
+  openAddModal() {
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      alert('Please complete your profile first');
+      return;
+    }
+
+    this.currentStoryId = null;
+    this.currentImageData = null;
+    document.getElementById('story-modal-title').textContent = 'Share Your Success Story';
+    document.getElementById('save-story-btn').textContent = 'Share Story';
+    document.getElementById('story-form').reset();
+    document.getElementById('story-image-preview').style.display = 'none';
+    document.getElementById('story-image-upload').style.display = 'flex';
+    
+    // Pre-fill from profile
+    ProfileManager.loadProfile().then(() => {
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      if (profile.fullName) document.getElementById('story-name').value = profile.fullName;
+      if (profile.trade) document.getElementById('story-trade').value = profile.trade;
+      if (profile.city && profile.state) {
+        document.getElementById('story-location').value = `${profile.city}, ${profile.state}`;
+      }
+    });
+
+    document.getElementById('story-modal').classList.add('active');
+  },
+
+  async editStory(storyId) {
+    this.currentStoryId = storyId;
+    document.getElementById('story-modal-title').textContent = 'Edit Your Success Story';
+    document.getElementById('save-story-btn').textContent = 'Update Story';
+
+    try {
+      const email = localStorage.getItem('userEmail');
+      const res = await fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'get-my-stories', email: email })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        const story = data.stories.find(s => s.storyId === storyId);
+        if (story) {
+          document.getElementById('story-name').value = story.name || '';
+          document.getElementById('story-trade').value = story.trade || '';
+          document.getElementById('story-title').value = story.title || '';
+          document.getElementById('story-text').value = story.story || '';
+          document.getElementById('story-location').value = story.location || '';
+          
+          if (story.imageUrl) {
+            this.currentImageData = story.imageUrl;
+            document.getElementById('story-image-preview-img').src = story.imageUrl;
+            document.getElementById('story-image-preview').style.display = 'block';
+            document.getElementById('story-image-upload').style.display = 'none';
+          }
+
+          document.getElementById('story-modal').classList.add('active');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading story:', error);
+      alert('Failed to load story');
+    }
+  },
+
+  async deleteStory(storyId) {
+    if (!confirm('Delete this success story? This cannot be undone.')) return;
+
+    const email = localStorage.getItem('userEmail');
+    if (!email) return;
+
+    try {
+      const res = await fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'delete-success-story',
+          email: email,
+          storyId: storyId
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert('Story deleted successfully');
+        this.loadStories();
+      } else {
+        alert(data.error || 'Failed to delete story');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to delete story');
+    }
+  },
+
+  async saveStory() {
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      alert('Please sign in to share your story');
+      return;
+    }
+
+    const name = document.getElementById('story-name').value.trim();
+    const trade = document.getElementById('story-trade').value.trim();
+    const title = document.getElementById('story-title').value.trim();
+    const story = document.getElementById('story-text').value.trim();
+    const location = document.getElementById('story-location').value.trim();
+
+    if (!name || !trade || !title || !story) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    const saveBtn = document.getElementById('save-story-btn');
+    const originalText = saveBtn.textContent;
+
+    try {
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      const payload = {
+        action: this.currentStoryId ? 'update-success-story' : 'add-success-story',
+        email: email,
+        name: name,
+        trade: trade,
+        title: title,
+        story: story,
+        location: location,
+        imageUrl: this.currentImageData || ''
+      };
+
+      if (this.currentStoryId) {
+        payload.storyId = this.currentStoryId;
+      }
+
+      const res = await fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert(this.currentStoryId ? 'Story updated successfully!' : 'Story shared successfully!');
+        this.closeModal();
+        this.loadStories();
+      } else {
+        alert(data.error || 'Failed to save story');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to save story');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = originalText;
+    }
+  },
+
+  closeModal() {
+    document.getElementById('story-modal').classList.remove('active');
+    this.currentStoryId = null;
+    this.currentImageData = null;
+  },
+
+  closeMyStoriesModal() {
+    document.getElementById('my-stories-modal').classList.remove('active');
   }
 };
 
@@ -1082,8 +1612,9 @@ async function loadSponsors() {
 
 /* ===== Filter buttons behavior ===== */
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize profile manager
+  // Initialize managers
   ProfileManager.init();
+  SuccessStories.init();
 
   const filterGroups = document.querySelectorAll('.filters');
   filterGroups.forEach(group => {
@@ -1303,7 +1834,7 @@ const NetworkManager = {
     }
     document.getElementById('network-modal').classList.add('active');
     this.showTab('connections');
-    this.loadRequests(); // Load to update badge
+    this.loadRequests();
   },
 
   closeNetworkModal() {
@@ -1311,15 +1842,12 @@ const NetworkManager = {
   },
 
   showTab(tabName) {
-    // Update tabs
     document.querySelectorAll('.network-tab').forEach(t => t.classList.remove('active'));
     document.querySelector(`.network-tab[onclick*="${tabName}"]`).classList.add('active');
 
-    // Update content
     document.querySelectorAll('.network-tab-content').forEach(c => c.style.display = 'none');
     document.getElementById(`network-${tabName}`).style.display = 'block';
 
-    // Load data
     if (tabName === 'connections') this.loadConnections();
     if (tabName === 'requests') this.loadRequests();
     if (tabName === 'suggested') this.loadSuggested();
@@ -1679,7 +2207,6 @@ const MessageManager = {
   },
 
   startChat(email, name, trade) {
-    // Initialize conversation if doesn't exist
     if (!this.messages[this.currentUser]) this.messages[this.currentUser] = {};
     if (!this.messages[this.currentUser][email]) {
       this.messages[this.currentUser][email] = {
@@ -1710,7 +2237,6 @@ const MessageManager = {
 
     this.renderChatMessages();
 
-    // Mark as read
     if (this.messages[this.currentUser] && this.messages[this.currentUser][email]) {
       this.messages[this.currentUser][email].unread = 0;
       this.saveMessages();
@@ -1757,18 +2283,16 @@ const MessageManager = {
       time: new Date().toISOString()
     };
 
-    // Add to current user's conversation
     if (!this.messages[this.currentUser]) this.messages[this.currentUser] = {};
     if (!this.messages[this.currentUser][this.currentChat]) {
       this.messages[this.currentUser][this.currentChat] = { messages: [], unread: 0 };
     }
     this.messages[this.currentUser][this.currentChat].messages.push(message);
 
-    // Add to recipient's conversation (mark as unread)
     if (!this.messages[this.currentChat]) this.messages[this.currentChat] = {};
     if (!this.messages[this.currentChat][this.currentUser]) {
       this.messages[this.currentChat][this.currentUser] = {
-        name: 'User', // In real app, fetch from profile
+        name: 'User',
         messages: [],
         unread: 0
       };
