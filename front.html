@@ -612,13 +612,56 @@ select.form-control{cursor:pointer}
           <label>State *</label>
           <select id="input-state" class="form-control" required>
             <option value="">Select state</option>
-            <option value="WI">Wisconsin</option>
+            <option value="AL">Alabama</option>
+            <option value="AK">Alaska</option>
+            <option value="AZ">Arizona</option>
+            <option value="AR">Arkansas</option>
+            <option value="CA">California</option>
+            <option value="CO">Colorado</option>
+            <option value="CT">Connecticut</option>
+            <option value="DE">Delaware</option>
+            <option value="FL">Florida</option>
+            <option value="GA">Georgia</option>
+            <option value="HI">Hawaii</option>
+            <option value="ID">Idaho</option>
             <option value="IL">Illinois</option>
-            <option value="MN">Minnesota</option>
-            <option value="MI">Michigan</option>
-            <option value="IA">Iowa</option>
             <option value="IN">Indiana</option>
+            <option value="IA">Iowa</option>
+            <option value="KS">Kansas</option>
+            <option value="KY">Kentucky</option>
+            <option value="LA">Louisiana</option>
+            <option value="ME">Maine</option>
+            <option value="MD">Maryland</option>
+            <option value="MA">Massachusetts</option>
+            <option value="MI">Michigan</option>
+            <option value="MN">Minnesota</option>
+            <option value="MS">Mississippi</option>
+            <option value="MO">Missouri</option>
+            <option value="MT">Montana</option>
+            <option value="NE">Nebraska</option>
+            <option value="NV">Nevada</option>
+            <option value="NH">New Hampshire</option>
+            <option value="NJ">New Jersey</option>
+            <option value="NM">New Mexico</option>
+            <option value="NY">New York</option>
+            <option value="NC">North Carolina</option>
+            <option value="ND">North Dakota</option>
             <option value="OH">Ohio</option>
+            <option value="OK">Oklahoma</option>
+            <option value="OR">Oregon</option>
+            <option value="PA">Pennsylvania</option>
+            <option value="RI">Rhode Island</option>
+            <option value="SC">South Carolina</option>
+            <option value="SD">South Dakota</option>
+            <option value="TN">Tennessee</option>
+            <option value="TX">Texas</option>
+            <option value="UT">Utah</option>
+            <option value="VT">Vermont</option>
+            <option value="VA">Virginia</option>
+            <option value="WA">Washington</option>
+            <option value="WV">West Virginia</option>
+            <option value="WI">Wisconsin</option>
+            <option value="WY">Wyoming</option>
           </select>
         </div>
         
@@ -801,7 +844,7 @@ select.form-control{cursor:pointer}
 
 <script>
 /* ===== CONFIG ===== */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpbosAvZHpO3C-7bYuQSsGgDq9QtOU2rf87jnkaX7ZiPdNxE_od3H6AYM0zvDepA8MkA/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzwVf_ufRkBRmmGDX2AGuk9Fyegn3YrWcXJuUcENVKNIAi087lZezYTX8PJMFLa4Qe6vA/exec";
 
 /* ===== Utility ===== */
 function debounce(fn, ms){let t;return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
@@ -810,58 +853,88 @@ const isHtmlResponse = (res) => {
   return ct.includes('text/html');
 };
 
-/* ===== PROFILE MANAGEMENT ===== */
+/* ===== PROFILE MANAGEMENT (FIXED VERSION) ===== */
 const ProfileManager = {
   currentImageUrl: null,
 
   init() {
+    this.checkAuthStatus();
     this.loadProfile();
     this.loadDocuments();
     this.bindEvents();
   },
 
+  checkAuthStatus() {
+    const email = localStorage.getItem('userEmail');
+    const editBtn = document.getElementById('edit-profile-btn');
+    
+    if (!email) {
+      // User not signed in
+      editBtn.textContent = 'Sign In to Complete Profile';
+      editBtn.onclick = () => {
+        alert('Please sign in or sign up first to create your profile.\n\nClick "Logout" (to go to sign up page) in the top navigation.');
+        window.location.href = 'index.html';
+      };
+    } else {
+      // User is signed in
+      editBtn.textContent = 'Edit Profile';
+      editBtn.onclick = () => this.openModal();
+    }
+  },
+
   bindEvents() {
-    // Profile image input change
-    document.getElementById('profile-image-input').addEventListener('change', (e) => {
-      this.handleImageUpload(e.target.files[0]);
-    });
+    const imageInput = document.getElementById('profile-image-input');
+    if (imageInput) {
+      imageInput.addEventListener('change', (e) => {
+        this.handleImageUpload(e.target.files[0]);
+      });
+    }
 
-    // Document upload
-    document.getElementById('profile-upload').addEventListener('click', () => {
-      document.getElementById('file-upload').click();
-    });
+    const uploadArea = document.getElementById('profile-upload');
+    const fileUpload = document.getElementById('file-upload');
     
-    document.getElementById('file-upload').addEventListener('change', (e) => {
-      this.handleDocumentUpload(e.target.files);
-    });
+    if (uploadArea) {
+      uploadArea.addEventListener('click', () => {
+        const email = localStorage.getItem('userEmail');
+        if (!email) {
+          alert('Please sign in first to upload documents');
+          return;
+        }
+        fileUpload.click();
+      });
+    }
+    
+    if (fileUpload) {
+      fileUpload.addEventListener('change', (e) => {
+        this.handleDocumentUpload(e.target.files);
+      });
+    }
 
-    // Edit profile modal
-    document.getElementById('edit-profile-btn').addEventListener('click', () => {
-      this.openModal();
-    });
+    const closeBtn = document.getElementById('close-modal');
+    const cancelBtn = document.getElementById('cancel-modal');
+    const saveBtn = document.getElementById('save-profile');
     
-    document.getElementById('close-modal').addEventListener('click', () => {
-      this.closeModal();
-    });
-    
-    document.getElementById('cancel-modal').addEventListener('click', () => {
-      this.closeModal();
-    });
-    
-    document.getElementById('save-profile').addEventListener('click', () => {
-      this.saveProfile();
-    });
+    if (closeBtn) closeBtn.addEventListener('click', () => this.closeModal());
+    if (cancelBtn) cancelBtn.addEventListener('click', () => this.closeModal());
+    if (saveBtn) saveBtn.addEventListener('click', () => this.saveProfile());
 
-    // Close modal on backdrop click
-    document.getElementById('profile-modal').addEventListener('click', (e) => {
-      if (e.target.id === 'profile-modal') {
-        this.closeModal();
-      }
-    });
+    const modal = document.getElementById('profile-modal');
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target.id === 'profile-modal') {
+          this.closeModal();
+        }
+      });
+    }
   },
 
   selectImage(e) {
     e.stopPropagation();
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      alert('Please sign in first to upload a profile image');
+      return;
+    }
     document.getElementById('profile-image-input').click();
   },
 
@@ -873,45 +946,20 @@ const ProfileManager = {
     const email = localStorage.getItem('userEmail');
     
     if (!email) {
-      localStorage.removeItem('profileImage');
-      this.displayPlaceholder();
+      alert('Please sign in first');
       return;
     }
 
     try {
-      const saveBtn = document.getElementById('save-profile');
-      const originalText = saveBtn ? saveBtn.textContent : '';
-      if (saveBtn) {
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Deleting...';
-      }
-
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'delete-profile-image',
-          email: email
-        })
-      });
-
-      const data = await res.json();
+      this.currentImageUrl = null;
+      this.displayPlaceholder();
       
-      if (data.success) {
-        this.currentImageUrl = null;
-        this.displayPlaceholder();
-        alert('Profile image deleted successfully!');
-      } else {
-        alert('Failed to delete image: ' + (data.error || 'Unknown error'));
-      }
+      // Save profile with empty image URL
+      await this.saveProfile();
+      alert('Profile image deleted successfully!');
     } catch (error) {
       console.error('Delete error:', error);
       alert('Failed to delete image. Please try again.');
-    } finally {
-      if (saveBtn) {
-        saveBtn.disabled = false;
-        saveBtn.textContent = originalText;
-      }
     }
   },
 
@@ -938,54 +986,20 @@ const ProfileManager = {
       return;
     }
 
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      alert('Please sign in first to upload an image');
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = async (e) => {
       const imageData = e.target.result;
-      const email = localStorage.getItem('userEmail');
       
-      if (!email) {
-        localStorage.setItem('profileImage', imageData);
-        this.displayProfileImage(imageData);
-        return;
-      }
-
-      try {
-        const saveBtn = document.getElementById('save-profile');
-        const originalText = saveBtn ? saveBtn.textContent : '';
-        if (saveBtn) {
-          saveBtn.disabled = true;
-          saveBtn.textContent = 'Uploading...';
-        }
-
-        const res = await fetch(WEBAPP_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'upload-profile-image',
-            email: email,
-            imageData: imageData,
-            fileName: file.name
-          })
-        });
-
-        const data = await res.json();
-        
-        if (data.success) {
-          this.currentImageUrl = data.imageUrl;
-          this.displayProfileImage(imageData);
-          alert('Profile image uploaded successfully!');
-        } else {
-          alert('Failed to upload image: ' + (data.error || 'Unknown error'));
-        }
-      } catch (error) {
-        console.error('Upload error:', error);
-        alert('Failed to upload image. Please try again.');
-      } finally {
-        if (saveBtn) {
-          saveBtn.disabled = false;
-          saveBtn.textContent = originalText;
-        }
-      }
+      this.currentImageUrl = imageData;
+      this.displayProfileImage(imageData);
+      
+      alert('Image selected! Click "Save Profile" to save all changes.');
     };
     reader.readAsDataURL(file);
   },
@@ -1019,6 +1033,7 @@ const ProfileManager = {
 
     localStorage.setItem('profileDocuments', JSON.stringify(documents));
     this.displayDocuments();
+    alert('Documents added! They will be saved to your profile.');
   },
 
   displayDocuments() {
@@ -1057,9 +1072,8 @@ const ProfileManager = {
     const email = localStorage.getItem('userEmail');
     
     if (!email) {
-      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      this.populateForm(profile);
-      document.getElementById('profile-modal').classList.add('active');
+      alert('Please sign in or sign up first to create your profile.\n\nClick "Logout" (to go to sign up page) in the top navigation.');
+      window.location.href = 'index.html';
       return;
     }
 
@@ -1071,13 +1085,21 @@ const ProfileManager = {
       });
 
       const data = await res.json();
+      
       if (data.success && data.profile) {
         this.populateForm(data.profile);
+        if (data.profile.profileImageUrl) {
+          this.currentImageUrl = data.profile.profileImageUrl;
+        }
       } else {
+        // New profile - pre-fill email
         document.getElementById('input-email').value = email;
+        document.getElementById('input-email').disabled = true;
       }
     } catch (error) {
       console.error('Load profile error:', error);
+      document.getElementById('input-email').value = email;
+      document.getElementById('input-email').disabled = true;
     }
     
     document.getElementById('profile-modal').classList.add('active');
@@ -1086,6 +1108,7 @@ const ProfileManager = {
   populateForm(profile) {
     document.getElementById('input-name').value = profile.fullName || profile.name || '';
     document.getElementById('input-email').value = profile.email || '';
+    document.getElementById('input-email').disabled = true; // Always disable for security
     document.getElementById('input-phone').value = profile.phone || '';
     document.getElementById('input-trade').value = profile.trade || '';
     document.getElementById('input-experience').value = profile.experience || '';
@@ -1098,16 +1121,18 @@ const ProfileManager = {
 
   closeModal() {
     document.getElementById('profile-modal').classList.remove('active');
+    document.getElementById('input-email').disabled = false;
   },
 
   async saveProfile() {
     const saveBtn = document.getElementById('save-profile');
-    const originalText = saveBtn.textContent;
+    const originalText = saveBtn ? saveBtn.textContent : '';
     
-    const email = document.getElementById('input-email').value.trim();
+    const email = localStorage.getItem('userEmail');
     
     if (!email) {
-      alert('Email is required');
+      alert('Please sign in first to save your profile');
+      window.location.href = 'index.html';
       return;
     }
 
@@ -1126,13 +1151,15 @@ const ProfileManager = {
     };
 
     if (!profile.fullName || !profile.trade || !profile.city || !profile.state) {
-      alert('Please fill in all required fields (marked with *)');
+      alert('Please fill in all required fields:\n• Full Name\n• Trade\n• City\n• State');
       return;
     }
 
     try {
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Saving...';
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+      }
 
       const res = await fetch(WEBAPP_URL, {
         method: 'POST',
@@ -1143,20 +1170,26 @@ const ProfileManager = {
       const data = await res.json();
       
       if (data.success) {
-        localStorage.setItem('userEmail', email);
-        
         this.displayProfile(profile);
         this.closeModal();
         alert('Profile saved successfully!');
+        this.checkAuthStatus(); // Update button text
       } else {
         alert('Failed to save profile: ' + (data.error || 'Unknown error'));
+        
+        if (data.error && data.error.includes('Account not found')) {
+          alert('You need to sign up first. Redirecting to sign up page...');
+          window.location.href = 'index.html';
+        }
       }
     } catch (error) {
       console.error('Save profile error:', error);
       alert('Failed to save profile. Please try again.');
     } finally {
-      saveBtn.disabled = false;
-      saveBtn.textContent = originalText;
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalText;
+      }
     }
   },
 
@@ -1164,8 +1197,7 @@ const ProfileManager = {
     const email = localStorage.getItem('userEmail');
     
     if (!email) {
-      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      this.displayProfile(profile);
+      this.displayProfile({});
       return;
     }
 
@@ -1185,9 +1217,12 @@ const ProfileManager = {
           this.currentImageUrl = data.profile.profileImageUrl;
           this.displayProfileImage(data.profile.profileImageUrl);
         }
+      } else {
+        this.displayProfile({});
       }
     } catch (error) {
       console.error('Load profile error:', error);
+      this.displayProfile({});
     }
   },
 
@@ -1379,16 +1414,6 @@ const SuccessStories = {
     document.getElementById('story-image-preview').style.display = 'none';
     document.getElementById('story-image-upload').style.display = 'flex';
     
-    // Pre-fill from profile
-    ProfileManager.loadProfile().then(() => {
-      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      if (profile.fullName) document.getElementById('story-name').value = profile.fullName;
-      if (profile.trade) document.getElementById('story-trade').value = profile.trade;
-      if (profile.city && profile.state) {
-        document.getElementById('story-location').value = `${profile.city}, ${profile.state}`;
-      }
-    });
-
     document.getElementById('story-modal').classList.add('active');
   },
 
