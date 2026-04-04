@@ -218,15 +218,95 @@ select.form-control{cursor:pointer}
 .ai-result-title{font-weight:600;margin-bottom:4px}
 
 /* ===== SPONSORS ===== */
-.sponsors-grid{display:grid;grid-template-columns:1fr;gap:12px}
-.sponsor-card{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;align-items:center;text-align:center;transition:all .2s;text-decoration:none;color:var(--ink)}
-.sponsor-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(0,0,0,.08);transform:translateY(-2px)}
-.sponsor-logo{max-width:120px;max-height:50px;object-fit:contain;margin-bottom:10px}
-.sponsor-placeholder{width:100%;padding:20px;border:2px dashed var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:15px;font-weight:600;margin-bottom:10px;background:var(--panel)}
-.sponsor-description{font-size:13px;color:var(--muted);margin:0;line-height:1.4}
-.sponsor-featured{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none}
-.sponsor-featured .sponsor-description{color:rgba(255,255,255,.9)}
-.sponsor-featured .sponsor-placeholder{border-color:rgba(255,255,255,.3);color:white;background:rgba(255,255,255,.1)}
+/* ===== Load Sponsors ===== */
+async function loadSponsors() {
+  const container = document.getElementById('sponsors-container');
+  const sponsorMailto = 'mailto:Team@linktradenetwork.com?subject=Sponsor%20Inquiry%20for%20LinkTradeNetwork';
+
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'get-sponsors' })
+    });
+
+    if (!res.ok) throw new Error('Failed to load sponsors');
+
+    const data = await res.json();
+
+    if (!data.success || !data.sponsors || data.sponsors.length === 0) {
+      container.innerHTML = `
+        <a href="${sponsorMailto}" class="sponsor-card sponsor-featured">
+          <div class="sponsor-placeholder">Your Company Here</div>
+          <p class="sponsor-description">Become a sponsor and support skilled trade workers nationwide!</p>
+        </a>
+
+        <a href="${sponsorMailto}" class="sponsor-card">
+          <div class="sponsor-placeholder">Your Company Here</div>
+          <p class="sponsor-description">Become a sponsor and support skilled trade workers nationwide!</p>
+        </a>
+
+        <a href="${sponsorMailto}" class="sponsor-card">
+          <div class="sponsor-placeholder">Your Company Here</div>
+          <p class="sponsor-description">Become a sponsor and support skilled trade workers nationwide!</p>
+        </a>
+
+        <a href="${sponsorMailto}" class="sponsor-card">
+          <div class="sponsor-placeholder">Your Company Here</div>
+          <p class="sponsor-description">Become a sponsor and support skilled trade workers nationwide!</p>
+        </a>
+      `;
+      return;
+    }
+
+    container.innerHTML = data.sponsors.map((sponsor, index) => {
+      const isFeatured = index === 0;
+      const cardClass = isFeatured ? 'sponsor-card sponsor-featured' : 'sponsor-card';
+
+      const safeLink = (sponsor.link && sponsor.link.trim())
+        ? sponsor.link
+        : sponsorMailto;
+
+      const safeTarget = safeLink.startsWith('mailto:') ? '_self' : '_blank';
+      const safeRel = safeLink.startsWith('mailto:') ? '' : 'rel="noopener noreferrer"';
+
+      return `
+        <a href="${safeLink}" target="${safeTarget}" ${safeRel} class="${cardClass}">
+          ${sponsor.logoUrl
+            ? `<img src="${sponsor.logoUrl}" alt="${sponsor.name || 'Sponsor'}" class="sponsor-logo">`
+            : `<div class="sponsor-placeholder">${sponsor.name || 'Your Company Here'}</div>`
+          }
+          <p class="sponsor-description">${sponsor.description || 'Become a sponsor and support skilled trade workers nationwide!'}</p>
+        </a>
+      `;
+    }).join('');
+
+  } catch (error) {
+    console.error('Error loading sponsors:', error);
+
+    container.innerHTML = `
+      <a href="${sponsorMailto}" class="sponsor-card sponsor-featured">
+        <div class="sponsor-placeholder">Your Company Here</div>
+        <p class="sponsor-description">Become a sponsor and support skilled trade workers nationwide!</p>
+      </a>
+
+      <a href="${sponsorMailto}" class="sponsor-card">
+        <div class="sponsor-placeholder">Your Company Here</div>
+        <p class="sponsor-description">Become a sponsor and support skilled trade workers nationwide!</p>
+      </a>
+
+      <a href="${sponsorMailto}" class="sponsor-card">
+        <div class="sponsor-placeholder">Your Company Here</div>
+        <p class="sponsor-description">Become a sponsor and support skilled trade workers nationwide!</p>
+      </a>
+
+      <a href="${sponsorMailto}" class="sponsor-card">
+        <div class="sponsor-placeholder">Your Company Here</div>
+        <p class="sponsor-description">Become a sponsor and support skilled trade workers nationwide!</p>
+      </a>
+    `;
+  }
+}
 
 /* ===== RESPONSIVE BREAKPOINTS ===== */
 @media(max-width:1100px){
