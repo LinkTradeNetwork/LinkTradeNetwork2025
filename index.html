@@ -668,7 +668,7 @@ verifyBtn.onclick=async()=>{
       doneStep.classList.add('show');
       
       setTimeout(()=>{ 
-        window.location.replace("/front.html"); 
+        window.location.replace("front.html"); 
       }, 1200);
     }else{
       throw new Error(r.error||'Invalid or expired code');
@@ -691,7 +691,7 @@ resendBtn.onclick=async()=>{
   
   try{
     const r=await postJSON({
-      action:'request-otp',
+      action:'resend',
       email:currentEmail,
       name:fullName,
       userAgent:navigator.userAgent
@@ -743,7 +743,7 @@ signinBtn.onclick=async()=>{
       showMsg(signinMsg, 'Success! Redirecting...', 'ok');
       
       setTimeout(()=>{
-        window.location.replace("/front.html");
+        window.location.replace("front.html");
       }, 800);
     }else{
       // If backend says this email needs OTP, flip to Sign Up tab
