@@ -228,115 +228,43 @@ select.form-control{cursor:pointer}
 .sponsor-featured .sponsor-description{color:rgba(255,255,255,.9)}
 .sponsor-featured .sponsor-placeholder{border-color:rgba(255,255,255,.3);color:white;background:rgba(255,255,255,.1)}
 
-/* ===== RESPONSIVE BREAKPOINTS ===== */
-@media(max-width:1100px){
-  .shell{grid-template-columns:1fr 1fr;gap:16px}
-  .right-sidebar{grid-column:span 2}
-}
-
+/* ===== RESPONSIVE ===== */
+@media(max-width:1100px){.shell{grid-template-columns:1fr 1fr;gap:16px}.right-sidebar{grid-column:span 2}}
 @media(max-width:768px){
-  .topbar-inner{padding:10px 12px}
-  .logo-text{font-size:16px}
-  .logo-badge{width:38px;height:38px;font-size:16px}
-  
+  .topbar-inner{padding:10px 12px}.logo-text{font-size:16px}.logo-badge{width:38px;height:38px;font-size:16px}
   .mobile-menu-btn{display:flex}
   .nav{position:fixed;top:62px;left:0;right:0;background:var(--accent);flex-direction:column;align-items:stretch;padding:12px;gap:8px;transform:translateX(-100%);transition:transform .3s;box-shadow:0 4px 15px rgba(0,0,0,.2);max-height:calc(100vh - 62px);overflow-y:auto}
   .nav.open{transform:translateX(0)}
   .nav a,.nav .btn{width:100%;text-align:center;justify-content:center;padding:14px 18px}
-  
   .search-container{width:100%;max-width:none;margin:10px 0 0 0;order:3;flex-basis:100%}
-  
-  .shell{grid-template-columns:1fr;padding:12px;gap:16px}
-  .right-sidebar{grid-column:span 1}
-  
-  .card .bd{padding:16px}
-  .card .hd{padding:14px 16px;font-size:15px}
-  
-  .modal{margin:10px}
-  .modal-body{padding:16px}
-  
-  .job{padding:16px}
-  .job .title{font-size:16px}
-  .job .meta{font-size:13px}
-  
-  .form-control{font-size:16px;padding:12px}
-  .fbtn{font-size:13px;padding:8px 14px;min-height:40px}
-  
-  .stats{gap:8px}
-  .stat-card{padding:12px}
-  .stat-number{font-size:20px}
-  
-  .story-card{padding:16px}
-  .story-title{font-size:18px}
+  .shell{grid-template-columns:1fr;padding:12px;gap:16px}.right-sidebar{grid-column:span 1}
+  .card .bd{padding:16px}.card .hd{padding:14px 16px;font-size:15px}
+  .modal{margin:10px}.modal-body{padding:16px}
+  .job{padding:16px}.job .title{font-size:16px}.job .meta{font-size:13px}
+  .form-control{font-size:16px;padding:12px}.fbtn{font-size:13px;padding:8px 14px;min-height:40px}
+  .stats{gap:8px}.stat-card{padding:12px}.stat-number{font-size:20px}
+  .story-card{padding:16px}.story-title{font-size:18px}.story-header{flex-direction:column;text-align:center}
 }
-
 @media(max-width:480px){
-  .topbar-inner{padding:8px 10px;gap:8px}
-  .logo-text{font-size:14px}
-  .logo-badge{width:36px;height:36px;font-size:14px}
-  
-  .shell{padding:10px;gap:12px}
-  
-  .card .bd{padding:14px}
-  .card .hd{padding:12px 14px;font-size:14px;flex-direction:column;align-items:flex-start;gap:8px}
-  
-  .modal-header h2{font-size:18px}
-  .modal-body{padding:14px}
-  
-  .job{padding:14px}
-  .job .title{font-size:15px}
-  .job .meta{font-size:12px;gap:6px}
-  .meta-dot{width:3px;height:3px}
-  .tags{gap:4px}
-  .tag{padding:5px 10px;font-size:12px}
-  .apply{gap:8px}
-  .apply button, .apply a{font-size:14px;padding:10px 16px}
-  
-  .filters{gap:6px}
-  .fbtn{font-size:12px;padding:8px 12px;min-height:38px}
-  
-  .form-group label{font-size:14px}
-  .form-control{font-size:16px;padding:10px 12px}
-  
-  .stats{grid-template-columns:1fr 1fr;gap:6px}
-  .stat-card{padding:10px}
-  .stat-number{font-size:18px}
-  .stat-label{font-size:12px}
-  
-  .profile-image-container{height:150px}
-  .upload-area{padding:16px;min-height:100px}
-  
-  .sponsor-card{padding:14px}
-  .sponsor-logo{max-width:100px;max-height:40px}
-  
-  .small{font-size:13px}
-  
-  button, .btn{font-size:15px;padding:10px 16px}
-  
-  .story-card{padding:14px}
-  .story-title{font-size:16px}
-  .story-header{flex-direction:column;text-align:center}
+  .topbar-inner{padding:8px 10px;gap:8px}.logo-text{font-size:14px}.logo-badge{width:36px;height:36px;font-size:14px}
+  .shell{padding:10px;gap:12px}.card .bd{padding:14px}.card .hd{padding:12px 14px;font-size:14px;flex-direction:column;align-items:flex-start;gap:8px}
+  .modal-header h2{font-size:18px}.modal-body{padding:14px}
+  .job{padding:14px}.job .title{font-size:15px}.job .meta{font-size:12px;gap:6px}.meta-dot{width:3px;height:3px}
+  .tags{gap:4px}.tag{padding:5px 10px;font-size:12px}.apply{gap:8px}.apply button,.apply a{font-size:14px;padding:10px 16px}
+  .filters{gap:6px}.fbtn{font-size:12px;padding:8px 12px;min-height:38px}
+  .form-group label{font-size:14px}.form-control{font-size:16px;padding:10px 12px}
+  .stats{grid-template-columns:1fr 1fr;gap:6px}.stat-card{padding:10px}.stat-number{font-size:18px}.stat-label{font-size:12px}
+  .profile-image-container{height:150px}.upload-area{padding:16px;min-height:100px}
+  .sponsor-card{padding:14px}.sponsor-logo{max-width:100px;max-height:40px}
+  .small{font-size:13px}button,.btn{font-size:15px;padding:10px 16px}
+  .story-card{padding:14px}.story-title{font-size:16px}
 }
-
 @media(max-width:360px){
-  .logo-text{display:none}
-  
-  .job .title{font-size:14px}
-  .job .meta{font-size:11px}
-  
-  .apply{flex-direction:column}
-  .apply button, .apply a{width:100%}
-  
-  .stats{grid-template-columns:1fr}
-  
-  .fbtn{font-size:11px;padding:6px 10px;min-height:36px}
+  .logo-text{display:none}.job .title{font-size:14px}.job .meta{font-size:11px}
+  .apply{flex-direction:column}.apply button,.apply a{width:100%}
+  .stats{grid-template-columns:1fr}.fbtn{font-size:11px;padding:6px 10px;min-height:36px}
 }
-
-@media(max-height:500px) and (orientation:landscape){
-  .nav{max-height:calc(100vh - 52px)}
-  .topbar-inner{padding:6px 12px}
-  .logo-badge{width:34px;height:34px}
-}
+@media(max-height:500px) and (orientation:landscape){.nav{max-height:calc(100vh - 52px)}.topbar-inner{padding:6px 12px}.logo-badge{width:34px;height:34px}}
 </style>
 </head>
 <body>
@@ -374,7 +302,7 @@ select.form-control{cursor:pointer}
         Messages
         <span id="messages-badge" class="notification-badge" style="display:none">0</span>
       </a>
-      <button class="btn btn-primary">Post a Job</button>
+      <button class="btn btn-primary" onclick="JobPostManager.openModal()">Post a Job</button>
       <a href="index.html" class="btn btn-secondary">Logout</a>
     </nav>
   </div>
@@ -386,7 +314,6 @@ select.form-control{cursor:pointer}
     <section class="card">
       <div class="hd"><span>Profile</span><span class="badge">Professional</span></div>
       <div class="bd">
-        <!-- Profile Image -->
         <div class="profile-image-container" id="profile-image-area">
           <div class="profile-placeholder-content">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -399,7 +326,6 @@ select.form-control{cursor:pointer}
         </div>
         <input type="file" id="profile-image-input" accept="image/*" style="display:none">
 
-        <!-- Profile Info -->
         <div class="profile-info" id="profile-info-display">
           <div class="profile-name" id="display-name">Your Name</div>
           <div class="profile-trade" id="display-trade">Your Trade</div>
@@ -409,10 +335,8 @@ select.form-control{cursor:pointer}
           </div>
         </div>
 
-        <!-- Documents List -->
         <div class="documents-list" id="documents-list"></div>
 
-        <!-- Upload Documents -->
         <div class="upload-area" id="profile-upload">
           <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"/></svg>
           <div class="small">Click to upload documents</div>
@@ -443,8 +367,8 @@ select.form-control{cursor:pointer}
 
   <!-- MIDDLE -->
   <section>
-    <div class="card">
-      <div class="hd"><span>Skilled Trade Opportunities</span><span class="badge badge-warning">12 new today</span></div>
+    <div class="card" id="jobs">
+      <div class="hd"><span>Skilled Trade Opportunities</span><span class="badge badge-warning" id="jobs-new-badge">Loading...</span></div>
       <div class="bd">
         <div class="filters" id="jobs-filter-bar">
           <button class="fbtn active">All</button>
@@ -456,10 +380,11 @@ select.form-control{cursor:pointer}
           <button class="fbtn">Physical Security</button>
           <button class="fbtn">Sprinkler</button>
         </div>
-
         <div id="jobs-list" class="jobs-container"></div>
-        <div id="jobs-empty" class="small" style="display:none;color:var(--muted);padding:8px 4px">
-          No jobs found. Try another trade, keyword, or location.
+        <div id="jobs-empty" class="empty-state" style="display:none">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <h3>No jobs found</h3>
+          <p>Try another trade, keyword, or location — or be the first to <a href="#" onclick="JobPostManager.openModal();return false;" style="color:var(--brand)">post a job</a>!</p>
         </div>
         <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
           <button id="jobs-prev" class="btn btn-secondary" disabled>Prev</button>
@@ -469,7 +394,7 @@ select.form-control{cursor:pointer}
       </div>
     </div>
 
-    <!-- SUCCESS STORIES SECTION -->
+    <!-- SUCCESS STORIES -->
     <div class="card" style="margin-top:24px">
       <div class="hd">
         <span>Success Stories</span>
@@ -486,17 +411,32 @@ select.form-control{cursor:pointer}
       </div>
     </div>
 
+    <!-- POST JOB (inline form — also accessible via modal) -->
     <div class="card" style="margin-top:24px">
       <div class="hd">Post a New Job</div>
       <div class="bd">
-        <div class="form-group"><label>Job Title</label><input type="text" class="form-control" placeholder="e.g. Experienced Plumber for Commercial Project"></div>
-        <div class="form-group"><label>Job Type</label><select class="form-control"><option>Full-time</option><option>Contract</option><option>Part-time</option><option>Project-based</option></select></div>
-        <div class="form-group"><label>Location</label><input type="text" class="form-control" placeholder="City, State"></div>
-        <div class="form-group"><label>Pay Range</label><div style="display:flex;gap:10px;flex-wrap:wrap"><input type="text" class="form-control" placeholder="Min $" style="flex:1;min-width:100px"><input type="text" class="form-control" placeholder="Max $" style="flex:1;min-width:100px"><select class="form-control" style="flex:1;min-width:100px"><option>hourly</option><option>daily</option><option>project</option></select></div></div>
-        <div class="form-group"><label>Required Skills</label><div class="filters" style="margin-top:5px"><button class="fbtn">Low Voltage</button><button class="fbtn">Electrical</button><button class="fbtn">Plumbing</button><button class="fbtn">HVAC</button><button class="fbtn">General Contractor</button><button class="fbtn">Physical Security</button></div></div>
-        <div class="form-group"><label>Job Description</label><textarea class="form-control" placeholder="Describe the job..."></textarea></div>
-        <div class="form-group"><label>Upload Supporting Documents (optional)</label><div class="upload-area"><svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><div class="small">Drag and drop or click to upload</div></div></div>
-        <button class="btn-primary" style="width:100%">Post Job</button>
+        <div class="form-group"><label>Job Title *</label><input type="text" id="inline-job-title" class="form-control" placeholder="e.g. Experienced Plumber for Commercial Project"></div>
+        <div class="form-group"><label>Company / Business Name</label><input type="text" id="inline-job-company" class="form-control" placeholder="ABC Plumbing Co."></div>
+        <div class="form-group"><label>Job Type</label><select id="inline-job-type" class="form-control"><option>Full-time</option><option>Contract</option><option>Part-time</option><option>Project-based</option></select></div>
+        <div class="form-group"><label>Location (City, State) *</label><input type="text" id="inline-job-location" class="form-control" placeholder="Milwaukee, WI"></div>
+        <div class="form-group"><label>Pay Range</label><div style="display:flex;gap:10px;flex-wrap:wrap"><input type="text" id="inline-job-pay-min" class="form-control" placeholder="Min $" style="flex:1;min-width:100px"><input type="text" id="inline-job-pay-max" class="form-control" placeholder="Max $" style="flex:1;min-width:100px"><select id="inline-job-pay-period" class="form-control" style="flex:1;min-width:100px"><option>hourly</option><option>daily</option><option>project</option></select></div></div>
+        <div class="form-group">
+          <label>Required Skills (select all that apply)</label>
+          <div class="filters" id="inline-job-skills" style="margin-top:5px">
+            <button class="fbtn" type="button">Low Voltage</button>
+            <button class="fbtn" type="button">Electrical</button>
+            <button class="fbtn" type="button">Plumbing</button>
+            <button class="fbtn" type="button">HVAC</button>
+            <button class="fbtn" type="button">General Contractor</button>
+            <button class="fbtn" type="button">Physical Security</button>
+            <button class="fbtn" type="button">Sprinkler</button>
+            <button class="fbtn" type="button">Welding</button>
+            <button class="fbtn" type="button">Carpentry</button>
+          </div>
+        </div>
+        <div class="form-group"><label>Job Description *</label><textarea id="inline-job-desc" class="form-control" placeholder="Describe the job requirements, responsibilities, and what you're looking for..."></textarea></div>
+        <div class="form-group"><label>External Application Link (optional)</label><input type="url" id="inline-job-link" class="form-control" placeholder="https://..."></div>
+        <button class="btn-primary" style="width:100%" onclick="JobPostManager.submitInlineJob()">Post Job</button>
       </div>
     </div>
   </section>
@@ -516,8 +456,13 @@ select.form-control{cursor:pointer}
       <div class="hd">Get Connected</div>
       <div class="bd small">
         <p>Join the network built for skilled trades professionals:</p>
-        <ul style="margin:0 0 15px 18px;padding:0"><li style="margin-bottom:8px">Find verified trade jobs with competitive pay</li><li style="margin-bottom:8px">Connect with local contractors and employers</li><li style="margin-bottom:8px">Showcase your skills and certifications</li><li>Get matched with projects in your area</li></ul>
-        <button class="btn-primary" style="width:100%">Join Network</button>
+        <ul style="margin:0 0 15px 18px;padding:0">
+          <li style="margin-bottom:8px">Find verified trade jobs with competitive pay</li>
+          <li style="margin-bottom:8px">Connect with local contractors and employers</li>
+          <li style="margin-bottom:8px">Showcase your skills and certifications</li>
+          <li>Get matched with projects in your area</li>
+        </ul>
+        <button class="btn-primary" style="width:100%" onclick="NetworkManager.openNetworkModal()">Join Network</button>
       </div>
     </section>
 
@@ -525,7 +470,7 @@ select.form-control{cursor:pointer}
       <div class="hd">Get The LTN Mobile App</div>
       <div class="bd" style="padding:0">
         <div style="background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;padding:20px;text-align:center;border-radius:0 0 12px 12px">
-          <svg style="width:60px;height:60px;margin-bottom:10px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 01-2 2z"/></svg>
+          <svg style="width:60px;height:60px;margin-bottom:10px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
           <h3 style="margin:0 0 10px;font-size:18px">Find Trade Jobs On The Go</h3>
           <p style="margin:0 0 15px;font-size:14px">Get instant job alerts, apply with one tap, and chat with employers directly from your phone.</p>
           <button class="btn-secondary" style="display:inline-block;padding:12px 24px;font-size:16px">Get The LTN App</button>
@@ -566,23 +511,10 @@ select.form-control{cursor:pointer}
     </div>
     <div class="modal-body">
       <form id="profile-form">
-        <div class="form-group">
-          <label>Full Name *</label>
-          <input type="text" id="input-name" class="form-control" placeholder="John Smith" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Email Address *</label>
-          <input type="email" id="input-email" class="form-control" placeholder="john@example.com" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" id="input-phone" class="form-control" placeholder="(555) 123-4567">
-        </div>
-        
-        <div class="form-group">
-          <label>Trade / Specialty *</label>
+        <div class="form-group"><label>Full Name *</label><input type="text" id="input-name" class="form-control" placeholder="John Smith" required></div>
+        <div class="form-group"><label>Email Address *</label><input type="email" id="input-email" class="form-control" placeholder="john@example.com" required></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="input-phone" class="form-control" placeholder="(555) 123-4567"></div>
+        <div class="form-group"><label>Trade / Specialty *</label>
           <select id="input-trade" class="form-control" required>
             <option value="">Select your trade</option>
             <option value="Electrical">Electrical</option>
@@ -597,88 +529,17 @@ select.form-control{cursor:pointer}
             <option value="Other">Other</option>
           </select>
         </div>
-        
-        <div class="form-group">
-          <label>Years of Experience</label>
-          <input type="number" id="input-experience" class="form-control" placeholder="5" min="0" max="50">
-        </div>
-        
-        <div class="form-group">
-          <label>City *</label>
-          <input type="text" id="input-city" class="form-control" placeholder="Milwaukee" required>
-        </div>
-        
-        <div class="form-group">
-          <label>State *</label>
+        <div class="form-group"><label>Years of Experience</label><input type="number" id="input-experience" class="form-control" placeholder="5" min="0" max="50"></div>
+        <div class="form-group"><label>City *</label><input type="text" id="input-city" class="form-control" placeholder="Milwaukee" required></div>
+        <div class="form-group"><label>State *</label>
           <select id="input-state" class="form-control" required>
             <option value="">Select state</option>
-            <option value="AL">Alabama</option>
-            <option value="AK">Alaska</option>
-            <option value="AZ">Arizona</option>
-            <option value="AR">Arkansas</option>
-            <option value="CA">California</option>
-            <option value="CO">Colorado</option>
-            <option value="CT">Connecticut</option>
-            <option value="DE">Delaware</option>
-            <option value="FL">Florida</option>
-            <option value="GA">Georgia</option>
-            <option value="HI">Hawaii</option>
-            <option value="ID">Idaho</option>
-            <option value="IL">Illinois</option>
-            <option value="IN">Indiana</option>
-            <option value="IA">Iowa</option>
-            <option value="KS">Kansas</option>
-            <option value="KY">Kentucky</option>
-            <option value="LA">Louisiana</option>
-            <option value="ME">Maine</option>
-            <option value="MD">Maryland</option>
-            <option value="MA">Massachusetts</option>
-            <option value="MI">Michigan</option>
-            <option value="MN">Minnesota</option>
-            <option value="MS">Mississippi</option>
-            <option value="MO">Missouri</option>
-            <option value="MT">Montana</option>
-            <option value="NE">Nebraska</option>
-            <option value="NV">Nevada</option>
-            <option value="NH">New Hampshire</option>
-            <option value="NJ">New Jersey</option>
-            <option value="NM">New Mexico</option>
-            <option value="NY">New York</option>
-            <option value="NC">North Carolina</option>
-            <option value="ND">North Dakota</option>
-            <option value="OH">Ohio</option>
-            <option value="OK">Oklahoma</option>
-            <option value="OR">Oregon</option>
-            <option value="PA">Pennsylvania</option>
-            <option value="RI">Rhode Island</option>
-            <option value="SC">South Carolina</option>
-            <option value="SD">South Dakota</option>
-            <option value="TN">Tennessee</option>
-            <option value="TX">Texas</option>
-            <option value="UT">Utah</option>
-            <option value="VT">Vermont</option>
-            <option value="VA">Virginia</option>
-            <option value="WA">Washington</option>
-            <option value="WV">West Virginia</option>
-            <option value="WI">Wisconsin</option>
-            <option value="WY">Wyoming</option>
+            <option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option><option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option><option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option><option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option><option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option><option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option><option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option><option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option><option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option><option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option><option value="WI">Wisconsin</option><option value="WY">Wyoming</option>
           </select>
         </div>
-        
-        <div class="form-group">
-          <label>About / Bio</label>
-          <textarea id="input-bio" class="form-control" placeholder="Tell employers about your skills, experience, and what you're looking for..."></textarea>
-        </div>
-        
-        <div class="form-group">
-          <label>Skills (comma separated)</label>
-          <input type="text" id="input-skills" class="form-control" placeholder="Wiring, Code Compliance, Blueprint Reading">
-        </div>
-        
-        <div class="form-group">
-          <label>Certifications / Licenses</label>
-          <textarea id="input-certifications" class="form-control" placeholder="Master Electrician License - State of WI&#10;OSHA 30-Hour Construction"></textarea>
-        </div>
+        <div class="form-group"><label>About / Bio</label><textarea id="input-bio" class="form-control" placeholder="Tell employers about your skills and experience..."></textarea></div>
+        <div class="form-group"><label>Skills (comma separated)</label><input type="text" id="input-skills" class="form-control" placeholder="Wiring, Code Compliance, Blueprint Reading"></div>
+        <div class="form-group"><label>Certifications / Licenses</label><textarea id="input-certifications" class="form-control" placeholder="Master Electrician License - State of WI&#10;OSHA 30-Hour Construction"></textarea></div>
       </form>
     </div>
     <div class="modal-footer">
@@ -697,32 +558,14 @@ select.form-control{cursor:pointer}
     </div>
     <div class="modal-body" style="padding:0">
       <div class="network-tabs" style="padding:0 20px;margin-bottom:0">
-        <div class="network-tab active" onclick="NetworkManager.showTab('connections')">
-          My Connections <span id="conn-count-tab">(0)</span>
-        </div>
-        <div class="network-tab" onclick="NetworkManager.showTab('requests')">
-          Requests <span id="req-count-tab" class="notification-badge" style="display:none;position:relative;top:0;right:0;margin-left:6px">0</span>
-        </div>
+        <div class="network-tab active" onclick="NetworkManager.showTab('connections')">My Connections <span id="conn-count-tab">(0)</span></div>
+        <div class="network-tab" onclick="NetworkManager.showTab('requests')">Requests <span id="req-count-tab" class="notification-badge" style="display:none;position:relative;top:0;right:0;margin-left:6px">0</span></div>
         <div class="network-tab" onclick="NetworkManager.showTab('suggested')">Suggested</div>
         <div class="network-tab" onclick="NetworkManager.showTab('search')">Search</div>
       </div>
-
-      <!-- Connections Tab -->
-      <div id="network-connections" class="network-tab-content" style="padding:20px">
-        <div id="connections-list"></div>
-      </div>
-
-      <!-- Requests Tab -->
-      <div id="network-requests" class="network-tab-content" style="display:none;padding:20px">
-        <div id="requests-list"></div>
-      </div>
-
-      <!-- Suggested Tab -->
-      <div id="network-suggested" class="network-tab-content" style="display:none;padding:20px">
-        <div id="suggested-list"></div>
-      </div>
-
-      <!-- Search Tab -->
+      <div id="network-connections" class="network-tab-content" style="padding:20px"><div id="connections-list"></div></div>
+      <div id="network-requests" class="network-tab-content" style="display:none;padding:20px"><div id="requests-list"></div></div>
+      <div id="network-suggested" class="network-tab-content" style="display:none;padding:20px"><div id="suggested-list"></div></div>
       <div id="network-search" class="network-tab-content" style="display:none;padding:20px">
         <input type="text" id="people-search-input" class="search-input" placeholder="Search by name, trade, location...">
         <div id="search-results"></div>
@@ -739,25 +582,15 @@ select.form-control{cursor:pointer}
       <button class="modal-close" onclick="MessageManager.closeMessagesModal()">&times;</button>
     </div>
     <div class="modal-body" style="padding:0">
-      <!-- Message List View -->
-      <div id="messages-list-view">
-        <div class="message-list" id="messages-list"></div>
-      </div>
-
-      <!-- Chat View -->
+      <div id="messages-list-view"><div class="message-list" id="messages-list"></div></div>
       <div id="messages-chat-view" style="display:none">
         <div class="chat-view">
           <div class="chat-header">
             <button onclick="MessageManager.backToList()" style="background:none;border:none;cursor:pointer;padding:8px;margin-right:8px">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-              </svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </button>
             <div class="person-avatar" id="chat-avatar"></div>
-            <div>
-              <div class="person-name" id="chat-name"></div>
-              <div class="person-trade" id="chat-trade"></div>
-            </div>
+            <div><div class="person-name" id="chat-name"></div><div class="person-trade" id="chat-trade"></div></div>
           </div>
           <div class="chat-messages" id="chat-messages"></div>
           <div class="chat-input-area">
@@ -770,7 +603,7 @@ select.form-control{cursor:pointer}
   </div>
 </div>
 
-<!-- Add/Edit Success Story Modal -->
+<!-- Story Modal -->
 <div class="modal-backdrop" id="story-modal">
   <div class="modal">
     <div class="modal-header">
@@ -779,37 +612,15 @@ select.form-control{cursor:pointer}
     </div>
     <div class="modal-body">
       <form id="story-form">
-        <div class="form-group">
-          <label>Your Name *</label>
-          <input type="text" id="story-name" class="form-control" placeholder="John Smith" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Your Trade *</label>
-          <input type="text" id="story-trade" class="form-control" placeholder="Electrician" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Story Title *</label>
-          <input type="text" id="story-title" class="form-control" placeholder="From Apprentice to Master Electrician in 5 Years" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Your Story *</label>
-          <textarea id="story-text" class="form-control" style="min-height:150px" placeholder="Share your journey, challenges you overcame, and what helped you succeed..." required></textarea>
-        </div>
-        
-        <div class="form-group">
-          <label>Location (optional)</label>
-          <input type="text" id="story-location" class="form-control" placeholder="Milwaukee, WI">
-        </div>
-        
+        <div class="form-group"><label>Your Name *</label><input type="text" id="story-name" class="form-control" placeholder="John Smith" required></div>
+        <div class="form-group"><label>Your Trade *</label><input type="text" id="story-trade" class="form-control" placeholder="Electrician" required></div>
+        <div class="form-group"><label>Story Title *</label><input type="text" id="story-title" class="form-control" placeholder="From Apprentice to Master Electrician in 5 Years" required></div>
+        <div class="form-group"><label>Your Story * (min 50 characters)</label><textarea id="story-text" class="form-control" style="min-height:150px" placeholder="Share your journey, challenges you overcame, and what helped you succeed..." required></textarea></div>
+        <div class="form-group"><label>Location (City, State — optional)</label><input type="text" id="story-location" class="form-control" placeholder="Milwaukee, WI"></div>
         <div class="form-group">
           <label>Add Photo (optional)</label>
           <div class="upload-area" id="story-image-upload" onclick="document.getElementById('story-image-input').click()">
-            <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
+            <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             <div class="small">Click to add a photo</div>
           </div>
           <input type="file" id="story-image-input" accept="image/*" style="display:none">
@@ -834,10 +645,31 @@ select.form-control{cursor:pointer}
       <h2>My Success Stories</h2>
       <button class="modal-close" onclick="SuccessStories.closeMyStoriesModal()">&times;</button>
     </div>
+    <div class="modal-body"><div id="my-stories-list"><div style="text-align:center;padding:20px;color:var(--muted)">Loading your stories...</div></div></div>
+  </div>
+</div>
+
+<!-- Post Job Modal (for nav button) -->
+<div class="modal-backdrop" id="post-job-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Post a Job</h2>
+      <button class="modal-close" onclick="JobPostManager.closeModal()">&times;</button>
+    </div>
     <div class="modal-body">
-      <div id="my-stories-list">
-        <div style="text-align:center;padding:20px;color:var(--muted)">Loading your stories...</div>
-      </div>
+      <p class="small" style="margin-bottom:16px">Fill out the form below to post a job to the LTN network.</p>
+      <div class="form-group"><label>Job Title *</label><input type="text" id="modal-job-title" class="form-control" placeholder="Licensed Electrician for Commercial Project"></div>
+      <div class="form-group"><label>Company / Business Name</label><input type="text" id="modal-job-company" class="form-control" placeholder="ABC Electric Co."></div>
+      <div class="form-group"><label>Job Type</label><select id="modal-job-type" class="form-control"><option>Full-time</option><option>Contract</option><option>Part-time</option><option>Project-based</option></select></div>
+      <div class="form-group"><label>Location (City, State) *</label><input type="text" id="modal-job-location" class="form-control" placeholder="Detroit, MI"></div>
+      <div class="form-group"><label>Pay</label><input type="text" id="modal-job-pay" class="form-control" placeholder="$35-$45/hr or $80,000/yr"></div>
+      <div class="form-group"><label>Trade Tags (comma separated)</label><input type="text" id="modal-job-tags" class="form-control" placeholder="Electrical, Low Voltage"></div>
+      <div class="form-group"><label>Job Description *</label><textarea id="modal-job-desc" class="form-control" placeholder="Describe the job..."></textarea></div>
+      <div class="form-group"><label>Application Link (optional)</label><input type="url" id="modal-job-link" class="form-control" placeholder="https://..."></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="JobPostManager.closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modal-post-job-btn" onclick="JobPostManager.submitModalJob()">Post Job</button>
     </div>
   </div>
 </div>
@@ -846,1510 +678,873 @@ select.form-control{cursor:pointer}
 /* ===== CONFIG ===== */
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzwVf_ufRkBRmmGDX2AGuk9Fyegn3YrWcXJuUcENVKNIAi087lZezYTX8PJMFLa4Qe6vA/exec";
 
-/* ===== Utility ===== */
-function debounce(fn, ms){let t;return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
-const isHtmlResponse = (res) => {
-  const ct = res.headers.get('content-type') || '';
-  return ct.includes('text/html');
+/* ===== UTILS ===== */
+function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
+const isHtmlResponse=(res)=>{const ct=res.headers.get('content-type')||'';return ct.includes('text/html')};
+
+async function apiCall(payload){
+  const res = await fetch(WEBAPP_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload)
+  });
+  return res.json();
+}
+
+/* ===== JOB POST MANAGER ===== */
+const JobPostManager = {
+  openModal(){
+    const email = localStorage.getItem('userEmail');
+    if(!email){ alert('Please sign in first to post a job.'); return; }
+    document.getElementById('post-job-modal').classList.add('active');
+  },
+  closeModal(){
+    document.getElementById('post-job-modal').classList.remove('active');
+  },
+  parseLocation(locStr){
+    const parts = locStr.split(',').map(s=>s.trim());
+    return { city: parts[0]||'', state: parts[1]||'' };
+  },
+  async submitModalJob(){
+    const email = localStorage.getItem('userEmail');
+    if(!email){ alert('Please sign in first.'); return; }
+    const title = document.getElementById('modal-job-title').value.trim();
+    const loc   = document.getElementById('modal-job-location').value.trim();
+    if(!title){ alert('Job title is required.'); return; }
+    if(!loc)  { alert('Location is required.'); return; }
+    const btn = document.getElementById('modal-post-job-btn');
+    btn.disabled=true; btn.textContent='Posting...';
+    try{
+      const {city,state} = this.parseLocation(loc);
+      const data = await apiCall({
+        action:'post-job', email,
+        title,
+        company: document.getElementById('modal-job-company').value.trim(),
+        type:    document.getElementById('modal-job-type').value,
+        city, state,
+        pay:     document.getElementById('modal-job-pay').value.trim(),
+        tradeTags: document.getElementById('modal-job-tags').value.trim(),
+        description: document.getElementById('modal-job-desc').value.trim(),
+        link:    document.getElementById('modal-job-link').value.trim()
+      });
+      if(data.success){
+        alert('Job posted successfully! It will appear in the jobs list.');
+        this.closeModal();
+        loadJobs();
+      } else {
+        alert('Error: '+(data.error||'Failed to post job'));
+      }
+    }catch(e){ alert('Failed to post job. Please try again.'); }
+    finally{ btn.disabled=false; btn.textContent='Post Job'; }
+  },
+  async submitInlineJob(){
+    const email = localStorage.getItem('userEmail');
+    if(!email){ alert('Please sign in first to post a job.'); return; }
+    const title = document.getElementById('inline-job-title').value.trim();
+    const loc   = document.getElementById('inline-job-location').value.trim();
+    const desc  = document.getElementById('inline-job-desc').value.trim();
+    if(!title){ alert('Job title is required.'); return; }
+    if(!loc)  { alert('Location is required.'); return; }
+    if(!desc) { alert('Job description is required.'); return; }
+
+    // Collect selected skill tags
+    const skillBtns = document.querySelectorAll('#inline-job-skills .fbtn.active');
+    const tradeTags = Array.from(skillBtns).map(b=>b.textContent.trim()).join(', ');
+
+    // Build pay string
+    const payMin    = document.getElementById('inline-job-pay-min').value.trim();
+    const payMax    = document.getElementById('inline-job-pay-max').value.trim();
+    const payPeriod = document.getElementById('inline-job-pay-period').value;
+    let pay = '';
+    if(payMin && payMax) pay = `$${payMin}-$${payMax}/${payPeriod}`;
+    else if(payMin) pay = `$${payMin}/${payPeriod}`;
+
+    const btn = document.querySelector('[onclick="JobPostManager.submitInlineJob()"]');
+    btn.disabled=true; btn.textContent='Posting...';
+    try{
+      const {city,state} = this.parseLocation(loc);
+      const data = await apiCall({
+        action:'post-job', email,
+        title,
+        company: document.getElementById('inline-job-company').value.trim(),
+        type:    document.getElementById('inline-job-type').value,
+        city, state, pay, tradeTags, description: desc,
+        link:    document.getElementById('inline-job-link').value.trim()
+      });
+      if(data.success){
+        alert('Job posted successfully!');
+        // Clear form
+        ['inline-job-title','inline-job-company','inline-job-location','inline-job-pay-min','inline-job-pay-max','inline-job-desc','inline-job-link'].forEach(id=>{
+          const el=document.getElementById(id); if(el) el.value='';
+        });
+        document.querySelectorAll('#inline-job-skills .fbtn').forEach(b=>b.classList.remove('active'));
+        loadJobs();
+        window.scrollTo({top:0,behavior:'smooth'});
+      } else {
+        alert('Error: '+(data.error||'Failed to post job'));
+      }
+    }catch(e){ alert('Failed to post job. Please try again.'); }
+    finally{ btn.disabled=false; btn.textContent='Post Job'; }
+  }
 };
 
-/* ===== PROFILE MANAGEMENT (FIXED VERSION) ===== */
+/* ===== PROFILE MANAGER ===== */
 const ProfileManager = {
   currentImageUrl: null,
-
-  init() {
+  init(){
     this.checkAuthStatus();
     this.loadProfile();
     this.loadDocuments();
     this.bindEvents();
   },
-
-  checkAuthStatus() {
+  checkAuthStatus(){
     const email = localStorage.getItem('userEmail');
     const editBtn = document.getElementById('edit-profile-btn');
-    
-    if (!email) {
-      // User not signed in
-      editBtn.textContent = 'Sign In to Complete Profile';
-      editBtn.onclick = () => {
-        alert('Please sign in or sign up first to create your profile.\n\nClick "Logout" (to go to sign up page) in the top navigation.');
-        window.location.href = 'index.html';
-      };
+    if(!email){
+      editBtn.textContent='Sign In to Complete Profile';
+      editBtn.onclick=()=>{ alert('Please sign in or sign up first.\n\nClick Logout to go to sign up page.'); window.location.href='index.html'; };
     } else {
-      // User is signed in
-      editBtn.textContent = 'Edit Profile';
-      editBtn.onclick = () => this.openModal();
+      editBtn.textContent='Edit Profile';
+      editBtn.onclick=()=>this.openModal();
     }
   },
-
-  bindEvents() {
+  bindEvents(){
     const imageInput = document.getElementById('profile-image-input');
-    if (imageInput) {
-      imageInput.addEventListener('change', (e) => {
-        this.handleImageUpload(e.target.files[0]);
-      });
-    }
-
+    if(imageInput) imageInput.addEventListener('change',e=>this.handleImageUpload(e.target.files[0]));
     const uploadArea = document.getElementById('profile-upload');
     const fileUpload = document.getElementById('file-upload');
-    
-    if (uploadArea) {
-      uploadArea.addEventListener('click', () => {
-        const email = localStorage.getItem('userEmail');
-        if (!email) {
-          alert('Please sign in first to upload documents');
-          return;
-        }
-        fileUpload.click();
-      });
-    }
-    
-    if (fileUpload) {
-      fileUpload.addEventListener('change', (e) => {
-        this.handleDocumentUpload(e.target.files);
-      });
-    }
-
-    const closeBtn = document.getElementById('close-modal');
+    if(uploadArea) uploadArea.addEventListener('click',()=>{ if(!localStorage.getItem('userEmail')){alert('Please sign in first');return;} fileUpload.click(); });
+    if(fileUpload) fileUpload.addEventListener('change',e=>this.handleDocumentUpload(e.target.files));
+    const closeBtn  = document.getElementById('close-modal');
     const cancelBtn = document.getElementById('cancel-modal');
-    const saveBtn = document.getElementById('save-profile');
-    
-    if (closeBtn) closeBtn.addEventListener('click', () => this.closeModal());
-    if (cancelBtn) cancelBtn.addEventListener('click', () => this.closeModal());
-    if (saveBtn) saveBtn.addEventListener('click', () => this.saveProfile());
-
+    const saveBtn   = document.getElementById('save-profile');
+    if(closeBtn)  closeBtn.addEventListener('click',()=>this.closeModal());
+    if(cancelBtn) cancelBtn.addEventListener('click',()=>this.closeModal());
+    if(saveBtn)   saveBtn.addEventListener('click',()=>this.saveProfile());
     const modal = document.getElementById('profile-modal');
-    if (modal) {
-      modal.addEventListener('click', (e) => {
-        if (e.target.id === 'profile-modal') {
-          this.closeModal();
-        }
-      });
-    }
+    if(modal) modal.addEventListener('click',e=>{ if(e.target.id==='profile-modal') this.closeModal(); });
   },
-
-  selectImage(e) {
+  selectImage(e){ e.stopPropagation(); if(!localStorage.getItem('userEmail')){alert('Please sign in first');return;} document.getElementById('profile-image-input').click(); },
+  async deleteImage(e){
     e.stopPropagation();
-    const email = localStorage.getItem('userEmail');
-    if (!email) {
-      alert('Please sign in first to upload a profile image');
-      return;
-    }
-    document.getElementById('profile-image-input').click();
+    if(!confirm('Delete your profile image?')) return;
+    this.currentImageUrl=null;
+    this.displayPlaceholder();
+    await this.saveProfile();
+    alert('Profile image deleted!');
   },
-
-  async deleteImage(e) {
-    e.stopPropagation();
-    
-    if (!confirm('Delete your profile image?')) return;
-
-    const email = localStorage.getItem('userEmail');
-    
-    if (!email) {
-      alert('Please sign in first');
-      return;
-    }
-
-    try {
-      this.currentImageUrl = null;
-      this.displayPlaceholder();
-      
-      // Save profile with empty image URL
-      await this.saveProfile();
-      alert('Profile image deleted successfully!');
-    } catch (error) {
-      console.error('Delete error:', error);
-      alert('Failed to delete image. Please try again.');
-    }
-  },
-
-  displayPlaceholder() {
-    const container = document.getElementById('profile-image-area');
-    container.innerHTML = `
+  displayPlaceholder(){
+    document.getElementById('profile-image-area').innerHTML=`
       <div class="profile-placeholder-content">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         <div>Click to add profile image</div>
       </div>
-      <div class="profile-image-overlay">
-        <button onclick="ProfileManager.selectImage(event)">Change Photo</button>
-      </div>
-    `;
+      <div class="profile-image-overlay"><button onclick="ProfileManager.selectImage(event)">Change Photo</button></div>`;
   },
-
-  async handleImageUpload(file) {
-    if (!file) return;
-    
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
-      return;
-    }
-
-    const email = localStorage.getItem('userEmail');
-    if (!email) {
-      alert('Please sign in first to upload an image');
-      return;
-    }
-
+  async handleImageUpload(file){
+    if(!file) return;
+    if(!file.type.startsWith('image/')){ alert('Please select an image file'); return; }
     const reader = new FileReader();
-    reader.onload = async (e) => {
-      const imageData = e.target.result;
-      
-      this.currentImageUrl = imageData;
-      this.displayProfileImage(imageData);
-      
-      alert('Image selected! Click "Save Profile" to save all changes.');
-    };
+    reader.onload=(e)=>{ this.currentImageUrl=e.target.result; this.displayProfileImage(e.target.result); alert('Image selected! Save your profile to keep it.'); };
     reader.readAsDataURL(file);
   },
-
-  displayProfileImage(imageData) {
-    const container = document.getElementById('profile-image-area');
-    container.innerHTML = `
+  displayProfileImage(imageData){
+    document.getElementById('profile-image-area').innerHTML=`
       <img src="${imageData}" alt="Profile">
       <div class="profile-image-overlay">
         <button onclick="ProfileManager.selectImage(event)">Change Photo</button>
         <button onclick="ProfileManager.deleteImage(event)" style="background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.4)">Delete Photo</button>
-      </div>
-    `;
+      </div>`;
   },
-
-  handleDocumentUpload(files) {
-    if (!files || files.length === 0) return;
-
-    const documents = JSON.parse(localStorage.getItem('profileDocuments') || '[]');
-    
-    Array.from(files).forEach(file => {
-      const doc = {
-        id: Date.now() + Math.random(),
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        uploadedAt: new Date().toISOString()
-      };
-      documents.push(doc);
-    });
-
-    localStorage.setItem('profileDocuments', JSON.stringify(documents));
+  handleDocumentUpload(files){
+    if(!files||!files.length) return;
+    const documents = JSON.parse(localStorage.getItem('profileDocuments')||'[]');
+    Array.from(files).forEach(file=>documents.push({id:Date.now()+Math.random(),name:file.name,size:file.size,type:file.type,uploadedAt:new Date().toISOString()}));
+    localStorage.setItem('profileDocuments',JSON.stringify(documents));
     this.displayDocuments();
-    alert('Documents added! They will be saved to your profile.');
+    alert('Documents added!');
   },
-
-  displayDocuments() {
-    const documents = JSON.parse(localStorage.getItem('profileDocuments') || '[]');
+  displayDocuments(){
+    const documents = JSON.parse(localStorage.getItem('profileDocuments')||'[]');
     const container = document.getElementById('documents-list');
-
-    if (documents.length === 0) {
-      container.innerHTML = '';
-      return;
-    }
-
-    container.innerHTML = `
-      <div style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--accent)">Uploaded Documents</div>
-      ${documents.map(doc => `
-        <div class="document-item">
-          <div style="display:flex;align-items:center;flex:1">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            <span style="flex:1">${doc.name}</span>
-          </div>
-          <span class="document-remove" onclick="ProfileManager.removeDocument('${doc.id}')">Remove</span>
-        </div>
-      `).join('')}
-    `;
+    if(!documents.length){ container.innerHTML=''; return; }
+    container.innerHTML=`<div style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--accent)">Uploaded Documents</div>`+
+      documents.map(doc=>`<div class="document-item"><div style="display:flex;align-items:center;flex:1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span style="flex:1">${doc.name}</span></div><span class="document-remove" onclick="ProfileManager.removeDocument('${doc.id}')">Remove</span></div>`).join('');
   },
-
-  removeDocument(id) {
-    const documents = JSON.parse(localStorage.getItem('profileDocuments') || '[]');
-    const filtered = documents.filter(doc => doc.id != id);
-    localStorage.setItem('profileDocuments', JSON.stringify(filtered));
+  removeDocument(id){
+    const docs = JSON.parse(localStorage.getItem('profileDocuments')||'[]').filter(d=>d.id!=id);
+    localStorage.setItem('profileDocuments',JSON.stringify(docs));
     this.displayDocuments();
   },
-
-  async openModal() {
+  async openModal(){
     const email = localStorage.getItem('userEmail');
-    
-    if (!email) {
-      alert('Please sign in or sign up first to create your profile.\n\nClick "Logout" (to go to sign up page) in the top navigation.');
-      window.location.href = 'index.html';
-      return;
-    }
-
-    try {
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'get-profile', email: email })
-      });
-
-      const data = await res.json();
-      
-      if (data.success && data.profile) {
-        this.populateForm(data.profile);
-        if (data.profile.profileImageUrl) {
-          this.currentImageUrl = data.profile.profileImageUrl;
-        }
-      } else {
-        // New profile - pre-fill email
-        document.getElementById('input-email').value = email;
-        document.getElementById('input-email').disabled = true;
-      }
-    } catch (error) {
-      console.error('Load profile error:', error);
-      document.getElementById('input-email').value = email;
-      document.getElementById('input-email').disabled = true;
-    }
-    
+    if(!email){ alert('Please sign in first.'); window.location.href='index.html'; return; }
+    try{
+      const data = await apiCall({action:'get-profile',email});
+      if(data.success&&data.profile){ this.populateForm(data.profile); if(data.profile.profileImageUrl) this.currentImageUrl=data.profile.profileImageUrl; }
+      else { document.getElementById('input-email').value=email; document.getElementById('input-email').disabled=true; }
+    }catch(e){ document.getElementById('input-email').value=email; document.getElementById('input-email').disabled=true; }
     document.getElementById('profile-modal').classList.add('active');
   },
-
-  populateForm(profile) {
-    document.getElementById('input-name').value = profile.fullName || profile.name || '';
-    document.getElementById('input-email').value = profile.email || '';
-    document.getElementById('input-email').disabled = true; // Always disable for security
-    document.getElementById('input-phone').value = profile.phone || '';
-    document.getElementById('input-trade').value = profile.trade || '';
-    document.getElementById('input-experience').value = profile.experience || '';
-    document.getElementById('input-city').value = profile.city || '';
-    document.getElementById('input-state').value = profile.state || '';
-    document.getElementById('input-bio').value = profile.bio || '';
-    document.getElementById('input-skills').value = profile.skills || '';
-    document.getElementById('input-certifications').value = profile.certifications || '';
+  populateForm(p){
+    document.getElementById('input-name').value=p.fullName||'';
+    document.getElementById('input-email').value=p.email||'';
+    document.getElementById('input-email').disabled=true;
+    document.getElementById('input-phone').value=p.phone||'';
+    document.getElementById('input-trade').value=p.trade||'';
+    document.getElementById('input-experience').value=p.experience||'';
+    document.getElementById('input-city').value=p.city||'';
+    document.getElementById('input-state').value=p.state||'';
+    document.getElementById('input-bio').value=p.bio||'';
+    document.getElementById('input-skills').value=p.skills||'';
+    document.getElementById('input-certifications').value=p.certifications||'';
   },
-
-  closeModal() {
-    document.getElementById('profile-modal').classList.remove('active');
-    document.getElementById('input-email').disabled = false;
-  },
-
-  async saveProfile() {
+  closeModal(){ document.getElementById('profile-modal').classList.remove('active'); document.getElementById('input-email').disabled=false; },
+  async saveProfile(){
     const saveBtn = document.getElementById('save-profile');
-    const originalText = saveBtn ? saveBtn.textContent : '';
-    
     const email = localStorage.getItem('userEmail');
-    
-    if (!email) {
-      alert('Please sign in first to save your profile');
-      window.location.href = 'index.html';
-      return;
-    }
-
-    const profile = {
-      email: email,
-      fullName: document.getElementById('input-name').value.trim(),
-      phone: document.getElementById('input-phone').value.trim(),
-      trade: document.getElementById('input-trade').value,
-      experience: document.getElementById('input-experience').value,
-      city: document.getElementById('input-city').value.trim(),
-      state: document.getElementById('input-state').value,
-      bio: document.getElementById('input-bio').value.trim(),
-      skills: document.getElementById('input-skills').value.trim(),
+    if(!email){ alert('Please sign in first.'); window.location.href='index.html'; return; }
+    const profile={
+      email,
+      fullName:       document.getElementById('input-name').value.trim(),
+      phone:          document.getElementById('input-phone').value.trim(),
+      trade:          document.getElementById('input-trade').value,
+      experience:     document.getElementById('input-experience').value,
+      city:           document.getElementById('input-city').value.trim(),
+      state:          document.getElementById('input-state').value,
+      bio:            document.getElementById('input-bio').value.trim(),
+      skills:         document.getElementById('input-skills').value.trim(),
       certifications: document.getElementById('input-certifications').value.trim(),
-      profileImageUrl: this.currentImageUrl || ''
+      profileImageUrl:this.currentImageUrl||''
     };
-
-    if (!profile.fullName || !profile.trade || !profile.city || !profile.state) {
-      alert('Please fill in all required fields:\n• Full Name\n• Trade\n• City\n• State');
-      return;
-    }
-
-    try {
-      if (saveBtn) {
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Saving...';
-      }
-
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'save-profile', ...profile })
-      });
-
-      const data = await res.json();
-      
-      if (data.success) {
-        this.displayProfile(profile);
-        this.closeModal();
-        alert('Profile saved successfully!');
-        this.checkAuthStatus(); // Update button text
-      } else {
-        alert('Failed to save profile: ' + (data.error || 'Unknown error'));
-        
-        if (data.error && data.error.includes('Account not found')) {
-          alert('You need to sign up first. Redirecting to sign up page...');
-          window.location.href = 'index.html';
-        }
-      }
-    } catch (error) {
-      console.error('Save profile error:', error);
-      alert('Failed to save profile. Please try again.');
-    } finally {
-      if (saveBtn) {
-        saveBtn.disabled = false;
-        saveBtn.textContent = originalText;
-      }
-    }
+    if(!profile.fullName||!profile.trade||!profile.city||!profile.state){ alert('Please fill in: Full Name, Trade, City, State'); return; }
+    try{
+      if(saveBtn){ saveBtn.disabled=true; saveBtn.textContent='Saving...'; }
+      const data = await apiCall({action:'save-profile',...profile});
+      if(data.success){ this.displayProfile(profile); this.closeModal(); alert('Profile saved!'); this.checkAuthStatus(); }
+      else { alert('Failed: '+(data.error||'Unknown error')); }
+    }catch(e){ alert('Failed to save profile. Please try again.'); }
+    finally{ if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent='Save Profile'; } }
   },
-
-  async loadProfile() {
+  async loadProfile(){
     const email = localStorage.getItem('userEmail');
-    
-    if (!email) {
-      this.displayProfile({});
-      return;
-    }
-
-    try {
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'get-profile', email: email })
-      });
-
-      const data = await res.json();
-      
-      if (data.success && data.profile) {
+    if(!email){ this.displayProfile({}); return; }
+    try{
+      const data = await apiCall({action:'get-profile',email});
+      if(data.success&&data.profile){
         this.displayProfile(data.profile);
-        
-        if (data.profile.profileImageUrl) {
-          this.currentImageUrl = data.profile.profileImageUrl;
-          this.displayProfileImage(data.profile.profileImageUrl);
-        }
-      } else {
-        this.displayProfile({});
-      }
-    } catch (error) {
-      console.error('Load profile error:', error);
-      this.displayProfile({});
-    }
+        if(data.profile.profileImageUrl){ this.currentImageUrl=data.profile.profileImageUrl; this.displayProfileImage(data.profile.profileImageUrl); }
+      } else { this.displayProfile({}); }
+    }catch(e){ this.displayProfile({}); }
   },
-
-  loadDocuments() {
-    this.displayDocuments();
-  },
-
-  displayProfile(profile) {
-    if (!profile) profile = {};
-    
-    document.getElementById('display-name').textContent = profile.fullName || profile.name || 'Your Name';
-    document.getElementById('display-trade').textContent = profile.trade 
-      ? (profile.experience ? `${profile.trade} • ${profile.experience} years` : profile.trade)
-      : 'Your Trade';
-    document.getElementById('display-location').textContent = 
-      (profile.city && profile.state) 
-        ? `${profile.city}, ${profile.state}` 
-        : 'Your Location';
+  loadDocuments(){ this.displayDocuments(); },
+  displayProfile(p){
+    if(!p) p={};
+    document.getElementById('display-name').textContent=p.fullName||p.name||'Your Name';
+    document.getElementById('display-trade').textContent=p.trade?(p.experience?`${p.trade} • ${p.experience} years`:p.trade):'Your Trade';
+    document.getElementById('display-location').textContent=(p.city&&p.state)?`${p.city}, ${p.state}`:'Your Location';
   }
 };
 
-/* ===== SUCCESS STORIES MANAGER ===== */
+/* ===== SUCCESS STORIES ===== */
 const SuccessStories = {
-  currentPage: 0,
-  limit: 5,
-  total: 0,
-  currentStoryId: null,
-  currentImageData: null,
+  currentPage:0, limit:5, total:0, currentStoryId:null, currentImageData:null,
 
-  async init() {
-    this.loadStories();
-    this.bindEvents();
-  },
+  async init(){ this.loadStories(); this.bindEvents(); },
 
-  bindEvents() {
+  bindEvents(){
     const imageInput = document.getElementById('story-image-input');
-    if (imageInput) {
-      imageInput.addEventListener('change', (e) => {
-        this.handleImageSelect(e.target.files[0]);
-      });
-    }
+    if(imageInput) imageInput.addEventListener('change',e=>this.handleImageSelect(e.target.files[0]));
   },
 
-  handleImageSelect(file) {
-    if (!file) return;
-    
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
-      return;
-    }
-
+  handleImageSelect(file){
+    if(!file||!file.type.startsWith('image/')){ alert('Please select an image file'); return; }
     const reader = new FileReader();
-    reader.onload = (e) => {
-      this.currentImageData = e.target.result;
-      document.getElementById('story-image-preview-img').src = this.currentImageData;
-      document.getElementById('story-image-preview').style.display = 'block';
-      document.getElementById('story-image-upload').style.display = 'none';
+    reader.onload=(e)=>{
+      this.currentImageData=e.target.result;
+      document.getElementById('story-image-preview-img').src=this.currentImageData;
+      document.getElementById('story-image-preview').style.display='block';
+      document.getElementById('story-image-upload').style.display='none';
     };
     reader.readAsDataURL(file);
   },
 
-  removeImage() {
-    this.currentImageData = null;
-    document.getElementById('story-image-preview').style.display = 'none';
-    document.getElementById('story-image-upload').style.display = 'flex';
-    document.getElementById('story-image-input').value = '';
+  removeImage(){
+    this.currentImageData=null;
+    document.getElementById('story-image-preview').style.display='none';
+    document.getElementById('story-image-upload').style.display='flex';
+    document.getElementById('story-image-input').value='';
   },
 
-  async loadStories() {
-    const container = document.getElementById('stories-container');
-    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading stories...</div>';
-
-    try {
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'get-success-stories',
-          limit: this.limit,
-          offset: this.currentPage * this.limit
-        })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        this.total = data.total;
-        this.renderStories(data.stories);
+  async loadStories(){
+    const container=document.getElementById('stories-container');
+    container.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading stories...</div>';
+    try{
+      // FIX: action is 'get-stories' (matches App Script)
+      const data = await apiCall({ action:'get-stories', limit:this.limit });
+      if(data.success){
+        this.total=data.count||0;
+        this.renderStories(data.stories||[]);
       } else {
-        container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load stories</div>';
+        container.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">No stories yet — be the first to share!</div>';
       }
-    } catch (error) {
-      console.error('Error loading stories:', error);
-      container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load stories</div>';
+    }catch(e){
+      console.error('Stories error:',e);
+      container.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load stories. Please refresh.</div>';
     }
   },
 
-  renderStories(stories) {
-    const container = document.getElementById('stories-container');
-    const email = localStorage.getItem('userEmail');
-
-    if (stories.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-          </svg>
-          <h3>No success stories yet</h3>
-          <p>Be the first to share your journey!</p>
-        </div>
-      `;
+  renderStories(stories){
+    const container=document.getElementById('stories-container');
+    const email=localStorage.getItem('userEmail');
+    if(!stories.length){
+      container.innerHTML=`<div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        <h3>No success stories yet</h3><p>Be the first to share your journey!</p></div>`;
       return;
     }
+    container.innerHTML=stories.map(story=>{
+      // FIX: correct field names from App Script response
+      const name    = story.fullName || 'Trade Pro';
+      const trade   = story.trade    || '';
+      const title   = story.title    || '';
+      const text    = story.storyText|| '';
+      const postedAt= story.postedAt || '';
+      const imgUrl  = story.profileImageUrl || '';
+      const loc     = [story.city, story.state].filter(Boolean).join(', ');
+      const initials= name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+      const isOwner = email && story.email && email.toLowerCase()===story.email.toLowerCase();
 
-    container.innerHTML = stories.map(story => {
-      const initials = (story.name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-      const isOwner = email && story.email && email.toLowerCase() === story.email.toLowerCase();
-
-      return `
-        <div class="story-card">
-          ${story.imageUrl ? `<img src="${story.imageUrl}" class="story-image" alt="${story.title}">` : ''}
-          
-          <div class="story-header">
-            <div class="story-avatar">${initials}</div>
-            <div class="story-meta">
-              <div class="story-author">${story.name}</div>
-              <div class="story-author-trade">${story.trade}</div>
-              ${story.location ? `
-                <div class="story-location">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z"/>
-                    <path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z"/>
-                  </svg>
-                  ${story.location}
-                </div>
-              ` : ''}
-            </div>
+      return `<div class="story-card">
+        ${imgUrl?`<img src="${imgUrl}" class="story-image" alt="${title}">`:''}
+        <div class="story-header">
+          <div class="story-avatar">${initials}</div>
+          <div class="story-meta">
+            <div class="story-author">${name}</div>
+            <div class="story-author-trade">${trade}</div>
+            ${loc?`<div class="story-location"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z"/><path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z"/></svg>${loc}</div>`:''}
           </div>
-
-          <h3 class="story-title">${story.title}</h3>
-          <p class="story-text">${story.story}</p>
-          
-          <div class="story-date">
-            Shared on ${new Date(story.createdAt).toLocaleDateString()}
-            ${story.featured ? '<span class="story-badge featured">⭐ Featured</span>' : ''}
-          </div>
-
-          ${isOwner ? `
-            <div class="story-actions">
-              <button class="btn btn-secondary" onclick="SuccessStories.editStory('${story.storyId}')">Edit</button>
-              <button class="btn btn-danger" onclick="SuccessStories.deleteStory('${story.storyId}')">Delete</button>
-            </div>
-          ` : ''}
         </div>
-      `;
+        <h3 class="story-title">${title}</h3>
+        <p class="story-text">${text}</p>
+        <div class="story-date">Shared on ${postedAt?new Date(postedAt).toLocaleDateString():''}</div>
+        ${isOwner?`<div class="story-actions">
+          <button class="btn btn-secondary" onclick="SuccessStories.editStory('${story.storyId}')">Edit</button>
+          <button class="btn btn-danger" onclick="SuccessStories.deleteStory('${story.storyId}')">Delete</button>
+        </div>`:''}
+      </div>`;
     }).join('');
 
-    // Pagination
-    document.getElementById('stories-prev').style.display = this.currentPage > 0 ? 'inline-block' : 'none';
-    document.getElementById('stories-next').style.display = (this.currentPage + 1) * this.limit < this.total ? 'inline-block' : 'none';
+    document.getElementById('stories-prev').style.display=this.currentPage>0?'inline-block':'none';
+    document.getElementById('stories-next').style.display=(this.currentPage+1)*this.limit<this.total?'inline-block':'none';
   },
 
-  nextPage() {
-    this.currentPage++;
-    this.loadStories();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  },
+  nextPage(){ this.currentPage++; this.loadStories(); window.scrollTo({top:0,behavior:'smooth'}); },
+  prevPage(){ if(this.currentPage>0){ this.currentPage--; this.loadStories(); window.scrollTo({top:0,behavior:'smooth'}); } },
 
-  prevPage() {
-    if (this.currentPage > 0) {
-      this.currentPage--;
-      this.loadStories();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  },
-
-  openAddModal() {
-    const email = localStorage.getItem('userEmail');
-    if (!email) {
-      alert('Please complete your profile first');
-      return;
-    }
-
-    this.currentStoryId = null;
-    this.currentImageData = null;
-    document.getElementById('story-modal-title').textContent = 'Share Your Success Story';
-    document.getElementById('save-story-btn').textContent = 'Share Story';
+  openAddModal(){
+    const email=localStorage.getItem('userEmail');
+    if(!email){ alert('Please sign in to share your story.'); return; }
+    this.currentStoryId=null; this.currentImageData=null;
+    document.getElementById('story-modal-title').textContent='Share Your Success Story';
+    document.getElementById('save-story-btn').textContent='Share Story';
     document.getElementById('story-form').reset();
-    document.getElementById('story-image-preview').style.display = 'none';
-    document.getElementById('story-image-upload').style.display = 'flex';
-    
+    document.getElementById('story-image-preview').style.display='none';
+    document.getElementById('story-image-upload').style.display='flex';
     document.getElementById('story-modal').classList.add('active');
   },
 
-  async editStory(storyId) {
-    this.currentStoryId = storyId;
-    document.getElementById('story-modal-title').textContent = 'Edit Your Success Story';
-    document.getElementById('save-story-btn').textContent = 'Update Story';
-
-    try {
-      const email = localStorage.getItem('userEmail');
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'get-my-stories', email: email })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        const story = data.stories.find(s => s.storyId === storyId);
-        if (story) {
-          document.getElementById('story-name').value = story.name || '';
-          document.getElementById('story-trade').value = story.trade || '';
-          document.getElementById('story-title').value = story.title || '';
-          document.getElementById('story-text').value = story.story || '';
-          document.getElementById('story-location').value = story.location || '';
-          
-          if (story.imageUrl) {
-            this.currentImageData = story.imageUrl;
-            document.getElementById('story-image-preview-img').src = story.imageUrl;
-            document.getElementById('story-image-preview').style.display = 'block';
-            document.getElementById('story-image-upload').style.display = 'none';
+  async editStory(storyId){
+    this.currentStoryId=storyId;
+    document.getElementById('story-modal-title').textContent='Edit Your Story';
+    document.getElementById('save-story-btn').textContent='Update Story';
+    try{
+      const email=localStorage.getItem('userEmail');
+      // FIX: action is 'get-my-stories' — make sure this is in your Code.gs
+      const data = await apiCall({action:'get-my-stories',email});
+      if(data.success){
+        const story=data.stories.find(s=>s.storyId===storyId);
+        if(story){
+          // FIX: correct field names
+          document.getElementById('story-name').value=story.fullName||'';
+          document.getElementById('story-trade').value=story.trade||'';
+          document.getElementById('story-title').value=story.title||'';
+          document.getElementById('story-text').value=story.storyText||'';
+          document.getElementById('story-location').value=[story.city,story.state].filter(Boolean).join(', ')||'';
+          if(story.profileImageUrl){
+            this.currentImageData=story.profileImageUrl;
+            document.getElementById('story-image-preview-img').src=story.profileImageUrl;
+            document.getElementById('story-image-preview').style.display='block';
+            document.getElementById('story-image-upload').style.display='none';
           }
-
           document.getElementById('story-modal').classList.add('active');
         }
       }
-    } catch (error) {
-      console.error('Error loading story:', error);
-      alert('Failed to load story');
-    }
+    }catch(e){ console.error('Edit story error:',e); alert('Failed to load story for editing.'); }
   },
 
-  async deleteStory(storyId) {
-    if (!confirm('Delete this success story? This cannot be undone.')) return;
-
-    const email = localStorage.getItem('userEmail');
-    if (!email) return;
-
-    try {
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'delete-success-story',
-          email: email,
-          storyId: storyId
-        })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        alert('Story deleted successfully');
-        this.loadStories();
-      } else {
-        alert(data.error || 'Failed to delete story');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to delete story');
-    }
+  async deleteStory(storyId){
+    if(!confirm('Delete this success story? This cannot be undone.')) return;
+    const email=localStorage.getItem('userEmail');
+    if(!email) return;
+    try{
+      // FIX: action is 'delete-story' (matches App Script)
+      const data = await apiCall({action:'delete-story',email,storyId});
+      if(data.success){ alert('Story deleted.'); this.loadStories(); }
+      else { alert(data.error||'Failed to delete story'); }
+    }catch(e){ alert('Failed to delete story.'); }
   },
 
-  async saveStory() {
-    const email = localStorage.getItem('userEmail');
-    if (!email) {
-      alert('Please sign in to share your story');
-      return;
-    }
+  async saveStory(){
+    const email=localStorage.getItem('userEmail');
+    if(!email){ alert('Please sign in to share your story.'); return; }
+    const name      = document.getElementById('story-name').value.trim();
+    const trade     = document.getElementById('story-trade').value.trim();
+    const title     = document.getElementById('story-title').value.trim();
+    const storyText = document.getElementById('story-text').value.trim();
+    const location  = document.getElementById('story-location').value.trim();
+    if(!name||!trade||!title||!storyText){ alert('Please fill in all required fields.'); return; }
+    if(storyText.length<50){ alert('Story must be at least 50 characters.'); return; }
 
-    const name = document.getElementById('story-name').value.trim();
-    const trade = document.getElementById('story-trade').value.trim();
-    const title = document.getElementById('story-title').value.trim();
-    const story = document.getElementById('story-text').value.trim();
-    const location = document.getElementById('story-location').value.trim();
-
-    if (!name || !trade || !title || !story) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
-    const saveBtn = document.getElementById('save-story-btn');
-    const originalText = saveBtn.textContent;
-
-    try {
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Saving...';
-
-      const payload = {
-        action: this.currentStoryId ? 'update-success-story' : 'add-success-story',
-        email: email,
-        name: name,
-        trade: trade,
-        title: title,
-        story: story,
-        location: location,
-        imageUrl: this.currentImageData || ''
+    const saveBtn=document.getElementById('save-story-btn');
+    const originalText=saveBtn.textContent;
+    try{
+      saveBtn.disabled=true; saveBtn.textContent='Saving...';
+      // FIX: parse location into city/state, use correct field names (fullName, storyText)
+      const parts=location.split(',').map(s=>s.trim());
+      const payload={
+        // FIX: action names match App Script
+        action: this.currentStoryId ? 'update-story' : 'save-story',
+        email,
+        fullName:  name,   // FIX: was 'name'
+        trade,
+        title,
+        storyText, // FIX: was 'story'
+        city:  parts[0]||'',
+        state: parts[1]||'',
+        profileImageUrl: this.currentImageData||'' // FIX: was 'imageUrl'
       };
-
-      if (this.currentStoryId) {
-        payload.storyId = this.currentStoryId;
-      }
-
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        alert(this.currentStoryId ? 'Story updated successfully!' : 'Story shared successfully!');
+      if(this.currentStoryId) payload.storyId=this.currentStoryId;
+      const data = await apiCall(payload);
+      if(data.success){
+        alert(this.currentStoryId?'Story updated!':'Story shared successfully!');
         this.closeModal();
         this.loadStories();
-      } else {
-        alert(data.error || 'Failed to save story');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to save story');
-    } finally {
-      saveBtn.disabled = false;
-      saveBtn.textContent = originalText;
-    }
+      } else { alert(data.error||'Failed to save story'); }
+    }catch(e){ console.error('Save story error:',e); alert('Failed to save story. Please try again.'); }
+    finally{ saveBtn.disabled=false; saveBtn.textContent=originalText; }
   },
 
-  closeModal() {
+  closeModal(){
     document.getElementById('story-modal').classList.remove('active');
-    this.currentStoryId = null;
-    this.currentImageData = null;
+    this.currentStoryId=null; this.currentImageData=null;
   },
-
-  closeMyStoriesModal() {
-    document.getElementById('my-stories-modal').classList.remove('active');
-  }
+  closeMyStoriesModal(){ document.getElementById('my-stories-modal').classList.remove('active'); }
 };
 
-/* ===== MOBILE MENU TOGGLE ===== */
-document.getElementById('mobile-menu-toggle').addEventListener('click', function() {
-  const nav = document.getElementById('main-nav');
+/* ===== MOBILE MENU ===== */
+document.getElementById('mobile-menu-toggle').addEventListener('click',function(){
+  const nav=document.getElementById('main-nav');
   nav.classList.toggle('open');
-  
-  const icon = this.querySelector('svg');
-  if (nav.classList.contains('open')) {
-    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
-  } else {
-    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
-  }
+  const icon=this.querySelector('svg');
+  icon.innerHTML=nav.classList.contains('open')
+    ?'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>'
+    :'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
 });
-
-document.addEventListener('click', function(e) {
-  const nav = document.getElementById('main-nav');
-  const toggle = document.getElementById('mobile-menu-toggle');
-  if (nav.classList.contains('open') && !nav.contains(e.target) && !toggle.contains(e.target)) {
+document.addEventListener('click',function(e){
+  const nav=document.getElementById('main-nav');
+  const toggle=document.getElementById('mobile-menu-toggle');
+  if(nav.classList.contains('open')&&!nav.contains(e.target)&&!toggle.contains(e.target)){
     nav.classList.remove('open');
-    toggle.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
+    toggle.querySelector('svg').innerHTML='<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
   }
 });
-
-document.querySelectorAll('.nav a, .nav button').forEach(item => {
-  item.addEventListener('click', function() {
-    const nav = document.getElementById('main-nav');
-    const toggle = document.getElementById('mobile-menu-toggle');
-    if (window.innerWidth <= 768) {
+document.querySelectorAll('.nav a,.nav button').forEach(item=>{
+  item.addEventListener('click',function(){
+    if(window.innerWidth<=768){
+      const nav=document.getElementById('main-nav');
       nav.classList.remove('open');
-      toggle.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
+      document.getElementById('mobile-menu-toggle').querySelector('svg').innerHTML='<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
     }
   });
 });
 
-/* ===== Load Sponsors ===== */
-async function loadSponsors() {
-  const container = document.getElementById('sponsors-container');
-  
-  try {
-    const res = await fetch(WEBAPP_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'get-sponsors' })
-    });
-
-    if (!res.ok) throw new Error('Failed to load sponsors');
-    
-    const data = await res.json();
-    
-    if (!data.success || !data.sponsors || data.sponsors.length === 0) {
-      container.innerHTML = '<div class="small" style="text-align:center;padding:20px;color:var(--muted)">No sponsors yet.</div>';
+/* ===== SPONSORS ===== */
+async function loadSponsors(){
+  const container=document.getElementById('sponsors-container');
+  try{
+    const data=await apiCall({action:'get-sponsors'});
+    if(!data.success||!data.sponsors||!data.sponsors.length){
+      container.innerHTML='<div class="small" style="text-align:center;padding:20px;color:var(--muted)">No sponsors yet.</div>';
       return;
     }
-
-    container.innerHTML = data.sponsors.map((sponsor, index) => {
-      const isFeatured = index === 0;
-      const cardClass = isFeatured ? 'sponsor-card sponsor-featured' : 'sponsor-card';
-      
-      return `
-        <a href="${sponsor.link}" target="_blank" rel="noopener noreferrer" class="${cardClass}">
-          ${sponsor.logoUrl 
-            ? `<img src="${sponsor.logoUrl}" alt="${sponsor.name}" class="sponsor-logo">`
-            : `<div class="sponsor-placeholder">${sponsor.name}</div>`
-          }
-          <p class="sponsor-description">${sponsor.description}</p>
-        </a>
-      `;
+    container.innerHTML=data.sponsors.map((sponsor,i)=>{
+      const featured=i===0;
+      return `<a href="${sponsor.link}" target="_blank" rel="noopener noreferrer" class="sponsor-card${featured?' sponsor-featured':''}">
+        ${sponsor.logoUrl?`<img src="${sponsor.logoUrl}" alt="${sponsor.name}" class="sponsor-logo">`:`<div class="sponsor-placeholder">${sponsor.name}</div>`}
+        <p class="sponsor-description">${sponsor.description}</p>
+      </a>`;
     }).join('');
-
-  } catch (error) {
-    console.error('Error loading sponsors:', error);
-    container.innerHTML = '<div class="small" style="text-align:center;padding:20px;color:var(--muted)">Unable to load sponsors.</div>';
-  }
+  }catch(e){ container.innerHTML='<div class="small" style="text-align:center;padding:20px;color:var(--muted)">Unable to load sponsors.</div>'; }
 }
 
-/* ===== Filter buttons behavior ===== */
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize managers
+/* ===== FILTER BUTTONS ===== */
+document.addEventListener('DOMContentLoaded',function(){
   ProfileManager.init();
   SuccessStories.init();
 
-  const filterGroups = document.querySelectorAll('.filters');
-  filterGroups.forEach(group => {
-    const buttons = group.querySelectorAll('.fbtn');
-    buttons.forEach(b => b.addEventListener('click', () => {
-      if (!group.parentElement.classList.contains('form-group')) {
-        buttons.forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
-        const trade = b.textContent.trim().toLowerCase();
-        loadJobs({ trade: trade === 'all' ? '' : trade, offset: 0 });
-      } else {
-        b.classList.toggle('active');
-      }
+  // Jobs filter buttons
+  const jobFilterBar=document.getElementById('jobs-filter-bar');
+  if(jobFilterBar){
+    jobFilterBar.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',()=>{
+      jobFilterBar.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const trade=b.textContent.trim().toLowerCase();
+      loadJobs({trade:trade==='all'?'':trade,offset:0});
     }));
-  });
+  }
 
-  /* ===== LTN AI Search ===== */
-  const input = document.getElementById('ai-search-input');
-  const box   = document.getElementById('ai-results-container');
+  // Skill filter buttons for inline job form (multi-select toggle)
+  const skillBar=document.getElementById('inline-job-skills');
+  if(skillBar){
+    skillBar.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',e=>{
+      e.preventDefault();
+      b.classList.toggle('active');
+    }));
+  }
 
-  function thinking(){ box.style.display='block'; box.innerHTML =
-    `<div class="ai-thinking">
-      <svg style="width:20px;height:20px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-      </svg>
-      <span>LTN AI is thinking</span>
-      <div class="ai-thinking-dots"><span></span><span></span><span></span></div>
-    </div>`; }
+  /* ===== AI SEARCH ===== */
+  const input=document.getElementById('ai-search-input');
+  const box=document.getElementById('ai-results-container');
 
-  function friendlyFallback(query, reason){
+  function thinking(){ box.style.display='block'; box.innerHTML=`<div class="ai-thinking"><svg style="width:20px;height:20px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg><span>LTN AI is thinking</span><div class="ai-thinking-dots"><span></span><span></span><span></span></div></div>`; }
+
+  function friendlyFallback(query,reason){
     box.style.display='block';
-    box.innerHTML = `
-      <div class="ai-result">
-        <div class="ai-result-title">LTN AI is temporarily unavailable</div>
-        <p class="small" style="color:var(--muted)">${reason}</p>
-        <p>Here are some quick ideas related to "<b>${query.replace(/</g,'&lt;')}</b>":</p>
-        <ul style="margin:0 0 8px 18px">
-          <li>Check local licensing requirements and apprenticeship paths.</li>
-          <li>Look up prevailing wages for your county and trade.</li>
-          <li>Search for nearby union halls or training centers.</li>
-        </ul>
-        <p class="small" style="color:var(--muted)">Try again in a moment.</p>
-      </div>`;
+    box.innerHTML=`<div class="ai-result"><div class="ai-result-title">LTN AI is temporarily unavailable</div><p class="small" style="color:var(--muted)">${reason}</p><p>Here are some quick ideas related to "<b>${query.replace(/</g,'&lt;')}</b>":</p><ul style="margin:0 0 8px 18px"><li>Check local licensing requirements and apprenticeship paths.</li><li>Look up prevailing wages for your county and trade.</li><li>Search for nearby union halls or training centers.</li></ul><p class="small" style="color:var(--muted)">Try again in a moment.</p></div>`;
   }
 
   async function pingExec(){
     try{
-      const r = await fetch(WEBAPP_URL, { method:'GET' });
-      if (!r.ok) return { ok:false, code:r.status, html:isHtmlResponse(r) };
-      if (isHtmlResponse(r)) return { ok:false, code:200, html:true };
-      const j = await r.json().catch(()=>null);
-      return { ok: !!j, code:r.status, html:false, body:j };
-    }catch(e){
-      return { ok:false, code:'NETWORK', html:false, error:String(e) };
-    }
+      const r=await fetch(WEBAPP_URL,{method:'GET'});
+      if(!r.ok) return{ok:false,code:r.status,html:isHtmlResponse(r)};
+      if(isHtmlResponse(r)) return{ok:false,code:200,html:true};
+      const j=await r.json().catch(()=>null);
+      return{ok:!!j,code:r.status,html:false,body:j};
+    }catch(e){ return{ok:false,code:'NETWORK',html:false,error:String(e)}; }
   }
 
   async function aiSearch(query){
-    if (!query.trim()){ box.style.display='none'; return; }
+    if(!query.trim()){ box.style.display='none'; return; }
     thinking();
-
-    const ping = await pingExec();
-    if (!ping.ok){
-      const diag = ping.html
-        ? "Your Apps Script Web App is not public. In Apps Script: Manage deployments → Web app → Who has access = Anyone. Use the /exec URL."
-        : `The Web App is unreachable (status: ${ping.code}).`;
-      friendlyFallback(query, diag);
-      return;
+    const ping=await pingExec();
+    if(!ping.ok){
+      const diag=ping.html?"Apps Script Web App is not public. Set 'Who has access' to Anyone.":(`Web App unreachable (status: ${ping.code}).`);
+      friendlyFallback(query,diag); return;
     }
-
-    const controller = new AbortController();
-    const t = setTimeout(()=>controller.abort(), 15000);
-
+    const controller=new AbortController();
+    const t=setTimeout(()=>controller.abort(),15000);
     try{
-      const email = localStorage.getItem('userEmail') || '';
-      const res = await fetch(WEBAPP_URL, {
-        method:'POST',
-        headers:{ 'Content-Type':'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action:'ai-search', query, email }),
-        signal: controller.signal
-      });
+      const email=localStorage.getItem('userEmail')||'';
+      const res=await fetch(WEBAPP_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'ai-search',query,email}),signal:controller.signal});
       clearTimeout(t);
-
-      const ct = res.headers.get('content-type') || '';
-      if (ct.includes('text/html')){
-        friendlyFallback(query, "Apps Script returned HTML (likely not public). Set access to Anyone and use the /exec URL.");
-        return;
-      }
-
-      if (!res.ok){
-        friendlyFallback(query, `Backend returned HTTP ${res.status}.`);
-        return;
-      }
-
-      const data = await res.json();
-      if (!data.success){
-        friendlyFallback(query, data.error || "Unknown backend error.");
-        return;
-      }
-
-      const ai = data.response || {};
-      const title = ai.title || `Results for "${query}"`;
-      const content = ai.content || 'No results found.';
+      if(isHtmlResponse(res)){ friendlyFallback(query,"Apps Script returned HTML. Set access to Anyone and use the /exec URL."); return; }
+      if(!res.ok){ friendlyFallback(query,`Backend returned HTTP ${res.status}.`); return; }
+      const data=await res.json();
+      if(!data.success){ friendlyFallback(query,data.error||"Unknown backend error."); return; }
+      const ai=data.response||{};
       box.style.display='block';
-      box.innerHTML = `<div class="ai-result"><div class="ai-result-title">${title}</div><p>${content}</p></div>`;
-
+      box.innerHTML=`<div class="ai-result"><div class="ai-result-title">${ai.title||`Results for "${query}"`}</div><p>${ai.content||'No results found.'}</p></div>`;
     }catch(err){
       clearTimeout(t);
-      const msg = (err.name === 'AbortError') ? 'Request timed out.' : (err.message || 'Network error.');
-      friendlyFallback(query, msg);
-      console.error('AI search error:', err);
+      friendlyFallback(query,(err.name==='AbortError')?'Request timed out.':(err.message||'Network error.'));
     }
   }
 
-  const debounced = debounce(q=>aiSearch(q), 500);
-  input.addEventListener('input', function(){ debounced(this.value); });
-  input.addEventListener('focus', function(){ if (this.value.trim()) aiSearch(this.value); });
-  input.addEventListener('keydown', e=>{ if (e.key==='Enter' && input.value.trim()) aiSearch(input.value); });
-  input.addEventListener('keydown', e => { if (e.key === 'Escape') { box.style.display='none'; box.innerHTML=''; } });
-  document.addEventListener('click', e=>{ if (!input.contains(e.target) && !box.contains(e.target)) box.style.display='none'; });
+  const debounced=debounce(q=>aiSearch(q),500);
+  input.addEventListener('input',function(){ debounced(this.value); });
+  input.addEventListener('focus',function(){ if(this.value.trim()) aiSearch(this.value); });
+  input.addEventListener('keydown',e=>{ if(e.key==='Enter'&&input.value.trim()) aiSearch(input.value); if(e.key==='Escape'){box.style.display='none';box.innerHTML='';} });
+  document.addEventListener('click',e=>{ if(!input.contains(e.target)&&!box.contains(e.target)) box.style.display='none'; });
 
-  window.storeUserEmail = function(email){
-    if (email && typeof email === 'string') localStorage.setItem('userEmail', email);
-  };
+  window.storeUserEmail=function(email){ if(email&&typeof email==='string') localStorage.setItem('userEmail',email); };
 
   /* ===== JOB SEARCH ===== */
-  window.JOBS_STATE = { q:'', location:'', trade:'', limit:10, offset:0, total:0 };
+  window.JOBS_STATE={q:'',location:'',trade:'',limit:10,offset:0,total:0};
 
   function renderJobs_(items){
-    const list = document.getElementById('jobs-list');
-    const empty = document.getElementById('jobs-empty');
-    const prev = document.getElementById('jobs-prev');
-    const next = document.getElementById('jobs-next');
-    const count = document.getElementById('jobs-count');
-
-    list.innerHTML = '';
-    if (!items || !items.length){
-      empty.style.display = 'block';
-      prev.disabled = true; next.disabled = true;
-      count.textContent = '';
+    const list=document.getElementById('jobs-list');
+    const empty=document.getElementById('jobs-empty');
+    const prev=document.getElementById('jobs-prev');
+    const next=document.getElementById('jobs-next');
+    const count=document.getElementById('jobs-count');
+    const badge=document.getElementById('jobs-new-badge');
+    list.innerHTML='';
+    if(!items||!items.length){
+      empty.style.display='block';
+      prev.disabled=true; next.disabled=true; count.textContent='';
+      if(badge) badge.textContent='0 jobs';
       return;
     }
-    empty.style.display = 'none';
-
-    items.forEach(j => {
-      const el = document.createElement('article');
-      el.className = 'job';
-      const when = j.postedAt ? new Date(j.postedAt) : null;
-      el.innerHTML = `
-        <div class="title">${j.title || 'Job'}</div>
+    empty.style.display='none';
+    if(badge) badge.textContent=`${window.JOBS_STATE.total} jobs`;
+    items.forEach(j=>{
+      const el=document.createElement('article');
+      el.className='job';
+      const when=j.postedAt?new Date(j.postedAt):null;
+      el.innerHTML=`<div class="title">${j.title||'Job'}</div>
         <div class="meta">
-          <svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z" stroke="currentColor"/><path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z" stroke="currentColor"/></svg>
-          ${[j.city,j.state].filter(Boolean).join(', ')} <span class="meta-dot"></span> ${j.type || '—'} <span class="meta-dot"></span> ${j.pay || ''}
-          ${when ? `<span class="meta-dot"></span> ${when.toLocaleDateString()}` : ''}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z"/><path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z"/></svg>
+          ${[j.city,j.state].filter(Boolean).join(', ')} <span class="meta-dot"></span> ${j.type||'—'} <span class="meta-dot"></span> ${j.pay||''}
+          ${when?`<span class="meta-dot"></span> ${when.toLocaleDateString()}`:''}
         </div>
-        <div class="tags">
-          ${(j.tradeTags||'').split(',').filter(Boolean).slice(0,4).map(t=>`<span class="tag">${t.trim()}</span>`).join('')}
-        </div>
+        <div class="tags">${(j.tradeTags||'').split(',').filter(Boolean).slice(0,4).map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>
         <div class="apply">
-          ${j.link ? `<a class="btn btn-primary" href="${j.link}" target="_blank" rel="noopener">Apply Now</a>` : `<button class="btn-primary" disabled>Apply</button>`}
+          ${j.link?`<a class="btn btn-primary" href="${j.link}" target="_blank" rel="noopener">Apply Now</a>`:`<button class="btn-primary" onclick="alert('Contact the employer directly to apply.')">Apply</button>`}
           <button class="btn-secondary">Save</button>
-        </div>
-      `;
+        </div>`;
       list.appendChild(el);
     });
-
-    const { offset, limit, total } = window.JOBS_STATE;
-    const end = Math.min(offset + limit, total);
-    prev.disabled = offset <= 0;
-    next.disabled = end >= total;
-    count.textContent = total ? `${offset + 1}–${end} of ${total}` : '';
+    const{offset,limit,total}=window.JOBS_STATE;
+    const end=Math.min(offset+limit,total);
+    prev.disabled=offset<=0; next.disabled=end>=total;
+    count.textContent=total?`${offset+1}–${end} of ${total}`:'';
   }
 
-  async function loadJobs(opts={}){
-    window.JOBS_STATE = { ...window.JOBS_STATE, ...opts };
-    const { q, location, trade, limit, offset } = window.JOBS_STATE;
-
+  window.loadJobs=async function(opts={}){
+    window.JOBS_STATE={...window.JOBS_STATE,...opts};
+    const{q,location,trade,limit,offset}=window.JOBS_STATE;
     try{
-      const res = await fetch(WEBAPP_URL, {
-        method:'POST',
-        headers:{ 'Content-Type':'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action:'job-search', query:q, location, trade, limit, offset })
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error || 'Job search failed');
+      const data=await apiCall({action:'job-search',query:q,location,trade,limit,offset});
+      if(!data.success) throw new Error(data.error||'Job search failed');
+      window.JOBS_STATE.total=data.total||0;
+      renderJobs_(data.results||[]);
+    }catch(e){ console.error('job-search error:',e); renderJobs_([]); }
+  };
 
-      window.JOBS_STATE.total = data.total || 0;
-      renderJobs_(data.results || []);
-    }catch(e){
-      console.error('job-search error:', e);
-      renderJobs_([]);
-    }
-  }
+  function loadJobs(opts){ window.loadJobs(opts||{}); }
 
-  document.getElementById('jobs-prev').addEventListener('click', ()=>{
-    const { offset, limit } = window.JOBS_STATE;
-    if (offset > 0) loadJobs({ offset: Math.max(0, offset - limit) });
-  });
-  document.getElementById('jobs-next').addEventListener('click', ()=>{
-    const { offset, limit, total } = window.JOBS_STATE;
-    if (offset + limit < total) loadJobs({ offset: offset + limit });
-  });
+  document.getElementById('jobs-prev').addEventListener('click',()=>{ const{offset,limit}=window.JOBS_STATE; if(offset>0) loadJobs({offset:Math.max(0,offset-limit)}); });
+  document.getElementById('jobs-next').addEventListener('click',()=>{ const{offset,limit,total}=window.JOBS_STATE; if(offset+limit<total) loadJobs({offset:offset+limit}); });
 
-  // Initial loads
   loadJobs();
   loadSponsors();
 });
 
 /* ===== NETWORK MANAGER ===== */
-const NetworkManager = {
-  currentUser: localStorage.getItem('userEmail'),
-
-  openNetworkModal() {
-    if (!this.currentUser) {
-      alert('Please complete your profile first');
-      return;
-    }
+const NetworkManager={
+  get currentUser(){ return localStorage.getItem('userEmail'); },
+  openNetworkModal(){
+    if(!this.currentUser){ alert('Please complete your profile first.'); return; }
     document.getElementById('network-modal').classList.add('active');
-    this.showTab('connections');
-    this.loadRequests();
+    this.showTab('connections'); this.loadRequests();
   },
-
-  closeNetworkModal() {
-    document.getElementById('network-modal').classList.remove('active');
-  },
-
-  showTab(tabName) {
-    document.querySelectorAll('.network-tab').forEach(t => t.classList.remove('active'));
+  closeNetworkModal(){ document.getElementById('network-modal').classList.remove('active'); },
+  showTab(tabName){
+    document.querySelectorAll('.network-tab').forEach(t=>t.classList.remove('active'));
     document.querySelector(`.network-tab[onclick*="${tabName}"]`).classList.add('active');
-
-    document.querySelectorAll('.network-tab-content').forEach(c => c.style.display = 'none');
-    document.getElementById(`network-${tabName}`).style.display = 'block';
-
-    if (tabName === 'connections') this.loadConnections();
-    if (tabName === 'requests') this.loadRequests();
-    if (tabName === 'suggested') this.loadSuggested();
-    if (tabName === 'search') setTimeout(() => document.getElementById('people-search-input').focus(), 100);
+    document.querySelectorAll('.network-tab-content').forEach(c=>c.style.display='none');
+    document.getElementById(`network-${tabName}`).style.display='block';
+    if(tabName==='connections') this.loadConnections();
+    if(tabName==='requests')   this.loadRequests();
+    if(tabName==='suggested')  this.loadSuggested();
+    if(tabName==='search') setTimeout(()=>document.getElementById('people-search-input').focus(),100);
   },
-
-  async loadConnections() {
-    const list = document.getElementById('connections-list');
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
-
-    try {
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'get-connections', email: this.currentUser })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        document.getElementById('connections-count').textContent = data.count;
-        document.getElementById('conn-count-tab').textContent = `(${data.count})`;
-
-        if (data.connections.length === 0) {
-          list.innerHTML = `
-            <div class="empty-state">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-              </svg>
-              <h3>No connections yet</h3>
-              <p>Search for trade professionals to connect with</p>
-            </div>
-          `;
-        } else {
-          list.innerHTML = data.connections.map(p => this.renderPerson(p, 'connected')).join('');
-        }
+  async loadConnections(){
+    const list=document.getElementById('connections-list');
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+    try{
+      const data=await apiCall({action:'get-connections',email:this.currentUser});
+      if(data.success){
+        document.getElementById('connections-count').textContent=data.count;
+        document.getElementById('conn-count-tab').textContent=`(${data.count})`;
+        list.innerHTML=data.connections.length?data.connections.map(p=>this.renderPerson(p,'connected')).join(''):
+          `<div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg><h3>No connections yet</h3><p>Search for trade professionals to connect with</p></div>`;
       }
-    } catch (error) {
-      console.error('Error:', error);
-      list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load</div>';
-    }
+    }catch(e){ list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load</div>'; }
   },
-
-  async loadRequests() {
-    const list = document.getElementById('requests-list');
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
-
-    try {
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'get-requests', email: this.currentUser })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        const count = data.count;
-        const badge = document.getElementById('network-badge');
-        const tabBadge = document.getElementById('req-count-tab');
-
-        if (count > 0) {
-          badge.textContent = count;
-          badge.style.display = 'block';
-          tabBadge.textContent = count;
-          tabBadge.style.display = 'inline-block';
-        } else {
-          badge.style.display = 'none';
-          tabBadge.style.display = 'none';
-        }
-
-        if (data.requests.length === 0) {
-          list.innerHTML = `
-            <div class="empty-state">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-              </svg>
-              <h3>No pending requests</h3>
-              <p>You're all caught up!</p>
-            </div>
-          `;
-        } else {
-          list.innerHTML = data.requests.map(p => this.renderPerson(p, 'request')).join('');
-        }
+  async loadRequests(){
+    const list=document.getElementById('requests-list');
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+    try{
+      const data=await apiCall({action:'get-requests',email:this.currentUser});
+      if(data.success){
+        const count=data.count;
+        const badge=document.getElementById('network-badge');
+        const tabBadge=document.getElementById('req-count-tab');
+        if(count>0){ badge.textContent=count; badge.style.display='block'; tabBadge.textContent=count; tabBadge.style.display='inline-block'; }
+        else { badge.style.display='none'; tabBadge.style.display='none'; }
+        list.innerHTML=data.requests.length?data.requests.map(p=>this.renderPerson(p,'request')).join(''):
+          `<div class="empty-state"><h3>No pending requests</h3><p>You're all caught up!</p></div>`;
       }
-    } catch (error) {
-      console.error('Error:', error);
-      list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load</div>';
-    }
+    }catch(e){ list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load</div>'; }
   },
-
-  async loadSuggested() {
-    const list = document.getElementById('suggested-list');
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
-
-    try {
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'get-suggested', email: this.currentUser })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        if (data.suggestions.length === 0) {
-          list.innerHTML = `
-            <div class="empty-state">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-              </svg>
-              <h3>No suggestions yet</h3>
-              <p>Complete your profile to get suggestions</p>
-            </div>
-          `;
-        } else {
-          list.innerHTML = data.suggestions.map(p => this.renderPerson(p, 'suggested')).join('');
-        }
+  async loadSuggested(){
+    const list=document.getElementById('suggested-list');
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+    try{
+      const data=await apiCall({action:'get-suggested',email:this.currentUser});
+      if(data.success){
+        list.innerHTML=data.suggestions.length?data.suggestions.map(p=>this.renderPerson(p,'suggested')).join(''):
+          `<div class="empty-state"><h3>No suggestions yet</h3><p>Complete your profile to get suggestions</p></div>`;
       }
-    } catch (error) {
-      console.error('Error:', error);
-      list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load</div>';
-    }
+    }catch(e){ list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load</div>'; }
   },
-
-  renderPerson(person, type) {
-    const initials = (person.fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    const location = [person.city, person.state].filter(Boolean).join(', ');
-
-    let actions = '';
-    if (type === 'request') {
-      actions = `
-        <button class="btn btn-success" onclick="NetworkManager.acceptConnection('${person.requestId}')">Accept</button>
-        <button class="btn btn-danger" onclick="NetworkManager.declineConnection('${person.requestId}')">Decline</button>
-      `;
-    } else if (type === 'suggested' || type === 'search') {
-      actions = `<button class="btn btn-primary" onclick="NetworkManager.sendConnection('${person.email}')">Connect</button>`;
-    } else if (type === 'connected') {
-      actions = `<button class="btn btn-secondary" onclick="MessageManager.startChat('${person.email}', '${person.fullName}', '${person.trade}')">Message</button>`;
-    }
-
-    const message = person.message ? `<div style="margin-top:6px;padding:8px;background:var(--panel2);border-radius:6px;font-size:13px">"${person.message}"</div>` : '';
-    const reason = person.reason ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic">${person.reason}</div>` : '';
-
-    return `
-      <div class="person-card">
-        <div class="person-avatar">
-          ${person.profileImageUrl ? `<img src="${person.profileImageUrl}" alt="${person.fullName}">` : initials}
-        </div>
-        <div class="person-info">
-          <div class="person-name">${person.fullName}</div>
-          <div class="person-trade">${person.trade}${person.experience ? ` • ${person.experience} years` : ''}</div>
-          ${location ? `<div class="person-location">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z"/>
-              <path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z"/>
-            </svg>
-            ${location}
-          </div>` : ''}
-          ${reason}
-          ${message}
-          <div class="person-actions">${actions}</div>
-        </div>
+  renderPerson(person,type){
+    const initials=(person.fullName||'U').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    const location=[person.city,person.state].filter(Boolean).join(', ');
+    let actions='';
+    if(type==='request') actions=`<button class="btn btn-success" onclick="NetworkManager.acceptConnection('${person.requestId}')">Accept</button><button class="btn btn-danger" onclick="NetworkManager.declineConnection('${person.requestId}')">Decline</button>`;
+    else if(type==='suggested'||type==='search') actions=`<button class="btn btn-primary" onclick="NetworkManager.sendConnection('${person.email}')">Connect</button>`;
+    else if(type==='connected') actions=`<button class="btn btn-secondary" onclick="MessageManager.startChat('${person.email}','${(person.fullName||'').replace(/'/g,'')  }','${(person.trade||'').replace(/'/g,'')}')">Message</button>`;
+    const message=person.message?`<div style="margin-top:6px;padding:8px;background:var(--panel2);border-radius:6px;font-size:13px">"${person.message}"</div>`:'';
+    const reason=person.reason?`<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic">${person.reason}</div>`:'';
+    return `<div class="person-card">
+      <div class="person-avatar">${person.profileImageUrl?`<img src="${person.profileImageUrl}" alt="${person.fullName}">`  :initials}</div>
+      <div class="person-info">
+        <div class="person-name">${person.fullName}</div>
+        <div class="person-trade">${person.trade}${person.experience?` • ${person.experience} years`:''}</div>
+        ${location?`<div class="person-location"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z"/><path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z"/></svg>${location}</div>`:''}
+        ${reason}${message}
+        <div class="person-actions">${actions}</div>
       </div>
-    `;
+    </div>`;
   },
-
-  async sendConnection(toEmail) {
-    const message = prompt('Add a personal message (optional):');
-    if (message === null) return;
-
-    try {
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'send-connection',
-          fromEmail: this.currentUser,
-          toEmail: toEmail,
-          message: message
-        })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        alert('Connection request sent!');
-        this.loadSuggested();
-      } else {
-        alert(data.error || 'Failed to send request');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to send request');
-    }
+  async sendConnection(toEmail){
+    const message=prompt('Add a personal message (optional):');
+    if(message===null) return;
+    try{
+      const data=await apiCall({action:'send-connection',fromEmail:this.currentUser,toEmail,message});
+      if(data.success){ alert('Connection request sent!'); this.loadSuggested(); }
+      else { alert(data.error||'Failed to send request'); }
+    }catch(e){ alert('Failed to send request'); }
   },
-
-  async acceptConnection(requestId) {
-    try {
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'accept-connection',
-          requestId: requestId,
-          email: this.currentUser
-        })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        alert('Connection accepted!');
-        this.loadRequests();
-        this.loadConnections();
-      } else {
-        alert(data.error || 'Failed to accept');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to accept');
-    }
+  async acceptConnection(requestId){
+    try{
+      const data=await apiCall({action:'accept-connection',requestId,email:this.currentUser});
+      if(data.success){ alert('Connection accepted!'); this.loadRequests(); this.loadConnections(); }
+      else { alert(data.error||'Failed to accept'); }
+    }catch(e){ alert('Failed to accept'); }
   },
-
-  async declineConnection(requestId) {
-    if (!confirm('Decline this request?')) return;
-
-    try {
-      const res = await fetch(WEBAPP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'decline-connection',
-          requestId: requestId,
-          email: this.currentUser
-        })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        alert('Request declined');
-        this.loadRequests();
-      } else {
-        alert(data.error || 'Failed to decline');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to decline');
-    }
+  async declineConnection(requestId){
+    if(!confirm('Decline this request?')) return;
+    try{
+      const data=await apiCall({action:'decline-connection',requestId,email:this.currentUser});
+      if(data.success){ alert('Request declined'); this.loadRequests(); }
+      else { alert(data.error||'Failed to decline'); }
+    }catch(e){ alert('Failed to decline'); }
   }
 };
 
-// People search with debounce
+/* ===== PEOPLE SEARCH ===== */
 let searchTimeout;
-document.addEventListener('DOMContentLoaded', function() {
-  const searchInput = document.getElementById('people-search-input');
-  if (searchInput) {
-    searchInput.addEventListener('input', function() {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => NetworkManager.searchPeople(this.value), 500);
-    });
-  }
+document.addEventListener('DOMContentLoaded',function(){
+  const searchInput=document.getElementById('people-search-input');
+  if(searchInput) searchInput.addEventListener('input',function(){ clearTimeout(searchTimeout); searchTimeout=setTimeout(()=>NetworkManager.searchPeople(this.value),500); });
 });
-
-NetworkManager.searchPeople = async function(query) {
-  const list = document.getElementById('search-results');
-
-  if (!query.trim()) {
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Enter a name, trade, or location</div>';
-    return;
-  }
-
-  list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Searching...</div>';
-
-  try {
-    const res = await fetch(WEBAPP_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'search-people', query: query, email: this.currentUser })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      if (data.people.length === 0) {
-        list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">No results found</div>';
-      } else {
-        list.innerHTML = `
-          <div style="margin-bottom:12px;color:var(--muted);font-size:13px">
-            Showing ${data.showing} of ${data.total} results
-          </div>
-          ${data.people.map(p => this.renderPerson(p, 'search')).join('')}
-        `;
-      }
+NetworkManager.searchPeople=async function(query){
+  const list=document.getElementById('search-results');
+  if(!query.trim()){ list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Enter a name, trade, or location</div>'; return; }
+  list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Searching...</div>';
+  try{
+    const data=await apiCall({action:'search-people',query,email:this.currentUser});
+    if(data.success){
+      list.innerHTML=data.people.length
+        ?`<div style="margin-bottom:12px;color:var(--muted);font-size:13px">Showing ${data.showing} of ${data.total} results</div>${data.people.map(p=>this.renderPerson(p,'search')).join('')}`
+        :'<div style="text-align:center;padding:20px;color:var(--muted)">No results found</div>';
     }
-  } catch (error) {
-    console.error('Error:', error);
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Search failed</div>';
-  }
+  }catch(e){ list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Search failed</div>'; }
 };
 
 /* ===== MESSAGE MANAGER ===== */
-const MessageManager = {
-  currentUser: localStorage.getItem('userEmail'),
-  currentChat: null,
-  messages: JSON.parse(localStorage.getItem('messages') || '{}'),
+const MessageManager={
+  get currentUser(){ return localStorage.getItem('userEmail'); },
+  currentChat:null,
+  messages:JSON.parse(localStorage.getItem('messages')||'{}'),
 
-  openMessagesModal() {
-    if (!this.currentUser) {
-      alert('Please complete your profile first');
-      return;
-    }
+  openMessagesModal(){
+    if(!this.currentUser){ alert('Please complete your profile first.'); return; }
     document.getElementById('messages-modal').classList.add('active');
     this.loadMessageList();
   },
-
-  closeMessagesModal() {
-    document.getElementById('messages-modal').classList.remove('active');
-    this.backToList();
-  },
-
-  loadMessageList() {
-    const list = document.getElementById('messages-list');
-    const userMessages = this.messages[this.currentUser] || {};
-    const conversations = Object.entries(userMessages);
-
-    if (conversations.length === 0) {
-      list.innerHTML = `
-        <div class="empty-state" style="padding:60px 20px">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-          </svg>
-          <h3>No messages yet</h3>
-          <p>Connect with trade professionals to start messaging</p>
-        </div>
-      `;
+  closeMessagesModal(){ document.getElementById('messages-modal').classList.remove('active'); this.backToList(); },
+  loadMessageList(){
+    const list=document.getElementById('messages-list');
+    const userMessages=this.messages[this.currentUser]||{};
+    const conversations=Object.entries(userMessages);
+    if(!conversations.length){
+      list.innerHTML=`<div class="empty-state" style="padding:60px 20px"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><h3>No messages yet</h3><p>Connect with trade professionals to start messaging</p></div>`;
       return;
     }
-
-    list.innerHTML = conversations.map(([email, data]) => {
-      const msgs = data.messages || [];
-      const lastMsg = msgs[msgs.length - 1] || {};
-      const initials = (data.name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-      const unread = data.unread || 0;
-
-      return `
-        <div class="message-item${unread ? ' unread' : ''}" onclick="MessageManager.openChat('${email}', '${data.name}', '${data.trade || ''}')">
-          <div class="message-avatar">${initials}</div>
-          <div class="message-content">
-            <div class="message-header">
-              <div class="message-sender">${data.name}</div>
-              <div class="message-time">${lastMsg.time ? new Date(lastMsg.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</div>
-            </div>
-            <div class="message-preview">${lastMsg.text || 'No messages yet'}</div>
-          </div>
+    list.innerHTML=conversations.map(([email,data])=>{
+      const msgs=data.messages||[];
+      const lastMsg=msgs[msgs.length-1]||{};
+      const initials=(data.name||'U').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+      const unread=data.unread||0;
+      return `<div class="message-item${unread?' unread':''}" onclick="MessageManager.openChat('${email}','${(data.name||'').replace(/'/g,'')}','${(data.trade||'').replace(/'/g,'')}')">
+        <div class="message-avatar">${initials}</div>
+        <div class="message-content">
+          <div class="message-header"><div class="message-sender">${data.name}</div><div class="message-time">${lastMsg.time?new Date(lastMsg.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''}</div></div>
+          <div class="message-preview">${lastMsg.text||'No messages yet'}</div>
         </div>
-      `;
+      </div>`;
     }).join('');
   },
-
-  startChat(email, name, trade) {
-    if (!this.messages[this.currentUser]) this.messages[this.currentUser] = {};
-    if (!this.messages[this.currentUser][email]) {
-      this.messages[this.currentUser][email] = {
-        name: name,
-        trade: trade,
-        messages: [],
-        unread: 0
-      };
-      this.saveMessages();
-    }
-
+  startChat(email,name,trade){
+    if(!this.messages[this.currentUser]) this.messages[this.currentUser]={};
+    if(!this.messages[this.currentUser][email]){ this.messages[this.currentUser][email]={name,trade,messages:[],unread:0}; this.saveMessages(); }
     NetworkManager.closeNetworkModal();
     this.openMessagesModal();
-    setTimeout(() => this.openChat(email, name, trade), 100);
+    setTimeout(()=>this.openChat(email,name,trade),100);
   },
-
-  openChat(email, name, trade) {
-    this.currentChat = email;
-
-    document.getElementById('messages-list-view').style.display = 'none';
-    document.getElementById('messages-chat-view').style.display = 'block';
-    document.getElementById('messages-header-title').textContent = 'Messages';
-
-    const initials = (name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    document.getElementById('chat-avatar').textContent = initials;
-    document.getElementById('chat-name').textContent = name;
-    document.getElementById('chat-trade').textContent = trade || '';
-
+  openChat(email,name,trade){
+    this.currentChat=email;
+    document.getElementById('messages-list-view').style.display='none';
+    document.getElementById('messages-chat-view').style.display='block';
+    const initials=(name||'U').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('chat-avatar').textContent=initials;
+    document.getElementById('chat-name').textContent=name;
+    document.getElementById('chat-trade').textContent=trade||'';
     this.renderChatMessages();
-
-    if (this.messages[this.currentUser] && this.messages[this.currentUser][email]) {
-      this.messages[this.currentUser][email].unread = 0;
-      this.saveMessages();
-    }
+    if(this.messages[this.currentUser]&&this.messages[this.currentUser][email]){ this.messages[this.currentUser][email].unread=0; this.saveMessages(); }
   },
-
-  backToList() {
-    this.currentChat = null;
-    document.getElementById('messages-list-view').style.display = 'block';
-    document.getElementById('messages-chat-view').style.display = 'none';
-    document.getElementById('messages-header-title').textContent = 'Messages';
-    document.getElementById('chat-input').value = '';
+  backToList(){
+    this.currentChat=null;
+    document.getElementById('messages-list-view').style.display='block';
+    document.getElementById('messages-chat-view').style.display='none';
+    document.getElementById('chat-input').value='';
     this.loadMessageList();
   },
-
-  renderChatMessages() {
-    const container = document.getElementById('chat-messages');
-    const conversation = this.messages[this.currentUser]?.[this.currentChat];
-
-    if (!conversation || !conversation.messages.length) {
-      container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px">No messages yet. Start the conversation!</div>';
-      return;
-    }
-
-    container.innerHTML = conversation.messages.map(msg => `
-      <div class="chat-message ${msg.from === this.currentUser ? 'sent' : 'received'}">
-        ${msg.text}
-      </div>
-    `).join('');
-
-    container.scrollTop = container.scrollHeight;
+  renderChatMessages(){
+    const container=document.getElementById('chat-messages');
+    const conversation=this.messages[this.currentUser]?.[this.currentChat];
+    if(!conversation||!conversation.messages.length){ container.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px">No messages yet. Start the conversation!</div>'; return; }
+    container.innerHTML=conversation.messages.map(msg=>`<div class="chat-message ${msg.from===this.currentUser?'sent':'received'}">${msg.text}</div>`).join('');
+    container.scrollTop=container.scrollHeight;
   },
-
-  sendMessage() {
-    const input = document.getElementById('chat-input');
-    const text = input.value.trim();
-
-    if (!text || !this.currentChat) return;
-
-    const message = {
-      from: this.currentUser,
-      to: this.currentChat,
-      text: text,
-      time: new Date().toISOString()
-    };
-
-    if (!this.messages[this.currentUser]) this.messages[this.currentUser] = {};
-    if (!this.messages[this.currentUser][this.currentChat]) {
-      this.messages[this.currentUser][this.currentChat] = { messages: [], unread: 0 };
-    }
+  sendMessage(){
+    const input=document.getElementById('chat-input');
+    const text=input.value.trim();
+    if(!text||!this.currentChat) return;
+    const message={from:this.currentUser,to:this.currentChat,text,time:new Date().toISOString()};
+    if(!this.messages[this.currentUser]) this.messages[this.currentUser]={};
+    if(!this.messages[this.currentUser][this.currentChat]) this.messages[this.currentUser][this.currentChat]={messages:[],unread:0};
     this.messages[this.currentUser][this.currentChat].messages.push(message);
-
-    if (!this.messages[this.currentChat]) this.messages[this.currentChat] = {};
-    if (!this.messages[this.currentChat][this.currentUser]) {
-      this.messages[this.currentChat][this.currentUser] = {
-        name: 'User',
-        messages: [],
-        unread: 0
-      };
-    }
+    if(!this.messages[this.currentChat]) this.messages[this.currentChat]={};
+    if(!this.messages[this.currentChat][this.currentUser]) this.messages[this.currentChat][this.currentUser]={name:'User',messages:[],unread:0};
     this.messages[this.currentChat][this.currentUser].messages.push(message);
     this.messages[this.currentChat][this.currentUser].unread++;
-
     this.saveMessages();
     this.renderChatMessages();
-    input.value = '';
+    input.value='';
   },
-
-  saveMessages() {
-    localStorage.setItem('messages', JSON.stringify(this.messages));
-  }
+  saveMessages(){ localStorage.setItem('messages',JSON.stringify(this.messages)); }
 };
 
-// Enter to send message
-document.addEventListener('DOMContentLoaded', function() {
-  const chatInput = document.getElementById('chat-input');
-  if (chatInput) {
-    chatInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        MessageManager.sendMessage();
-      }
-    });
-  }
+document.addEventListener('DOMContentLoaded',function(){
+  const chatInput=document.getElementById('chat-input');
+  if(chatInput) chatInput.addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); MessageManager.sendMessage(); } });
 });
 </script>
-
 </body>
 </html>
-
-
