@@ -681,7 +681,7 @@ select.form-control{cursor:pointer}
 
 <script>
 /* ===== CONFIG ===== */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwy0KspCpneAU_I55xFwm2EFe5NYhPnH2-rRsvjvcS5vSSR19zXHMnGengB0fXZejk3bQ/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxFcrSPNcDHn8bZqikZu45C0_EGKekNgLKhJYWtdEUwPHXV2WsTFDV1hGBSR7mLEWjNQA/exec";
 
 /* ===== UTILS ===== */
 function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
@@ -754,7 +754,20 @@ const JobPostManager = {
 
     // Collect selected skill tags
     const skillBtns = document.querySelectorAll('#inline-job-skills .fbtn.active');
-    const tradeTags = Array.from(skillBtns).map(b=>b.textContent.trim()).join(', ');
+    let tradeTags = Array.from(skillBtns).map(b=>b.textContent.trim()).join(', ');
+
+    // AUTO-DETECT trade from title if no tags selected
+    // This ensures the filter buttons always work
+    if(!tradeTags){
+      const allTrades = ['Low Voltage','Electrical','Plumbing','HVAC','General Contractor','Physical Security','Sprinkler','Welding','Carpentry','Roofing','Masonry'];
+      const titleLower = title.toLowerCase() + ' ' + desc.toLowerCase();
+      const detected = allTrades.filter(t => titleLower.includes(t.toLowerCase()));
+      tradeTags = detected.join(', ');
+      if(!tradeTags){
+        // Use title as a fallback tag so it can still be searched
+        tradeTags = title;
+      }
+    }
 
     // Build pay string
     const payMin    = document.getElementById('inline-job-pay-min').value.trim();
@@ -777,13 +790,16 @@ const JobPostManager = {
         link:    document.getElementById('inline-job-link').value.trim()
       });
       if(data.success){
-        alert('Job posted successfully!');
-        // Clear form
+        alert('Job posted successfully! It will appear in the jobs list.');
         ['inline-job-title','inline-job-company','inline-job-location','inline-job-pay-min','inline-job-pay-max','inline-job-desc','inline-job-link'].forEach(id=>{
           const el=document.getElementById(id); if(el) el.value='';
         });
         document.querySelectorAll('#inline-job-skills .fbtn').forEach(b=>b.classList.remove('active'));
-        loadJobs();
+        // Reset to All tab and reload
+        document.querySelectorAll('#jobs-filter-bar .fbtn').forEach(x=>x.classList.remove('active'));
+        const allBtn = document.querySelector('#jobs-filter-bar .fbtn');
+        if(allBtn) allBtn.classList.add('active');
+        loadJobs({trade:'', offset:0});
         window.scrollTo({top:0,behavior:'smooth'});
       } else {
         alert('Error: '+(data.error||'Failed to post job'));
@@ -1293,8 +1309,14 @@ document.addEventListener('DOMContentLoaded',function(){
     jobFilterBar.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',()=>{
       jobFilterBar.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));
       b.classList.add('active');
-      const trade=b.textContent.trim().toLowerCase();
-      loadJobs({trade:trade==='all'?'':trade,offset:0});
+      const label = b.textContent.trim();
+      const trade = label.toLowerCase() === 'all' ? '' : label.toLowerCase();
+      // Show loading while filtering
+      const list = document.getElementById('jobs-list');
+      const empty = document.getElementById('jobs-empty');
+      if(list) list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Filtering jobs...</div>';
+      if(empty) empty.style.display = 'none';
+      loadJobs({trade, offset:0});
     }));
   }
 
