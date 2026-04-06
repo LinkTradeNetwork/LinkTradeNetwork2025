@@ -449,6 +449,11 @@ select.form-control{cursor:pointer}
         <div id="sponsors-container" class="sponsors-grid">
           <div class="small" style="text-align:center;padding:20px;color:var(--muted)">Loading sponsors...</div>
         </div>
+        <div style="margin-top:16px;padding:14px;background:var(--panel2);border-radius:8px;border:1px solid var(--line);text-align:center">
+          <div style="font-weight:700;font-size:14px;margin-bottom:4px;color:var(--accent)">Advertise on LTN</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">Reach thousands of skilled trade professionals and contractors nationwide.</div>
+          <button class="btn-primary" style="width:100%;font-size:14px" onclick="SponsorManager.openInquiryModal()">Become a Sponsor</button>
+        </div>
       </div>
     </section>
 
@@ -676,7 +681,7 @@ select.form-control{cursor:pointer}
 
 <script>
 /* ===== CONFIG ===== */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzCKIGToXnN1Rn1HWnbykuxl8BsjRuGQpWsG7PwK11IC-D_PP5DD2KY5lB1X_3cfjrAyA/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwy0KspCpneAU_I55xFwm2EFe5NYhPnH2-rRsvjvcS5vSSR19zXHMnGengB0fXZejk3bQ/exec";
 
 /* ===== UTILS ===== */
 function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
@@ -1169,23 +1174,83 @@ document.querySelectorAll('.nav a,.nav button').forEach(item=>{
   });
 });
 
-/* ===== SPONSORS ===== */
+/* ===== SPONSOR MANAGER ===== */
+const SponsorManager = {
+  openInquiryModal() {
+    document.getElementById('sponsor-form').reset();
+    document.getElementById('sponsor-inquiry-modal').classList.add('active');
+  },
+  closeInquiryModal() {
+    document.getElementById('sponsor-inquiry-modal').classList.remove('active');
+  },
+  async submitInquiry() {
+    const businessName   = document.getElementById('sp-business').value.trim();
+    const contactName    = document.getElementById('sp-contact').value.trim();
+    const email          = document.getElementById('sp-email').value.trim();
+    const phone          = document.getElementById('sp-phone').value.trim();
+    const industry       = document.getElementById('sp-industry').value;
+    const slotPreference = document.getElementById('sp-slot').value;
+    const message        = document.getElementById('sp-message').value.trim();
+    if (!businessName) { alert('Please enter your business name.'); return; }
+    if (!contactName)  { alert('Please enter your name.'); return; }
+    if (!email)        { alert('Please enter your email address.'); return; }
+    const btn = document.getElementById('sponsor-submit-btn');
+    btn.disabled = true; btn.textContent = 'Sending...';
+    try {
+      const data = await apiCall({ action:'sponsor-inquiry', businessName, contactName, email, phone, industry, slotPreference, message });
+      if (data.success) {
+        this.closeInquiryModal();
+        alert('Thank you, ' + contactName + '! We received your inquiry and will be in touch within 1–2 business days. Check your email for a confirmation.');
+      } else {
+        alert('Something went wrong: ' + (data.error || 'Please try again.'));
+      }
+    } catch(e) {
+      alert('Failed to send. Please try again or email us at Team@linktradenetwork.com');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Send Inquiry';
+    }
+  }
+};
+
+function renderEmptySponsors_() {
+  return Array(4).fill(0).map(() => `
+    <div class="sponsor-card" onclick="SponsorManager.openInquiryModal()" style="cursor:pointer;border:2px dashed var(--line)">
+      <div style="width:100%;padding:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px">
+        <svg style="width:28px;height:28px;opacity:.3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <div style="font-weight:700;font-size:14px;color:var(--accent)">Your Company Here</div>
+        <div style="font-size:11px;color:var(--muted);text-align:center">Click to advertise to<br>trade professionals</div>
+        <div style="font-size:11px;font-weight:600;color:var(--brand);margin-top:4px">From $49/mo →</div>
+      </div>
+    </div>`).join('');
+}
+
 async function loadSponsors(){
   const container=document.getElementById('sponsors-container');
   try{
     const data=await apiCall({action:'get-sponsors'});
     if(!data.success||!data.sponsors||!data.sponsors.length){
-      container.innerHTML='<div class="small" style="text-align:center;padding:20px;color:var(--muted)">No sponsors yet.</div>';
+      container.innerHTML=renderEmptySponsors_();
       return;
     }
     container.innerHTML=data.sponsors.map((sponsor,i)=>{
+      const isPlaceholder = sponsor.name==='Your Company Here' || (sponsor.link&&sponsor.link.startsWith('mailto:')&&!sponsor.logoUrl);
+      if(isPlaceholder){
+        return `<div class="sponsor-card" onclick="SponsorManager.openInquiryModal()" style="cursor:pointer;border:2px dashed var(--line)">
+          <div style="width:100%;padding:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px">
+            <svg style="width:28px;height:28px;opacity:.3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <div style="font-weight:700;font-size:14px;color:var(--accent)">Your Company Here</div>
+            <div style="font-size:11px;color:var(--muted);text-align:center">Click to advertise to<br>trade professionals</div>
+            <div style="font-size:11px;font-weight:600;color:var(--brand);margin-top:4px">From $49/mo →</div>
+          </div>
+        </div>`;
+      }
       const featured=i===0;
       return `<a href="${sponsor.link}" target="_blank" rel="noopener noreferrer" class="sponsor-card${featured?' sponsor-featured':''}">
         ${sponsor.logoUrl?`<img src="${sponsor.logoUrl}" alt="${sponsor.name}" class="sponsor-logo">`:`<div class="sponsor-placeholder">${sponsor.name}</div>`}
         <p class="sponsor-description">${sponsor.description}</p>
       </a>`;
     }).join('');
-  }catch(e){ container.innerHTML='<div class="small" style="text-align:center;padding:20px;color:var(--muted)">Unable to load sponsors.</div>'; }
+  }catch(e){ container.innerHTML=renderEmptySponsors_(); }
 }
 
 /* ===== FILTER BUTTONS ===== */
@@ -1546,5 +1611,96 @@ document.addEventListener('DOMContentLoaded',function(){
   if(chatInput) chatInput.addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); MessageManager.sendMessage(); } });
 });
 </script>
+<!-- Sponsor Inquiry Modal -->
+<div class="modal-backdrop" id="sponsor-inquiry-modal">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-header">
+      <h2>Become a Sponsor</h2>
+      <button class="modal-close" onclick="SponsorManager.closeInquiryModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px">
+        <div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;background:var(--panel2)">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Basic</div>
+          <div style="font-size:20px;font-weight:700;color:var(--accent)">$49</div>
+          <div style="font-size:11px;color:var(--muted)">/month</div>
+          <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">Logo + link<br>Standard slot</div>
+        </div>
+        <div style="border:2px solid var(--brand);border-radius:8px;padding:12px;text-align:center;background:rgba(234,106,0,.04)">
+          <div style="font-size:11px;font-weight:600;color:var(--brand);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Featured ⭐</div>
+          <div style="font-size:20px;font-weight:700;color:var(--brand)">$99</div>
+          <div style="font-size:11px;color:var(--muted)">/month</div>
+          <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">Top slot<br>Highlighted card</div>
+        </div>
+        <div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;background:var(--panel2)">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Premium</div>
+          <div style="font-size:20px;font-weight:700;color:var(--accent)">$199</div>
+          <div style="font-size:11px;color:var(--muted)">/month</div>
+          <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">All pages<br>+ AI mentions</div>
+        </div>
+      </div>
+      <form id="sponsor-form">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label>Business Name *</label>
+            <input type="text" id="sp-business" class="form-control" placeholder="ABC Electric Co." required>
+          </div>
+          <div class="form-group">
+            <label>Your Name *</label>
+            <input type="text" id="sp-contact" class="form-control" placeholder="Mike Johnson" required>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label>Email Address *</label>
+            <input type="email" id="sp-email" class="form-control" placeholder="mike@company.com" required>
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" id="sp-phone" class="form-control" placeholder="(414) 555-0100">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label>Industry / Trade</label>
+            <select id="sp-industry" class="form-control">
+              <option value="">Select industry</option>
+              <option>Electrical Supply</option>
+              <option>Plumbing Supply</option>
+              <option>HVAC Equipment</option>
+              <option>Tools & Equipment</option>
+              <option>Safety & PPE</option>
+              <option>Training & Certification</option>
+              <option>Insurance</option>
+              <option>Software / Technology</option>
+              <option>Staffing / Recruiting</option>
+              <option>General Contractor</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Sponsorship Tier</label>
+            <select id="sp-slot" class="form-control">
+              <option value="">I'll discuss with you</option>
+              <option value="Basic — $49/mo">Basic — $49/mo</option>
+              <option value="Featured — $99/mo">Featured — $99/mo (Top slot)</option>
+              <option value="Premium — $199/mo">Premium — $199/mo (All pages)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Tell us about your business (optional)</label>
+          <textarea id="sp-message" class="form-control" style="min-height:80px" placeholder="What trades do you serve? What are you hoping to promote?"></textarea>
+        </div>
+      </form>
+      <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px">No payment required now — we'll reach out within 1–2 business days to discuss details and get you set up.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="SponsorManager.closeInquiryModal()">Cancel</button>
+      <button class="btn btn-primary" id="sponsor-submit-btn" onclick="SponsorManager.submitInquiry()">Send Inquiry</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
