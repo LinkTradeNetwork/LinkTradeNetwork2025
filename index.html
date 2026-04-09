@@ -470,7 +470,7 @@
 
 <script>
 // ===== API CONFIG =====
-const APPS_SCRIPT_URL ='https://script.google.com/macros/s/AKfycbxkhoraer2nR2U4W-OnE-1F0lFdHgidtvCQu-Ao5rK1FM2DLCk86uIWvjvfgqLIs1wb/exec';
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxkhoraer2nR2U4W-OnE-1F0lFdHgidtvCQu-Ao5rK1FM2DLCk86uIWvjvfgqLIs1wb/exec";
 
 // No custom headers -> avoids CORS preflight on Apps Script
 async function postJSON(data) {
@@ -479,7 +479,7 @@ async function postJSON(data) {
       method: 'POST',
       body: JSON.stringify(data),
       redirect: 'follow'
-    });
+    }); 
     const text = await res.text();
     try { 
       return JSON.parse(text); 
