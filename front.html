@@ -141,20 +141,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Poppins',system
 .story-title{font-size:20px;font-weight:700;margin-bottom:12px;line-height:1.3}
 .story-text{line-height:1.7;margin-bottom:15px}
 .story-date{font-size:12px;color:var(--muted)}
-.story-badges{display:flex;gap:6px;margin-top:10px}
-.story-badge{background:var(--brand);color:white;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600}
-.story-badge.featured{background:#ffc107;color:#000}
 .story-actions{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .story-actions button{font-size:13px;padding:8px 16px}
-
-.my-story-card{border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:12px;background:var(--panel)}
-.my-story-title{font-weight:700;font-size:15px;margin-bottom:6px}
-.my-story-preview{color:var(--muted);font-size:13px;margin-bottom:10px;line-height:1.4}
-.my-story-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-.my-story-status{font-size:12px}
-.status-approved{color:#10b981}
-.status-pending{color:#f59e0b}
-.status-featured{color:#8b5cf6}
 
 /* ===== MODAL ===== */
 .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px}
@@ -184,7 +172,6 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Poppins',system
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
 .tag{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;font-size:13px;font-weight:500;color:var(--accent)}
 .apply{display:flex;gap:10px;flex-wrap:wrap}
-.featured{background:#fff9e6;border-left:4px solid #ffc107}
 
 /* ===== FORMS ===== */
 .upload-area{border:2px dashed var(--line);border-radius:8px;padding:20px;text-align:center;cursor:pointer;margin-bottom:20px;transition:all .2s;min-height:120px;display:flex;flex-direction:column;justify-content:center}
@@ -226,7 +213,11 @@ select.form-control{cursor:pointer}
 .sponsor-description{font-size:13px;color:var(--muted);margin:0;line-height:1.4}
 .sponsor-featured{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none}
 .sponsor-featured .sponsor-description{color:rgba(255,255,255,.9)}
-.sponsor-featured .sponsor-placeholder{border-color:rgba(255,255,255,.3);color:white;background:rgba(255,255,255,.1)}
+
+/* ===== CONNECTION ALERT BANNER ===== */
+.connection-alert{display:none;background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;padding:12px 20px;text-align:center;font-weight:600;font-size:14px;cursor:pointer;animation:pulse-alert 2s ease-in-out infinite}
+.connection-alert:hover{opacity:.9}
+@keyframes pulse-alert{0%,100%{opacity:1}50%{opacity:.85}}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:1100px){.shell{grid-template-columns:1fr 1fr;gap:16px}.right-sidebar{grid-column:span 2}}
@@ -268,6 +259,11 @@ select.form-control{cursor:pointer}
 </style>
 </head>
 <body>
+
+<!-- FIX: Connection alert banner - shows when user has pending requests -->
+<div class="connection-alert" id="connection-alert-banner" onclick="NetworkManager.openNetworkModal()">
+  🔔 You have <span id="alert-count">0</span> pending connection request(s) — Click to view
+</div>
 
 <header class="topbar">
   <div class="topbar-inner">
@@ -411,7 +407,7 @@ select.form-control{cursor:pointer}
       </div>
     </div>
 
-    <!-- POST JOB (inline form — also accessible via modal) -->
+    <!-- POST JOB -->
     <div class="card" style="margin-top:24px">
       <div class="hd">Post a New Job</div>
       <div class="bd">
@@ -486,9 +482,9 @@ select.form-control{cursor:pointer}
     <section class="card" style="margin-top:20px">
       <div class="hd">Upcoming Events</div>
       <div class="bd small">
-        <div style="margin-bottom:15px"><div style="font-weight:600">Trade Skills Workshop</div><div style="font-size:13px">November 15, 2025 • 9:00 AM</div><div style="color:var(--muted);font-size:13px">Milwaukee Convention Center</div></div>
-        <div style="margin-bottom:15px"><div style="font-weight:600">Electrical Code Updates</div><div style="font-size:13px">November 22, 2025 • 1:00 PM</div><div style="color:var(--muted);font-size:13px">Online Webinar</div></div>
-        <div><div style="font-weight:600">Contractor Networking Mixer</div><div style="font-size:13px">December 5, 2025 • 6:00 PM</div><div style="color:var(--muted);font-size:13px">Madison Trade Association</div></div>
+        <div style="margin-bottom:15px"><div style="font-weight:600">BICSI Spring Conference</div><div style="font-size:13px">May 15, 2026 • 9:00 AM</div><div style="color:var(--muted);font-size:13px">Tampa Convention Center</div></div>
+        <div style="margin-bottom:15px"><div style="font-weight:600">Low Voltage Code Updates</div><div style="font-size:13px">May 22, 2026 • 1:00 PM</div><div style="color:var(--muted);font-size:13px">Online Webinar</div></div>
+        <div><div style="font-weight:600">Contractor Networking Mixer</div><div style="font-size:13px">June 5, 2026 • 6:00 PM</div><div style="color:var(--muted);font-size:13px">Detroit Trade Association</div></div>
         <button class="btn-primary" style="width:100%;margin-top:15px">View All Events</button>
       </div>
     </section>
@@ -654,7 +650,7 @@ select.form-control{cursor:pointer}
   </div>
 </div>
 
-<!-- Post Job Modal (for nav button) -->
+<!-- Post Job Modal -->
 <div class="modal-backdrop" id="post-job-modal">
   <div class="modal">
     <div class="modal-header">
@@ -679,6 +675,73 @@ select.form-control{cursor:pointer}
   </div>
 </div>
 
+<!-- Sponsor Inquiry Modal -->
+<div class="modal-backdrop" id="sponsor-inquiry-modal">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-header">
+      <h2>Become a Sponsor</h2>
+      <button class="modal-close" onclick="SponsorManager.closeInquiryModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px">
+        <div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;background:var(--panel2)">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Basic</div>
+          <div style="font-size:20px;font-weight:700;color:var(--accent)">$49</div>
+          <div style="font-size:11px;color:var(--muted)">/month</div>
+          <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">Logo + link<br>Standard slot</div>
+        </div>
+        <div style="border:2px solid var(--brand);border-radius:8px;padding:12px;text-align:center;background:rgba(234,106,0,.04)">
+          <div style="font-size:11px;font-weight:600;color:var(--brand);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Featured ⭐</div>
+          <div style="font-size:20px;font-weight:700;color:var(--brand)">$99</div>
+          <div style="font-size:11px;color:var(--muted)">/month</div>
+          <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">Top slot<br>Highlighted card</div>
+        </div>
+        <div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;background:var(--panel2)">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Premium</div>
+          <div style="font-size:20px;font-weight:700;color:var(--accent)">$199</div>
+          <div style="font-size:11px;color:var(--muted)">/month</div>
+          <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">All pages<br>+ AI mentions</div>
+        </div>
+      </div>
+      <form id="sponsor-form">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label>Business Name *</label><input type="text" id="sp-business" class="form-control" placeholder="ABC Electric Co." required></div>
+          <div class="form-group"><label>Your Name *</label><input type="text" id="sp-contact" class="form-control" placeholder="Mike Johnson" required></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label>Email Address *</label><input type="email" id="sp-email" class="form-control" placeholder="mike@company.com" required></div>
+          <div class="form-group"><label>Phone Number</label><input type="tel" id="sp-phone" class="form-control" placeholder="(414) 555-0100"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label>Industry / Trade</label>
+            <select id="sp-industry" class="form-control">
+              <option value="">Select industry</option>
+              <option>Electrical Supply</option><option>Plumbing Supply</option><option>HVAC Equipment</option>
+              <option>Tools & Equipment</option><option>Safety & PPE</option><option>Training & Certification</option>
+              <option>Insurance</option><option>Software / Technology</option><option>Staffing / Recruiting</option>
+              <option>General Contractor</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Sponsorship Tier</label>
+            <select id="sp-slot" class="form-control">
+              <option value="">I'll discuss with you</option>
+              <option value="Basic — $49/mo">Basic — $49/mo</option>
+              <option value="Featured — $99/mo">Featured — $99/mo (Top slot)</option>
+              <option value="Premium — $199/mo">Premium — $199/mo (All pages)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label>Tell us about your business (optional)</label><textarea id="sp-message" class="form-control" style="min-height:80px" placeholder="What trades do you serve? What are you hoping to promote?"></textarea></div>
+      </form>
+      <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px">No payment required now — we'll reach out within 1–2 business days to discuss details and get you set up.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="SponsorManager.closeInquiryModal()">Cancel</button>
+      <button class="btn btn-primary" id="sponsor-submit-btn" onclick="SponsorManager.submitInquiry()">Send Inquiry</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ===== CONFIG ===== */
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyUHGtOwfuQqNo199hyMesQarlbOWd-cDGuP44SU1LGVgn5ujbTRqGd2mphMv8AFQPs/exec";
@@ -694,6 +757,38 @@ async function apiCall(payload){
     body:JSON.stringify(payload)
   });
   return res.json();
+}
+
+/* ===== FIX: CHECK PENDING CONNECTIONS ON PAGE LOAD ===== */
+async function checkPendingConnections(){
+  const email = localStorage.getItem('userEmail');
+  if(!email) return;
+  try{
+    const data = await apiCall({action:'get-requests', email:email});
+    if(data.success && data.count > 0){
+      // Show red badge on Network button
+      const badge = document.getElementById('network-badge');
+      if(badge){ badge.textContent = data.count; badge.style.display = 'block'; }
+      // Show tab badge inside modal
+      const tabBadge = document.getElementById('req-count-tab');
+      if(tabBadge){ tabBadge.textContent = data.count; tabBadge.style.display = 'inline-block'; }
+      // Show alert banner at top of page
+      const banner = document.getElementById('connection-alert-banner');
+      const alertCount = document.getElementById('alert-count');
+      if(banner && alertCount){
+        alertCount.textContent = data.count;
+        banner.style.display = 'block';
+      }
+    } else {
+      // Hide everything if no pending requests
+      const badge = document.getElementById('network-badge');
+      if(badge) badge.style.display = 'none';
+      const banner = document.getElementById('connection-alert-banner');
+      if(banner) banner.style.display = 'none';
+    }
+  }catch(e){
+    console.log('Connection check skipped:', e);
+  }
 }
 
 /* ===== JOB POST MANAGER ===== */
@@ -724,16 +819,16 @@ const JobPostManager = {
       const data = await apiCall({
         action:'post-job', email,
         title,
-        company: document.getElementById('modal-job-company').value.trim(),
-        type:    document.getElementById('modal-job-type').value,
+        company:     document.getElementById('modal-job-company').value.trim(),
+        type:        document.getElementById('modal-job-type').value,
         city, state,
-        pay:     document.getElementById('modal-job-pay').value.trim(),
-        tradeTags: document.getElementById('modal-job-tags').value.trim(),
+        pay:         document.getElementById('modal-job-pay').value.trim(),
+        tradeTags:   document.getElementById('modal-job-tags').value.trim(),
         description: document.getElementById('modal-job-desc').value.trim(),
-        link:    document.getElementById('modal-job-link').value.trim()
+        link:        document.getElementById('modal-job-link').value.trim()
       });
       if(data.success){
-        alert('Job posted successfully! It will appear in the jobs list.');
+        alert('Job posted successfully!');
         this.closeModal();
         loadJobs();
       } else {
@@ -752,24 +847,16 @@ const JobPostManager = {
     if(!loc)  { alert('Location is required.'); return; }
     if(!desc) { alert('Job description is required.'); return; }
 
-    // Collect selected skill tags
     const skillBtns = document.querySelectorAll('#inline-job-skills .fbtn.active');
     let tradeTags = Array.from(skillBtns).map(b=>b.textContent.trim()).join(', ');
 
-    // AUTO-DETECT trade from title if no tags selected
-    // This ensures the filter buttons always work
     if(!tradeTags){
-      const allTrades = ['Low Voltage','Electrical','Plumbing','HVAC','General Contractor','Physical Security','Sprinkler','Welding','Carpentry','Roofing','Masonry'];
+      const allTrades = ['Low Voltage','Electrical','Plumbing','HVAC','General Contractor','Physical Security','Sprinkler','Welding','Carpentry'];
       const titleLower = title.toLowerCase() + ' ' + desc.toLowerCase();
       const detected = allTrades.filter(t => titleLower.includes(t.toLowerCase()));
-      tradeTags = detected.join(', ');
-      if(!tradeTags){
-        // Use title as a fallback tag so it can still be searched
-        tradeTags = title;
-      }
+      tradeTags = detected.join(', ') || title;
     }
 
-    // Build pay string
     const payMin    = document.getElementById('inline-job-pay-min').value.trim();
     const payMax    = document.getElementById('inline-job-pay-max').value.trim();
     const payPeriod = document.getElementById('inline-job-pay-period').value;
@@ -784,18 +871,17 @@ const JobPostManager = {
       const data = await apiCall({
         action:'post-job', email,
         title,
-        company: document.getElementById('inline-job-company').value.trim(),
-        type:    document.getElementById('inline-job-type').value,
+        company:     document.getElementById('inline-job-company').value.trim(),
+        type:        document.getElementById('inline-job-type').value,
         city, state, pay, tradeTags, description: desc,
-        link:    document.getElementById('inline-job-link').value.trim()
+        link:        document.getElementById('inline-job-link').value.trim()
       });
       if(data.success){
-        alert('Job posted successfully! It will appear in the jobs list.');
+        alert('Job posted successfully!');
         ['inline-job-title','inline-job-company','inline-job-location','inline-job-pay-min','inline-job-pay-max','inline-job-desc','inline-job-link'].forEach(id=>{
           const el=document.getElementById(id); if(el) el.value='';
         });
         document.querySelectorAll('#inline-job-skills .fbtn').forEach(b=>b.classList.remove('active'));
-        // Reset to All tab and reload
         document.querySelectorAll('#jobs-filter-bar .fbtn').forEach(x=>x.classList.remove('active'));
         const allBtn = document.querySelector('#jobs-filter-bar .fbtn');
         if(allBtn) allBtn.classList.add('active');
@@ -823,7 +909,7 @@ const ProfileManager = {
     const editBtn = document.getElementById('edit-profile-btn');
     if(!email){
       editBtn.textContent='Sign In to Complete Profile';
-      editBtn.onclick=()=>{ alert('Please sign in or sign up first.\n\nClick Logout to go to sign up page.'); window.location.href='index.html'; };
+      editBtn.onclick=()=>{ window.location.href='index.html'; };
     } else {
       editBtn.textContent='Edit Profile';
       editBtn.onclick=()=>this.openModal();
@@ -987,14 +1073,11 @@ const ProfileManager = {
 /* ===== SUCCESS STORIES ===== */
 const SuccessStories = {
   currentPage:0, limit:5, total:0, currentStoryId:null, currentImageData:null,
-
   async init(){ this.loadStories(); this.bindEvents(); },
-
   bindEvents(){
     const imageInput = document.getElementById('story-image-input');
     if(imageInput) imageInput.addEventListener('change',e=>this.handleImageSelect(e.target.files[0]));
   },
-
   handleImageSelect(file){
     if(!file||!file.type.startsWith('image/')){ alert('Please select an image file'); return; }
     const reader = new FileReader();
@@ -1018,32 +1101,23 @@ const SuccessStories = {
     };
     reader.readAsDataURL(file);
   },
-
   removeImage(){
     this.currentImageData=null;
     document.getElementById('story-image-preview').style.display='none';
     document.getElementById('story-image-upload').style.display='flex';
     document.getElementById('story-image-input').value='';
   },
-
   async loadStories(){
     const container=document.getElementById('stories-container');
     container.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading stories...</div>';
     try{
-      // FIX: action is 'get-stories' (matches App Script)
       const data = await apiCall({ action:'get-stories', limit:this.limit });
-      if(data.success){
-        this.total=data.count||0;
-        this.renderStories(data.stories||[]);
-      } else {
-        container.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">No stories yet — be the first to share!</div>';
-      }
+      if(data.success){ this.total=data.count||0; this.renderStories(data.stories||[]); }
+      else { container.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">No stories yet — be the first to share!</div>'; }
     }catch(e){
-      console.error('Stories error:',e);
       container.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load stories. Please refresh.</div>';
     }
   },
-
   renderStories(stories){
     const container=document.getElementById('stories-container');
     const email=localStorage.getItem('userEmail');
@@ -1054,7 +1128,6 @@ const SuccessStories = {
       return;
     }
     container.innerHTML=stories.map(story=>{
-      // FIX: correct field names from App Script response
       const name    = story.fullName || 'Trade Pro';
       const trade   = story.trade    || '';
       const title   = story.title    || '';
@@ -1064,7 +1137,6 @@ const SuccessStories = {
       const loc     = [story.city, story.state].filter(Boolean).join(', ');
       const initials= name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
       const isOwner = email && story.email && email.toLowerCase()===story.email.toLowerCase();
-
       return `<div class="story-card">
         ${imgUrl?`<img src="${imgUrl}" class="story-image" alt="${title}">`:''}
         <div class="story-header">
@@ -1084,14 +1156,11 @@ const SuccessStories = {
         </div>`:''}
       </div>`;
     }).join('');
-
     document.getElementById('stories-prev').style.display=this.currentPage>0?'inline-block':'none';
     document.getElementById('stories-next').style.display=(this.currentPage+1)*this.limit<this.total?'inline-block':'none';
   },
-
   nextPage(){ this.currentPage++; this.loadStories(); window.scrollTo({top:0,behavior:'smooth'}); },
   prevPage(){ if(this.currentPage>0){ this.currentPage--; this.loadStories(); window.scrollTo({top:0,behavior:'smooth'}); } },
-
   openAddModal(){
     const email=localStorage.getItem('userEmail');
     if(!email){ alert('Please sign in to share your story.'); return; }
@@ -1103,19 +1172,16 @@ const SuccessStories = {
     document.getElementById('story-image-upload').style.display='flex';
     document.getElementById('story-modal').classList.add('active');
   },
-
   async editStory(storyId){
     this.currentStoryId=storyId;
     document.getElementById('story-modal-title').textContent='Edit Your Story';
     document.getElementById('save-story-btn').textContent='Update Story';
     try{
       const email=localStorage.getItem('userEmail');
-      // FIX: action is 'get-my-stories' — make sure this is in your Code.gs
       const data = await apiCall({action:'get-my-stories',email});
       if(data.success){
         const story=data.stories.find(s=>s.storyId===storyId);
         if(story){
-          // FIX: correct field names
           document.getElementById('story-name').value=story.fullName||'';
           document.getElementById('story-trade').value=story.trade||'';
           document.getElementById('story-title').value=story.title||'';
@@ -1130,21 +1196,18 @@ const SuccessStories = {
           document.getElementById('story-modal').classList.add('active');
         }
       }
-    }catch(e){ console.error('Edit story error:',e); alert('Failed to load story for editing.'); }
+    }catch(e){ alert('Failed to load story for editing.'); }
   },
-
   async deleteStory(storyId){
     if(!confirm('Delete this success story? This cannot be undone.')) return;
     const email=localStorage.getItem('userEmail');
     if(!email) return;
     try{
-      // FIX: action is 'delete-story' (matches App Script)
       const data = await apiCall({action:'delete-story',email,storyId});
       if(data.success){ alert('Story deleted.'); this.loadStories(); }
       else { alert(data.error||'Failed to delete story'); }
     }catch(e){ alert('Failed to delete story.'); }
   },
-
   async saveStory(){
     const email=localStorage.getItem('userEmail');
     if(!email){ alert('Please sign in to share your story.'); return; }
@@ -1155,24 +1218,19 @@ const SuccessStories = {
     const location  = document.getElementById('story-location').value.trim();
     if(!name||!trade||!title||!storyText){ alert('Please fill in all required fields.'); return; }
     if(storyText.length<50){ alert('Story must be at least 50 characters.'); return; }
-
     const saveBtn=document.getElementById('save-story-btn');
     const originalText=saveBtn.textContent;
     try{
       saveBtn.disabled=true; saveBtn.textContent='Saving...';
-      // FIX: parse location into city/state, use correct field names (fullName, storyText)
       const parts=location.split(',').map(s=>s.trim());
       const payload={
-        // FIX: action names match App Script
         action: this.currentStoryId ? 'update-story' : 'save-story',
         email,
-        fullName:  name,   // FIX: was 'name'
-        trade,
-        title,
-        storyText, // FIX: was 'story'
+        fullName:  name,
+        trade, title, storyText,
         city:  parts[0]||'',
         state: parts[1]||'',
-        profileImageUrl: this.currentImageData||'' // FIX: was 'imageUrl'
+        profileImageUrl: this.currentImageData||''
       };
       if(this.currentStoryId) payload.storyId=this.currentStoryId;
       const data = await apiCall(payload);
@@ -1181,10 +1239,9 @@ const SuccessStories = {
         this.closeModal();
         this.loadStories();
       } else { alert(data.error||'Failed to save story'); }
-    }catch(e){ console.error('Save story error:',e); alert('Failed to save story. Please try again.'); }
+    }catch(e){ alert('Failed to save story. Please try again.'); }
     finally{ saveBtn.disabled=false; saveBtn.textContent=originalText; }
   },
-
   closeModal(){
     document.getElementById('story-modal').classList.remove('active');
     this.currentStoryId=null; this.currentImageData=null;
@@ -1245,7 +1302,7 @@ const SponsorManager = {
       const data = await apiCall({ action:'sponsor-inquiry', businessName, contactName, email, phone, industry, slotPreference, message });
       if (data.success) {
         this.closeInquiryModal();
-        alert('Thank you, ' + contactName + '! We received your inquiry and will be in touch within 1–2 business days. Check your email for a confirmation.');
+        alert('Thank you, ' + contactName + '! We received your inquiry and will be in touch within 1–2 business days.');
       } else {
         alert('Something went wrong: ' + (data.error || 'Please try again.'));
       }
@@ -1257,6 +1314,7 @@ const SponsorManager = {
   }
 };
 
+/* ===== FIX: SPONSOR DISPLAY - handles missing logos gracefully ===== */
 function renderEmptySponsors_() {
   return Array(4).fill(0).map(() => `
     <div class="sponsor-card" onclick="SponsorManager.openInquiryModal()" style="cursor:pointer;border:2px dashed var(--line)">
@@ -1278,7 +1336,9 @@ async function loadSponsors(){
       return;
     }
     container.innerHTML=data.sponsors.map((sponsor,i)=>{
-      const isPlaceholder = sponsor.name==='Your Company Here' || (sponsor.link&&sponsor.link.startsWith('mailto:')&&!sponsor.logoUrl);
+      // FIX: treat any sponsor without a real logo URL as a placeholder
+      const hasLogo = sponsor.logoUrl && sponsor.logoUrl.trim() !== '' && !sponsor.logoUrl.includes('logo.png');
+      const isPlaceholder = sponsor.name==='Your Company Here' || (!hasLogo && sponsor.link&&sponsor.link.startsWith('mailto:'));
       if(isPlaceholder){
         return `<div class="sponsor-card" onclick="SponsorManager.openInquiryModal()" style="cursor:pointer;border:2px dashed var(--line)">
           <div style="width:100%;padding:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px">
@@ -1291,7 +1351,7 @@ async function loadSponsors(){
       }
       const featured=i===0;
       return `<a href="${sponsor.link}" target="_blank" rel="noopener noreferrer" class="sponsor-card${featured?' sponsor-featured':''}">
-        ${sponsor.logoUrl?`<img src="${sponsor.logoUrl}" alt="${sponsor.name}" class="sponsor-logo">`:`<div class="sponsor-placeholder">${sponsor.name}</div>`}
+        ${hasLogo?`<img src="${sponsor.logoUrl}" alt="${sponsor.name}" class="sponsor-logo" onerror="this.style.display='none'">`:`<div class="sponsor-placeholder">${sponsor.name}</div>`}
         <p class="sponsor-description">${sponsor.description}</p>
       </a>`;
     }).join('');
@@ -1311,7 +1371,6 @@ document.addEventListener('DOMContentLoaded',function(){
       b.classList.add('active');
       const label = b.textContent.trim();
       const trade = label.toLowerCase() === 'all' ? '' : label.toLowerCase();
-      // Show loading while filtering
       const list = document.getElementById('jobs-list');
       const empty = document.getElementById('jobs-empty');
       if(list) list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Filtering jobs...</div>';
@@ -1320,7 +1379,7 @@ document.addEventListener('DOMContentLoaded',function(){
     }));
   }
 
-  // Skill filter buttons for inline job form (multi-select toggle)
+  // Skill filter buttons for inline job form
   const skillBar=document.getElementById('inline-job-skills');
   if(skillBar){
     skillBar.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',e=>{
@@ -1337,7 +1396,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
   function friendlyFallback(query,reason){
     box.style.display='block';
-    box.innerHTML=`<div class="ai-result"><div class="ai-result-title">LTN AI is temporarily unavailable</div><p class="small" style="color:var(--muted)">${reason}</p><p>Here are some quick ideas related to "<b>${query.replace(/</g,'&lt;')}</b>":</p><ul style="margin:0 0 8px 18px"><li>Check local licensing requirements and apprenticeship paths.</li><li>Look up prevailing wages for your county and trade.</li><li>Search for nearby union halls or training centers.</li></ul><p class="small" style="color:var(--muted)">Try again in a moment.</p></div>`;
+    box.innerHTML=`<div class="ai-result"><div class="ai-result-title">LTN AI is temporarily unavailable</div><p class="small" style="color:var(--muted)">${reason}</p><ul style="margin:0 0 8px 18px"><li>Check local licensing requirements and apprenticeship paths.</li><li>Look up prevailing wages for your county and trade.</li><li>Search for nearby union halls or training centers.</li></ul><p class="small" style="color:var(--muted)">Try again in a moment.</p></div>`;
   }
 
   async function pingExec(){
@@ -1355,16 +1414,16 @@ document.addEventListener('DOMContentLoaded',function(){
     thinking();
     const ping=await pingExec();
     if(!ping.ok){
-      const diag=ping.html?"Apps Script Web App is not public. Set 'Who has access' to Anyone.":(`Web App unreachable (status: ${ping.code}).`);
+      const diag=ping.html?"Apps Script Web App is not public.":(`Web App unreachable (status: ${ping.code}).`);
       friendlyFallback(query,diag); return;
     }
     const controller=new AbortController();
-    const t=setTimeout(()=>controller.abort(),15000);
+    const t=setTimeout(()=>controller.abort(),20000);
     try{
       const email=localStorage.getItem('userEmail')||'';
       const res=await fetch(WEBAPP_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'ai-search',query,email}),signal:controller.signal});
       clearTimeout(t);
-      if(isHtmlResponse(res)){ friendlyFallback(query,"Apps Script returned HTML. Set access to Anyone and use the /exec URL."); return; }
+      if(isHtmlResponse(res)){ friendlyFallback(query,"Apps Script returned HTML."); return; }
       if(!res.ok){ friendlyFallback(query,`Backend returned HTTP ${res.status}.`); return; }
       const data=await res.json();
       if(!data.success){ friendlyFallback(query,data.error||"Unknown backend error."); return; }
@@ -1385,9 +1444,21 @@ document.addEventListener('DOMContentLoaded',function(){
 
   window.storeUserEmail=function(email){ if(email&&typeof email==='string') localStorage.setItem('userEmail',email); };
 
+  /* ===== FIX: AUTO CHECK NOTIFICATIONS ON PAGE LOAD ===== */
+  // Check for pending connection requests when page loads
+  setTimeout(function(){
+    checkPendingConnections();
+  }, 1500);
+
+  // Recheck every 60 seconds automatically
+  setInterval(function(){
+    checkPendingConnections();
+  }, 60000);
+
   /* ===== JOB SEARCH ===== */
   window.JOBS_STATE={q:'',location:'',trade:'',limit:10,offset:0,total:0};
 
+  /* ===== FIX: JOB CARD RENDERING - shows full details ===== */
   function renderJobs_(items){
     const list=document.getElementById('jobs-list');
     const empty=document.getElementById('jobs-empty');
@@ -1408,16 +1479,32 @@ document.addEventListener('DOMContentLoaded',function(){
       const el=document.createElement('article');
       el.className='job';
       const when=j.postedAt?new Date(j.postedAt):null;
-      el.innerHTML=`<div class="title">${j.title||'Job'}</div>
+      // FIX: use j.title directly — if empty show placeholder
+      const jobTitle = (j.title && j.title.trim()) ? j.title : 'Untitled Job';
+      const jobLocation = [j.city, j.state].filter(Boolean).join(', ') || 'Location not specified';
+      const jobType = j.type || '';
+      const jobPay = j.pay || '';
+      const jobTags = j.tradeTags || '';
+      const jobDesc = j.description || '';
+      // FIX: Apply button now tracks the application
+      el.innerHTML=`
+        <div class="title">${jobTitle}</div>
+        ${j.company?`<div style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:6px">${j.company}</div>`:''}
         <div class="meta">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z"/><path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z"/></svg>
-          ${[j.city,j.state].filter(Boolean).join(', ')} <span class="meta-dot"></span> ${j.type||'—'} <span class="meta-dot"></span> ${j.pay||''}
+          ${jobLocation}
+          ${jobType?`<span class="meta-dot"></span> ${jobType}`:''}
+          ${jobPay?`<span class="meta-dot"></span> ${jobPay}`:''}
           ${when?`<span class="meta-dot"></span> ${when.toLocaleDateString()}`:''}
         </div>
-        <div class="tags">${(j.tradeTags||'').split(',').filter(Boolean).slice(0,4).map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>
+        ${jobTags?`<div class="tags">${jobTags.split(',').filter(Boolean).slice(0,4).map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>`:''}
+        ${jobDesc?`<div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5">${jobDesc.substring(0,150)}${jobDesc.length>150?'...':''}</div>`:''}
         <div class="apply">
-          ${j.link?`<a class="btn btn-primary" href="${j.link}" target="_blank" rel="noopener">Apply Now</a>`:`<button class="btn-primary" onclick="alert('Contact the employer directly to apply.')">Apply</button>`}
-          <button class="btn-secondary">Save</button>
+          ${j.link
+            ?`<a class="btn btn-primary" href="${j.link}" target="_blank" rel="noopener">Apply Now</a>`
+            :`<button class="btn-primary" onclick="applyToJob('${jobTitle.replace(/'/g,"\\'")}','${(j.company||'').replace(/'/g,"\\'")}')">Apply</button>`
+          }
+          <button class="btn btn-secondary" onclick="saveJob('${jobTitle.replace(/'/g,"\\'")}')">Save</button>
         </div>`;
       list.appendChild(el);
     });
@@ -1447,13 +1534,45 @@ document.addEventListener('DOMContentLoaded',function(){
   loadSponsors();
 });
 
+/* ===== FIX: APPLY TO JOB - now tracks in Google Sheets ===== */
+async function applyToJob(jobTitle, company){
+  const email = localStorage.getItem('userEmail');
+  if(!email){ alert('Please sign in to apply for jobs.'); return; }
+  try{
+    const data = await apiCall({action:'apply-job', email, jobTitle, company});
+    if(data.success){
+      alert('Application submitted! The employer will be in touch.');
+      // Update applications count
+      const appCount = document.getElementById('applications-count');
+      if(appCount) appCount.textContent = (parseInt(appCount.textContent)||0) + 1;
+    } else {
+      alert(data.error||'Failed to submit application');
+    }
+  }catch(e){
+    alert('Failed to submit application. Please try again.');
+  }
+}
+
+/* ===== SAVE JOB ===== */
+function saveJob(jobTitle){
+  const saved = JSON.parse(localStorage.getItem('savedJobs')||'[]');
+  if(!saved.includes(jobTitle)){
+    saved.push(jobTitle);
+    localStorage.setItem('savedJobs', JSON.stringify(saved));
+    alert(`"${jobTitle}" saved to your profile!`);
+  } else {
+    alert('You already saved this job.');
+  }
+}
+
 /* ===== NETWORK MANAGER ===== */
 const NetworkManager={
   get currentUser(){ return localStorage.getItem('userEmail'); },
   openNetworkModal(){
     if(!this.currentUser){ alert('Please complete your profile first.'); return; }
     document.getElementById('network-modal').classList.add('active');
-    this.showTab('connections'); this.loadRequests();
+    this.showTab('connections');
+    this.loadRequests();
   },
   closeNetworkModal(){ document.getElementById('network-modal').classList.remove('active'); },
   showTab(tabName){
@@ -1488,8 +1607,16 @@ const NetworkManager={
         const count=data.count;
         const badge=document.getElementById('network-badge');
         const tabBadge=document.getElementById('req-count-tab');
-        if(count>0){ badge.textContent=count; badge.style.display='block'; tabBadge.textContent=count; tabBadge.style.display='inline-block'; }
-        else { badge.style.display='none'; tabBadge.style.display='none'; }
+        const banner=document.getElementById('connection-alert-banner');
+        const alertCount=document.getElementById('alert-count');
+        if(count>0){
+          badge.textContent=count; badge.style.display='block';
+          tabBadge.textContent=count; tabBadge.style.display='inline-block';
+          if(banner&&alertCount){ alertCount.textContent=count; banner.style.display='block'; }
+        } else {
+          badge.style.display='none'; tabBadge.style.display='none';
+          if(banner) banner.style.display='none';
+        }
         list.innerHTML=data.requests.length?data.requests.map(p=>this.renderPerson(p,'request')).join(''):
           `<div class="empty-state"><h3>No pending requests</h3><p>You're all caught up!</p></div>`;
       }
@@ -1512,11 +1639,11 @@ const NetworkManager={
     let actions='';
     if(type==='request') actions=`<button class="btn btn-success" onclick="NetworkManager.acceptConnection('${person.requestId}')">Accept</button><button class="btn btn-danger" onclick="NetworkManager.declineConnection('${person.requestId}')">Decline</button>`;
     else if(type==='suggested'||type==='search') actions=`<button class="btn btn-primary" onclick="NetworkManager.sendConnection('${person.email}')">Connect</button>`;
-    else if(type==='connected') actions=`<button class="btn btn-secondary" onclick="MessageManager.startChat('${person.email}','${(person.fullName||'').replace(/'/g,'')  }','${(person.trade||'').replace(/'/g,'')}')">Message</button>`;
+    else if(type==='connected') actions=`<button class="btn btn-secondary" onclick="MessageManager.startChat('${person.email}','${(person.fullName||'').replace(/'/g,'')}','${(person.trade||'').replace(/'/g,'')}')">Message</button>`;
     const message=person.message?`<div style="margin-top:6px;padding:8px;background:var(--panel2);border-radius:6px;font-size:13px">"${person.message}"</div>`:'';
     const reason=person.reason?`<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic">${person.reason}</div>`:'';
     return `<div class="person-card">
-      <div class="person-avatar">${person.profileImageUrl?`<img src="${person.profileImageUrl}" alt="${person.fullName}">`  :initials}</div>
+      <div class="person-avatar">${person.profileImageUrl?`<img src="${person.profileImageUrl}" alt="${person.fullName}">`:initials}</div>
       <div class="person-info">
         <div class="person-name">${person.fullName}</div>
         <div class="person-trade">${person.trade}${person.experience?` • ${person.experience} years`:''}</div>
@@ -1538,7 +1665,14 @@ const NetworkManager={
   async acceptConnection(requestId){
     try{
       const data=await apiCall({action:'accept-connection',requestId,email:this.currentUser});
-      if(data.success){ alert('Connection accepted!'); this.loadRequests(); this.loadConnections(); }
+      if(data.success){
+        alert('Connection accepted!');
+        this.loadRequests();
+        this.loadConnections();
+        // Hide banner after accepting
+        const banner=document.getElementById('connection-alert-banner');
+        if(banner) checkPendingConnections();
+      }
       else { alert(data.error||'Failed to accept'); }
     }catch(e){ alert('Failed to accept'); }
   },
@@ -1546,7 +1680,11 @@ const NetworkManager={
     if(!confirm('Decline this request?')) return;
     try{
       const data=await apiCall({action:'decline-connection',requestId,email:this.currentUser});
-      if(data.success){ alert('Request declined'); this.loadRequests(); }
+      if(data.success){
+        alert('Request declined');
+        this.loadRequests();
+        checkPendingConnections();
+      }
       else { alert(data.error||'Failed to decline'); }
     }catch(e){ alert('Failed to decline'); }
   }
@@ -1577,7 +1715,6 @@ const MessageManager={
   get currentUser(){ return localStorage.getItem('userEmail'); },
   currentChat:null,
   messages:JSON.parse(localStorage.getItem('messages')||'{}'),
-
   openMessagesModal(){
     if(!this.currentUser){ alert('Please complete your profile first.'); return; }
     document.getElementById('messages-modal').classList.add('active');
@@ -1662,96 +1799,5 @@ document.addEventListener('DOMContentLoaded',function(){
   if(chatInput) chatInput.addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); MessageManager.sendMessage(); } });
 });
 </script>
-<!-- Sponsor Inquiry Modal -->
-<div class="modal-backdrop" id="sponsor-inquiry-modal">
-  <div class="modal" style="max-width:540px">
-    <div class="modal-header">
-      <h2>Become a Sponsor</h2>
-      <button class="modal-close" onclick="SponsorManager.closeInquiryModal()">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px">
-        <div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;background:var(--panel2)">
-          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Basic</div>
-          <div style="font-size:20px;font-weight:700;color:var(--accent)">$49</div>
-          <div style="font-size:11px;color:var(--muted)">/month</div>
-          <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">Logo + link<br>Standard slot</div>
-        </div>
-        <div style="border:2px solid var(--brand);border-radius:8px;padding:12px;text-align:center;background:rgba(234,106,0,.04)">
-          <div style="font-size:11px;font-weight:600;color:var(--brand);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Featured ⭐</div>
-          <div style="font-size:20px;font-weight:700;color:var(--brand)">$99</div>
-          <div style="font-size:11px;color:var(--muted)">/month</div>
-          <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">Top slot<br>Highlighted card</div>
-        </div>
-        <div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;background:var(--panel2)">
-          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Premium</div>
-          <div style="font-size:20px;font-weight:700;color:var(--accent)">$199</div>
-          <div style="font-size:11px;color:var(--muted)">/month</div>
-          <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">All pages<br>+ AI mentions</div>
-        </div>
-      </div>
-      <form id="sponsor-form">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div class="form-group">
-            <label>Business Name *</label>
-            <input type="text" id="sp-business" class="form-control" placeholder="ABC Electric Co." required>
-          </div>
-          <div class="form-group">
-            <label>Your Name *</label>
-            <input type="text" id="sp-contact" class="form-control" placeholder="Mike Johnson" required>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div class="form-group">
-            <label>Email Address *</label>
-            <input type="email" id="sp-email" class="form-control" placeholder="mike@company.com" required>
-          </div>
-          <div class="form-group">
-            <label>Phone Number</label>
-            <input type="tel" id="sp-phone" class="form-control" placeholder="(414) 555-0100">
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div class="form-group">
-            <label>Industry / Trade</label>
-            <select id="sp-industry" class="form-control">
-              <option value="">Select industry</option>
-              <option>Electrical Supply</option>
-              <option>Plumbing Supply</option>
-              <option>HVAC Equipment</option>
-              <option>Tools & Equipment</option>
-              <option>Safety & PPE</option>
-              <option>Training & Certification</option>
-              <option>Insurance</option>
-              <option>Software / Technology</option>
-              <option>Staffing / Recruiting</option>
-              <option>General Contractor</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Sponsorship Tier</label>
-            <select id="sp-slot" class="form-control">
-              <option value="">I'll discuss with you</option>
-              <option value="Basic — $49/mo">Basic — $49/mo</option>
-              <option value="Featured — $99/mo">Featured — $99/mo (Top slot)</option>
-              <option value="Premium — $199/mo">Premium — $199/mo (All pages)</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Tell us about your business (optional)</label>
-          <textarea id="sp-message" class="form-control" style="min-height:80px" placeholder="What trades do you serve? What are you hoping to promote?"></textarea>
-        </div>
-      </form>
-      <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px">No payment required now — we'll reach out within 1–2 business days to discuss details and get you set up.</p>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="SponsorManager.closeInquiryModal()">Cancel</button>
-      <button class="btn btn-primary" id="sponsor-submit-btn" onclick="SponsorManager.submitInquiry()">Send Inquiry</button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
