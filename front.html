@@ -407,6 +407,33 @@ select.form-control{cursor:pointer}
       </div>
     </div>
 
+    <!-- POSTS FEED -->
+    <div class="card" style="margin-top:24px">
+      <div class="hd">
+        <span>Community Feed</span>
+        <span class="badge">Live</span>
+      </div>
+      <div class="bd">
+        <!-- Create Post Box -->
+        <div id="create-post-box" style="margin-bottom:20px;border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--panel2)">
+          <textarea id="post-content" class="form-control" placeholder="Share something with the LTN community — tips, wins, questions, opportunities..." style="min-height:80px;margin-bottom:10px;resize:none"></textarea>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <div style="font-size:12px;color:var(--muted)">
+              💡 Posts earn you points toward monthly rewards
+            </div>
+            <button class="btn btn-primary" style="padding:8px 20px;font-size:14px" onclick="PostsFeed.createPost()">Post</button>
+          </div>
+        </div>
+        <!-- Posts List -->
+        <div id="posts-container">
+          <div style="text-align:center;padding:20px;color:var(--muted)">Loading community posts...</div>
+        </div>
+        <div style="text-align:center;margin-top:16px">
+          <button id="load-more-posts" class="btn btn-secondary" onclick="PostsFeed.loadMore()" style="display:none">Load More Posts</button>
+        </div>
+      </div>
+    </div>
+
     <!-- POST JOB -->
     <div class="card" style="margin-top:24px">
       <div class="hd">Post a New Job</div>
@@ -464,6 +491,43 @@ select.form-control{cursor:pointer}
           <li>Get matched with projects in your area</li>
         </ul>
         <button class="btn-primary" style="width:100%" onclick="NetworkManager.openNetworkModal()">Join Network</button>
+      </div>
+    </section>
+
+    <!-- REWARDS DASHBOARD -->
+    <section class="card" style="margin-top:20px">
+      <div class="hd">
+        <span>🏆 My Rewards</span>
+        <span class="badge" id="rewards-level-badge">Bronze</span>
+      </div>
+      <div class="bd" id="rewards-dashboard">
+        <div style="text-align:center;padding:20px;color:var(--muted)">Loading rewards...</div>
+      </div>
+    </section>
+
+    <!-- LEADERBOARD -->
+    <section class="card" style="margin-top:20px">
+      <div class="hd">
+        <span>📊 Monthly Leaders</span>
+        <span style="font-size:12px;color:var(--muted);font-weight:400">Top earners this month</span>
+      </div>
+      <div class="bd" id="leaderboard-container">
+        <div style="text-align:center;padding:20px;color:var(--muted)">Loading leaderboard...</div>
+      </div>
+    </section>
+
+    <!-- REFERRAL CARD -->
+    <section class="card" style="margin-top:20px">
+      <div class="hd">💰 Earn $5 Per Referral</div>
+      <div class="bd small">
+        <p style="margin-bottom:12px">Share your referral code and earn <strong>$5</strong> for every new member who joins LTN!</p>
+        <div style="background:var(--panel2);border:2px dashed var(--brand);border-radius:8px;padding:12px;text-align:center;margin-bottom:12px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">YOUR REFERRAL CODE</div>
+          <div id="referral-code-display" style="font-size:22px;font-weight:800;color:var(--brand);letter-spacing:4px">Loading...</div>
+        </div>
+        <button class="btn-primary" style="width:100%;margin-bottom:8px" onclick="copyReferralCode()">Copy Referral Code</button>
+        <button class="btn btn-secondary" style="width:100%;font-size:13px" onclick="shareReferralLink()">Share on Social Media</button>
+        <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">* Rewards subject to LTN Rewards Program terms. Program can be modified or ended at any time.</p>
       </div>
     </section>
 
@@ -753,7 +817,7 @@ select.form-control{cursor:pointer}
 
 <script>
 /* ===== CONFIG ===== */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyUHGtOwfuQqNo199hyMesQarlbOWd-cDGuP44SU1LGVgn5ujbTRqGd2mphMv8AFQPs/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbygN9KMq7ilI4T8hiQT2ibRClK2Q1fZ5kiubTo4Py6Vo3tyKkibP2nljm8kVF6NnB0x/exec";
 
 /* ===== UTILS ===== */
 function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
@@ -1541,6 +1605,11 @@ document.addEventListener('DOMContentLoaded',function(){
 
   loadJobs();
   loadSponsors();
+
+  // FIX: Initialize posts feed, rewards and leaderboard
+  PostsFeed.init();
+  RewardsManager.load();
+  loadLeaderboard();
 });
 
 /* ===== FIX: APPLY TO JOB - now tracks in Google Sheets ===== */
@@ -1571,6 +1640,369 @@ function saveJob(jobTitle){
     alert(`"${jobTitle}" saved to your profile!`);
   } else {
     alert('You already saved this job.');
+  }
+}
+
+/* ===== POSTS FEED ===== */
+const PostsFeed = {
+  offset: 0,
+  limit: 10,
+  total: 0,
+
+  async init() {
+    await this.loadPosts();
+  },
+
+  async createPost() {
+    const email = localStorage.getItem('userEmail');
+    if (!email) { alert('Please sign in to post.'); return; }
+    const content = document.getElementById('post-content').value.trim();
+    if (!content) { alert('Please write something before posting.'); return; }
+    if (content.length > 1000) { alert('Post too long — max 1000 characters.'); return; }
+
+    const btn = document.querySelector('[onclick="PostsFeed.createPost()"]');
+    btn.disabled = true; btn.textContent = 'Posting...';
+    try {
+      const data = await apiCall({ action: 'create-post', email, content });
+      if (data.success) {
+        document.getElementById('post-content').value = '';
+        this.offset = 0;
+        await this.loadPosts();
+        // Update rewards display
+        await RewardsManager.load();
+      } else {
+        alert(data.error || 'Failed to post');
+      }
+    } catch(e) { alert('Failed to post. Please try again.'); }
+    finally { btn.disabled = false; btn.textContent = 'Post'; }
+  },
+
+  async loadPosts(append = false) {
+    const container = document.getElementById('posts-container');
+    if (!append) {
+      this.offset = 0;
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading posts...</div>';
+    }
+    const email = localStorage.getItem('userEmail') || '';
+    try {
+      const data = await apiCall({ action: 'get-posts', email, limit: this.limit, offset: this.offset });
+      if (data.success) {
+        this.total = data.total || 0;
+        if (!append) container.innerHTML = '';
+        if (data.posts && data.posts.length) {
+          data.posts.forEach(post => {
+            const el = document.createElement('div');
+            el.innerHTML = this.renderPost(post);
+            container.appendChild(el.firstChild);
+          });
+          this.offset += data.posts.length;
+        } else if (!append) {
+          container.innerHTML = `<div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+            </svg>
+            <h3>No posts yet</h3>
+            <p>Be the first to post in the community!</p>
+          </div>`;
+        }
+        const loadMoreBtn = document.getElementById('load-more-posts');
+        if (loadMoreBtn) loadMoreBtn.style.display = this.offset < this.total ? 'inline-block' : 'none';
+      }
+    } catch(e) {
+      if (!append) container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load posts</div>';
+    }
+  },
+
+  loadMore() { this.loadPosts(true); },
+
+  renderPost(post) {
+    const initials = (post.fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    const loc = [post.city, post.state].filter(Boolean).join(', ');
+    const when = post.postedAt ? new Date(post.postedAt).toLocaleDateString() : '';
+    const likeBtn = post.hasLiked
+      ? `<button onclick="PostsFeed.unlike('${post.postId}', this)" style="background:var(--brand);color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px">❤️ ${post.likeCount} Liked</button>`
+      : `<button onclick="PostsFeed.like('${post.postId}', this)" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">🤍 ${post.likeCount} Like</button>`;
+
+    return `<div class="post-card" id="post-${post.postId}" style="border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;background:var(--panel);transition:all .2s">
+      <div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0">${initials}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:15px">${post.fullName}</div>
+          <div style="font-size:12px;color:var(--muted)">${post.trade}${loc ? ' • ' + loc : ''} • ${when}</div>
+        </div>
+        ${post.isOwner ? `<button onclick="PostsFeed.deletePost('${post.postId}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px" title="Delete post">🗑</button>` : ''}
+      </div>
+      <p style="margin:0 0 14px;line-height:1.6;font-size:15px">${post.content.replace(/\n/g,'<br>')}</p>
+      ${post.imageUrl ? `<img src="${post.imageUrl}" style="width:100%;border-radius:8px;margin-bottom:12px;max-height:300px;object-fit:cover" alt="Post image">` : ''}
+      <div style="display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--line);align-items:center;flex-wrap:wrap">
+        ${likeBtn}
+        <button onclick="PostsFeed.toggleComments('${post.postId}')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">💬 ${post.commentCount} Comment${post.commentCount !== 1 ? 's' : ''}</button>
+        <button onclick="PostsFeed.sharePost('${post.postId}', '${(post.fullName||'').replace(/'/g,"\\'")}', '${(post.content||'').substring(0,50).replace(/'/g,"\\'")}...')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted)">↗ Share</button>
+      </div>
+      <div id="comments-${post.postId}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
+        <div id="comments-list-${post.postId}"><div style="text-align:center;padding:10px;color:var(--muted);font-size:13px">Loading comments...</div></div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <input type="text" id="comment-input-${post.postId}" class="form-control" placeholder="Write a comment..." style="font-size:13px;padding:8px 12px;min-height:36px">
+          <button onclick="PostsFeed.addComment('${post.postId}')" style="background:var(--brand);color:white;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap">Post</button>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  async like(postId, btn) {
+    const email = localStorage.getItem('userEmail');
+    if (!email) { alert('Please sign in to like posts.'); return; }
+    btn.disabled = true;
+    try {
+      const data = await apiCall({ action: 'like-post', email, postId });
+      if (data.success) {
+        const currentCount = parseInt(btn.textContent.match(/\d+/) || ['0'])[0];
+        btn.innerHTML = `❤️ ${currentCount + 1} Liked`;
+        btn.style.background = 'var(--brand)';
+        btn.style.color = 'white';
+        btn.style.border = 'none';
+        btn.onclick = () => PostsFeed.unlike(postId, btn);
+        await RewardsManager.load();
+      }
+    } catch(e) { console.error(e); }
+    finally { btn.disabled = false; }
+  },
+
+  async unlike(postId, btn) {
+    const email = localStorage.getItem('userEmail');
+    if (!email) return;
+    btn.disabled = true;
+    try {
+      const data = await apiCall({ action: 'unlike-post', email, postId });
+      if (data.success) {
+        const currentCount = parseInt(btn.textContent.match(/\d+/) || ['1'])[0];
+        btn.innerHTML = `🤍 ${Math.max(0, currentCount - 1)} Like`;
+        btn.style.background = 'var(--panel2)';
+        btn.style.color = 'var(--muted)';
+        btn.style.border = '1px solid var(--line)';
+        btn.onclick = () => PostsFeed.like(postId, btn);
+      }
+    } catch(e) { console.error(e); }
+    finally { btn.disabled = false; }
+  },
+
+  async toggleComments(postId) {
+    const section = document.getElementById(`comments-${postId}`);
+    if (section.style.display === 'none') {
+      section.style.display = 'block';
+      await this.loadComments(postId);
+    } else {
+      section.style.display = 'none';
+    }
+  },
+
+  async loadComments(postId) {
+    const container = document.getElementById(`comments-list-${postId}`);
+    try {
+      const data = await apiCall({ action: 'get-comments', postId });
+      if (data.success && data.comments.length) {
+        const email = localStorage.getItem('userEmail') || '';
+        container.innerHTML = data.comments.map(c => {
+          const initials = (c.fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+          const isOwner = email && c.email === email;
+          return `<div style="display:flex;gap:8px;margin-bottom:10px;align-items:flex-start">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px;flex-shrink:0">${initials}</div>
+            <div style="flex:1;background:var(--panel2);border-radius:8px;padding:8px 12px">
+              <div style="font-weight:600;font-size:13px">${c.fullName}</div>
+              <div style="font-size:13px;margin-top:2px;line-height:1.4">${c.commentText}</div>
+            </div>
+            ${isOwner ? `<button onclick="PostsFeed.deleteComment('${c.commentId}','${postId}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:4px">✕</button>` : ''}
+          </div>`;
+        }).join('');
+      } else {
+        container.innerHTML = '<div style="text-align:center;padding:10px;color:var(--muted);font-size:13px">No comments yet — be the first!</div>';
+      }
+    } catch(e) {
+      container.innerHTML = '<div style="text-align:center;padding:10px;color:var(--muted);font-size:13px">Failed to load comments</div>';
+    }
+  },
+
+  async addComment(postId) {
+    const email = localStorage.getItem('userEmail');
+    if (!email) { alert('Please sign in to comment.'); return; }
+    const input = document.getElementById(`comment-input-${postId}`);
+    const text  = input.value.trim();
+    if (!text) return;
+
+    input.disabled = true;
+    try {
+      const data = await apiCall({ action: 'add-comment', email, postId, commentText: text });
+      if (data.success) {
+        input.value = '';
+        await this.loadComments(postId);
+        // Update comment count display
+        const postCard = document.getElementById(`post-${postId}`);
+        if (postCard) {
+          const commentBtn = postCard.querySelector('button[onclick*="toggleComments"]');
+          if (commentBtn) {
+            const match = commentBtn.textContent.match(/\d+/);
+            const count = match ? parseInt(match[0]) + 1 : 1;
+            commentBtn.innerHTML = `💬 ${count} Comment${count !== 1 ? 's' : ''}`;
+          }
+        }
+        await RewardsManager.load();
+      } else {
+        alert(data.error || 'Failed to post comment');
+      }
+    } catch(e) { alert('Failed to post comment'); }
+    finally { input.disabled = false; }
+  },
+
+  async deleteComment(commentId, postId) {
+    const email = localStorage.getItem('userEmail');
+    if (!email) return;
+    if (!confirm('Delete this comment?')) return;
+    try {
+      const data = await apiCall({ action: 'delete-comment', email, commentId });
+      if (data.success) await this.loadComments(postId);
+    } catch(e) { alert('Failed to delete comment'); }
+  },
+
+  async deletePost(postId) {
+    const email = localStorage.getItem('userEmail');
+    if (!email) return;
+    if (!confirm('Delete this post?')) return;
+    try {
+      const data = await apiCall({ action: 'delete-post', email, postId });
+      if (data.success) {
+        const el = document.getElementById(`post-${postId}`);
+        if (el) el.parentElement.remove();
+      }
+    } catch(e) { alert('Failed to delete post'); }
+  },
+
+  sharePost(postId, name, preview) {
+    const url = `https://www.linktradenetwork.com`;
+    const text = `Check out this post from ${name} on LinkTradeNetwork: "${preview}" Join the trades community at ${url}`;
+    if (navigator.share) {
+      navigator.share({ title: 'LTN Community Post', text, url });
+    } else {
+      navigator.clipboard.writeText(text).then(() => alert('Post link copied to clipboard!'));
+    }
+  }
+};
+
+/* ===== REWARDS MANAGER ===== */
+const RewardsManager = {
+  async load() {
+    const email = localStorage.getItem('userEmail');
+    if (!email) return;
+    try {
+      const data = await apiCall({ action: 'get-rewards', email });
+      if (data.success && data.rewards) {
+        this.render(data.rewards);
+      }
+      // Load referral code
+      const refData = await apiCall({ action: 'get-referral-code', email });
+      if (refData.success) {
+        const el = document.getElementById('referral-code-display');
+        if (el) el.textContent = refData.referralCode;
+      }
+    } catch(e) { console.log('Rewards load skipped'); }
+  },
+
+  render(r) {
+    // Update level badge
+    const levelBadge = document.getElementById('rewards-level-badge');
+    if (levelBadge) {
+      levelBadge.textContent = r.level;
+      levelBadge.style.background = r.level === 'Gold' ? '#ffc107' : r.level === 'Silver' ? '#adb5bd' : '#cd7f32';
+      levelBadge.style.color = r.level === 'Gold' ? '#000' : 'white';
+    }
+
+    const dashboard = document.getElementById('rewards-dashboard');
+    if (!dashboard) return;
+
+    const progressPct = r.level === 'Gold' ? 100 : Math.min(100, (r.totalPoints / (r.level === 'Silver' ? 1500 : 500)) * 100);
+    const monthlyDollars = Math.min(r.monthlyPoints / r.pointsPerDollar, r.monthlyCap).toFixed(2);
+
+    dashboard.innerHTML = `
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:32px;font-weight:800;color:var(--brand)">$${monthlyDollars}</div>
+        <div style="font-size:12px;color:var(--muted)">This month's earnings (cap: $${r.monthlyCap})</div>
+      </div>
+
+      <div style="background:var(--panel2);border-radius:8px;padding:12px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+          <span style="font-weight:600">${r.level} Level</span>
+          <span style="color:var(--muted)">${r.totalPoints} pts total</span>
+        </div>
+        <div style="background:var(--line);border-radius:999px;height:8px;overflow:hidden">
+          <div style="background:var(--brand);height:100%;border-radius:999px;width:${progressPct}%;transition:width .5s"></div>
+        </div>
+        ${r.level !== 'Gold' ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">${r.pointsToNextLevel} pts to ${r.nextLevel}</div>` : '<div style="font-size:11px;color:var(--brand);margin-top:4px;font-weight:600">🏆 Max Level Reached!</div>'}
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--panel2);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:var(--accent)">${r.monthlyPoints}</div>
+          <div style="font-size:11px;color:var(--muted)">Monthly Points</div>
+        </div>
+        <div style="background:var(--panel2);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:var(--accent)">${r.referralCount}</div>
+          <div style="font-size:11px;color:var(--muted)">Referrals</div>
+        </div>
+      </div>
+
+      <div style="font-size:11px;color:var(--muted);line-height:1.6;padding:10px;background:var(--panel2);border-radius:8px">
+        <strong>How to earn:</strong><br>
+        50 likes = $1 • New referral = $5 • Post daily • Comment & connect<br>
+        <span style="color:var(--brand);font-weight:600">Monthly cap: $100 + $100 top performer bonus</span>
+      </div>`;
+  }
+};
+
+/* ===== LEADERBOARD ===== */
+async function loadLeaderboard() {
+  const container = document.getElementById('leaderboard-container');
+  try {
+    const data = await apiCall({ action: 'get-leaderboard' });
+    if (data.success && data.leaderboard.length) {
+      container.innerHTML = data.leaderboard.map((member, i) => {
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+        const initials = (member.fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">
+          <div style="font-size:18px;width:24px;text-align:center">${medal}</div>
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;flex-shrink:0">${initials}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${member.fullName}</div>
+            <div style="font-size:11px;color:var(--muted)">${member.monthlyPoints} pts</div>
+          </div>
+          <div style="font-weight:700;color:var(--brand);font-size:14px">$${member.monthlyEarned}</div>
+        </div>`;
+      }).join('') + `<div style="font-size:11px;color:var(--muted);margin-top:10px;padding:8px;background:var(--panel2);border-radius:6px;line-height:1.5">
+        Top performer earns an extra <strong>$100 bonus</strong> at month end!<br>
+        <span style="color:var(--brand)">Program terms may change. See rewards section.</span>
+      </div>`;
+    } else {
+      container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">
+        No activity yet this month.<br>Be the first on the leaderboard!
+      </div>`;
+    }
+  } catch(e) { container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Failed to load leaderboard</div>'; }
+}
+
+/* ===== REFERRAL HELPERS ===== */
+function copyReferralCode() {
+  const code = document.getElementById('referral-code-display').textContent;
+  if (!code || code === 'Loading...') { alert('Please wait for your code to load.'); return; }
+  const text = `Join me on LinkTradeNetwork — the platform built for skilled trade professionals! Use my referral code ${code} when signing up at www.linktradenetwork.com`;
+  navigator.clipboard.writeText(text).then(() => alert('Referral message copied! Paste it anywhere to share.'));
+}
+
+function shareReferralLink() {
+  const code = document.getElementById('referral-code-display').textContent;
+  if (!code || code === 'Loading...') { alert('Please wait for your code to load.'); return; }
+  const text = `Join me on LinkTradeNetwork! The best platform for skilled trade professionals. Use my code ${code} when signing up → www.linktradenetwork.com #trades #lowvoltage #electrician #HVAC #LTN`;
+  if (navigator.share) {
+    navigator.share({ title: 'Join LinkTradeNetwork', text, url: 'https://www.linktradenetwork.com' });
+  } else {
+    navigator.clipboard.writeText(text).then(() => alert('Share text copied! Paste it on LinkedIn, TikTok, or anywhere.'));
   }
 }
 
