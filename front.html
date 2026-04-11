@@ -12,6 +12,19 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Poppins',system-ui,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}
 
+/* ===== AI CHIP BUTTONS ===== */
+.ai-chip{background:#f0f4f8;border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;transition:all .2s;white-space:nowrap}
+.ai-chip:hover{background:var(--brand);color:white;border-color:var(--brand)}
+.ai-msg-user{align-self:flex-end;background:var(--accent);color:white;padding:10px 16px;border-radius:16px 16px 4px 16px;max-width:80%;font-size:14px;line-height:1.5}
+.ai-msg-agent{align-self:flex-start;background:white;border:1px solid var(--line);padding:14px 16px;border-radius:4px 16px 16px 16px;max-width:85%;font-size:14px;line-height:1.6;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.ai-msg-thinking{align-self:flex-start;background:white;border:1px solid var(--line);padding:12px 16px;border-radius:4px 16px 16px 16px;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--brand);animation:ai-bounce .8s infinite}
+.ai-dot:nth-child(2){animation-delay:.15s}
+.ai-dot:nth-child(3){animation-delay:.3s}
+@keyframes ai-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.ai-job-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:8px;transition:all .2s}
+.ai-job-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(234,106,0,.15)}
+
 /* ===== LTN NEWS TICKER ===== */
 .news-ticker{background:#1a1a2e;color:white;padding:0;overflow:hidden;height:34px;display:flex;align-items:center;border-bottom:2px solid var(--brand)}
 .ticker-label{background:var(--brand);color:white;font-size:12px;font-weight:700;padding:0 14px;height:34px;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;letter-spacing:.5px;text-transform:uppercase;gap:6px}
@@ -302,11 +315,11 @@ select.form-control{cursor:pointer}
 
     <div class="search-container">
       <div class="ai-search-wrapper" style="position:relative;">
-        <input type="text" id="ai-search-input" class="form-control" placeholder="Ask LTN AI anything..." style="background:rgba(255,255,255,.15);border:none;color:white;padding-left:35px">
-        <svg id="ai-icon" style="position:absolute;left:10px;top:12px;width:18px;height:18px;opacity:.8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-        <div class="ai-label" style="position:absolute;right:8px;top:12px;font-size:10px;background:var(--brand);color:white;padding:1px 6px;border-radius:10px;opacity:.9;font-weight:600">LTN AI</div>
+        <button onclick="AIAgent.open()" style="background:linear-gradient(135deg,#ea6a00,#c35700);color:white;border:none;border-radius:10px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:44px;white-space:nowrap;box-shadow:0 2px 8px rgba(234,106,0,0.4)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          LTN AI Job Agent
+        </button>
       </div>
-      <div id="ai-results-container" class="ai-results" style="display:none;position:absolute;top:50px;left:0;right:0;background:white;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,.15);z-index:100;max-height:400px;overflow-y:auto"></div>
     </div>
 
     <nav class="nav" id="main-nav">
@@ -440,6 +453,62 @@ select.form-control{cursor:pointer}
           <button id="jobs-prev" class="btn btn-secondary" disabled>Prev</button>
           <button id="jobs-next" class="btn btn-secondary" disabled>Next</button>
           <div class="small" id="jobs-count" style="margin-left:auto;color:var(--muted);align-self:center"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LTN NEWS DAILY — MAIN COLUMN FEATURED -->
+    <div class="card" style="margin-bottom:20px;border-left:4px solid var(--brand)">
+      <div class="hd" style="padding-bottom:10px">
+        <span style="display:flex;align-items:center;gap:8px">
+          <span style="background:var(--brand);color:white;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.5px">LIVE</span>
+          📰 LTN News Daily
+        </span>
+        <span style="font-size:11px;color:var(--muted);font-weight:400">Trades industry</span>
+      </div>
+      <div class="bd" style="padding:0">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+
+          <div style="padding:12px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);cursor:pointer" onclick="window.open('https://www.constructiondive.com','_blank')">
+            <div class="news-category cat-workforce" style="margin-bottom:5px">Workforce</div>
+            <div style="font-size:13px;font-weight:600;line-height:1.4;color:var(--ink)">Skilled trades shortage reaches 3.5M unfilled jobs in 2026</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">2h ago • Construction Dive</div>
+          </div>
+
+          <div style="padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer" onclick="window.open('https://www.bicsi.org','_blank')">
+            <div class="news-category cat-tech" style="margin-bottom:5px">Technology</div>
+            <div style="font-size:13px;font-weight:600;line-height:1.4;color:var(--ink)">Low voltage and smart building systems see record demand</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">4h ago • BICSI</div>
+          </div>
+
+          <div style="padding:12px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);cursor:pointer" onclick="window.open('https://www.electricalcontractor.net','_blank')">
+            <div class="news-category cat-training" style="margin-bottom:5px">Training</div>
+            <div style="font-size:13px;font-weight:600;line-height:1.4;color:var(--ink)">Trade school enrollment up 12% as students pursue debt-free careers</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">6h ago • Electrical Contractor</div>
+          </div>
+
+          <div style="padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer" onclick="window.open('https://www.osha.gov','_blank')">
+            <div class="news-category cat-safety" style="margin-bottom:5px">Safety</div>
+            <div style="font-size:13px;font-weight:600;line-height:1.4;color:var(--ink)">OSHA releases updated low voltage installation guidelines for 2026</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">8h ago • OSHA.gov</div>
+          </div>
+
+          <div style="padding:12px 14px;border-right:1px solid var(--line);cursor:pointer" onclick="window.open('https://www.acca.org','_blank')">
+            <div class="news-category cat-industry" style="margin-bottom:5px">Industry</div>
+            <div style="font-size:13px;font-weight:600;line-height:1.4;color:var(--ink)">HVAC technician salaries up 18% as building automation demand surges</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">10h ago • ACCA</div>
+          </div>
+
+          <div style="padding:12px 14px;cursor:pointer" onclick="window.open('https://www.ibew.org','_blank')">
+            <div class="news-category cat-workforce" style="margin-bottom:5px">Workforce</div>
+            <div style="font-size:13px;font-weight:600;line-height:1.4;color:var(--ink)">IBEW reports electrician wages hit $38/hr average in major metro markets</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">12h ago • IBEW</div>
+          </div>
+
+        </div>
+        <div style="padding:10px 14px;border-top:1px solid var(--line);text-align:center;background:var(--panel2)">
+          <span style="font-size:11px;color:var(--muted)">News curated daily for trade professionals by </span>
+          <span style="font-size:11px;font-weight:700;color:var(--brand)">LinkTradeNetwork</span>
         </div>
       </div>
     </div>
@@ -733,6 +802,38 @@ select.form-control{cursor:pointer}
   </div>
 </div>
 
+<!-- ===== LTN AI JOB AGENT MODAL ===== -->
+<div class="modal-backdrop" id="ai-agent-modal">
+  <div class="modal" style="max-width:680px;height:85vh;display:flex;flex-direction:column">
+    <div class="modal-header" style="background:linear-gradient(135deg,#1a1a2e,#0f3460);color:white;border-radius:12px 12px 0 0">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:16px">LTN AI Job Agent</div>
+          <div style="font-size:11px;opacity:.7">Powered by Claude AI • Built for the trades</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="AIAgent.close()" style="color:white">&times;</button>
+    </div>
+    <div id="ai-agent-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;background:#f8fafc"></div>
+    <div id="ai-agent-chips" style="padding:10px 16px;background:white;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap">
+      <button class="ai-chip" onclick="AIAgent.quickAsk('Find me electrician jobs in Michigan')">Electrician jobs</button>
+      <button class="ai-chip" onclick="AIAgent.quickAsk('Find me low voltage jobs in my state')">Low voltage jobs</button>
+      <button class="ai-chip" onclick="AIAgent.quickAsk('Find me HVAC jobs near me')">HVAC jobs</button>
+      <button class="ai-chip" onclick="AIAgent.quickAsk('Find me plumbing jobs in my state')">Plumbing jobs</button>
+      <button class="ai-chip" onclick="AIAgent.quickAsk('Find me general contractor work in my area')">Contractor work</button>
+    </div>
+    <div style="padding:12px 16px;background:white;border-top:1px solid var(--line);display:flex;gap:10px;align-items:flex-end">
+      <textarea id="ai-agent-input" placeholder="Ask me anything about trade jobs, certifications, salary, or your career..." style="flex:1;min-height:44px;max-height:120px;resize:none;border:2px solid var(--line);border-radius:10px;padding:10px 14px;font-size:14px;font-family:inherit;line-height:1.5" rows="1"></textarea>
+      <button id="ai-agent-send" onclick="AIAgent.send()" style="background:var(--brand);color:white;border:none;border-radius:10px;width:44px;height:44px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Messages Modal -->
 <div class="modal-backdrop" id="messages-modal">
   <div class="modal" style="max-width:700px">
@@ -911,7 +1012,7 @@ select.form-control{cursor:pointer}
 
 <script>
 /* ===== CONFIG ===== */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwki7oz_3fN0g6M-b7nEU8SyV-nfgs8LwfIaNQygL161NLm-vypLiQpb0_TaBi3Ho_m/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyUHGtOwfuQqNo199hyMesQarlbOWd-cDGuP44SU1LGVgn5ujbTRqGd2mphMv8AFQPs/exec";
 
 /* ===== UTILS ===== */
 function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
@@ -1556,58 +1657,174 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 
   /* ===== AI SEARCH ===== */
-  const input=document.getElementById('ai-search-input');
-  const box=document.getElementById('ai-results-container');
+/* ===== LTN AI JOB AGENT ===== */
+const AIAgent = {
+  history: [],
+  isThinking: false,
 
-  function thinking(){ box.style.display='block'; box.innerHTML=`<div class="ai-thinking"><svg style="width:20px;height:20px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg><span>LTN AI is thinking</span><div class="ai-thinking-dots"><span></span><span></span><span></span></div></div>`; }
-
-  function friendlyFallback(query,reason){
-    box.style.display='block';
-    box.innerHTML=`<div class="ai-result"><div class="ai-result-title">LTN AI is temporarily unavailable</div><p class="small" style="color:var(--muted)">${reason}</p><ul style="margin:0 0 8px 18px"><li>Check local licensing requirements and apprenticeship paths.</li><li>Look up prevailing wages for your county and trade.</li><li>Search for nearby union halls or training centers.</li></ul><p class="small" style="color:var(--muted)">Try again in a moment.</p></div>`;
-  }
-
-  async function pingExec(){
-    try{
-      const r=await fetch(WEBAPP_URL,{method:'GET'});
-      if(!r.ok) return{ok:false,code:r.status,html:isHtmlResponse(r)};
-      if(isHtmlResponse(r)) return{ok:false,code:200,html:true};
-      const j=await r.json().catch(()=>null);
-      return{ok:!!j,code:r.status,html:false,body:j};
-    }catch(e){ return{ok:false,code:'NETWORK',html:false,error:String(e)}; }
-  }
-
-  async function aiSearch(query){
-    if(!query.trim()){ box.style.display='none'; return; }
-    thinking();
-    const ping=await pingExec();
-    if(!ping.ok){
-      const diag=ping.html?"Apps Script Web App is not public.":(`Web App unreachable (status: ${ping.code}).`);
-      friendlyFallback(query,diag); return;
+  open() {
+    document.getElementById('ai-agent-modal').classList.add('active');
+    const messages = document.getElementById('ai-agent-messages');
+    if (messages.children.length === 0) {
+      this.history = [];
+      this.greet();
     }
-    const controller=new AbortController();
-    const t=setTimeout(()=>controller.abort(),20000);
-    try{
-      const email=localStorage.getItem('userEmail')||'';
-      const res=await fetch(WEBAPP_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'ai-search',query,email}),signal:controller.signal});
-      clearTimeout(t);
-      if(isHtmlResponse(res)){ friendlyFallback(query,"Apps Script returned HTML."); return; }
-      if(!res.ok){ friendlyFallback(query,`Backend returned HTTP ${res.status}.`); return; }
-      const data=await res.json();
-      if(!data.success){ friendlyFallback(query,data.error||"Unknown backend error."); return; }
-      const ai=data.response||{};
-      box.style.display='block';
-      box.innerHTML=`<div class="ai-result"><div class="ai-result-title">${ai.title||`Results for "${query}"`}</div><p>${ai.content||'No results found.'}</p></div>`;
-    }catch(err){
-      clearTimeout(t);
-      friendlyFallback(query,(err.name==='AbortError')?'Request timed out.':(err.message||'Network error.'));
-    }
-  }
+    setTimeout(() => document.getElementById('ai-agent-input').focus(), 200);
+  },
 
-  const debounced=debounce(q=>aiSearch(q),500);
-  input.addEventListener('input',function(){ debounced(this.value); });
-  input.addEventListener('focus',function(){ if(this.value.trim()) aiSearch(this.value); });
-  input.addEventListener('keydown',e=>{ if(e.key==='Enter'&&input.value.trim()) aiSearch(input.value); if(e.key==='Escape'){box.style.display='none';box.innerHTML='';} });
-  document.addEventListener('click',e=>{ if(!input.contains(e.target)&&!box.contains(e.target)) box.style.display='none'; });
+  close() {
+    document.getElementById('ai-agent-modal').classList.remove('active');
+  },
+
+  greet() {
+    const name = localStorage.getItem('userName') || '';
+    const profile = JSON.parse(localStorage.getItem('ltn_user') || '{}');
+    const trade = profile.trade || '';
+    const greeting = name ? `Hi ${name.split(' ')[0]}!` : 'Hi!';
+
+    let msg = '';
+    if (trade) {
+      msg = `${greeting} I am your LTN Job Agent.\n\nI see you are in **${trade}**. What state are you looking for work in? I will search LTN jobs and find the best opportunities for you right now.`;
+    } else {
+      msg = `${greeting} I am your LTN Job Agent.\n\nTwo quick questions:\n• What is your trade? (electrician, plumber, HVAC, low voltage, etc.)\n• What state are you looking for work in?\n\nI will search the LTN job board and find matches for you.`;
+    }
+
+    this.addAgentMessage(msg);
+  },
+
+  addUserMessage(text) {
+    const div = document.createElement('div');
+    div.className = 'ai-msg-user';
+    div.textContent = text;
+    document.getElementById('ai-agent-messages').appendChild(div);
+    this.scrollToBottom();
+  },
+
+  addAgentMessage(text) {
+    const div = document.createElement('div');
+    div.className = 'ai-msg-agent';
+    div.innerHTML = text
+      .replace(/\n\n/g, '</p><p style="margin:8px 0 0">')
+      .replace(/\n/g, '<br>')
+      .replace(/•/g, '<span style="color:var(--brand);font-weight:700">•</span>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    div.innerHTML = '<p style="margin:0">' + div.innerHTML + '</p>';
+    document.getElementById('ai-agent-messages').appendChild(div);
+    this.scrollToBottom();
+  },
+
+  addThinking() {
+    const div = document.createElement('div');
+    div.className = 'ai-msg-thinking';
+    div.id = 'ai-thinking-indicator';
+    div.innerHTML = '<div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>LTN AI is thinking...</span>';
+    document.getElementById('ai-agent-messages').appendChild(div);
+    this.scrollToBottom();
+  },
+
+  removeThinking() {
+    const el = document.getElementById('ai-thinking-indicator');
+    if (el) el.remove();
+  },
+
+  scrollToBottom() {
+    const msgs = document.getElementById('ai-agent-messages');
+    msgs.scrollTop = msgs.scrollHeight;
+  },
+
+  quickAsk(text) {
+    if (this.isThinking) return;
+    document.getElementById('ai-agent-input').value = text;
+    this.send();
+  },
+
+  async send() {
+    if (this.isThinking) return;
+    const input = document.getElementById('ai-agent-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+    this.addUserMessage(text);
+    this.isThinking = true;
+
+    // Build context-rich query
+    const email    = localStorage.getItem('userEmail') || '';
+    const userName = localStorage.getItem('userName') || '';
+    const profile  = JSON.parse(localStorage.getItem('ltn_user') || '{}');
+
+    let contextQuery = text;
+    if (userName) contextQuery = `[Member: ${userName}] `;
+    if (profile.trade) contextQuery += `[Trade: ${profile.trade}] `;
+    if (email) contextQuery += `[Email: ${email}] `;
+    contextQuery += text;
+
+    // Add conversation history context
+    if (this.history.length > 0) {
+      const recent = this.history.slice(-4).map(h => `${h.role}: ${h.text}`).join('\n');
+      contextQuery = `[Previous conversation:\n${recent}\n]\n\nNew question: ${text}`;
+    }
+
+    this.history.push({ role: 'User', text });
+    this.addThinking();
+
+    try {
+      const sendBtn = document.getElementById('ai-agent-send');
+      sendBtn.disabled = true;
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 25000);
+
+      const res = await fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'ai-search', query: contextQuery, email }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeout);
+      const data = await res.json();
+      this.removeThinking();
+
+      if (data.success && data.response) {
+        const reply = data.response.content || 'I could not find an answer. Please try rephrasing your question.';
+        this.addAgentMessage(reply);
+        this.history.push({ role: 'Agent', text: reply });
+      } else {
+        this.addAgentMessage('I am having trouble connecting right now. Please try again in a moment.');
+      }
+    } catch(err) {
+      this.removeThinking();
+      if (err.name === 'AbortError') {
+        this.addAgentMessage('That took too long to respond. Please try a shorter question.');
+      } else {
+        this.addAgentMessage('Connection error. Please check your internet and try again.');
+      }
+    }
+
+    this.isThinking = false;
+    document.getElementById('ai-agent-send').disabled = false;
+    document.getElementById('ai-agent-input').focus();
+  }
+};
+
+// Auto-resize textarea
+document.addEventListener('DOMContentLoaded', function() {
+  const input = document.getElementById('ai-agent-input');
+  if (input) {
+    input.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        AIAgent.send();
+      }
+    });
+  }
+});
 
   window.storeUserEmail=function(email,name){ 
     if(email&&typeof email==='string') localStorage.setItem('userEmail',email); 
