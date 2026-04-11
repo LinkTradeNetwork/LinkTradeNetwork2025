@@ -417,9 +417,19 @@ select.form-control{cursor:pointer}
         <!-- Create Post Box -->
         <div id="create-post-box" style="margin-bottom:20px;border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--panel2)">
           <textarea id="post-content" class="form-control" placeholder="Share something with the LTN community — tips, wins, questions, opportunities..." style="min-height:80px;margin-bottom:10px;resize:none"></textarea>
+          <!-- Image Preview -->
+          <div id="post-image-preview" style="display:none;margin-bottom:10px;position:relative">
+            <img id="post-image-preview-img" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:1px solid var(--line)" alt="Preview">
+            <button onclick="PostsFeed.removeImage()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center">✕</button>
+          </div>
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-            <div style="font-size:12px;color:var(--muted)">
-              💡 Posts earn you points toward monthly rewards
+            <div style="display:flex;align-items:center;gap:10px">
+              <label for="post-image-input" style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--muted);font-size:13px;font-weight:500;transition:all .2s">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                Add Photo
+              </label>
+              <input type="file" id="post-image-input" accept="image/*" style="display:none" onchange="PostsFeed.handleImageSelect(this.files[0])">
+              <div style="font-size:12px;color:var(--muted)">💡 Refer members to earn $5 each</div>
             </div>
             <button class="btn btn-primary" style="padding:8px 20px;font-size:14px" onclick="PostsFeed.createPost()">Post</button>
           </div>
@@ -497,19 +507,18 @@ select.form-control{cursor:pointer}
     <!-- REWARDS DASHBOARD -->
     <section class="card" style="margin-top:20px">
       <div class="hd">
-        <span>🏆 My Rewards</span>
-        <span class="badge" id="rewards-level-badge">Bronze</span>
+        <span>💰 My Rewards</span>
       </div>
       <div class="bd" id="rewards-dashboard">
-        <div style="text-align:center;padding:20px;color:var(--muted)">Loading rewards...</div>
+        <div style="text-align:center;padding:20px;color:var(--muted)">Sign in to see your rewards</div>
       </div>
     </section>
 
     <!-- LEADERBOARD -->
     <section class="card" style="margin-top:20px">
       <div class="hd">
-        <span>📊 Monthly Leaders</span>
-        <span style="font-size:12px;color:var(--muted);font-weight:400">Top earners this month</span>
+        <span>🏆 Monthly Leaders</span>
+        <span style="font-size:12px;color:var(--muted);font-weight:400">Top referrers</span>
       </div>
       <div class="bd" id="leaderboard-container">
         <div style="text-align:center;padding:20px;color:var(--muted)">Loading leaderboard...</div>
@@ -518,16 +527,16 @@ select.form-control{cursor:pointer}
 
     <!-- REFERRAL CARD -->
     <section class="card" style="margin-top:20px">
-      <div class="hd">💰 Earn $5 Per Referral</div>
+      <div class="hd">🔗 Refer & Earn $5</div>
       <div class="bd small">
-        <p style="margin-bottom:12px">Share your referral code and earn <strong>$5</strong> for every new member who joins LTN!</p>
+        <p style="margin-bottom:12px">Share your referral code — earn <strong>$5</strong> for every new member who completes their profile! Cap: <strong>$50/month</strong>.</p>
         <div style="background:var(--panel2);border:2px dashed var(--brand);border-radius:8px;padding:12px;text-align:center;margin-bottom:12px">
           <div style="font-size:11px;color:var(--muted);margin-bottom:4px">YOUR REFERRAL CODE</div>
-          <div id="referral-code-display" style="font-size:22px;font-weight:800;color:var(--brand);letter-spacing:4px">Loading...</div>
+          <div id="referral-code-display" style="font-size:22px;font-weight:800;color:var(--brand);letter-spacing:4px">Sign in</div>
         </div>
-        <button class="btn-primary" style="width:100%;margin-bottom:8px" onclick="copyReferralCode()">Copy Referral Code</button>
-        <button class="btn btn-secondary" style="width:100%;font-size:13px" onclick="shareReferralLink()">Share on Social Media</button>
-        <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">* Rewards subject to LTN Rewards Program terms. Program can be modified or ended at any time.</p>
+        <button class="btn-primary" style="width:100%;margin-bottom:8px;padding:10px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:14px" onclick="copyReferralCode()">📋 Copy Referral Code</button>
+        <button class="btn btn-secondary" style="width:100%;font-size:13px" onclick="shareReferralLink()">↗ Share on Social Media</button>
+        <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">Paid via PayPal on the last day of each month. Min $10 payout. Program may be modified or ended at any time.</p>
       </div>
     </section>
 
@@ -817,7 +826,7 @@ select.form-control{cursor:pointer}
 
 <script>
 /* ===== CONFIG ===== */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwJyQF8jhl2jeeZFhNuXNUoeJ-1PeSXONljD_9cafSJ68QVvttcdVzY8j4BsD2VunmD/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyUHGtOwfuQqNo199hyMesQarlbOWd-cDGuP44SU1LGVgn5ujbTRqGd2mphMv8AFQPs/exec";
 
 /* ===== UTILS ===== */
 function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
@@ -1648,27 +1657,65 @@ const PostsFeed = {
   offset: 0,
   limit: 10,
   total: 0,
+  currentImageData: null,
 
   async init() {
     await this.loadPosts();
+  },
+
+  handleImageSelect(file) {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
+    if (file.size > 5 * 1024 * 1024) { alert('Image too large — please use an image under 5MB.'); return; }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 800;
+        let w = img.width, h = img.height;
+        if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+        else        { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.75);
+        this.currentImageData = compressed;
+        document.getElementById('post-image-preview-img').src = compressed;
+        document.getElementById('post-image-preview').style.display = 'block';
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  },
+
+  removeImage() {
+    this.currentImageData = null;
+    document.getElementById('post-image-preview').style.display = 'none';
+    document.getElementById('post-image-preview-img').src = '';
+    document.getElementById('post-image-input').value = '';
   },
 
   async createPost() {
     const email = localStorage.getItem('userEmail');
     if (!email) { alert('Please sign in to post.'); return; }
     const content = document.getElementById('post-content').value.trim();
-    if (!content) { alert('Please write something before posting.'); return; }
+    if (!content && !this.currentImageData) { alert('Please write something or add a photo.'); return; }
     if (content.length > 1000) { alert('Post too long — max 1000 characters.'); return; }
 
     const btn = document.querySelector('[onclick="PostsFeed.createPost()"]');
     btn.disabled = true; btn.textContent = 'Posting...';
     try {
-      const data = await apiCall({ action: 'create-post', email, content });
+      const data = await apiCall({
+        action: 'create-post',
+        email,
+        content,
+        imageUrl: this.currentImageData || ''
+      });
       if (data.success) {
         document.getElementById('post-content').value = '';
+        this.removeImage();
         this.offset = 0;
         await this.loadPosts();
-        // Update rewards display
         await RewardsManager.load();
       } else {
         alert(data.error || 'Failed to post');
@@ -1894,10 +1941,7 @@ const RewardsManager = {
     if (!email) return;
     try {
       const data = await apiCall({ action: 'get-rewards', email });
-      if (data.success && data.rewards) {
-        this.render(data.rewards);
-      }
-      // Load referral code
+      if (data.success && data.rewards) this.render(data.rewards);
       const refData = await apiCall({ action: 'get-referral-code', email });
       if (refData.success) {
         const el = document.getElementById('referral-code-display');
@@ -1907,53 +1951,80 @@ const RewardsManager = {
   },
 
   render(r) {
-    // Update level badge
-    const levelBadge = document.getElementById('rewards-level-badge');
-    if (levelBadge) {
-      levelBadge.textContent = r.level;
-      levelBadge.style.background = r.level === 'Gold' ? '#ffc107' : r.level === 'Silver' ? '#adb5bd' : '#cd7f32';
-      levelBadge.style.color = r.level === 'Gold' ? '#000' : 'white';
-    }
+    const badge = document.getElementById('rewards-level-badge');
+    if (badge) { badge.textContent = ''; badge.style.display = 'none'; }
 
     const dashboard = document.getElementById('rewards-dashboard');
     if (!dashboard) return;
 
-    const progressPct = r.level === 'Gold' ? 100 : Math.min(100, (r.totalPoints / (r.level === 'Silver' ? 1500 : 500)) * 100);
-    const monthlyDollars = Math.min(r.monthlyPoints / r.pointsPerDollar, r.monthlyCap).toFixed(2);
+    const monthly   = Number(r.monthlyEarned   || 0);
+    const total     = Number(r.totalEarned     || 0);
+    const refs      = Number(r.monthlyReferrals || 0);
+    const totalRefs = Number(r.totalReferrals  || 0);
+    const cap       = Number(r.monthlyCap      || 50);
+    const pct       = Math.min(100, Math.round((monthly / cap) * 100));
+    const paypal    = String(r.paypalEmail     || '');
+    const status    = String(r.paymentStatus   || 'No earnings yet');
 
     dashboard.innerHTML = `
       <div style="text-align:center;margin-bottom:16px">
-        <div style="font-size:32px;font-weight:800;color:var(--brand)">$${monthlyDollars}</div>
-        <div style="font-size:12px;color:var(--muted)">This month's earnings (cap: $${r.monthlyCap})</div>
+        <div style="font-size:36px;font-weight:800;color:var(--brand)">$${monthly.toFixed(2)}</div>
+        <div style="font-size:12px;color:var(--muted)">This month's earnings</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Monthly cap: $${cap} • Paid via PayPal last day of month</div>
       </div>
-
       <div style="background:var(--panel2);border-radius:8px;padding:12px;margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
-          <span style="font-weight:600">${r.level} Level</span>
-          <span style="color:var(--muted)">${r.totalPoints} pts total</span>
+          <span style="font-weight:600">Monthly Progress</span>
+          <span style="color:var(--muted)">${refs} / ${Math.round(cap/5)} referrals</span>
         </div>
-        <div style="background:var(--line);border-radius:999px;height:8px;overflow:hidden">
-          <div style="background:var(--brand);height:100%;border-radius:999px;width:${progressPct}%;transition:width .5s"></div>
+        <div style="background:var(--line);border-radius:999px;height:10px;overflow:hidden">
+          <div style="background:var(--brand);height:100%;border-radius:999px;width:${pct}%;transition:width .5s"></div>
         </div>
-        ${r.level !== 'Gold' ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">${r.pointsToNextLevel} pts to ${r.nextLevel}</div>` : '<div style="font-size:11px;color:var(--brand);margin-top:4px;font-weight:600">🏆 Max Level Reached!</div>'}
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">${pct}% of monthly cap reached</div>
       </div>
-
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
         <div style="background:var(--panel2);border-radius:8px;padding:10px;text-align:center">
-          <div style="font-size:20px;font-weight:700;color:var(--accent)">${r.monthlyPoints}</div>
-          <div style="font-size:11px;color:var(--muted)">Monthly Points</div>
+          <div style="font-size:22px;font-weight:700;color:var(--accent)">${refs}</div>
+          <div style="font-size:11px;color:var(--muted)">Referrals This Month</div>
         </div>
         <div style="background:var(--panel2);border-radius:8px;padding:10px;text-align:center">
-          <div style="font-size:20px;font-weight:700;color:var(--accent)">${r.referralCount}</div>
-          <div style="font-size:11px;color:var(--muted)">Referrals</div>
+          <div style="font-size:22px;font-weight:700;color:var(--accent)">$${total.toFixed(2)}</div>
+          <div style="font-size:11px;color:var(--muted)">All-Time Earned</div>
         </div>
       </div>
-
+      <div style="background:var(--panel2);border-radius:8px;padding:10px;margin-bottom:12px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600">Payment Status</div>
+        <div style="font-size:13px;color:${status==='Pending Payment'?'#10b981':status.startsWith('Paid')?'#3d5a80':'var(--muted)'};font-weight:600">${status}</div>
+        ${paypal ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">PayPal: ${paypal}</div>` : `<div style="font-size:11px;color:var(--brand);margin-top:6px;cursor:pointer;font-weight:600" onclick="RewardsManager.showPaypalForm()">⚠️ Add your PayPal email to get paid</div>`}
+      </div>
+      <div id="paypal-form-box" style="display:none;background:#fff9f0;border:1px solid var(--brand);border-radius:8px;padding:12px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--brand)">Add PayPal Email</div>
+        <input type="email" id="paypal-email-input" class="form-control" placeholder="your@paypal.com" style="margin-bottom:8px;font-size:13px">
+        <button class="btn btn-primary" style="width:100%;padding:8px;font-size:13px" onclick="RewardsManager.savePaypal()">Save PayPal Email</button>
+      </div>
       <div style="font-size:11px;color:var(--muted);line-height:1.6;padding:10px;background:var(--panel2);border-radius:8px">
-        <strong>How to earn:</strong><br>
-        50 likes = $1 • New referral = $5 • Post daily • Comment & connect<br>
-        <span style="color:var(--brand);font-weight:600">Monthly cap: $100 + $100 top performer bonus</span>
+        <strong>How to earn:</strong> Refer a trade professional → they complete their profile → you earn <strong>$5</strong><br>
+        <span style="color:var(--brand);font-weight:600">Cap: $50/month • Min payout: $10 • Paid via PayPal</span>
       </div>`;
+  },
+
+  showPaypalForm() {
+    const box = document.getElementById('paypal-form-box');
+    if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  },
+
+  async savePaypal() {
+    const email       = localStorage.getItem('userEmail');
+    const paypalEmail = document.getElementById('paypal-email-input').value.trim();
+    if (!email || !paypalEmail) { alert('Please enter your PayPal email.'); return; }
+    try {
+      const data = await apiCall({ action: 'save-payment-info', email, paypalEmail });
+      if (data.success) {
+        alert('PayPal email saved! You will receive payments on the last day of each month.');
+        document.getElementById('paypal-form-box').style.display = 'none';
+        await this.load();
+      } else { alert(data.error || 'Failed to save'); }
+    } catch(e) { alert('Failed to save PayPal email'); }
   }
 };
 
@@ -1962,26 +2033,26 @@ async function loadLeaderboard() {
   const container = document.getElementById('leaderboard-container');
   try {
     const data = await apiCall({ action: 'get-leaderboard' });
-    if (data.success && data.leaderboard.length) {
+    if (data.success && data.leaderboard && data.leaderboard.length) {
       container.innerHTML = data.leaderboard.map((member, i) => {
-        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+        const medal    = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
         const initials = (member.fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
         return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">
           <div style="font-size:18px;width:24px;text-align:center">${medal}</div>
           <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;flex-shrink:0">${initials}</div>
           <div style="flex:1;min-width:0">
             <div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${member.fullName}</div>
-            <div style="font-size:11px;color:var(--muted)">${member.monthlyPoints} pts</div>
+            <div style="font-size:11px;color:var(--muted)">${member.monthlyReferrals} referral${member.monthlyReferrals !== 1 ? 's' : ''} this month</div>
           </div>
-          <div style="font-weight:700;color:var(--brand);font-size:14px">$${member.monthlyEarned}</div>
+          <div style="font-weight:700;color:var(--brand);font-size:14px">$${Number(member.monthlyEarned||0).toFixed(2)}</div>
         </div>`;
       }).join('') + `<div style="font-size:11px;color:var(--muted);margin-top:10px;padding:8px;background:var(--panel2);border-radius:6px;line-height:1.5">
-        Top performer earns an extra <strong>$100 bonus</strong> at month end!<br>
-        <span style="color:var(--brand)">Program terms may change. See rewards section.</span>
+        $5 per referral who completes their profile • $50 cap/month<br>
+        <span style="color:var(--brand)">Paid via PayPal on the last day of each month</span>
       </div>`;
     } else {
       container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">
-        No activity yet this month.<br>Be the first on the leaderboard!
+        No referrals yet this month.<br>Share your code and be first on the board!
       </div>`;
     }
   } catch(e) { container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Failed to load leaderboard</div>'; }
