@@ -655,58 +655,6 @@ select.form-control{cursor:pointer}
     </section>
 
     <section class="card" style="margin-top:20px">
-    <!-- LTN NEWS DAILY SIDEBAR -->
-    <section class="card" style="margin-top:20px">
-      <div class="hd">
-        <span>📰 LTN News Daily</span>
-        <span style="font-size:11px;color:var(--muted);font-weight:400">Trades industry</span>
-      </div>
-      <div class="bd" id="ltn-news-sidebar" style="padding:0 4px">
-
-        <div class="news-item">
-          <div class="news-category cat-workforce">Workforce</div>
-          <div class="news-item-title" onclick="window.open('https://www.constructiondive.com','_blank')">Skilled trades shortage reaches 3.5M unfilled jobs nationwide in 2026</div>
-          <div class="news-item-meta">2h ago • Construction Dive</div>
-        </div>
-
-        <div class="news-item">
-          <div class="news-category cat-tech">Technology</div>
-          <div class="news-item-title" onclick="window.open('https://www.bicsi.org','_blank')">Low voltage and smart building systems see record demand in commercial projects</div>
-          <div class="news-item-meta">4h ago • BICSI</div>
-        </div>
-
-        <div class="news-item">
-          <div class="news-category cat-training">Training</div>
-          <div class="news-item-title" onclick="window.open('https://www.electricalcontractor.net','_blank')">Trade school enrollment rises 12% as students pursue debt-free career paths</div>
-          <div class="news-item-meta">6h ago • Electrical Contractor</div>
-        </div>
-
-        <div class="news-item">
-          <div class="news-category cat-safety">Safety</div>
-          <div class="news-item-title" onclick="window.open('https://www.osha.gov','_blank')">OSHA releases updated low voltage installation guidelines for 2026</div>
-          <div class="news-item-meta">8h ago • OSHA.gov</div>
-        </div>
-
-        <div class="news-item">
-          <div class="news-category cat-industry">Industry</div>
-          <div class="news-item-title" onclick="window.open('https://www.acca.org','_blank')">HVAC technician salaries up 18% as building automation demand surges</div>
-          <div class="news-item-meta">10h ago • ACCA</div>
-        </div>
-
-        <div class="news-item">
-          <div class="news-category cat-workforce">Workforce</div>
-          <div class="news-item-title" onclick="window.open('https://www.ibew.org','_blank')">IBEW reports electrician wages hit $38/hr average in major metro markets</div>
-          <div class="news-item-meta">12h ago • IBEW</div>
-        </div>
-
-        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line);text-align:center">
-          <span style="font-size:11px;color:var(--muted)">News curated for trade professionals by </span>
-          <span style="font-size:11px;font-weight:700;color:var(--brand)">LinkTradeNetwork</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="card" style="margin-top:20px">
       <div class="hd">Upcoming Events</div>
       <div class="bd small">
         <div style="margin-bottom:15px"><div style="font-weight:600">BICSI Spring Conference</div><div style="font-size:13px">May 15, 2026 • 9:00 AM</div><div style="color:var(--muted);font-size:13px">Tampa Convention Center</div></div>
@@ -1665,7 +1613,7 @@ const AIAgent = {
 
   open() {
     const panel = document.getElementById('ai-agent-panel');
-    panel.style.display = 'flex';
+    panel.style.cssText = 'display:flex;position:fixed;bottom:0;right:20px;width:400px;height:560px;background:white;border-radius:16px 16px 0 0;box-shadow:0 -4px 30px rgba(0,0,0,.2);z-index:9999;flex-direction:column;overflow:hidden';
     const messages = document.getElementById('ai-agent-messages');
     if (messages.children.length === 0) {
       this.history = [];
