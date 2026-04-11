@@ -1,7 +1,7 @@
 <!-- LinkTradeNetwork API and UI Scripts -->
 <script>
 // ===== API CONFIG =====
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJyQF8jhl2jeeZFhNuXNUoeJ-1PeSXONljD_9cafSJ68QVvttcdVzY8j4BsD2VunmD/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyC3eMVpKLaqM4mh8AwQ2Oy5jyZcKIw8TptDafdzExTx_af8iOMaZneyny9YheRQwo/exec';
 // No custom headers -> avoids CORS preflight on Apps Script
 async function postJSON(data) {
   try {
