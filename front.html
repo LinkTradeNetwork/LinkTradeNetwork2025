@@ -1503,7 +1503,10 @@ document.addEventListener('DOMContentLoaded',function(){
   input.addEventListener('keydown',e=>{ if(e.key==='Enter'&&input.value.trim()) aiSearch(input.value); if(e.key==='Escape'){box.style.display='none';box.innerHTML='';} });
   document.addEventListener('click',e=>{ if(!input.contains(e.target)&&!box.contains(e.target)) box.style.display='none'; });
 
-  window.storeUserEmail=function(email){ if(email&&typeof email==='string') localStorage.setItem('userEmail',email); };
+  window.storeUserEmail=function(email,name){ 
+    if(email&&typeof email==='string') localStorage.setItem('userEmail',email); 
+    if(name&&typeof name==='string') localStorage.setItem('userName',name);
+  };
 
   /* ===== FIX: AUTO CHECK NOTIFICATIONS ON PAGE LOAD ===== */
   // Check for pending connection requests when page loads
@@ -2038,19 +2041,30 @@ async function loadLeaderboard() {
 /* ===== REFERRAL HELPERS ===== */
 function copyReferralCode() {
   const code = document.getElementById('referral-code-display').textContent;
-  if (!code || code === 'Loading...') { alert('Please wait for your code to load.'); return; }
-  const text = `Join me on LinkTradeNetwork — the platform built for skilled trade professionals! Use my referral code ${code} when signing up at www.linktradenetwork.com`;
-  navigator.clipboard.writeText(text).then(() => alert('Referral message copied! Paste it anywhere to share.'));
+  if (!code || code === 'Sign in' || code === 'Loading...') { alert('Please sign in first to get your referral code.'); return; }
+  const name = localStorage.getItem('userName') || localStorage.getItem('userEmail') || 'A trade professional';
+  const text =
+    `${name} invited you to join LinkTradeNetwork — the platform built for skilled trade professionals!\n\n` +
+    `Use referral code: ${code}\n\n` +
+    `Sign up free at: www.linktradenetwork.com\n\n` +
+    `LinkTradeNetwork connects electricians, plumbers, HVAC techs, low voltage specialists, and contractors with jobs and opportunities across the USA.`;
+  navigator.clipboard.writeText(text).then(() => alert('Referral message copied!\n\nPaste it in a text, email, or social media post.'));
 }
 
 function shareReferralLink() {
   const code = document.getElementById('referral-code-display').textContent;
-  if (!code || code === 'Loading...') { alert('Please wait for your code to load.'); return; }
-  const text = `Join me on LinkTradeNetwork! The best platform for skilled trade professionals. Use my code ${code} when signing up → www.linktradenetwork.com #trades #lowvoltage #electrician #HVAC #LTN`;
+  if (!code || code === 'Sign in' || code === 'Loading...') { alert('Please sign in first to get your referral code.'); return; }
+  const name = localStorage.getItem('userName') || localStorage.getItem('userEmail') || 'A trade professional';
+  const text =
+    `${name} invited you to join LinkTradeNetwork!\n\n` +
+    `The free platform built for skilled trade professionals — electricians, plumbers, HVAC, low voltage, contractors and more.\n\n` +
+    `Use referral code: ${code}\n` +
+    `Sign up at: www.linktradenetwork.com\n\n` +
+    `#trades #electrician #plumber #HVAC #lowvoltage #contractor #LTN`;
   if (navigator.share) {
     navigator.share({ title: 'Join LinkTradeNetwork', text, url: 'https://www.linktradenetwork.com' });
   } else {
-    navigator.clipboard.writeText(text).then(() => alert('Share text copied! Paste it on LinkedIn, TikTok, or anywhere.'));
+    navigator.clipboard.writeText(text).then(() => alert('Share message copied! Paste it on LinkedIn, Facebook, TikTok, or anywhere.'));
   }
 }
 
