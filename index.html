@@ -197,6 +197,43 @@
   .agree a:hover{
     text-decoration:underline;
   }
+  .referral-box{
+    margin-top:14px;
+    background:#fff9f0;
+    border:1px dashed var(--brand);
+    border-radius:12px;
+    padding:12px 14px;
+  }
+  .referral-box label{
+    margin:0 0 6px;
+    font-size:13px;
+    color:var(--brand);
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .referral-box input{
+    background:#ffffff;
+    border:2px solid #fcd9b6;
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:15px;
+    letter-spacing:3px;
+    font-weight:700;
+    min-height:44px;
+    text-transform:uppercase;
+  }
+  .referral-box input:focus{
+    border-color:var(--brand);
+    box-shadow:0 0 0 3px rgba(234,106,0,0.15);
+  }
+  .referral-hint{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:5px;
+    font-weight:500;
+  }
   button{
     width:100%;
     margin-top:20px;
@@ -269,6 +306,7 @@
     color:var(--ink);
     padding:0;
     min-height:auto;
+    letter-spacing:0;
   }
   .otp-inputs input:focus{
     border-color:var(--brand);
@@ -431,6 +469,22 @@
       </div>
       <label>Email Address</label>
       <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+
+      <!-- ===== REFERRAL CODE FIELD ===== -->
+      <div class="referral-box">
+        <label>🔗 Referral Code <span style="font-size:11px;font-weight:500;color:var(--muted)">(optional)</span></label>
+        <input
+          id="referralCodeInput"
+          type="text"
+          placeholder="e.g. LTNFRANP144"
+          maxlength="20"
+          autocomplete="off"
+          oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+        />
+        <div class="referral-hint">Have a referral code? Enter it here and the member who invited you earns $5!</div>
+      </div>
+      <!-- ===== END REFERRAL CODE FIELD ===== -->
+
       <label class="agree">
         <input id="consent" type="checkbox">
         <span>I agree to the <a href="/terms.html" target="_blank">Terms &amp; Conditions</a></span>
@@ -472,7 +526,6 @@
 // ===== API CONFIG =====
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyC3eMVpKLaqM4mh8AwQ2Oy5jyZcKIw8TptDafdzExTx_af8iOMaZneyny9YheRQwo/exec";
 
-// No custom headers -> avoids CORS preflight on Apps Script
 async function postJSON(data) {
   try {
     const res = await fetch(APPS_SCRIPT_URL, {
@@ -492,24 +545,9 @@ async function postJSON(data) {
   }
 }
 
-// Optional helper functions
-function signup({ name, email, consent, userAgent }) {
-  return postJSON({ action: 'signup', name, email, consent, userAgent });
-}
-function verify({ email, code }) {
-  return postJSON({ action: 'verify', email, code });
-}
-function resend({ email, name, userAgent }) {
-  return postJSON({ action: 'resend', email, name, userAgent });
-}
-function signin({ email, userAgent }) {
-  return postJSON({ action: 'signin', email, userAgent });
-}
-
 const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 
-// Helper to show/hide messages
 function showMsg(el, text, type) {
   el.textContent = text;
   el.className = `msg ${type} show`;
@@ -551,13 +589,15 @@ tabSignin.onclick = () => {
 const joinBtn=$('#joinBtn'), joinMsg=$('#joinMsg');
 const otpBox=$('#otpStep'), otpMsg=$('#otpMsg'), otpEmail=$('#otpEmail');
 const verifyBtn=$('#verifyBtn'), resendBtn=$('#resendBtn');
-const firstNameInput=$('#firstName'), lastNameInput=$('#lastName'), emailInput=$('#email'), consent=$('#consent');
+const firstNameInput=$('#firstName'), lastNameInput=$('#lastName');
+const emailInput=$('#email'), consent=$('#consent');
+const referralCodeInput=$('#referralCodeInput');
 const codeInputs=$$('#otpStep input');
 
 // Sign In elements
 const signinEmail=$('#signinEmail'), signinBtn=$('#signinBtn'), signinMsg=$('#signinMsg');
 
-let currentEmail='', currentFirstName='', currentLastName='';
+let currentEmail='', currentFirstName='', currentLastName='', currentRefCode='';
 
 function code(){return codeInputs.map(i=>i.value).join('');}
 
@@ -572,7 +612,6 @@ codeInputs.forEach((inp,i)=>{
       codeInputs[i-1].focus();
     }
   });
-  // Paste handling
   inp.addEventListener('paste',(e)=>{
     e.preventDefault();
     const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'');
@@ -587,15 +626,15 @@ codeInputs.forEach((inp,i)=>{
 
 // Sign Up: request code
 joinBtn.onclick=async()=>{
-  const firstName=(firstNameInput.value||"").trim();
-  const lastName=(lastNameInput.value||"").trim();
-  const email=(emailInput.value||"").trim().toLowerCase();
+  const firstName=(firstNameInput.value||'').trim();
+  const lastName=(lastNameInput.value||'').trim();
+  const email=(emailInput.value||'').trim().toLowerCase();
+  const refCode=(referralCodeInput.value||'').trim().toUpperCase();
   
   if(!firstName||!lastName||!email){
     showMsg(joinMsg, 'Please fill in all fields', 'err');
     return;
   }
-  
   if(!consent.checked){
     showMsg(joinMsg, 'Please agree to the Terms & Conditions', 'err');
     return;
@@ -607,28 +646,29 @@ joinBtn.onclick=async()=>{
   const fullName = `${firstName} ${lastName}`;
   
   try{
-    const r = await signup({
+    const r = await postJSON({
+      action: 'signup',
       name: fullName,
       email: email,
       consent: true,
-      userAgent: navigator.userAgent
+      userAgent: navigator.userAgent,
+      referralCode: refCode   // ← sends referral code to backend
     });
     
     if(r.success){
-      currentEmail=email;
-      currentFirstName=firstName;
-      currentLastName=lastName;
-      otpEmail.textContent=email;
+      currentEmail     = email;
+      currentFirstName = firstName;
+      currentLastName  = lastName;
+      currentRefCode   = refCode;
+      otpEmail.textContent = email;
       otpBox.classList.add('show');
       hideMsg(joinMsg);
       codeInputs[0].focus();
-      
-      // Store email for later use
       localStorage.setItem('userEmail', email);
-    }else{
-      throw new Error(r.error||'Failed to send code');
+    } else {
+      throw new Error(r.error || 'Failed to send code');
     }
-  }catch(e){
+  } catch(e){
     showMsg(joinMsg, e.message, 'err');
   }
   
@@ -649,31 +689,40 @@ verifyBtn.onclick=async()=>{
   
   try{
     const r=await postJSON({
-      action:'verify',
-      email:currentEmail,
-      code:c
+      action: 'verify',
+      email: currentEmail,
+      code: c
     });
     
     if(r.success){
+      // Save user info including name for referral messages
+      const userName = (r.user && r.user.name) || `${currentFirstName} ${currentLastName}`;
       localStorage.setItem('ltn_user', JSON.stringify({
         firstName: currentFirstName,
         lastName:  currentLastName,
-        name:      `${currentFirstName} ${currentLastName}`,
+        name:      userName,
         email:     currentEmail
       }));
-      
+      localStorage.setItem('userEmail', currentEmail);
+      localStorage.setItem('userName', userName);
+
+      // Show referral code feedback if one was entered
+      if(currentRefCode){
+        showMsg(otpMsg, '✅ Referral code applied! Redirecting...', 'ok');
+      }
+
       otpBox.classList.remove('show');
       const doneStep = $('#doneStep');
       doneStep.style.display='block';
       doneStep.classList.add('show');
       
       setTimeout(()=>{ 
-        window.location.replace("front.html"); 
+        window.location.replace('front.html'); 
       }, 1200);
-    }else{
-      throw new Error(r.error||'Invalid or expired code');
+    } else {
+      throw new Error(r.error || 'Invalid or expired code');
     }
-  }catch(e){
+  } catch(e){
     showMsg(otpMsg, e.message, 'err');
     codeInputs.forEach(inp=>inp.value='');
     codeInputs[0].focus();
@@ -691,10 +740,10 @@ resendBtn.onclick=async()=>{
   
   try{
     const r=await postJSON({
-      action:'resend',
-      email:currentEmail,
-      name:fullName,
-      userAgent:navigator.userAgent
+      action: 'resend',
+      email: currentEmail,
+      name: fullName,
+      userAgent: navigator.userAgent
     });
     
     showMsg(otpMsg, r.success ? 'New code sent to your email!' : 'Failed to resend code', r.success ? 'ok' : 'err');
@@ -703,7 +752,7 @@ resendBtn.onclick=async()=>{
       codeInputs.forEach(inp=>inp.value='');
       codeInputs[0].focus();
     }
-  }catch(e){
+  } catch(e){
     showMsg(otpMsg, e.message, 'err');
   }
   
@@ -713,9 +762,9 @@ resendBtn.onclick=async()=>{
   }, 3000);
 };
 
-// Sign In: no OTP — backend checks Verified
+// Sign In
 signinBtn.onclick=async()=>{
-  const email=(signinEmail.value||"").trim().toLowerCase();
+  const email=(signinEmail.value||'').trim().toLowerCase();
   
   if(!email){
     showMsg(signinMsg, 'Please enter your email address', 'err');
@@ -728,26 +777,21 @@ signinBtn.onclick=async()=>{
   
   try{
     const r=await postJSON({
-      action:'signin',
+      action: 'signin',
       email,
-      userAgent:navigator.userAgent
+      userAgent: navigator.userAgent
     });
     
     if(r.success){
-      localStorage.setItem('ltn_user', JSON.stringify({ 
-        email, 
-        name: (r.user && r.user.name) || "" 
-      }));
+      const userName = (r.user && r.user.name) || '';
+      localStorage.setItem('ltn_user', JSON.stringify({ email, name: userName }));
       localStorage.setItem('userEmail', email);
+      localStorage.setItem('userName', userName);
       
       showMsg(signinMsg, 'Success! Redirecting...', 'ok');
-      
-      setTimeout(()=>{
-        window.location.replace("front.html");
-      }, 800);
-    }else{
-      // If backend says this email needs OTP, flip to Sign Up tab
-      if (r.requiresOtp) {
+      setTimeout(()=>{ window.location.replace('front.html'); }, 800);
+    } else {
+      if(r.requiresOtp){
         tabSignup.click();
         showMsg(joinMsg, r.error || 'Please sign up to receive a verification code', 'err');
         emailInput.value = email;
@@ -756,7 +800,7 @@ signinBtn.onclick=async()=>{
         showMsg(signinMsg, r.error || 'Unable to sign in', 'err');
       }
     }
-  }catch(e){
+  } catch(e){
     showMsg(signinMsg, 'Connection error. Please try again.', 'err');
   }
   
@@ -765,18 +809,20 @@ signinBtn.onclick=async()=>{
 };
 
 // Enter key handlers
-firstNameInput.addEventListener('keypress', e => {
-  if(e.key==='Enter') lastNameInput.focus();
-});
-lastNameInput.addEventListener('keypress', e => {
-  if(e.key==='Enter') emailInput.focus();
-});
-emailInput.addEventListener('keypress', e => {
-  if(e.key==='Enter') joinBtn.click();
-});
-signinEmail.addEventListener('keypress', e => {
-  if(e.key==='Enter') signinBtn.click();
-});
+firstNameInput.addEventListener('keypress', e => { if(e.key==='Enter') lastNameInput.focus(); });
+lastNameInput.addEventListener('keypress',  e => { if(e.key==='Enter') emailInput.focus(); });
+emailInput.addEventListener('keypress',     e => { if(e.key==='Enter') joinBtn.click(); });
+signinEmail.addEventListener('keypress',    e => { if(e.key==='Enter') signinBtn.click(); });
+
+// Pre-fill referral code from URL if someone clicks a share link
+// e.g. linktradenetwork.com/index.html?ref=LTNFRANP144
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  if(ref && referralCodeInput){
+    referralCodeInput.value = ref.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  }
+})();
 </script>
 </body>
 </html>
