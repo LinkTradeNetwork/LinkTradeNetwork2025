@@ -504,27 +504,6 @@ select.form-control{cursor:pointer}
       </div>
     </section>
 
-    <!-- REWARDS DASHBOARD -->
-    <section class="card" style="margin-top:20px">
-      <div class="hd">
-        <span>💰 My Rewards</span>
-      </div>
-      <div class="bd" id="rewards-dashboard">
-        <div style="text-align:center;padding:20px;color:var(--muted)">Sign in to see your rewards</div>
-      </div>
-    </section>
-
-    <!-- LEADERBOARD -->
-    <section class="card" style="margin-top:20px">
-      <div class="hd">
-        <span>🏆 Monthly Leaders</span>
-        <span style="font-size:12px;color:var(--muted);font-weight:400">Top referrers</span>
-      </div>
-      <div class="bd" id="leaderboard-container">
-        <div style="text-align:center;padding:20px;color:var(--muted)">Loading leaderboard...</div>
-      </div>
-    </section>
-
     <!-- REFERRAL CARD -->
     <section class="card" style="margin-top:20px">
       <div class="hd">🔗 Refer & Earn $5</div>
@@ -1617,8 +1596,6 @@ document.addEventListener('DOMContentLoaded',function(){
 
   // FIX: Initialize posts feed, rewards and leaderboard
   PostsFeed.init();
-  RewardsManager.load();
-  loadLeaderboard();
 });
 
 /* ===== FIX: APPLY TO JOB - now tracks in Google Sheets ===== */
