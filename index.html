@@ -476,12 +476,15 @@
         <input
           id="referralCodeInput"
           type="text"
-          placeholder="e.g. LTNFRANP144"
+          placeholder="Enter referral code here"
           maxlength="20"
           autocomplete="off"
+          autocorrect="off"
+          autocapitalize="characters"
+          spellcheck="false"
           oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
         />
-        <div class="referral-hint">Have a referral code? Enter it here and the member who invited you earns $5!</div>
+        <div class="referral-hint">Optional — if someone gave you a code, enter it here. Leave blank if you do not have one.</div>
       </div>
       <!-- ===== END REFERRAL CODE FIELD ===== -->
 
