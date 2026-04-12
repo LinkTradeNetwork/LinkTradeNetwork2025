@@ -1593,10 +1593,11 @@ document.addEventListener('DOMContentLoaded',function(){
   };
 
 /* ===== LTN NEWS DAILY — LIVE RSS ===== */
-(function () {
+(function(){
   const grid = document.getElementById('ltn-news-grid');
   if (!grid) return;
 
+  // RSS feeds — trade industry sources
   const feeds = [
     { url: 'https://www.constructiondive.com/feeds/news/', label: 'Construction Dive', cat: 'Workforce', cls: 'cat-workforce' },
     { url: 'https://www.electricalcontractor.net/rss.xml', label: 'Electrical Contractor', cat: 'Electrical', cls: 'cat-tech' },
@@ -1607,241 +1608,205 @@ document.addEventListener('DOMContentLoaded',function(){
   ];
 
   const API = 'https://api.rss2json.com/v1/api.json?rss_url=';
-  const FEED_COUNT = 2;
-  const REQUEST_TIMEOUT = 8000;
-
-  function decodeHtml(str) {
-    if (!str) return '';
-    const txt = document.createElement('textarea');
-    txt.innerHTML = str;
-    return txt.value;
-  }
-
-  function escapeHtml(str) {
-    return String(str || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
 
   function timeAgo(dateStr) {
     if (!dateStr) return '';
-    const time = new Date(dateStr).getTime();
-    if (Number.isNaN(time)) return '';
-
-    const diff = Date.now() - time;
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) return days + 'd ago';
-    if (hours > 0) return hours + 'h ago';
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const h = Math.floor(diff / 3600000);
+    const d = Math.floor(h / 24);
+    if (d > 0) return d + 'd ago';
+    if (h > 0) return h + 'h ago';
     return 'Just now';
   }
 
-  function truncate(str, max) {
-    const clean = decodeHtml(str || '').trim();
-    if (clean.length <= max) return clean;
-    return clean.slice(0, max).trim() + '...';
-  }
-
-  function getFallbackNews() {
-    return [
-      {
-        title: 'Skilled trades workforce shortage continues across the U.S.',
-        link: '#',
-        pubDate: new Date().toISOString(),
-        source: 'LTN',
-        cat: 'Workforce',
-        cls: 'cat-workforce'
-      },
-      {
-        title: 'Low voltage and physical security remain strong growth sectors.',
-        link: '#',
-        pubDate: new Date().toISOString(),
-        source: 'LTN',
-        cat: 'Industry',
-        cls: 'cat-industry'
-      },
-      {
-        title: 'Electricians and HVAC techs remain in high demand in major markets.',
-        link: '#',
-        pubDate: new Date().toISOString(),
-        source: 'LTN',
-        cat: 'Trades',
-        cls: 'cat-tech'
-      },
-      {
-        title: 'Safety training and code compliance continue to drive hiring.',
-        link: '#',
-        pubDate: new Date().toISOString(),
-        source: 'LTN',
-        cat: 'Safety',
-        cls: 'cat-safety'
-      }
-    ];
-  }
-
-  async function fetchWithTimeout(url, timeoutMs) {
-    const controller = new AbortController();
-    const timer = setTimeout(function () {
-      controller.abort();
-    }, timeoutMs);
-
-    try {
-      const res = await fetch(url, { signal: controller.signal });
-      clearTimeout(timer);
-      return res;
-    } catch (err) {
-      clearTimeout(timer);
-      throw err;
+  function renderNews(items) {
+    if (!items || items.length === 0) {
+      grid.innerHTML = '<div style="grid-column:span 2;padding:20px;text-align:center;color:var(--muted);font-size:13px">No news available right now. Check back soon.</div>';
+      return;
     }
+
+    grid.innerHTML = items.slice(0, 6).map(function(item, i) {
+      const isRight = i % 2 === 1;
+      const isLast  = i >= 4;
+      const border  = [
+        isRight ? '' : 'border-right:1px solid var(--line);',
+        isLast  ? '' : 'border-bottom:1px solid var(--line);'
+      ].join('');
+      const title = (item.title || '').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").slice(0, 80) + (item.title && item.title.length > 80 ? '...' : '');
+      const link  = item.link || '#';
+      const ago   = timeAgo(item.pubDate);
+      const src   = item.source || '';
+      const cat   = item.cat || 'Industry';
+      const cls   = item.cls || 'cat-industry';
+
+      return '<div style="padding:12px 14px;' + border + 'cursor:pointer" onclick="window.open(\'' + link.replace(/'/g,"\\'") + '\',\'_blank\')">' +
+        '<div class="news-category ' + cls + '" style="margin-bottom:5px">' + cat + '</div>' +
+        '<div style="font-size:13px;font-weight:600;line-height:1.4;color:var(--ink)">' + title + '</div>' +
+        '<div style="font-size:11px;color:var(--muted);margin-top:4px">' + ago + (src ? ' • ' + src : '') + '</div>' +
+        '</div>';
+    }).join('');
   }
 
   async function fetchFeed(feed) {
     try {
-      const url = API + encodeURIComponent(feed.url) + '&count=' + FEED_COUNT;
-      const res = await fetchWithTimeout(url, REQUEST_TIMEOUT);
-
-      if (!res.ok) {
-        console.error('LTN News HTTP error:', feed.label, res.status, res.statusText);
-        return [];
-      }
-
-      const contentType = res.headers.get('content-type') || '';
-      if (!contentType.includes('application/json')) {
-        const text = await res.text();
-        console.error('LTN News non-JSON response:', feed.label, text.slice(0, 300));
-        return [];
-      }
-
+      const res = await fetch(API + encodeURIComponent(feed.url) + '&count=2', { signal: AbortSignal.timeout(6000) });
       const data = await res.json();
-
-      if (data.status !== 'ok' || !Array.isArray(data.items)) {
-        console.error('LTN News bad payload:', feed.label, data);
-        return [];
+      if (data.status === 'ok' && data.items) {
+        return data.items.map(function(item) {
+          return { title: item.title, link: item.link, pubDate: item.pubDate, source: feed.label, cat: feed.cat, cls: feed.cls };
+        });
       }
-
-      return data.items.map(function (item) {
-        return {
-          title: item.title || '',
-          link: item.link || '#',
-          pubDate: item.pubDate || '',
-          source: feed.label,
-          cat: feed.cat,
-          cls: feed.cls
-        };
-      });
-    } catch (err) {
-      console.error('LTN News feed failed:', feed.label, err);
-      return [];
-    }
+    } catch(e) {}
+    return [];
   }
 
-  function renderNews(items) {
-    if (!Array.isArray(items) || items.length === 0) {
+  async function loadNews() {
+    // Try fetching from all feeds in parallel
+    const results = await Promise.allSettled(feeds.map(fetchFeed));
+    let allItems = [];
+    results.forEach(function(r) {
+      if (r.status === 'fulfilled') allItems = allItems.concat(r.value);
+    });
+
+    // Sort by date newest first
+    allItems.sort(function(a, b) { return new Date(b.pubDate) - new Date(a.pubDate); });
+
+    if (allItems.length > 0) {
+      renderNews(allItems);
+      // Update ticker too
+      updateTicker(allItems);
+    } else {
+      // Fallback to static headlines if all feeds fail
       grid.innerHTML = '<div style="grid-column:span 2;padding:20px;text-align:center;color:var(--muted);font-size:13px">News temporarily unavailable. Check back soon.</div>';
-      return;
     }
-
-    const visibleItems = items.slice(0, 6);
-
-    grid.innerHTML = visibleItems.map(function (item, i) {
-      const isRight = i % 2 === 1;
-      const isLastRow = i >= 4;
-      const border = [
-        isRight ? '' : 'border-right:1px solid var(--line);',
-        isLastRow ? '' : 'border-bottom:1px solid var(--line);'
-      ].join('');
-
-      const safeTitle = escapeHtml(truncate(item.title, 85));
-      const safeCat = escapeHtml(item.cat || 'Industry');
-      const safeCls = escapeHtml(item.cls || 'cat-industry');
-      const safeMeta = escapeHtml((item.source || '') + (item.pubDate ? ' • ' + timeAgo(item.pubDate) : ''));
-
-      const openAction = item.link && item.link !== '#'
-        ? `window.open('${String(item.link).replace(/'/g, "\\'")}', '_blank')`
-        : '';
-
-      return `
-        <div style="padding:12px 14px;${border}${openAction ? 'cursor:pointer' : ''}" ${openAction ? `onclick="${openAction}"` : ''}>
-          <div class="news-category ${safeCls}" style="margin-bottom:5px">${safeCat}</div>
-          <div style="font-size:13px;font-weight:600;line-height:1.4;color:var(--ink)">
-            ${safeTitle}
-          </div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">
-            ${safeMeta}
-          </div>
-        </div>
-      `;
-    }).join('');
   }
 
   function updateTicker(items) {
     const track = document.getElementById('ticker-track');
-    if (!track) return;
-
-    if (!Array.isArray(items) || items.length === 0) {
-      return;
-    }
-
-    const tickerItems = items.slice(0, 10).map(function (item) {
-      const safeTitle = escapeHtml(truncate(item.title, 90));
-      const link = item.link && item.link !== '#'
-        ? `onclick="window.open('${String(item.link).replace(/'/g, "\\'")}', '_blank')"`
-        : '';
-
-      return `<span class="ticker-item" ${link} style="cursor:pointer">${safeTitle}</span>`;
+    if (!track || items.length === 0) return;
+    const html = items.slice(0, 10).map(function(item) {
+      const title = (item.title || '').replace(/&amp;/g,'&').slice(0, 80);
+      return '<span class="ticker-item" onclick="window.open(\'' + (item.link||'#').replace(/'/g,"\\'") + '\',\'_blank\')" style="cursor:pointer">' + title + '</span>';
     }).join('');
-
-    track.innerHTML = tickerItems + tickerItems;
-  }
-
-  async function loadNews() {
-    grid.innerHTML = '<div style="grid-column:span 2;padding:20px;text-align:center;color:var(--muted);font-size:13px">Loading latest trade news...</div>';
-
-    const results = await Promise.allSettled(feeds.map(fetchFeed));
-    let allItems = [];
-
-    results.forEach(function (result) {
-      if (result.status === 'fulfilled' && Array.isArray(result.value)) {
-        allItems = allItems.concat(result.value);
-      }
-    });
-
-    allItems = allItems.filter(function (item) {
-      return item && item.title;
-    });
-
-    allItems.sort(function (a, b) {
-      return new Date(b.pubDate || 0) - new Date(a.pubDate || 0);
-    });
-
-    if (allItems.length > 0) {
-      renderNews(allItems);
-      updateTicker(allItems);
-    } else {
-      const fallbackItems = getFallbackNews();
-      renderNews(fallbackItems);
-      updateTicker(fallbackItems);
-      console.warn('LTN News: all RSS feeds failed, showing fallback items.');
-    }
+    // Duplicate for seamless loop
+    track.innerHTML = html + html;
   }
 
   loadNews();
 })();
 
-  /* ===== FIX: AUTO CHECK NOTIFICATIONS ON PAGE LOAD ===== */
-  // Check for pending connection requests when page loads
-  setTimeout(function(){
-    checkPendingConnections();
-  }, 1500);
+  /* ===== BACKGROUND PRELOADER — badges + connections cache ===== */
+  (function() {
+    const email = localStorage.getItem('userEmail');
+    if (!email) return;
 
-  // Recheck every 60 seconds automatically
-  setInterval(function(){
-    checkPendingConnections();
-  }, 60000);
+    // Cache keys
+    const CONN_KEY = 'ltn_connections_' + email;
+    const CONV_KEY = 'ltn_conversations_' + email;
+
+    // Restore connections from cache instantly when Network tab opens
+    const cachedConn = localStorage.getItem(CONN_KEY);
+    if (cachedConn) {
+      try {
+        const parsed = JSON.parse(cachedConn);
+        if (parsed && parsed.connections) {
+          // Pre-populate count badge from cache
+          const countEl = document.getElementById('connections-count');
+          if (countEl) countEl.textContent = parsed.count || 0;
+          // Store for NetworkManager to use
+          window._cachedConnections = parsed;
+        }
+      } catch(e) {}
+    }
+
+    // Restore message badge from cache instantly
+    const cachedConv = localStorage.getItem(CONV_KEY);
+    if (cachedConv) {
+      try {
+        const parsed = JSON.parse(cachedConv);
+        if (parsed && parsed.conversations) {
+          const unread = parsed.conversations.reduce(function(sum, c) { return sum + (c.unreadCount || 0); }, 0);
+          const badge = document.getElementById('messages-badge');
+          if (badge) {
+            if (unread > 0) { badge.textContent = unread; badge.style.display = 'block'; }
+            else { badge.style.display = 'none'; }
+          }
+        }
+      } catch(e) {}
+    }
+
+    // After page settles — fetch fresh data in background
+    setTimeout(async function() {
+      try {
+        // Run all background checks in parallel
+        const [convData, connData, reqData] = await Promise.all([
+          apiCall({ action: 'get-conversations', email: email }),
+          apiCall({ action: 'get-connections',   email: email }),
+          apiCall({ action: 'get-requests',      email: email })
+        ]);
+
+        // Update message badge
+        if (convData && convData.success && convData.conversations) {
+          localStorage.setItem(CONV_KEY, JSON.stringify(convData));
+          const unread = convData.conversations.reduce(function(sum, c) { return sum + (c.unreadCount || 0); }, 0);
+          const badge = document.getElementById('messages-badge');
+          if (badge) {
+            if (unread > 0) { badge.textContent = unread; badge.style.display = 'block'; }
+            else { badge.style.display = 'none'; }
+          }
+        }
+
+        // Cache connections so Network tab loads instantly
+        if (connData && connData.success && connData.connections) {
+          localStorage.setItem(CONN_KEY, JSON.stringify(connData));
+          window._cachedConnections = connData;
+          const countEl = document.getElementById('connections-count');
+          if (countEl) countEl.textContent = connData.count || 0;
+        }
+
+        // Update connection request badge
+        if (reqData && reqData.success) {
+          const count = reqData.count || 0;
+          const badge  = document.getElementById('network-badge');
+          const tab    = document.getElementById('req-count-tab');
+          const banner = document.getElementById('connection-alert-banner');
+          const alertCount = document.getElementById('alert-count');
+          if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'block' : 'none'; }
+          if (tab)   { tab.textContent = count; tab.style.display = count > 0 ? 'inline-block' : 'none'; }
+          if (banner && alertCount) { alertCount.textContent = count; banner.style.display = count > 0 ? 'block' : 'none'; }
+        }
+
+      } catch(e) { console.log('Background preload error:', e); }
+
+    }, 800); // Wait 800ms for page to finish rendering first
+
+    // Recheck every 90 seconds for new messages/requests
+    setInterval(async function() {
+      try {
+        const [convData, reqData] = await Promise.all([
+          apiCall({ action: 'get-conversations', email: email }),
+          apiCall({ action: 'get-requests',      email: email })
+        ]);
+        if (convData && convData.success) {
+          localStorage.setItem(CONV_KEY, JSON.stringify(convData));
+          const unread = convData.conversations.reduce(function(sum, c) { return sum + (c.unreadCount || 0); }, 0);
+          const badge = document.getElementById('messages-badge');
+          if (badge) {
+            if (unread > 0) { badge.textContent = unread; badge.style.display = 'block'; }
+            else { badge.style.display = 'none'; }
+          }
+        }
+        if (reqData && reqData.success) {
+          const count = reqData.count || 0;
+          const badge = document.getElementById('network-badge');
+          if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'block' : 'none'; }
+        }
+      } catch(e) {}
+    }, 90000);
+
+  })();
+
+
 
   /* ===== JOB SEARCH ===== */
   window.JOBS_STATE={q:'',location:'',trade:'',limit:10,offset:0,total:0};
@@ -2425,16 +2390,29 @@ const NetworkManager={
   },
   async loadConnections(){
     const list=document.getElementById('connections-list');
-    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+    const email=this.currentUser;
+    // Show cached data instantly
+    const cached=window._cachedConnections;
+    if(cached&&cached.connections){
+      document.getElementById('connections-count').textContent=cached.count||0;
+      document.getElementById('conn-count-tab').textContent=`(${cached.count||0})`;
+      list.innerHTML=cached.connections.length?cached.connections.map(p=>this.renderPerson(p,'connected')).join(''):
+        `<div class="empty-state"><h3>No connections yet</h3><p>Search for trade professionals to connect with</p></div>`;
+    } else {
+      list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+    }
+    // Always refresh in background
     try{
-      const data=await apiCall({action:'get-connections',email:this.currentUser});
+      const data=await apiCall({action:'get-connections',email:email});
       if(data.success){
+        window._cachedConnections=data;
+        localStorage.setItem('ltn_connections_'+email,JSON.stringify(data));
         document.getElementById('connections-count').textContent=data.count;
         document.getElementById('conn-count-tab').textContent=`(${data.count})`;
         list.innerHTML=data.connections.length?data.connections.map(p=>this.renderPerson(p,'connected')).join(''):
           `<div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg><h3>No connections yet</h3><p>Search for trade professionals to connect with</p></div>`;
       }
-    }catch(e){ list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load</div>'; }
+    }catch(e){ if(!cached) list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load</div>'; }
   },
   async loadRequests(){
     const list=document.getElementById('requests-list');
