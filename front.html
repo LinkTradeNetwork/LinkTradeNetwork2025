@@ -1593,11 +1593,10 @@ document.addEventListener('DOMContentLoaded',function(){
   };
 
 /* ===== LTN NEWS DAILY — LIVE RSS ===== */
-(function(){
+(function () {
   const grid = document.getElementById('ltn-news-grid');
   if (!grid) return;
 
-  // RSS feeds — trade industry sources
   const feeds = [
     { url: 'https://www.constructiondive.com/feeds/news/', label: 'Construction Dive', cat: 'Workforce', cls: 'cat-workforce' },
     { url: 'https://www.electricalcontractor.net/rss.xml', label: 'Electrical Contractor', cat: 'Electrical', cls: 'cat-tech' },
@@ -1608,88 +1607,226 @@ document.addEventListener('DOMContentLoaded',function(){
   ];
 
   const API = 'https://api.rss2json.com/v1/api.json?rss_url=';
+  const FEED_COUNT = 2;
+  const REQUEST_TIMEOUT = 8000;
+
+  function decodeHtml(str) {
+    if (!str) return '';
+    const txt = document.createElement('textarea');
+    txt.innerHTML = str;
+    return txt.value;
+  }
+
+  function escapeHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
   function timeAgo(dateStr) {
     if (!dateStr) return '';
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const h = Math.floor(diff / 3600000);
-    const d = Math.floor(h / 24);
-    if (d > 0) return d + 'd ago';
-    if (h > 0) return h + 'h ago';
+    const time = new Date(dateStr).getTime();
+    if (Number.isNaN(time)) return '';
+
+    const diff = Date.now() - time;
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return days + 'd ago';
+    if (hours > 0) return hours + 'h ago';
     return 'Just now';
   }
 
-  function renderNews(items) {
-    if (!items || items.length === 0) {
-      grid.innerHTML = '<div style="grid-column:span 2;padding:20px;text-align:center;color:var(--muted);font-size:13px">No news available right now. Check back soon.</div>';
-      return;
+  function truncate(str, max) {
+    const clean = decodeHtml(str || '').trim();
+    if (clean.length <= max) return clean;
+    return clean.slice(0, max).trim() + '...';
+  }
+
+  function getFallbackNews() {
+    return [
+      {
+        title: 'Skilled trades workforce shortage continues across the U.S.',
+        link: '#',
+        pubDate: new Date().toISOString(),
+        source: 'LTN',
+        cat: 'Workforce',
+        cls: 'cat-workforce'
+      },
+      {
+        title: 'Low voltage and physical security remain strong growth sectors.',
+        link: '#',
+        pubDate: new Date().toISOString(),
+        source: 'LTN',
+        cat: 'Industry',
+        cls: 'cat-industry'
+      },
+      {
+        title: 'Electricians and HVAC techs remain in high demand in major markets.',
+        link: '#',
+        pubDate: new Date().toISOString(),
+        source: 'LTN',
+        cat: 'Trades',
+        cls: 'cat-tech'
+      },
+      {
+        title: 'Safety training and code compliance continue to drive hiring.',
+        link: '#',
+        pubDate: new Date().toISOString(),
+        source: 'LTN',
+        cat: 'Safety',
+        cls: 'cat-safety'
+      }
+    ];
+  }
+
+  async function fetchWithTimeout(url, timeoutMs) {
+    const controller = new AbortController();
+    const timer = setTimeout(function () {
+      controller.abort();
+    }, timeoutMs);
+
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      return res;
+    } catch (err) {
+      clearTimeout(timer);
+      throw err;
     }
-
-    grid.innerHTML = items.slice(0, 6).map(function(item, i) {
-      const isRight = i % 2 === 1;
-      const isLast  = i >= 4;
-      const border  = [
-        isRight ? '' : 'border-right:1px solid var(--line);',
-        isLast  ? '' : 'border-bottom:1px solid var(--line);'
-      ].join('');
-      const title = (item.title || '').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").slice(0, 80) + (item.title && item.title.length > 80 ? '...' : '');
-      const link  = item.link || '#';
-      const ago   = timeAgo(item.pubDate);
-      const src   = item.source || '';
-      const cat   = item.cat || 'Industry';
-      const cls   = item.cls || 'cat-industry';
-
-      return '<div style="padding:12px 14px;' + border + 'cursor:pointer" onclick="window.open(\'' + link.replace(/'/g,"\\'") + '\',\'_blank\')">' +
-        '<div class="news-category ' + cls + '" style="margin-bottom:5px">' + cat + '</div>' +
-        '<div style="font-size:13px;font-weight:600;line-height:1.4;color:var(--ink)">' + title + '</div>' +
-        '<div style="font-size:11px;color:var(--muted);margin-top:4px">' + ago + (src ? ' • ' + src : '') + '</div>' +
-        '</div>';
-    }).join('');
   }
 
   async function fetchFeed(feed) {
     try {
-      const res = await fetch(API + encodeURIComponent(feed.url) + '&count=2', { signal: AbortSignal.timeout(6000) });
-      const data = await res.json();
-      if (data.status === 'ok' && data.items) {
-        return data.items.map(function(item) {
-          return { title: item.title, link: item.link, pubDate: item.pubDate, source: feed.label, cat: feed.cat, cls: feed.cls };
-        });
+      const url = API + encodeURIComponent(feed.url) + '&count=' + FEED_COUNT;
+      const res = await fetchWithTimeout(url, REQUEST_TIMEOUT);
+
+      if (!res.ok) {
+        console.error('LTN News HTTP error:', feed.label, res.status, res.statusText);
+        return [];
       }
-    } catch(e) {}
-    return [];
+
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await res.text();
+        console.error('LTN News non-JSON response:', feed.label, text.slice(0, 300));
+        return [];
+      }
+
+      const data = await res.json();
+
+      if (data.status !== 'ok' || !Array.isArray(data.items)) {
+        console.error('LTN News bad payload:', feed.label, data);
+        return [];
+      }
+
+      return data.items.map(function (item) {
+        return {
+          title: item.title || '',
+          link: item.link || '#',
+          pubDate: item.pubDate || '',
+          source: feed.label,
+          cat: feed.cat,
+          cls: feed.cls
+        };
+      });
+    } catch (err) {
+      console.error('LTN News feed failed:', feed.label, err);
+      return [];
+    }
   }
 
-  async function loadNews() {
-    // Try fetching from all feeds in parallel
-    const results = await Promise.allSettled(feeds.map(fetchFeed));
-    let allItems = [];
-    results.forEach(function(r) {
-      if (r.status === 'fulfilled') allItems = allItems.concat(r.value);
-    });
-
-    // Sort by date newest first
-    allItems.sort(function(a, b) { return new Date(b.pubDate) - new Date(a.pubDate); });
-
-    if (allItems.length > 0) {
-      renderNews(allItems);
-      // Update ticker too
-      updateTicker(allItems);
-    } else {
-      // Fallback to static headlines if all feeds fail
+  function renderNews(items) {
+    if (!Array.isArray(items) || items.length === 0) {
       grid.innerHTML = '<div style="grid-column:span 2;padding:20px;text-align:center;color:var(--muted);font-size:13px">News temporarily unavailable. Check back soon.</div>';
+      return;
     }
+
+    const visibleItems = items.slice(0, 6);
+
+    grid.innerHTML = visibleItems.map(function (item, i) {
+      const isRight = i % 2 === 1;
+      const isLastRow = i >= 4;
+      const border = [
+        isRight ? '' : 'border-right:1px solid var(--line);',
+        isLastRow ? '' : 'border-bottom:1px solid var(--line);'
+      ].join('');
+
+      const safeTitle = escapeHtml(truncate(item.title, 85));
+      const safeCat = escapeHtml(item.cat || 'Industry');
+      const safeCls = escapeHtml(item.cls || 'cat-industry');
+      const safeMeta = escapeHtml((item.source || '') + (item.pubDate ? ' • ' + timeAgo(item.pubDate) : ''));
+
+      const openAction = item.link && item.link !== '#'
+        ? `window.open('${String(item.link).replace(/'/g, "\\'")}', '_blank')`
+        : '';
+
+      return `
+        <div style="padding:12px 14px;${border}${openAction ? 'cursor:pointer' : ''}" ${openAction ? `onclick="${openAction}"` : ''}>
+          <div class="news-category ${safeCls}" style="margin-bottom:5px">${safeCat}</div>
+          <div style="font-size:13px;font-weight:600;line-height:1.4;color:var(--ink)">
+            ${safeTitle}
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">
+            ${safeMeta}
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   function updateTicker(items) {
     const track = document.getElementById('ticker-track');
-    if (!track || items.length === 0) return;
-    const html = items.slice(0, 10).map(function(item) {
-      const title = (item.title || '').replace(/&amp;/g,'&').slice(0, 80);
-      return '<span class="ticker-item" onclick="window.open(\'' + (item.link||'#').replace(/'/g,"\\'") + '\',\'_blank\')" style="cursor:pointer">' + title + '</span>';
+    if (!track) return;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return;
+    }
+
+    const tickerItems = items.slice(0, 10).map(function (item) {
+      const safeTitle = escapeHtml(truncate(item.title, 90));
+      const link = item.link && item.link !== '#'
+        ? `onclick="window.open('${String(item.link).replace(/'/g, "\\'")}', '_blank')"`
+        : '';
+
+      return `<span class="ticker-item" ${link} style="cursor:pointer">${safeTitle}</span>`;
     }).join('');
-    // Duplicate for seamless loop
-    track.innerHTML = html + html;
+
+    track.innerHTML = tickerItems + tickerItems;
+  }
+
+  async function loadNews() {
+    grid.innerHTML = '<div style="grid-column:span 2;padding:20px;text-align:center;color:var(--muted);font-size:13px">Loading latest trade news...</div>';
+
+    const results = await Promise.allSettled(feeds.map(fetchFeed));
+    let allItems = [];
+
+    results.forEach(function (result) {
+      if (result.status === 'fulfilled' && Array.isArray(result.value)) {
+        allItems = allItems.concat(result.value);
+      }
+    });
+
+    allItems = allItems.filter(function (item) {
+      return item && item.title;
+    });
+
+    allItems.sort(function (a, b) {
+      return new Date(b.pubDate || 0) - new Date(a.pubDate || 0);
+    });
+
+    if (allItems.length > 0) {
+      renderNews(allItems);
+      updateTicker(allItems);
+    } else {
+      const fallbackItems = getFallbackNews();
+      renderNews(fallbackItems);
+      updateTicker(fallbackItems);
+      console.warn('LTN News: all RSS feeds failed, showing fallback items.');
+    }
   }
 
   loadNews();
