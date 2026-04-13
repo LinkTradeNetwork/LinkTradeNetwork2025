@@ -830,6 +830,8 @@ select.form-control{cursor:pointer}
 <script>
 /* ===== CONFIG ===== */
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyJpONCk3k-GF3wfXAdqxNHQELDzLNHj-HhhECj1-xVrEgG6ettGRNdmUXjRj8F4cbH/exec";
+const CLOUDINARY_CLOUD_NAME = "doasaii6h";
+const CLOUDINARY_UPLOAD_PRESET = "o6zrbqqm";
 
 /* ===== UTILS ===== */
 function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
@@ -1875,10 +1877,10 @@ const PostsFeed = {
   },
 
   async uploadVideoToCloudinary(file) {
-    const cloudName = localStorage.getItem('cloudinaryCloudName') || '';
-    const uploadPreset = localStorage.getItem('cloudinaryUploadPreset') || '';
+    const cloudName = CLOUDINARY_CLOUD_NAME || '';
+    const uploadPreset = CLOUDINARY_UPLOAD_PRESET || '';
     if (!cloudName || !uploadPreset) {
-      alert('Cloudinary is not set up yet. Add cloudinaryCloudName and cloudinaryUploadPreset in your browser localStorage first.');
+      alert('Cloudinary is not set up correctly in front.html. Check CLOUDINARY_CLOUD_NAME and CLOUDINARY_UPLOAD_PRESET.');
       throw new Error('Cloudinary not configured');
     }
 
