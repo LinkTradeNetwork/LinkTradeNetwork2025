@@ -12,29 +12,6 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Poppins',system-ui,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}
 
-/* ===== LTN NEWS TICKER ===== */
-.news-ticker{background:#1a1a2e;color:white;padding:0;overflow:hidden;height:34px;display:flex;align-items:center;border-bottom:2px solid var(--brand)}
-.ticker-label{background:var(--brand);color:white;font-size:12px;font-weight:700;padding:0 14px;height:34px;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;letter-spacing:.5px;text-transform:uppercase;gap:6px}
-.ticker-label svg{width:14px;height:14px}
-.ticker-track{display:flex;gap:0;animation:ticker-scroll 60s linear infinite;white-space:nowrap}
-.ticker-track:hover{animation-play-state:paused}
-.ticker-item{display:inline-flex;align-items:center;gap:8px;padding:0 32px;font-size:12px;color:rgba(255,255,255,.85);cursor:pointer;transition:color .2s}
-.ticker-item:hover{color:var(--brand)}
-.ticker-item::after{content:'•';color:var(--brand);margin-left:32px}
-@keyframes ticker-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-
-/* ===== LTN NEWS SIDEBAR ===== */
-.news-item{padding:10px 0;border-bottom:1px solid var(--line)}
-.news-item:last-child{border-bottom:none;padding-bottom:0}
-.news-item-title{font-size:13px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:3px;cursor:pointer;transition:color .2s}
-.news-item-title:hover{color:var(--brand)}
-.news-item-meta{font-size:11px;color:var(--muted)}
-.news-category{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
-.cat-workforce{background:#fff3e0;color:#e65100}
-.cat-safety{background:#e8f5e9;color:#2e7d32}
-.cat-tech{background:#e3f2fd;color:#1565c0}
-.cat-training{background:#f3e5f5;color:#6a1b9a}
-.cat-industry{background:#fce4ec;color:#880e4f}
 .topbar{background:var(--accent);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;color:white}
 .topbar-inner{max-width:1200px;margin:auto;padding:12px 16px;display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}
 .logo{display:flex;align-items:center;gap:12px}
@@ -241,6 +218,17 @@ select.form-control{cursor:pointer}
 .connection-alert:hover{opacity:.9}
 @keyframes pulse-alert{0%,100%{opacity:1}50%{opacity:.85}}
 
+
+/* ===== COMMUNITY MEDIA ===== */
+.media-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.media-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.media-btn{cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--muted);font-size:13px;font-weight:500;transition:all .2s}
+.media-btn:hover{border-color:var(--brand);color:var(--brand)}
+.post-preview{display:none;margin-bottom:10px;position:relative}
+.post-preview img,.post-preview video{width:100%;max-height:320px;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:#000}
+.post-card .post-media{width:100%;border-radius:10px;margin:0 0 12px;background:#000;overflow:hidden}
+.post-card .post-media video,.post-card .post-media img{width:100%;display:block;max-height:460px;object-fit:cover}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:1100px){.shell{grid-template-columns:1fr 1fr;gap:16px}.right-sidebar{grid-column:span 2}}
 @media(max-width:768px){
@@ -326,37 +314,6 @@ select.form-control{cursor:pointer}
   </div>
 </header>
 
-<!-- ===== LTN NEWS DAILY TICKER ===== -->
-<div class="news-ticker" id="news-ticker">
-  <div class="ticker-label">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
-    LTN News Daily
-  </div>
-  <div style="overflow:hidden;flex:1">
-    <div class="ticker-track" id="ticker-track">
-      <span class="ticker-item">Skilled trades workforce shortage hits 3.5 million unfilled jobs across America</span>
-      <span class="ticker-item">BICSI Spring Conference — Tampa Convention Center — May 15, 2026</span>
-      <span class="ticker-item">Low voltage and physical security among fastest growing trades in commercial construction</span>
-      <span class="ticker-item">Electricians average $38/hr in major metro markets — highest in a decade</span>
-      <span class="ticker-item">New OSHA guidelines for low voltage installation released for 2026</span>
-      <span class="ticker-item">Contractor Networking Mixer — Detroit Trade Association — June 5, 2026</span>
-      <span class="ticker-item">Trade school enrollment up 12% nationally as students seek debt-free careers</span>
-      <span class="ticker-item">HVAC technicians in high demand as building automation systems expand</span>
-      <span class="ticker-item">Low Voltage Code Updates webinar — Online — May 22, 2026 at 1:00 PM</span>
-      <span class="ticker-item">General contractors report difficulty finding certified low voltage specialists nationwide</span>
-      <span class="ticker-item">Skilled trades workforce shortage hits 3.5 million unfilled jobs across America</span>
-      <span class="ticker-item">BICSI Spring Conference — Tampa Convention Center — May 15, 2026</span>
-      <span class="ticker-item">Low voltage and physical security among fastest growing trades in commercial construction</span>
-      <span class="ticker-item">Electricians average $38/hr in major metro markets — highest in a decade</span>
-      <span class="ticker-item">New OSHA guidelines for low voltage installation released for 2026</span>
-      <span class="ticker-item">Contractor Networking Mixer — Detroit Trade Association — June 5, 2026</span>
-      <span class="ticker-item">Trade school enrollment up 12% nationally as students seek debt-free careers</span>
-      <span class="ticker-item">HVAC technicians in high demand as building automation systems expand</span>
-      <span class="ticker-item">Low Voltage Code Updates webinar — Online — May 22, 2026 at 1:00 PM</span>
-      <span class="ticker-item">General contractors report difficulty finding certified low voltage specialists nationwide</span>
-    </div>
-  </div>
-</div>
 
 <main class="shell">
   <!-- LEFT -->
@@ -444,29 +401,6 @@ select.form-control{cursor:pointer}
       </div>
     </div>
 
-    <!-- LTN NEWS DAILY — MAIN COLUMN FEATURED -->
-    <!-- LTN NEWS DAILY — LIVE RSS -->
-    <div class="card" style="margin-bottom:20px;border-left:4px solid var(--brand)">
-      <div class="hd" style="padding-bottom:10px">
-        <span style="display:flex;align-items:center;gap:8px">
-          <span style="background:var(--brand);color:white;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.5px">LIVE</span>
-          📰 LTN News Daily
-        </span>
-        <span style="font-size:11px;color:var(--muted);font-weight:400">Trades industry</span>
-      </div>
-      <div class="bd" style="padding:0">
-        <div id="ltn-news-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:0">
-          <div style="grid-column:span 2;padding:20px;text-align:center;color:var(--muted);font-size:13px">
-            Loading latest trade news...
-          </div>
-        </div>
-        <div style="padding:10px 14px;border-top:1px solid var(--line);text-align:center;background:var(--panel2)">
-          <span style="font-size:11px;color:var(--muted)">News curated daily for trade professionals by </span>
-          <span style="font-size:11px;font-weight:700;color:var(--brand)">LinkTradeNetwork</span>
-        </div>
-      </div>
-    </div>
-
     <!-- SUCCESS STORIES -->
     <div class="card" style="margin-top:24px">
       <div class="hd">
@@ -494,19 +428,32 @@ select.form-control{cursor:pointer}
         <!-- Create Post Box -->
         <div id="create-post-box" style="margin-bottom:20px;border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--panel2)">
           <textarea id="post-content" class="form-control" placeholder="Share something with the LTN community — tips, wins, questions, opportunities..." style="min-height:80px;margin-bottom:10px;resize:none"></textarea>
-          <!-- Image Preview -->
-          <div id="post-image-preview" style="display:none;margin-bottom:10px;position:relative">
-            <img id="post-image-preview-img" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:1px solid var(--line)" alt="Preview">
+
+          <div id="post-image-preview" class="post-preview">
+            <img id="post-image-preview-img" alt="Photo preview">
             <button onclick="PostsFeed.removeImage()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center">✕</button>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-            <div style="display:flex;align-items:center;gap:10px">
-              <label for="post-image-input" style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--muted);font-size:13px;font-weight:500;transition:all .2s">
+
+          <div id="post-video-preview" class="post-preview">
+            <video id="post-video-preview-video" controls playsinline muted></video>
+            <button onclick="PostsFeed.removeVideo()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center">✕</button>
+          </div>
+
+          <div class="media-toolbar">
+            <div class="media-actions">
+              <label for="post-image-input" class="media-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 Add Photo
               </label>
               <input type="file" id="post-image-input" accept="image/*" style="display:none" onchange="PostsFeed.handleImageSelect(this.files[0])">
-              <div style="font-size:12px;color:var(--muted)">💡 Refer members to earn $5 each</div>
+
+              <label for="post-video-input" class="media-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14m-9 4h8a2 2 0 002-2V8a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                Add 10s Video
+              </label>
+              <input type="file" id="post-video-input" accept="video/mp4,video/quicktime,video/webm" style="display:none" onchange="PostsFeed.handleVideoSelect(this.files[0])">
+
+              <div style="font-size:12px;color:var(--muted)">💡 Photos + 10 second videos</div>
             </div>
             <button class="btn btn-primary" style="padding:8px 20px;font-size:14px" onclick="PostsFeed.createPost()">Post</button>
           </div>
@@ -882,7 +829,7 @@ select.form-control{cursor:pointer}
 
 <script>
 /* ===== CONFIG ===== */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbycY-wM6N031SU_h1vBSgjF1soJi5EDEOooRBAoLnDxdAPH4Dako5x3u65XUDLrgx7p/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyJpONCk3k-GF3wfXAdqxNHQELDzLNHj-HhhECj1-xVrEgG6ettGRNdmUXjRj8F4cbH/exec";
 
 /* ===== UTILS ===== */
 function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
@@ -1592,209 +1539,6 @@ document.addEventListener('DOMContentLoaded',function(){
     if(name&&typeof name==='string') localStorage.setItem('userName',name);
   };
 
-/* ===== LTN NEWS DAILY — LIVE RSS ===== */
-(function(){
-  const grid  = document.getElementById('ltn-news-grid');
-  const track = document.getElementById('ticker-track');
-  if (!grid) return;
-
-  const API = 'https://api.rss2json.com/v1/api.json?rss_url=';
-  const CACHE_KEY = 'ltn_news_cache_v2';
-  const CACHE_TTL = 15 * 60 * 1000;
-
-  const categoryLinks = {
-    'Workforce': 'https://www.nccer.org/',
-    'Electrical': 'https://www.electricalcontractor.net/',
-    'HVAC': 'https://www.achrnews.com/',
-    'Industry': 'https://www.enr.com/',
-    'Construction': 'https://www.constructiondive.com/',
-    'Safety': 'https://www.osha.gov/'
-  };
-
-  const feeds = [
-    { url: 'https://www.constructiondive.com/feeds/news/', label: 'Construction Dive', cat: 'Workforce', cls: 'cat-workforce', site: 'https://www.constructiondive.com/' },
-    { url: 'https://www.electricalcontractor.net/rss.xml', label: 'Electrical Contractor', cat: 'Electrical', cls: 'cat-tech', site: 'https://www.electricalcontractor.net/' },
-    { url: 'https://www.achrnews.com/rss/topic/10049-industry-news', label: 'ACHR News', cat: 'HVAC', cls: 'cat-industry', site: 'https://www.achrnews.com/' },
-    { url: 'https://www.constructionequipment.com/rss.xml', label: 'Construction Equipment', cat: 'Industry', cls: 'cat-training', site: 'https://www.constructionequipment.com/' },
-    { url: 'https://www.enr.com/rss/news', label: 'ENR', cat: 'Construction', cls: 'cat-safety', site: 'https://www.enr.com/' },
-    { url: 'https://www.ishn.com/rss/topic/10006-safety-management', label: 'ISHN', cat: 'Safety', cls: 'cat-safety', site: 'https://www.ishn.com/' }
-  ];
-
-  const fallbackItems = [
-    { title: 'Explore construction workforce news and hiring trends', link: 'https://www.constructiondive.com/', pubDate: new Date().toISOString(), source: 'Construction Dive', cat: 'Workforce', cls: 'cat-workforce', site: 'https://www.constructiondive.com/' },
-    { title: 'Read electrical industry updates and contractor news', link: 'https://www.electricalcontractor.net/', pubDate: new Date().toISOString(), source: 'Electrical Contractor', cat: 'Electrical', cls: 'cat-tech', site: 'https://www.electricalcontractor.net/' },
-    { title: 'See HVAC and mechanical industry headlines', link: 'https://www.achrnews.com/', pubDate: new Date().toISOString(), source: 'ACHR News', cat: 'HVAC', cls: 'cat-industry', site: 'https://www.achrnews.com/' },
-    { title: 'Review construction industry reporting and market updates', link: 'https://www.enr.com/', pubDate: new Date().toISOString(), source: 'ENR', cat: 'Industry', cls: 'cat-training', site: 'https://www.enr.com/' },
-    { title: 'Open OSHA for official safety guidance and standards', link: 'https://www.osha.gov/', pubDate: new Date().toISOString(), source: 'OSHA', cat: 'Safety', cls: 'cat-safety', site: 'https://www.osha.gov/' },
-    { title: 'Visit NCCER for training and workforce development resources', link: 'https://www.nccer.org/', pubDate: new Date().toISOString(), source: 'NCCER', cat: 'Workforce', cls: 'cat-workforce', site: 'https://www.nccer.org/' }
-  ];
-
-  function safeText(value) {
-    return String(value || '')
-      .replace(/&amp;/g,'&')
-      .replace(/&quot;/g,'"')
-      .replace(/&#39;/g,"'")
-      .replace(/<[^>]*>/g,'')
-      .trim();
-  }
-
-  function escAttr(value) {
-    return String(value || '').replace(/'/g, "\\'");
-  }
-
-  function timeAgo(dateStr) {
-    if (!dateStr) return '';
-    const ts = new Date(dateStr).getTime();
-    if (Number.isNaN(ts)) return '';
-    const diff = Date.now() - ts;
-    const mins = Math.floor(diff / 60000);
-    const hrs = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-    if (days > 0) return days + 'd ago';
-    if (hrs > 0) return hrs + 'h ago';
-    if (mins > 0) return mins + 'm ago';
-    return 'Just now';
-  }
-
-  function normalizeItems(items) {
-    return (items || [])
-      .filter(Boolean)
-      .map(function(item) {
-        return {
-          title: safeText(item.title).slice(0, 120),
-          link: item.link || '#',
-          pubDate: item.pubDate || new Date().toISOString(),
-          source: item.source || '',
-          cat: item.cat || 'Industry',
-          cls: item.cls || 'cat-industry',
-          site: item.site || categoryLinks[item.cat] || '#'
-        };
-      })
-      .filter(function(item) { return item.title && item.link; });
-  }
-
-  function cacheNews(items) {
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), items: items }));
-    } catch(e) {}
-  }
-
-  function readCachedNews() {
-    try {
-      const raw = localStorage.getItem(CACHE_KEY);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      if (!parsed || !Array.isArray(parsed.items)) return null;
-      if ((Date.now() - Number(parsed.ts || 0)) > CACHE_TTL) return null;
-      return parsed.items;
-    } catch(e) {
-      return null;
-    }
-  }
-
-  function renderNews(items) {
-    const list = normalizeItems(items);
-    if (!list.length) {
-      grid.innerHTML = '<div style="grid-column:span 2;padding:20px;text-align:center;color:var(--muted);font-size:13px">No news available right now. Check back soon.</div>';
-      return;
-    }
-
-    grid.innerHTML = list.slice(0, 6).map(function(item, i) {
-      const isRight = i % 2 === 1;
-      const isLast  = i >= 4;
-      const border  = [
-        isRight ? '' : 'border-right:1px solid var(--line);',
-        isLast ? '' : 'border-bottom:1px solid var(--line);'
-      ].join('');
-      const title = item.title.length > 88 ? item.title.slice(0, 88) + '...' : item.title;
-      const ago   = timeAgo(item.pubDate);
-      const catSite = categoryLinks[item.cat] || item.site || '#';
-
-      return ''
-        + '<div style="padding:12px 14px;' + border + 'cursor:pointer" onclick="window.open(\'' + escAttr(item.link) + '\',\'_blank\')">'
-        +   '<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:5px">'
-        +     '<div class="news-category ' + item.cls + '" onclick="event.stopPropagation();window.open(\'' + escAttr(catSite) + '\',\'_blank\')" title="Open ' + item.cat + ' website">' + item.cat + '</div>'
-        +     '<div style="font-size:10px;color:var(--muted);font-weight:600" onclick="event.stopPropagation();window.open(\'' + escAttr(item.site || item.link) + '\',\'_blank\')">' + (item.source || 'Source') + '</div>'
-        +   '</div>'
-        +   '<div style="font-size:13px;font-weight:600;line-height:1.4;color:var(--ink)">' + title + '</div>'
-        +   '<div style="font-size:11px;color:var(--muted);margin-top:4px">' + ago + ' • Click article</div>'
-        + '</div>';
-    }).join('');
-  }
-
-  function updateTicker(items) {
-    if (!track) return;
-    const list = normalizeItems(items);
-    if (!list.length) return;
-
-    const html = list.slice(0, 10).map(function(item) {
-      const title = item.title.length > 95 ? item.title.slice(0, 95) + '...' : item.title;
-      return '<span class="ticker-item" onclick="window.open(\'' + escAttr(item.link) + '\',\'_blank\')" title="' + title.replace(/"/g, '&quot;') + '">' + title + '</span>';
-    }).join('');
-
-    track.innerHTML = html + html;
-  }
-
-  async function fetchFeed(feed) {
-    try {
-      const res = await fetch(API + encodeURIComponent(feed.url) + '&count=3', { signal: AbortSignal.timeout(7000) });
-      const data = await res.json();
-      if (data.status === 'ok' && Array.isArray(data.items)) {
-        return data.items.map(function(item) {
-          return {
-            title: item.title,
-            link: item.link,
-            pubDate: item.pubDate,
-            source: feed.label,
-            cat: feed.cat,
-            cls: feed.cls,
-            site: feed.site
-          };
-        });
-      }
-    } catch(e) {}
-    return [];
-  }
-
-  async function loadNews() {
-    const cached = readCachedNews();
-    if (cached && cached.length) {
-      renderNews(cached);
-      updateTicker(cached);
-    }
-
-    try {
-      const results = await Promise.allSettled(feeds.map(fetchFeed));
-      let allItems = [];
-      results.forEach(function(result) {
-        if (result.status === 'fulfilled' && Array.isArray(result.value)) {
-          allItems = allItems.concat(result.value);
-        }
-      });
-
-      allItems = normalizeItems(allItems)
-        .sort(function(a, b) { return new Date(b.pubDate) - new Date(a.pubDate); });
-
-      if (allItems.length) {
-        cacheNews(allItems);
-        renderNews(allItems);
-        updateTicker(allItems);
-      } else if (!cached || !cached.length) {
-        renderNews(fallbackItems);
-        updateTicker(fallbackItems);
-      }
-    } catch(e) {
-      if (!cached || !cached.length) {
-        renderNews(fallbackItems);
-        updateTicker(fallbackItems);
-      }
-    }
-  }
-
-  loadNews();
-  setInterval(loadNews, CACHE_TTL);
-})();
-
   /* ===== BACKGROUND PRELOADER — badges + connections cache ===== */
   (function() {
     const email = localStorage.getItem('userEmail');
@@ -2038,6 +1782,9 @@ const PostsFeed = {
   limit: 10,
   total: 0,
   currentImageData: null,
+  currentVideoData: null,
+  currentVideoObjectUrl: null,
+  currentThumbnailData: null,
 
   async init() {
     await this.loadPosts();
@@ -2047,6 +1794,7 @@ const PostsFeed = {
     if (!file) return;
     if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
     if (file.size > 5 * 1024 * 1024) { alert('Image too large — please use an image under 5MB.'); return; }
+    this.removeVideo();
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -2054,11 +1802,12 @@ const PostsFeed = {
         const MAX = 800;
         let w = img.width, h = img.height;
         if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
-        else        { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+        else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
         const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
+        canvas.width = w;
+        canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        const compressed = canvas.toDataURL('image/jpeg', 0.75);
+        const compressed = canvas.toDataURL('image/jpeg', 0.78);
         this.currentImageData = compressed;
         document.getElementById('post-image-preview-img').src = compressed;
         document.getElementById('post-image-preview').style.display = 'block';
@@ -2068,40 +1817,168 @@ const PostsFeed = {
     reader.readAsDataURL(file);
   },
 
+  handleVideoSelect(file) {
+    if (!file) return;
+    const allowed = ['video/mp4', 'video/quicktime', 'video/webm'];
+    if (!allowed.includes(file.type)) { alert('Please select an MP4, MOV, or WEBM video.'); return; }
+    if (file.size > 10 * 1024 * 1024) { alert('Video too large — keep it under 10MB.'); return; }
+    this.removeImage();
+
+    const objectUrl = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.onloadedmetadata = () => {
+      if (video.duration > 10.2) {
+        URL.revokeObjectURL(objectUrl);
+        alert('Video must be 10 seconds or less.');
+        return;
+      }
+
+      this.currentVideoData = file;
+      this.currentVideoObjectUrl = objectUrl;
+      const preview = document.getElementById('post-video-preview-video');
+      preview.src = objectUrl;
+      document.getElementById('post-video-preview').style.display = 'block';
+      this.captureVideoThumbnail(file);
+    };
+    video.src = objectUrl;
+  },
+
+  captureVideoThumbnail(file) {
+    const objectUrl = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.muted = true;
+    video.playsInline = true;
+    video.onloadeddata = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const width = video.videoWidth || 720;
+        const height = video.videoHeight || 1280;
+        const maxWidth = 720;
+        let w = width, h = height;
+        if (w > maxWidth) {
+          h = Math.round(h * maxWidth / w);
+          w = maxWidth;
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, w, h);
+        this.currentThumbnailData = canvas.toDataURL('image/jpeg', 0.7);
+      } catch (e) {
+        this.currentThumbnailData = '';
+      }
+      URL.revokeObjectURL(objectUrl);
+    };
+    video.src = objectUrl;
+  },
+
+  async uploadVideoToCloudinary(file) {
+    const cloudName = localStorage.getItem('cloudinaryCloudName') || '';
+    const uploadPreset = localStorage.getItem('cloudinaryUploadPreset') || '';
+    if (!cloudName || !uploadPreset) {
+      alert('Cloudinary is not set up yet. Add cloudinaryCloudName and cloudinaryUploadPreset in your browser localStorage first.');
+      throw new Error('Cloudinary not configured');
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', uploadPreset);
+    formData.append('folder', 'linktradenetwork/videos');
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.secure_url) throw new Error(data.error && data.error.message ? data.error.message : 'Video upload failed');
+
+    return {
+      videoUrl: data.secure_url || '',
+      thumbnailUrl: data.secure_url ? data.secure_url.replace(/\.[^/.?]+($|\?)/, '.jpg$1') : ''
+    };
+  },
+
   removeImage() {
     this.currentImageData = null;
-    document.getElementById('post-image-preview').style.display = 'none';
-    document.getElementById('post-image-preview-img').src = '';
-    document.getElementById('post-image-input').value = '';
+    const box = document.getElementById('post-image-preview');
+    const img = document.getElementById('post-image-preview-img');
+    const input = document.getElementById('post-image-input');
+    if (box) box.style.display = 'none';
+    if (img) img.src = '';
+    if (input) input.value = '';
+  },
+
+  removeVideo() {
+    this.currentVideoData = null;
+    this.currentThumbnailData = null;
+    const box = document.getElementById('post-video-preview');
+    const video = document.getElementById('post-video-preview-video');
+    const input = document.getElementById('post-video-input');
+    if (video) {
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+    }
+    if (this.currentVideoObjectUrl) {
+      URL.revokeObjectURL(this.currentVideoObjectUrl);
+      this.currentVideoObjectUrl = null;
+    }
+    if (box) box.style.display = 'none';
+    if (input) input.value = '';
   },
 
   async createPost() {
     const email = localStorage.getItem('userEmail');
     if (!email) { alert('Please sign in to post.'); return; }
     const content = document.getElementById('post-content').value.trim();
-    if (!content && !this.currentImageData) { alert('Please write something or add a photo.'); return; }
+    if (!content && !this.currentImageData && !this.currentVideoData) { alert('Please write something, add a photo, or add a video.'); return; }
     if (content.length > 1000) { alert('Post too long — max 1000 characters.'); return; }
 
     const btn = document.querySelector('[onclick="PostsFeed.createPost()"]');
-    btn.disabled = true; btn.textContent = 'Posting...';
+    btn.disabled = true;
+    btn.textContent = this.currentVideoData ? 'Uploading video...' : 'Posting...';
+
     try {
-      const data = await apiCall({
+      let payload = {
         action: 'create-post',
         email,
         content,
-        imageUrl: this.currentImageData || ''
-      });
+        mediaType: 'text',
+        imageUrl: '',
+        videoUrl: '',
+        thumbnailUrl: ''
+      };
+
+      if (this.currentVideoData) {
+        const upload = await this.uploadVideoToCloudinary(this.currentVideoData);
+        payload.mediaType = 'video';
+        payload.videoUrl = upload.videoUrl || '';
+        payload.thumbnailUrl = this.currentThumbnailData || upload.thumbnailUrl || '';
+      } else if (this.currentImageData) {
+        payload.mediaType = 'image';
+        payload.imageUrl = this.currentImageData;
+      }
+
+      const data = await apiCall(payload);
       if (data.success) {
         document.getElementById('post-content').value = '';
         this.removeImage();
+        this.removeVideo();
         this.offset = 0;
         await this.loadPosts();
         await RewardsManager.load();
       } else {
         alert(data.error || 'Failed to post');
       }
-    } catch(e) { alert('Failed to post. Please try again.'); }
-    finally { btn.disabled = false; btn.textContent = 'Post'; }
+    } catch (e) {
+      alert(e.message || 'Failed to post. Please try again.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Post';
+    }
   },
 
   async loadPosts(append = false) {
@@ -2146,25 +2023,34 @@ const PostsFeed = {
     const initials = (post.fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     const loc = [post.city, post.state].filter(Boolean).join(', ');
     const when = post.postedAt ? new Date(post.postedAt).toLocaleDateString() : '';
+    const safeContent = (post.content || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/
+/g, '<br>');
     const likeBtn = post.hasLiked
       ? `<button onclick="PostsFeed.unlike('${post.postId}', this)" style="background:var(--brand);color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px">❤️ ${post.likeCount} Liked</button>`
       : `<button onclick="PostsFeed.like('${post.postId}', this)" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">🤍 ${post.likeCount} Like</button>`;
+
+    let media = '';
+    if (post.mediaType === 'video' && post.videoUrl) {
+      media = `<div class="post-media"><video controls playsinline preload="metadata" poster="${post.thumbnailUrl || ''}"><source src="${post.videoUrl}" type="video/mp4">Your browser does not support video.</video></div>`;
+    } else if (post.imageUrl) {
+      media = `<div class="post-media"><img src="${post.imageUrl}" alt="Post image"></div>`;
+    }
 
     return `<div class="post-card" id="post-${post.postId}" style="border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;background:var(--panel);transition:all .2s">
       <div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start">
         <div style="width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0">${initials}</div>
         <div style="flex:1">
-          <div style="font-weight:700;font-size:15px">${post.fullName}</div>
-          <div style="font-size:12px;color:var(--muted)">${post.trade}${loc ? ' • ' + loc : ''} • ${when}</div>
+          <div style="font-weight:700;font-size:15px">${post.fullName || 'Member'}</div>
+          <div style="font-size:12px;color:var(--muted)">${post.trade || ''}${loc ? ' • ' + loc : ''}${when ? ' • ' + when : ''}</div>
         </div>
         ${post.isOwner ? `<button onclick="PostsFeed.deletePost('${post.postId}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px" title="Delete post">🗑</button>` : ''}
       </div>
-      <p style="margin:0 0 14px;line-height:1.6;font-size:15px">${post.content.replace(/\n/g,'<br>')}</p>
-      ${post.imageUrl ? `<img src="${post.imageUrl}" style="width:100%;border-radius:8px;margin-bottom:12px;max-height:300px;object-fit:cover" alt="Post image">` : ''}
+      ${safeContent ? `<p style="margin:0 0 14px;line-height:1.6;font-size:15px">${safeContent}</p>` : ''}
+      ${media}
       <div style="display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--line);align-items:center;flex-wrap:wrap">
         ${likeBtn}
         <button onclick="PostsFeed.toggleComments('${post.postId}')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">💬 ${post.commentCount} Comment${post.commentCount !== 1 ? 's' : ''}</button>
-        <button onclick="PostsFeed.sharePost('${post.postId}', '${(post.fullName||'').replace(/'/g,"\\'")}', '${(post.content||'').substring(0,50).replace(/'/g,"\\'")}...')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted)">↗ Share</button>
+        <button onclick="PostsFeed.sharePost('${post.postId}', '${(post.fullName || '').replace(/'/g,"\'")}', '${(post.content || '').substring(0,50).replace(/'/g,"\'")}...')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted)">↗ Share</button>
       </div>
       <div id="comments-${post.postId}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
         <div id="comments-list-${post.postId}"><div style="text-align:center;padding:10px;color:var(--muted);font-size:13px">Loading comments...</div></div>
@@ -2183,111 +2069,49 @@ const PostsFeed = {
     try {
       const data = await apiCall({ action: 'like-post', email, postId });
       if (data.success) {
-        const currentCount = parseInt(btn.textContent.match(/\d+/) || ['0'])[0];
-        btn.innerHTML = `❤️ ${currentCount + 1} Liked`;
-        btn.style.background = 'var(--brand)';
-        btn.style.color = 'white';
-        btn.style.border = 'none';
-        btn.onclick = () => PostsFeed.unlike(postId, btn);
-        await RewardsManager.load();
+        await this.refreshSinglePost(postId);
+      } else {
+        alert(data.error || 'Failed to like post');
       }
-    } catch(e) { console.error(e); }
-    finally { btn.disabled = false; }
+    } catch(e) {
+      alert('Failed to like post');
+    } finally {
+      btn.disabled = false;
+    }
   },
 
   async unlike(postId, btn) {
     const email = localStorage.getItem('userEmail');
-    if (!email) return;
+    if (!email) { alert('Please sign in to unlike posts.'); return; }
     btn.disabled = true;
     try {
       const data = await apiCall({ action: 'unlike-post', email, postId });
       if (data.success) {
-        const currentCount = parseInt(btn.textContent.match(/\d+/) || ['1'])[0];
-        btn.innerHTML = `🤍 ${Math.max(0, currentCount - 1)} Like`;
-        btn.style.background = 'var(--panel2)';
-        btn.style.color = 'var(--muted)';
-        btn.style.border = '1px solid var(--line)';
-        btn.onclick = () => PostsFeed.like(postId, btn);
-      }
-    } catch(e) { console.error(e); }
-    finally { btn.disabled = false; }
-  },
-
-  async toggleComments(postId) {
-    const section = document.getElementById(`comments-${postId}`);
-    if (section.style.display === 'none') {
-      section.style.display = 'block';
-      await this.loadComments(postId);
-    } else {
-      section.style.display = 'none';
-    }
-  },
-
-  async loadComments(postId) {
-    const container = document.getElementById(`comments-list-${postId}`);
-    try {
-      const data = await apiCall({ action: 'get-comments', postId });
-      if (data.success && data.comments.length) {
-        const email = localStorage.getItem('userEmail') || '';
-        container.innerHTML = data.comments.map(c => {
-          const initials = (c.fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-          const isOwner = email && c.email === email;
-          return `<div style="display:flex;gap:8px;margin-bottom:10px;align-items:flex-start">
-            <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px;flex-shrink:0">${initials}</div>
-            <div style="flex:1;background:var(--panel2);border-radius:8px;padding:8px 12px">
-              <div style="font-weight:600;font-size:13px">${c.fullName}</div>
-              <div style="font-size:13px;margin-top:2px;line-height:1.4">${c.commentText}</div>
-            </div>
-            ${isOwner ? `<button onclick="PostsFeed.deleteComment('${c.commentId}','${postId}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:4px">✕</button>` : ''}
-          </div>`;
-        }).join('');
+        await this.refreshSinglePost(postId);
       } else {
-        container.innerHTML = '<div style="text-align:center;padding:10px;color:var(--muted);font-size:13px">No comments yet — be the first!</div>';
+        alert(data.error || 'Failed to unlike post');
       }
     } catch(e) {
-      container.innerHTML = '<div style="text-align:center;padding:10px;color:var(--muted);font-size:13px">Failed to load comments</div>';
+      alert('Failed to unlike post');
+    } finally {
+      btn.disabled = false;
     }
   },
 
-  async addComment(postId) {
-    const email = localStorage.getItem('userEmail');
-    if (!email) { alert('Please sign in to comment.'); return; }
-    const input = document.getElementById(`comment-input-${postId}`);
-    const text  = input.value.trim();
-    if (!text) return;
-
-    input.disabled = true;
+  async refreshSinglePost(postId) {
+    const email = localStorage.getItem('userEmail') || '';
     try {
-      const data = await apiCall({ action: 'add-comment', email, postId, commentText: text });
-      if (data.success) {
-        input.value = '';
-        await this.loadComments(postId);
-        // Update comment count display
-        const postCard = document.getElementById(`post-${postId}`);
-        if (postCard) {
-          const commentBtn = postCard.querySelector('button[onclick*="toggleComments"]');
-          if (commentBtn) {
-            const match = commentBtn.textContent.match(/\d+/);
-            const count = match ? parseInt(match[0]) + 1 : 1;
-            commentBtn.innerHTML = `💬 ${count} Comment${count !== 1 ? 's' : ''}`;
-          }
+      const data = await apiCall({ action: 'get-posts', email, limit: Math.max(this.total || 20, 20), offset: 0 });
+      if (data.success && data.posts) {
+        const post = data.posts.find(p => p.postId === postId);
+        const existing = document.getElementById(`post-${postId}`);
+        if (post && existing) {
+          const wrapper = document.createElement('div');
+          wrapper.innerHTML = this.renderPost(post);
+          existing.replaceWith(wrapper.firstChild);
         }
-        await RewardsManager.load();
-      } else {
-        alert(data.error || 'Failed to post comment');
       }
-    } catch(e) { alert('Failed to post comment'); }
-    finally { input.disabled = false; }
-  },
-
-  async deleteComment(commentId, postId) {
-    const email = localStorage.getItem('userEmail');
-    if (!email) return;
-    if (!confirm('Delete this comment?')) return;
-    try {
-      const data = await apiCall({ action: 'delete-comment', email, commentId });
-      if (data.success) await this.loadComments(postId);
-    } catch(e) { alert('Failed to delete comment'); }
+    } catch(e) {}
   },
 
   async deletePost(postId) {
@@ -2298,18 +2122,84 @@ const PostsFeed = {
       const data = await apiCall({ action: 'delete-post', email, postId });
       if (data.success) {
         const el = document.getElementById(`post-${postId}`);
-        if (el) el.parentElement.remove();
+        if (el) el.remove();
+      } else {
+        alert(data.error || 'Failed to delete post');
       }
-    } catch(e) { alert('Failed to delete post'); }
+    } catch(e) {
+      alert('Failed to delete post');
+    }
   },
 
-  sharePost(postId, name, preview) {
-    const url = `https://www.linktradenetwork.com`;
-    const text = `Check out this post from ${name} on LinkTradeNetwork: "${preview}" Join the trades community at ${url}`;
+  async toggleComments(postId) {
+    const box = document.getElementById(`comments-${postId}`);
+    if (!box) return;
+    const open = box.style.display !== 'none';
+    box.style.display = open ? 'none' : 'block';
+    if (!open) await this.loadComments(postId);
+  },
+
+  async loadComments(postId) {
+    const list = document.getElementById(`comments-list-${postId}`);
+    if (!list) return;
+    list.innerHTML = '<div style="text-align:center;padding:10px;color:var(--muted);font-size:13px">Loading comments...</div>';
+    try {
+      const data = await apiCall({ action: 'get-comments', postId });
+      if (data.success) {
+        if (!data.comments || !data.comments.length) {
+          list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">No comments yet.</div>';
+          return;
+        }
+        list.innerHTML = data.comments.map(c => {
+          const when = c.postedAt ? new Date(c.postedAt).toLocaleDateString() : '';
+          return `<div style="padding:8px 0;border-bottom:1px solid var(--line)">
+            <div style="font-size:13px;font-weight:700">${c.fullName || 'Member'} <span style="color:var(--muted);font-weight:400">${when}</span></div>
+            <div style="font-size:13px;line-height:1.5">${(c.commentText || '').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+          </div>`;
+        }).join('');
+      } else {
+        list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">Failed to load comments.</div>';
+      }
+    } catch(e) {
+      list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">Failed to load comments.</div>';
+    }
+  },
+
+  async addComment(postId) {
+    const email = localStorage.getItem('userEmail');
+    if (!email) { alert('Please sign in to comment.'); return; }
+    const input = document.getElementById(`comment-input-${postId}`);
+    if (!input) return;
+    const commentText = input.value.trim();
+    if (!commentText) return;
+    try {
+      const data = await apiCall({ action: 'add-comment', email, postId, commentText });
+      if (data.success) {
+        input.value = '';
+        await this.loadComments(postId);
+        await this.refreshSinglePost(postId);
+      } else {
+        alert(data.error || 'Failed to add comment');
+      }
+    } catch(e) {
+      alert('Failed to add comment');
+    }
+  },
+
+  async sharePost(postId, author, preview) {
+    const shareUrl = `${window.location.origin}${window.location.pathname}#post-${postId}`;
+    const text = `${author} on LinkTradeNetwork: ${preview}`;
     if (navigator.share) {
-      navigator.share({ title: 'LTN Community Post', text, url });
-    } else {
-      navigator.clipboard.writeText(text).then(() => alert('Post link copied to clipboard!'));
+      try {
+        await navigator.share({ title: 'LinkTradeNetwork Post', text, url: shareUrl });
+        return;
+      } catch(e) {}
+    }
+    try {
+      await navigator.clipboard.writeText(`${text} ${shareUrl}`);
+      alert('Post link copied!');
+    } catch(e) {
+      alert('Could not copy post link.');
     }
   }
 };
