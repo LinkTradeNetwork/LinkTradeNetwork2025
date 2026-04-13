@@ -613,7 +613,7 @@
 
 <script>
 // ===== API CONFIG =====
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJpONCk3k-GF3wfXAdqxNHQELDzLNHj-HhhECj1-xVrEgG6ettGRNdmUXjRj8F4cbH/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzAeyCMyY-dd96w3gihhquIu8Fp-0FAEZ9W8YV6N80Qeg-YastRIsfPNp_Nzj04SoqC/exec";
 
 async function postJSON(data) {
   try {
