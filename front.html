@@ -2023,8 +2023,7 @@ const PostsFeed = {
     const initials = (post.fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     const loc = [post.city, post.state].filter(Boolean).join(', ');
     const when = post.postedAt ? new Date(post.postedAt).toLocaleDateString() : '';
-    const safeContent = (post.content || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/
-/g, '<br>');
+    const safeContent = (post.content || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
     const likeBtn = post.hasLiked
       ? `<button onclick="PostsFeed.unlike('${post.postId}', this)" style="background:var(--brand);color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px">❤️ ${post.likeCount} Liked</button>`
       : `<button onclick="PostsFeed.like('${post.postId}', this)" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">🤍 ${post.likeCount} Like</button>`;
