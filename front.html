@@ -401,23 +401,6 @@ select.form-control{cursor:pointer}
       </div>
     </div>
 
-    <!-- SUCCESS STORIES -->
-    <div class="card" style="margin-top:24px">
-      <div class="hd">
-        <span>Success Stories</span>
-        <button class="btn btn-primary" style="padding:6px 12px;font-size:13px;min-height:32px" onclick="SuccessStories.openAddModal()">Share Your Story</button>
-      </div>
-      <div class="bd">
-        <div id="stories-container">
-          <div style="text-align:center;padding:20px;color:var(--muted)">Loading stories...</div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:20px;justify-content:center">
-          <button id="stories-prev" class="btn btn-secondary" onclick="SuccessStories.prevPage()" style="display:none">Previous</button>
-          <button id="stories-next" class="btn btn-secondary" onclick="SuccessStories.nextPage()" style="display:none">Load More Stories</button>
-        </div>
-      </div>
-    </div>
-
     <!-- POSTS FEED -->
     <div class="card" style="margin-top:24px">
       <div class="hd">
@@ -464,6 +447,23 @@ select.form-control{cursor:pointer}
         </div>
         <div style="text-align:center;margin-top:16px">
           <button id="load-more-posts" class="btn btn-secondary" onclick="PostsFeed.loadMore()" style="display:none">Load More Posts</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCCESS STORIES -->
+    <div class="card" style="margin-top:24px">
+      <div class="hd">
+        <span>Success Stories</span>
+        <button class="btn btn-primary" style="padding:6px 12px;font-size:13px;min-height:32px" onclick="SuccessStories.openAddModal()">Share Your Story</button>
+      </div>
+      <div class="bd">
+        <div id="stories-container">
+          <div style="text-align:center;padding:20px;color:var(--muted)">Loading stories...</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:20px;justify-content:center">
+          <button id="stories-prev" class="btn btn-secondary" onclick="SuccessStories.prevPage()" style="display:none">Previous</button>
+          <button id="stories-next" class="btn btn-secondary" onclick="SuccessStories.nextPage()" style="display:none">Load More Stories</button>
         </div>
       </div>
     </div>
