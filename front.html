@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
 <style>
 :root{
   --bg:#f0f4f8;--ink:#293241;--muted:#5d7290;--line:#cfd9e6;--panel:#ffffff;--panel2:#f8fafc;
@@ -832,6 +841,18 @@ select.form-control{cursor:pointer}
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbws8lpL8vPivEBRoExKXqqxwszg8dbfwtqk1Z12xqNFjVYnuRfzjmaid2vq0ZT3TQ-D/exec";
 const CLOUDINARY_CLOUD_NAME = "doasaii6h";
 const CLOUDINARY_UPLOAD_PRESET = "o6zrbqqm";
+
+/* ===== ANALYTICS ===== */
+const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX';
+function trackEvent(eventName, params = {}){
+  try{
+    if(typeof gtag === 'function' && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX'){
+      gtag('event', eventName, params);
+    }
+  }catch(e){
+    console.log('Analytics tracking skipped:', e);
+  }
+}
 
 /* ===== UTILS ===== */
 function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
@@ -2725,6 +2746,17 @@ const MessageManager={
 };
 
 document.addEventListener('DOMContentLoaded',function(){
+  trackEvent('page_view', { page_title: document.title, page_location: window.location.href, page_path: window.location.pathname });
+
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('click', () => {
+      const label = (el.innerText || el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 80);
+      if(label){
+        trackEvent('ui_click', { element_label: label, element_type: el.tagName.toLowerCase() });
+      }
+    });
+  });
+
   const chatInput=document.getElementById('chat-input');
   if(chatInput) chatInput.addEventListener('keydown',function(e){
     if(e.key==='Enter'&&!e.shiftKey){
