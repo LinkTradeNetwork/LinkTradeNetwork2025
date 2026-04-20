@@ -10,11 +10,13 @@
   gtag('js', new Date());
   gtag('config', 'G-6CYFMPH84F');
 </script>
+
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <title>LinkTradeNetwork • Sign In</title>
+
 <style>
   :root { 
     --bg:#f0f4f8; 
@@ -339,8 +341,6 @@
     color:var(--brand);
     font-weight:700;
   }
-  
-  /* Tabs */
   .tabs{
     display:flex;
     gap:10px;
@@ -373,7 +373,6 @@
     box-shadow:0 2px 8px rgba(0,0,0,0.15);
   }
 
-  /* Mobile Optimizations */
   @media(max-width:640px){
     .wrap{padding:16px}
     .logo-header{margin-bottom:16px}
@@ -410,7 +409,6 @@
     .otp-inputs input{width:44px;height:54px;font-size:22px}
   }
 
-  /* Landscape mode for phones */
   @media(max-height:500px) and (orientation:landscape){
     .wrap{padding:10px}
     .logo-header{margin-bottom:8px}
@@ -429,7 +427,6 @@
     .otp-inputs input{width:40px;height:48px;font-size:20px}
   }
 
-  /* Success animation */
   @keyframes successPulse{
     0%,100%{transform:scale(1)}
     50%{transform:scale(1.05)}
@@ -459,7 +456,6 @@
     <span class="trade-badge">General Contractor</span>
   </div>
 
-  <!-- LIVE MEMBER COUNTER -->
   <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.35);border-radius:14px;padding:12px 20px;margin-bottom:16px;max-width:480px;width:100%;animation:fadeIn 0.8s ease-out 0.15s both">
     <div style="display:flex;align-items:center;gap:6px">
       <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,0.3);animation:pulse 2s infinite"></div>
@@ -483,7 +479,6 @@
     <h1 id="cardTitle"><span class="title-logo">LTN</span><span>Sign Up</span></h1>
     <p class="sub" id="cardSub">Create your account and join skilled trade professionals nationwide</p>
 
-    <!-- Sign Up -->
     <div id="joinStep">
       <div class="name-grid">
         <div>
@@ -495,10 +490,10 @@
           <input id="lastName" placeholder="Doe" autocomplete="family-name" />
         </div>
       </div>
+
       <label>Email Address</label>
       <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
 
-      <!-- ===== REFERRAL CODE FIELD ===== -->
       <div class="referral-box">
         <label>🔗 Referral Code <span style="font-size:11px;font-weight:500;color:var(--muted)">(optional)</span></label>
         <input
@@ -514,12 +509,12 @@
         />
         <div class="referral-hint">Optional — if someone gave you a code, enter it here. Leave blank if you do not have one.</div>
       </div>
-      <!-- ===== END REFERRAL CODE FIELD ===== -->
 
       <label class="agree">
         <input id="consent" type="checkbox">
         <span>I agree to the <a href="/terms.html" target="_blank">Terms &amp; Conditions</a></span>
       </label>
+
       <button id="joinBtn">Get Verification Code</button>
       <div id="joinMsg" class="msg"></div>
 
@@ -538,7 +533,6 @@
         <div id="otpMsg" class="msg"></div>
       </div>
 
-      <!-- CREATE PASSWORD STEP -->
       <div id="passwordStep" style="display:none;margin-top:20px;padding-top:20px;border-top:2px solid var(--line)">
         <div style="text-align:center;margin-bottom:16px">
           <div style="font-size:28px;margin-bottom:8px">🔐</div>
@@ -549,37 +543,38 @@
         <input id="newPassword" type="password" placeholder="Minimum 6 characters" autocomplete="new-password" />
         <label>Confirm Password</label>
         <input id="confirmPassword" type="password" placeholder="Repeat your password" autocomplete="new-password" />
-        <div style="font-size:12px;color:var(--muted);margin-top:8px">
-          • At least 6 characters
-        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px">• At least 6 characters</div>
         <button id="setPasswordBtn">Save Password & Enter LTN</button>
         <div id="passwordMsg" class="msg"></div>
       </div>
     </div>
 
-    <!-- Sign In -->
     <div id="signinStep" style="display:none;">
       <label>Email Address</label>
       <input id="signinEmail" type="email" placeholder="you@example.com" autocomplete="email" />
       <label>Password</label>
       <input id="signinPassword" type="password" placeholder="Your password" autocomplete="current-password" />
       <button id="signinBtn">Sign In</button>
+
       <div style="text-align:center;margin-top:12px">
         <span style="font-size:13px;color:var(--muted)">Forgot your password? </span>
         <a href="#" id="forgotPasswordLink" style="font-size:13px;color:var(--brand);font-weight:600">Reset it here</a>
       </div>
+
       <div id="signinMsg" class="msg"></div>
 
-      <!-- FORGOT PASSWORD FLOW -->
       <div id="forgotStep" style="display:none;margin-top:20px;padding-top:20px;border-top:2px solid var(--line)">
         <div style="text-align:center;font-size:14px;color:var(--muted);margin-bottom:12px">
           Enter your email — we will send a reset code
         </div>
+
         <label>Email Address</label>
         <input id="resetEmail" type="email" placeholder="you@example.com" autocomplete="email" />
         <button id="sendResetBtn">Send Reset Code</button>
+
         <div id="resetStep2" style="display:none;margin-top:16px">
           <div style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:8px">Enter the code sent to your email</div>
+
           <div class="otp-inputs" id="resetOtpInputs">
             <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
             <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
@@ -588,12 +583,14 @@
             <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
             <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
           </div>
+
           <label>New Password</label>
           <input id="resetNewPassword" type="password" placeholder="Min 8 characters with a number" />
           <label>Confirm New Password</label>
           <input id="resetConfirmPassword" type="password" placeholder="Repeat your password" />
           <button id="resetPasswordBtn">Reset Password</button>
         </div>
+
         <div id="resetMsg" class="msg"></div>
       </div>
     </div>
@@ -605,7 +602,6 @@
 </div>
 
 <script>
-// ===== API CONFIG =====
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbws8lpL8vPivEBRoExKXqqxwszg8dbfwtqk1Z12xqNFjVYnuRfzjmaid2vq0ZT3TQ-D/exec";
 
 async function postJSON(data) {
@@ -614,12 +610,12 @@ async function postJSON(data) {
       method: 'POST',
       body: JSON.stringify(data),
       redirect: 'follow'
-    }); 
+    });
     const text = await res.text();
-    try { 
-      return JSON.parse(text); 
-    } catch { 
-      return { success: false, error: text }; 
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { success: false, error: text };
     }
   } catch (err) {
     console.error('API Error:', err);
@@ -638,7 +634,6 @@ function hideMsg(el) {
   el.className = 'msg';
 }
 
-// Tabs
 const tabSignup = $('#tab-signup');
 const tabSignin = $('#tab-signin');
 const cardTitle = $('#cardTitle');
@@ -647,58 +642,70 @@ const joinStep  = $('#joinStep');
 const signinStep= $('#signinStep');
 
 tabSignup.onclick = () => {
-  tabSignup.classList.add('active'); 
+  tabSignup.classList.add('active');
   tabSignin.classList.remove('active');
   cardTitle.innerHTML = '<span class="title-logo">LTN</span><span>Sign Up</span>';
-  cardSub.textContent   = 'Create your account and join skilled trade professionals nationwide';
+  cardSub.textContent = 'Create your account and join skilled trade professionals nationwide';
   joinStep.style.display = 'block';
   signinStep.style.display = 'none';
   hideMsg($('#signinMsg'));
 };
 
 tabSignin.onclick = () => {
-  tabSignin.classList.add('active'); 
+  tabSignin.classList.add('active');
   tabSignup.classList.remove('active');
   cardTitle.innerHTML = '<span class="title-logo">LTN</span><span>Sign In</span>';
-  cardSub.textContent   = 'Welcome back! Sign in to access your account';
+  cardSub.textContent = 'Welcome back! Sign in to access your account';
   joinStep.style.display = 'none';
   signinStep.style.display = 'block';
   hideMsg($('#joinMsg'));
   $('#otpStep').classList.remove('show');
 };
 
-// Sign Up elements
-const joinBtn=$('#joinBtn'), joinMsg=$('#joinMsg');
-const otpBox=$('#otpStep'), otpMsg=$('#otpMsg'), otpEmail=$('#otpEmail');
-const verifyBtn=$('#verifyBtn'), resendBtn=$('#resendBtn');
-const firstNameInput=$('#firstName'), lastNameInput=$('#lastName');
-const emailInput=$('#email'), consent=$('#consent');
-const referralCodeInput=$('#referralCodeInput');
-const codeInputs=$$('#otpStep input');
+const joinBtn = $('#joinBtn');
+const joinMsg = $('#joinMsg');
+const otpBox = $('#otpStep');
+const otpMsg = $('#otpMsg');
+const otpEmail = $('#otpEmail');
+const verifyBtn = $('#verifyBtn');
+const resendBtn = $('#resendBtn');
+const firstNameInput = $('#firstName');
+const lastNameInput = $('#lastName');
+const emailInput = $('#email');
+const consent = $('#consent');
+const referralCodeInput = $('#referralCodeInput');
+const codeInputs = $$('#otpStep input');
 
-// Sign In elements
-const signinEmail=$('#signinEmail'), signinBtn=$('#signinBtn'), signinMsg=$('#signinMsg');
+const signinEmail = $('#signinEmail');
+const signinBtn = $('#signinBtn');
+const signinMsg = $('#signinMsg');
 
-let currentEmail='', currentFirstName='', currentLastName='', currentRefCode='';
+let currentEmail = '';
+let currentFirstName = '';
+let currentLastName = '';
+let currentRefCode = '';
 
-function code(){return codeInputs.map(i=>i.value).join('');}
+function code() {
+  return codeInputs.map(i => i.value).join('');
+}
 
-// OTP input handling
-codeInputs.forEach((inp,i)=>{
-  inp.addEventListener('input',()=>{
-    inp.value=inp.value.replace(/\D/g,'');
-    if(inp.value && i<5) codeInputs[i+1].focus();
+codeInputs.forEach((inp, i) => {
+  inp.addEventListener('input', () => {
+    inp.value = inp.value.replace(/\D/g, '');
+    if (inp.value && i < 5) codeInputs[i + 1].focus();
   });
-  inp.addEventListener('keydown',(e)=>{
-    if(e.key==='Backspace' && !inp.value && i>0){
-      codeInputs[i-1].focus();
+
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !inp.value && i > 0) {
+      codeInputs[i - 1].focus();
     }
   });
-  inp.addEventListener('paste',(e)=>{
+
+  inp.addEventListener('paste', (e) => {
     e.preventDefault();
-    const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'');
-    if(paste.length===6){
-      codeInputs.forEach((input,idx)=>{
+    const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+    if (paste.length === 6) {
+      codeInputs.forEach((input, idx) => {
         input.value = paste[idx] || '';
       });
       codeInputs[5].focus();
@@ -706,42 +713,41 @@ codeInputs.forEach((inp,i)=>{
   });
 });
 
-// Sign Up: request code
-joinBtn.onclick=async()=>{
-  const firstName=(firstNameInput.value||'').trim();
-  const lastName=(lastNameInput.value||'').trim();
-  const email=(emailInput.value||'').trim().toLowerCase();
-  const refCode=(referralCodeInput.value||'').trim().toUpperCase();
-  
-  if(!firstName||!lastName||!email){
+joinBtn.onclick = async () => {
+  const firstName = (firstNameInput.value || '').trim();
+  const lastName = (lastNameInput.value || '').trim();
+  const email = (emailInput.value || '').trim().toLowerCase();
+  const refCode = (referralCodeInput.value || '').trim().toUpperCase();
+
+  if (!firstName || !lastName || !email) {
     showMsg(joinMsg, 'Please fill in all fields', 'err');
     return;
   }
-  if(!consent.checked){
+  if (!consent.checked) {
     showMsg(joinMsg, 'Please agree to the Terms & Conditions', 'err');
     return;
   }
-  
+
   showMsg(joinMsg, 'Sending verification code...', 'ok');
-  joinBtn.disabled=true;
-  
+  joinBtn.disabled = true;
+
   const fullName = `${firstName} ${lastName}`;
-  
-  try{
+
+  try {
     const r = await postJSON({
       action: 'signup',
       name: fullName,
       email: email,
       consent: true,
       userAgent: navigator.userAgent,
-      referralCode: refCode   // ← sends referral code to backend
+      referralCode: refCode
     });
-    
-    if(r.success){
-      currentEmail     = email;
+
+    if (r.success) {
+      currentEmail = email;
       currentFirstName = firstName;
-      currentLastName  = lastName;
-      currentRefCode   = refCode;
+      currentLastName = lastName;
+      currentRefCode = refCode;
       otpEmail.textContent = email;
       otpBox.classList.add('show');
       hideMsg(joinMsg);
@@ -750,208 +756,318 @@ joinBtn.onclick=async()=>{
     } else {
       throw new Error(r.error || 'Failed to send code');
     }
-  } catch(e){
+  } catch (e) {
     showMsg(joinMsg, e.message, 'err');
   }
-  
-  joinBtn.disabled=false;
+
+  joinBtn.disabled = false;
 };
 
-// Sign Up: verify OTP
-verifyBtn.onclick=async()=>{
-  const c=code();
-  if(c.length!==6){ showMsg(otpMsg,'Please enter the complete 6-digit code','err'); return; }
-  verifyBtn.disabled=true; verifyBtn.textContent='Verifying...';
-  try{
-    const r=await postJSON({ action:'verify', email:currentEmail, code:c });
-    if(r.success){
-      const userName=(r.user&&r.user.name)||`${currentFirstName} ${currentLastName}`;
-      localStorage.setItem('ltn_user',JSON.stringify({firstName:currentFirstName,lastName:currentLastName,name:userName,email:currentEmail}));
-      localStorage.setItem('userEmail',currentEmail);
-      localStorage.setItem('userName',userName);
-      if(r.needsPassword){
+verifyBtn.onclick = async () => {
+  const c = code();
+  if (c.length !== 6) {
+    showMsg(otpMsg, 'Please enter the complete 6-digit code', 'err');
+    return;
+  }
+
+  verifyBtn.disabled = true;
+  verifyBtn.textContent = 'Verifying...';
+
+  try {
+    const r = await postJSON({ action: 'verify', email: currentEmail, code: c });
+    if (r.success) {
+      const userName = (r.user && r.user.name) || `${currentFirstName} ${currentLastName}`;
+      localStorage.setItem('ltn_user', JSON.stringify({
+        firstName: currentFirstName,
+        lastName: currentLastName,
+        name: userName,
+        email: currentEmail
+      }));
+      localStorage.setItem('userEmail', currentEmail);
+      localStorage.setItem('userName', userName);
+
+      if (r.needsPassword) {
         otpBox.classList.remove('show');
-        document.getElementById('passwordStep').style.display='block';
+        document.getElementById('passwordStep').style.display = 'block';
         document.getElementById('newPassword').focus();
       } else {
-        const doneStep=$('#doneStep');
-        doneStep.style.display='block'; doneStep.classList.add('show');
-        setTimeout(()=>{ window.location.replace('front.html'); },1200);
+        const doneStep = $('#doneStep');
+        doneStep.style.display = 'block';
+        doneStep.classList.add('show');
+        setTimeout(() => { window.location.replace('dashboard.html'); }, 1200);
       }
-    } else { throw new Error(r.error||'Invalid or expired code'); }
-  } catch(e){
-    showMsg(otpMsg,e.message,'err');
-    codeInputs.forEach(inp=>inp.value=''); codeInputs[0].focus();
+    } else {
+      throw new Error(r.error || 'Invalid or expired code');
+    }
+  } catch (e) {
+    showMsg(otpMsg, e.message, 'err');
+    codeInputs.forEach(inp => inp.value = '');
+    codeInputs[0].focus();
   }
-  verifyBtn.disabled=false; verifyBtn.textContent='Verify & Continue';
+
+  verifyBtn.disabled = false;
+  verifyBtn.textContent = 'Verify & Continue';
 };
 
-// Set password after OTP
-document.getElementById('setPasswordBtn').onclick=async()=>{
-  const pw=$('#newPassword').value.trim();
-  const pw2=$('#confirmPassword').value.trim();
-  const btn=document.getElementById('setPasswordBtn');
-  const msg=document.getElementById('passwordMsg');
-  if(!pw||!pw2){ showMsg(msg,'Please fill in both fields','err'); return; }
-  if(pw!==pw2){ showMsg(msg,'Passwords do not match','err'); return; }
-  if(pw.length<6){ showMsg(msg,'Password must be at least 6 characters','err'); return; }
-  if(pw!==pw2){ showMsg(msg,'Passwords do not match','err'); return; }
-  btn.disabled=true; btn.textContent='Saving...';
-  try{
-    const r=await postJSON({ action:'set-password', email:currentEmail, password:pw });
-    if(r.success){
-      showMsg(msg,'✅ Password saved! Entering LTN...','ok');
-      setTimeout(()=>{ window.location.replace('front.html'); },1200);
-    } else { throw new Error(r.error||'Could not save password'); }
-  } catch(e){ showMsg(msg,e.message,'err'); }
-  btn.disabled=false; btn.textContent='Save Password & Enter LTN';
+document.getElementById('setPasswordBtn').onclick = async () => {
+  const pw = $('#newPassword').value.trim();
+  const pw2 = $('#confirmPassword').value.trim();
+  const btn = document.getElementById('setPasswordBtn');
+  const msg = document.getElementById('passwordMsg');
+
+  if (!pw || !pw2) {
+    showMsg(msg, 'Please fill in both fields', 'err');
+    return;
+  }
+  if (pw !== pw2) {
+    showMsg(msg, 'Passwords do not match', 'err');
+    return;
+  }
+  if (pw.length < 6) {
+    showMsg(msg, 'Password must be at least 6 characters', 'err');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  try {
+    const r = await postJSON({ action: 'set-password', email: currentEmail, password: pw });
+    if (r.success) {
+      showMsg(msg, '✅ Password saved! Entering LTN...', 'ok');
+      setTimeout(() => { window.location.replace('dashboard.html'); }, 1200);
+    } else {
+      throw new Error(r.error || 'Could not save password');
+    }
+  } catch (e) {
+    showMsg(msg, e.message, 'err');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Save Password & Enter LTN';
 };
 
-
-
-// Sign Up: resend OTP
-resendBtn.onclick=async()=>{
+resendBtn.onclick = async () => {
   const fullName = `${currentFirstName} ${currentLastName}`;
-  resendBtn.disabled=true;
-  resendBtn.textContent='Sending...';
-  
-  try{
-    const r=await postJSON({
+  resendBtn.disabled = true;
+  resendBtn.textContent = 'Sending...';
+
+  try {
+    const r = await postJSON({
       action: 'resend',
       email: currentEmail,
       name: fullName,
       userAgent: navigator.userAgent
     });
-    
+
     showMsg(otpMsg, r.success ? 'New code sent to your email!' : 'Failed to resend code', r.success ? 'ok' : 'err');
-    
-    if(r.success){
-      codeInputs.forEach(inp=>inp.value='');
+
+    if (r.success) {
+      codeInputs.forEach(inp => inp.value = '');
       codeInputs[0].focus();
     }
-  } catch(e){
+  } catch (e) {
     showMsg(otpMsg, e.message, 'err');
   }
-  
-  setTimeout(()=>{
-    resendBtn.disabled=false;
-    resendBtn.textContent='Resend Code';
+
+  setTimeout(() => {
+    resendBtn.disabled = false;
+    resendBtn.textContent = 'Resend Code';
   }, 3000);
 };
 
-// Sign In
-signinBtn.onclick=async()=>{
-  const email=(signinEmail.value||'').trim().toLowerCase();
-  const password=($('#signinPassword')||{value:''}).value.trim();
-  if(!email){ showMsg(signinMsg,'Please enter your email address','err'); return; }
-  if(!password){ showMsg(signinMsg,'Please enter your password','err'); return; }
-  signinBtn.disabled=true; signinBtn.textContent='Signing in...';
-  showMsg(signinMsg,'Signing you in...','ok');
-  try{
-    const r=await postJSON({ action:'signin', email, password, userAgent:navigator.userAgent });
-    if(r.success){
-      const userName=(r.user&&r.user.name)||'';
-      localStorage.setItem('ltn_user',JSON.stringify({email,name:userName}));
-      localStorage.setItem('userEmail',email);
-      localStorage.setItem('userName',userName);
-      showMsg(signinMsg,'Success! Redirecting...','ok');
-      setTimeout(()=>{ window.location.replace('front.html'); },800);
+signinBtn.onclick = async () => {
+  const email = (signinEmail.value || '').trim().toLowerCase();
+  const password = ($('#signinPassword') || { value: '' }).value.trim();
+
+  if (!email) {
+    showMsg(signinMsg, 'Please enter your email address', 'err');
+    return;
+  }
+  if (!password) {
+    showMsg(signinMsg, 'Please enter your password', 'err');
+    return;
+  }
+
+  signinBtn.disabled = true;
+  signinBtn.textContent = 'Signing in...';
+  showMsg(signinMsg, 'Signing you in...', 'ok');
+
+  try {
+    const r = await postJSON({ action: 'signin', email, password, userAgent: navigator.userAgent });
+    if (r.success) {
+      const userName = (r.user && r.user.name) || '';
+      localStorage.setItem('ltn_user', JSON.stringify({ email, name: userName }));
+      localStorage.setItem('userEmail', email);
+      localStorage.setItem('userName', userName);
+      showMsg(signinMsg, 'Success! Redirecting...', 'ok');
+      setTimeout(() => { window.location.replace('dashboard.html'); }, 800);
     } else {
-      if(r.requiresOtp){
+      if (r.requiresOtp) {
         tabSignup.click();
-        showMsg(joinMsg,r.error||'Please sign up to receive a verification code','err');
-        emailInput.value=email; firstNameInput.focus();
+        showMsg(joinMsg, r.error || 'Please sign up to receive a verification code', 'err');
+        emailInput.value = email;
+        firstNameInput.focus();
       } else {
-        showMsg(signinMsg,r.error||'Unable to sign in','err');
+        showMsg(signinMsg, r.error || 'Unable to sign in', 'err');
       }
     }
-  } catch(e){ showMsg(signinMsg,'Connection error. Please try again.','err'); }
-  signinBtn.disabled=false; signinBtn.textContent='Sign In';
+  } catch (e) {
+    showMsg(signinMsg, 'Connection error. Please try again.', 'err');
+  }
+
+  signinBtn.disabled = false;
+  signinBtn.textContent = 'Sign In';
 };
 
-// Forgot password link
-const forgotLink=document.getElementById('forgotPasswordLink');
-if(forgotLink) forgotLink.onclick=function(e){
-  e.preventDefault();
-  document.getElementById('forgotStep').style.display='block';
-  const fe=document.getElementById('resetEmail');
-  if(fe){ fe.value=signinEmail.value||''; fe.focus(); }
-};
+const forgotLink = document.getElementById('forgotPasswordLink');
+if (forgotLink) {
+  forgotLink.onclick = function(e) {
+    e.preventDefault();
+    document.getElementById('forgotStep').style.display = 'block';
+    const fe = document.getElementById('resetEmail');
+    if (fe) {
+      fe.value = signinEmail.value || '';
+      fe.focus();
+    }
+  };
+}
 
-// Send reset code
-const sendResetBtn=document.getElementById('sendResetBtn');
-if(sendResetBtn) sendResetBtn.onclick=async()=>{
-  const email=(document.getElementById('resetEmail').value||'').trim().toLowerCase();
-  const msg=document.getElementById('resetMsg');
-  if(!email){ showMsg(msg,'Please enter your email','err'); return; }
-  sendResetBtn.disabled=true; sendResetBtn.textContent='Sending...';
-  try{
-    const r=await postJSON({ action:'forgot-password', email });
-    if(r.success){
-      showMsg(msg,'Reset code sent! Check your email.','ok');
-      document.getElementById('resetStep2').style.display='block';
-      const ri=Array.from(document.querySelectorAll('#resetOtpInputs input'));
-      ri.forEach((inp,i)=>{
-        inp.addEventListener('input',()=>{ inp.value=inp.value.replace(/\D/g,''); if(inp.value&&i<5) ri[i+1].focus(); });
-        inp.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!inp.value&&i>0) ri[i-1].focus(); });
+const sendResetBtn = document.getElementById('sendResetBtn');
+if (sendResetBtn) {
+  sendResetBtn.onclick = async () => {
+    const email = (document.getElementById('resetEmail').value || '').trim().toLowerCase();
+    const msg = document.getElementById('resetMsg');
+
+    if (!email) {
+      showMsg(msg, 'Please enter your email', 'err');
+      return;
+    }
+
+    sendResetBtn.disabled = true;
+    sendResetBtn.textContent = 'Sending...';
+
+    try {
+      const r = await postJSON({ action: 'forgot-password', email });
+      if (r.success) {
+        showMsg(msg, 'Reset code sent! Check your email.', 'ok');
+        document.getElementById('resetStep2').style.display = 'block';
+
+        const ri = Array.from(document.querySelectorAll('#resetOtpInputs input'));
+        ri.forEach((inp, i) => {
+          inp.oninput = () => {
+            inp.value = inp.value.replace(/\D/g, '');
+            if (inp.value && i < 5) ri[i + 1].focus();
+          };
+          inp.onkeydown = (e) => {
+            if (e.key === 'Backspace' && !inp.value && i > 0) ri[i - 1].focus();
+          };
+          inp.onpaste = (e) => {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+            if (paste.length === 6) {
+              ri.forEach((input, idx) => input.value = paste[idx] || '');
+              ri[5].focus();
+            }
+          };
+        });
+      } else {
+        showMsg(msg, r.error || 'Could not send reset code', 'err');
+      }
+    } catch (e) {
+      showMsg(msg, 'Connection error', 'err');
+    }
+
+    sendResetBtn.disabled = false;
+    sendResetBtn.textContent = 'Send Reset Code';
+  };
+}
+
+const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+if (resetPasswordBtn) {
+  resetPasswordBtn.onclick = async () => {
+    const email = (document.getElementById('resetEmail').value || '').trim().toLowerCase();
+    const codeInputsReset = Array.from(document.querySelectorAll('#resetOtpInputs input'));
+    const resetCode = codeInputsReset.map(i => i.value).join('');
+    const pw = (document.getElementById('resetNewPassword').value || '').trim();
+    const pw2 = (document.getElementById('resetConfirmPassword').value || '').trim();
+    const msg = document.getElementById('resetMsg');
+
+    if (!email) {
+      showMsg(msg, 'Please enter your email', 'err');
+      return;
+    }
+    if (resetCode.length !== 6) {
+      showMsg(msg, 'Please enter the full 6-digit reset code', 'err');
+      return;
+    }
+    if (!pw || !pw2) {
+      showMsg(msg, 'Please fill in both password fields', 'err');
+      return;
+    }
+    if (pw !== pw2) {
+      showMsg(msg, 'Passwords do not match', 'err');
+      return;
+    }
+    if (pw.length < 8 || !/\d/.test(pw)) {
+      showMsg(msg, 'Password must be at least 8 characters and include a number', 'err');
+      return;
+    }
+
+    resetPasswordBtn.disabled = true;
+    resetPasswordBtn.textContent = 'Resetting...';
+
+    try {
+      const r = await postJSON({
+        action: 'reset-password',
+        email,
+        code: resetCode,
+        password: pw
       });
-    } else { showMsg(msg,r.error||'Could not send reset code','err'); }
-  } catch(e){ showMsg(msg,'Connection error','err'); }
-  sendResetBtn.disabled=false; sendResetBtn.textContent='Send Reset Code';
-};
 
-// Reset password submit
-const resetPasswordBtn=document.getElementById('resetPasswordBtn');
-if(resetPasswordBtn) resetPasswordBtn.onclick=async()=>{
-  const email=(document.getElementById('resetEmail').value||'').trim().toLowerCase();
-  const ri=Array.from(document.querySelectorAll('#resetOtpInputs input'));
-  const resetCode=ri.map(i=>i.value).join('');
-  const pw=(document.getElementById('resetNewPassword').value||'').trim();
-  const pw2=(document.getElementById('resetConfirmPassword').value||'').trim();
-  const msg=document.getElementById('resetMsg');
-  if(resetCode.length!==6){ showMsg(msg,'Please enter the 6-digit reset code','err'); return; }
-  if(!pw||!pw2){ showMsg(msg,'Please fill in both password fields','err'); return; }
-  if(pw!==pw2){ showMsg(msg,'Passwords do not match','err'); return; }
-  if(pw.length<6){ showMsg(msg,'Password must be at least 6 characters','err'); return; }
-  resetPasswordBtn.disabled=true; resetPasswordBtn.textContent='Resetting...';
-  try{
-    const r=await postJSON({ action:'reset-password', email, code:resetCode, password:pw });
-    if(r.success){
-      showMsg(msg,'✅ Password reset! You can now sign in.','ok');
-      setTimeout(()=>{
-        document.getElementById('forgotStep').style.display='none';
-        signinEmail.value=email;
-        const sp=document.getElementById('signinPassword');
-        if(sp){ sp.value=''; sp.focus(); }
-      },2000);
-    } else { showMsg(msg,r.error||'Could not reset password','err'); }
-  } catch(e){ showMsg(msg,'Connection error','err'); }
-  resetPasswordBtn.disabled=false; resetPasswordBtn.textContent='Reset Password';
-};
+      if (r.success) {
+        showMsg(msg, '✅ Password reset successfully! Switching to sign in...', 'ok');
+        setTimeout(() => {
+          document.getElementById('forgotStep').style.display = 'none';
+          document.getElementById('resetStep2').style.display = 'none';
+          signinEmail.value = email;
+          const sp = document.getElementById('signinPassword');
+          if (sp) {
+            sp.value = '';
+            sp.focus();
+          }
+        }, 2000);
+      } else {
+        showMsg(msg, r.error || 'Could not reset password', 'err');
+      }
+    } catch (e) {
+      showMsg(msg, 'Connection error', 'err');
+    }
 
+    resetPasswordBtn.disabled = false;
+    resetPasswordBtn.textContent = 'Reset Password';
+  };
+}
 
+firstNameInput.addEventListener('keypress', e => { if (e.key === 'Enter') lastNameInput.focus(); });
+lastNameInput.addEventListener('keypress', e => { if (e.key === 'Enter') emailInput.focus(); });
+emailInput.addEventListener('keypress', e => { if (e.key === 'Enter') joinBtn.click(); });
+signinEmail.addEventListener('keypress', e => { if (e.key === 'Enter') signinBtn.click(); });
 
-// Enter key handlers
-firstNameInput.addEventListener('keypress', e => { if(e.key==='Enter') lastNameInput.focus(); });
-lastNameInput.addEventListener('keypress',  e => { if(e.key==='Enter') emailInput.focus(); });
-emailInput.addEventListener('keypress',     e => { if(e.key==='Enter') joinBtn.click(); });
-signinEmail.addEventListener('keypress',    e => { if(e.key==='Enter') signinBtn.click(); });
-
-// Pre-fill referral code from URL
-(function(){
+(function() {
   const params = new URLSearchParams(window.location.search);
   const ref = params.get('ref');
-  if(ref && referralCodeInput){
-    referralCodeInput.value = ref.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if (ref && referralCodeInput) {
+    referralCodeInput.value = ref.toUpperCase().replace(/[^A-Z0-9]/g, '');
   }
 })();
 
-// Live member counter
-(function(){
+(function() {
   function animateCount(el, target) {
     const duration = 1200;
     const start = performance.now();
     const from = 0;
+
     function step(now) {
       const progress = Math.min((now - start) / duration, 1);
       const ease = 1 - Math.pow(1 - progress, 3);
@@ -959,26 +1075,30 @@ signinEmail.addEventListener('keypress',    e => { if(e.key==='Enter') signinBtn
       if (progress < 1) requestAnimationFrame(step);
       else el.textContent = target.toLocaleString();
     }
+
     requestAnimationFrame(step);
   }
 
   async function fetchMemberCount() {
     const el = document.getElementById('member-count');
     if (!el) return;
+
     try {
       const res = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         body: JSON.stringify({ action: 'get-member-count' }),
         redirect: 'follow'
       });
+
       const text = await res.text();
       const data = JSON.parse(text);
+
       if (data.success && data.count >= 0) {
         animateCount(el, data.count);
       } else {
         el.textContent = '—';
       }
-    } catch(e) {
+    } catch (e) {
       el.textContent = '—';
     }
   }
