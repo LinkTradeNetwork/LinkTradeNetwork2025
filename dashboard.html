@@ -2051,11 +2051,22 @@ const PostsFeed = {
       : `<button onclick="PostsFeed.like('${post.postId}', this)" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">🤍 ${post.likeCount} Like</button>`;
 
     let media = '';
+    let mediaUrl = '';
+    let mediaDownloadName = '';
+
     if (post.mediaType === 'video' && post.videoUrl) {
+      mediaUrl = post.videoUrl;
+      mediaDownloadName = `LTN-video-${post.postId || Date.now()}.mp4`;
       media = `<div class="post-media"><video controls playsinline preload="metadata" poster="${post.thumbnailUrl || ''}"><source src="${post.videoUrl}" type="video/mp4">Your browser does not support video.</video></div>`;
     } else if (post.imageUrl) {
+      mediaUrl = post.imageUrl;
+      mediaDownloadName = `LTN-photo-${post.postId || Date.now()}.jpg`;
       media = `<div class="post-media"><img src="${post.imageUrl}" alt="Post image"></div>`;
     }
+
+    const mediaDownloadBtn = mediaUrl
+      ? `<a href="${mediaUrl}" download="${mediaDownloadName}" target="_blank" rel="noopener noreferrer" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:4px">⬇ Download</a>`
+      : '';
 
     return `<div class="post-card" id="post-${post.postId}" style="border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;background:var(--panel);transition:all .2s">
       <div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start">
@@ -2072,6 +2083,7 @@ const PostsFeed = {
         ${likeBtn}
         <button onclick="PostsFeed.toggleComments('${post.postId}')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">💬 ${post.commentCount} Comment${post.commentCount !== 1 ? 's' : ''}</button>
         <button onclick="PostsFeed.sharePost('${post.postId}', '${(post.fullName || '').replace(/'/g,"\'")}', '${(post.content || '').substring(0,50).replace(/'/g,"\'")}...')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted)">↗ Share</button>
+        ${mediaDownloadBtn}
       </div>
       <div id="comments-${post.postId}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
         <div id="comments-list-${post.postId}"><div style="text-align:center;padding:10px;color:var(--muted);font-size:13px">Loading comments...</div></div>
