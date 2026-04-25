@@ -129,16 +129,6 @@
     .bio{
       color:#475569;
       font-size:14px;
-      min-height:45px;
-      margin-bottom:14px;
-    }
-
-    .stats{
-      background:#f8fafc;
-      padding:12px;
-      border-radius:12px;
-      font-size:14px;
-      color:#475569;
       margin-bottom:14px;
     }
 
@@ -152,6 +142,7 @@
       font-weight:800;
       cursor:pointer;
       border:none;
+      margin-top:10px;
     }
 
     .btn:hover{
@@ -201,9 +192,7 @@
   import {
     getFirestore,
     collection,
-    getDocs,
-    query,
-    orderBy
+    getDocs
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -244,9 +233,8 @@
       const trade = member.trade || member.specialty || "Trade Not Selected";
       const city = member.city || "";
       const state = member.state || "";
-      const location = city || state ? `${city}${city && state ? ", " : ""}${state}` : "Location not added";
-      const bio = member.bio || member.about || "This member has not added a bio yet.";
-      const hours = Number(member.hours || 0);
+      const location = city || state ? `${city}${city && state ? ", " : ""}${state}` : "";
+      const bio = member.bio || member.about || "";
       const photo = member.profileImage || member.photoURL || "";
 
       const card = document.createElement("div");
@@ -259,12 +247,9 @@
 
         <div class="name">${name}</div>
         <div class="trade">${trade}</div>
-        <div class="location">${location}</div>
-        <div class="bio">${bio}</div>
 
-        <div class="stats">
-          Apprentice Hours: <strong>${hours}</strong>
-        </div>
+        ${location ? `<div class="location">${location}</div>` : ""}
+        ${bio ? `<div class="bio">${bio}</div>` : ""}
 
         <button class="btn" onclick="alert('Full profile page coming next.')">
           View Profile
