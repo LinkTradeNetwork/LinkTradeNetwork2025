@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LTN Members</title>
+
+  <style>
+    body{
+      margin:0;
+      font-family:Arial, sans-serif;
+      background:#f0f4f8;
+      color:#293241;
+    }
+
+    .topbar{
+      background:#3d5a80;
+      color:white;
+      padding:16px 24px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .logo{
+      font-weight:800;
+      font-size:22px;
+    }
+
+    .nav a{
+      color:white;
+      text-decoration:none;
+      margin-left:16px;
+      font-weight:700;
+    }
+
+    .hero{
+      background:linear-gradient(135deg,#ff8c3a,#ea6a00);
+      color:white;
+      padding:50px 20px;
+      text-align:center;
+    }
+
+    .hero h1{
+      margin:0;
+      font-size:38px;
+    }
+
+    .hero p{
+      font-size:18px;
+      margin-top:10px;
+    }
+
+    .wrap{
+      max-width:1150px;
+      margin:0 auto;
+      padding:30px 20px;
+    }
+
+    .search-box{
+      background:white;
+      padding:20px;
+      border-radius:18px;
+      box-shadow:0 8px 25px rgba(0,0,0,.08);
+      margin-bottom:25px;
+    }
+
+    input{
+      width:100%;
+      padding:14px;
+      border:1px solid #cfd9e6;
+      border-radius:12px;
+      font-size:16px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:20px;
+    }
+
+    .card{
+      background:white;
+      border-radius:18px;
+      padding:22px;
+      box-shadow:0 8px 25px rgba(0,0,0,.08);
+      border:1px solid #e2e8f0;
+    }
+
+    .avatar{
+      width:70px;
+      height:70px;
+      border-radius:50%;
+      background:#3d5a80;
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:26px;
+      font-weight:800;
+      margin-bottom:14px;
+      overflow:hidden;
+    }
+
+    .avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .name{
+      font-size:22px;
+      font-weight:800;
+      margin-bottom:5px;
+    }
+
+    .trade{
+      color:#ea6a00;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .location{
+      color:#64748b;
+      font-size:14px;
+      margin-bottom:10px;
+    }
+
+    .bio{
+      color:#475569;
+      font-size:14px;
+      min-height:45px;
+      margin-bottom:14px;
+    }
+
+    .stats{
+      background:#f8fafc;
+      padding:12px;
+      border-radius:12px;
+      font-size:14px;
+      color:#475569;
+      margin-bottom:14px;
+    }
+
+    .btn{
+      display:inline-block;
+      background:#ea6a00;
+      color:white;
+      padding:10px 16px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:800;
+      cursor:pointer;
+      border:none;
+    }
+
+    .btn:hover{
+      background:#c35700;
+    }
+
+    .empty{
+      background:white;
+      padding:25px;
+      border-radius:18px;
+      text-align:center;
+      color:#64748b;
+      box-shadow:0 8px 25px rgba(0,0,0,.08);
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div class="logo">LTN • LinkTradeNetwork</div>
+  <div class="nav">
+    <a href="index.html">Home</a>
+    <a href="front.html">Sign In</a>
+  </div>
+</div>
+
+<section class="hero">
+  <h1>Trade Members</h1>
+  <p>See skilled trade workers, apprentices, and contractors joining LinkTradeNetwork.</p>
+</section>
+
+<div class="wrap">
+
+  <div class="search-box">
+    <input id="searchInput" type="text" placeholder="Search by name, trade, city, or state...">
+  </div>
+
+  <div id="membersGrid" class="grid">
+    <div class="empty">Loading members...</div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    query,
+    orderBy
+  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
+    authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
+    projectId: "linktradenetwork-2dcd1",
+    storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
+    messagingSenderId: "219091766597",
+    appId: "1:219091766597:web:9878c199ba17e0ed89c22c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let members = [];
+
+  function getInitials(name){
+    if(!name) return "LT";
+    return name
+      .split(" ")
+      .map(word => word[0])
+      .join("")
+      .substring(0,2)
+      .toUpperCase();
+  }
+
+  function renderMembers(list){
+    const grid = document.getElementById("membersGrid");
+    grid.innerHTML = "";
+
+    if(list.length === 0){
+      grid.innerHTML = `<div class="empty">No members found yet.</div>`;
+      return;
+    }
+
+    list.forEach(member => {
+      const name = member.name || member.fullName || "Trade Member";
+      const trade = member.trade || member.specialty || "Trade Not Selected";
+      const city = member.city || "";
+      const state = member.state || "";
+      const location = city || state ? `${city}${city && state ? ", " : ""}${state}` : "Location not added";
+      const bio = member.bio || member.about || "This member has not added a bio yet.";
+      const hours = Number(member.hours || 0);
+      const photo = member.profileImage || member.photoURL || "";
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <div class="avatar">
+          ${photo ? `<img src="${photo}" alt="${name}">` : getInitials(name)}
+        </div>
+
+        <div class="name">${name}</div>
+        <div class="trade">${trade}</div>
+        <div class="location">${location}</div>
+        <div class="bio">${bio}</div>
+
+        <div class="stats">
+          Apprentice Hours: <strong>${hours}</strong>
+        </div>
+
+        <button class="btn" onclick="alert('Full profile page coming next.')">
+          View Profile
+        </button>
+      `;
+
+      grid.appendChild(card);
+    });
+  }
+
+  async function loadMembers(){
+    const grid = document.getElementById("membersGrid");
+
+    try{
+      const usersRef = collection(db, "users");
+      const usersSnap = await getDocs(usersRef);
+
+      members = [];
+
+      usersSnap.forEach(docSnap => {
+        const data = docSnap.data();
+        members.push({
+          id: docSnap.id,
+          ...data
+        });
+      });
+
+      renderMembers(members);
+
+    }catch(error){
+      console.error(error);
+      grid.innerHTML = `<div class="empty">Could not load members. Check Firebase rules.</div>`;
+    }
+  }
+
+  document.getElementById("searchInput").addEventListener("input", function(){
+    const term = this.value.toLowerCase();
+
+    const filtered = members.filter(member => {
+      const text = `
+        ${member.name || ""}
+        ${member.fullName || ""}
+        ${member.trade || ""}
+        ${member.specialty || ""}
+        ${member.city || ""}
+        ${member.state || ""}
+        ${member.bio || ""}
+      `.toLowerCase();
+
+      return text.includes(term);
+    });
+
+    renderMembers(filtered);
+  });
+
+  loadMembers();
+</script>
+
+</body>
+</html>
