@@ -39,6 +39,7 @@
     .log-list{margin-top:14px;display:grid;gap:10px}
     .log-item{background:#f8fafc;border:1px solid #e2e8f0;padding:12px 14px;border-radius:12px;display:flex;justify-content:space-between;gap:10px;font-size:14px}
     .empty{color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;padding:14px;border-radius:12px;margin-top:14px;font-size:14px}
+
     @media(max-width:750px){
       .card.big{grid-column:span 1}
       .topbar{padding:14px 16px;flex-wrap:wrap;gap:12px}
@@ -157,7 +158,13 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut,
+    signInAnonymously
+  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
   import {
     getFirestore,
     doc,
@@ -250,8 +257,14 @@
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      window.location.href = "front.html";
-      return;
+      try {
+        await signInAnonymously(auth);
+        return;
+      } catch (error) {
+        console.error("Anonymous sign-in failed:", error);
+        window.location.href = "front.html";
+        return;
+      }
     }
 
     try {
@@ -293,10 +306,17 @@
       return;
     }
 
-    const user = auth.currentUser;
+    let user = auth.currentUser;
+
     if (!user) {
-      window.location.href = "front.html";
-      return;
+      try {
+        const result = await signInAnonymously(auth);
+        user = result.user;
+      } catch (error) {
+        console.error("Anonymous sign-in failed:", error);
+        alert("Could not start session. Check Firebase Anonymous Auth.");
+        return;
+      }
     }
 
     try {
