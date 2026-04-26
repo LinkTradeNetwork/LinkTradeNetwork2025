@@ -8,32 +8,104 @@
 <style>
 body{margin:0;font-family:Arial;background:#f0f4f8;color:#293241}
 
-.topbar{background:#3d5a80;color:white;padding:16px 24px;display:flex;justify-content:space-between}
-.nav a{color:white;margin-left:16px;text-decoration:none;font-weight:700}
+.topbar{
+  background:#3d5a80;
+  color:white;
+  padding:16px 24px;
+  display:flex;
+  justify-content:space-between;
+}
 
-.wrap{max-width:800px;margin:40px auto;padding:20px}
+.nav a{
+  color:white;
+  margin-left:16px;
+  text-decoration:none;
+  font-weight:700;
+}
+
+.wrap{
+  max-width:900px;
+  margin:40px auto;
+  padding:20px;
+}
 
 .card{
   background:white;
   padding:30px;
   border-radius:20px;
   box-shadow:0 10px 30px rgba(0,0,0,.1);
+}
+
+.header{
   text-align:center;
+  margin-bottom:20px;
 }
 
 .avatar{
-  width:120px;height:120px;border-radius:50%;
-  background:#3d5a80;color:white;
-  display:flex;align-items:center;justify-content:center;
-  font-size:40px;font-weight:800;margin:0 auto 20px;
+  width:140px;height:140px;
+  border-radius:50%;
+  background:#3d5a80;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:50px;
+  font-weight:800;
+  margin:0 auto 15px;
   overflow:hidden;
 }
 .avatar img{width:100%;height:100%;object-fit:cover}
 
-.name{font-size:28px;font-weight:800}
-.trade{color:#ea6a00;font-weight:800;margin:10px 0}
-.location{color:#64748b;margin-bottom:10px}
-.bio{color:#475569;margin-top:10px}
+.name{font-size:30px;font-weight:800}
+.trade{color:#ea6a00;font-weight:800;margin-top:5px}
+.location{color:#64748b;margin-top:5px}
+
+.section{
+  margin-top:25px;
+}
+
+.section-title{
+  font-weight:800;
+  margin-bottom:10px;
+  border-bottom:1px solid #ddd;
+  padding-bottom:5px;
+}
+
+.bio{
+  color:#475569;
+  line-height:1.6;
+}
+
+.tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.tag{
+  background:#f1f5f9;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:13px;
+}
+
+.actions{
+  margin-top:25px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+}
+
+.btn{
+  padding:10px 20px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:700;
+}
+
+.btn-primary{background:#ea6a00;color:white}
+.btn-secondary{background:#3d5a80;color:white}
 
 </style>
 </head>
@@ -50,11 +122,34 @@ body{margin:0;font-family:Arial;background:#f0f4f8;color:#293241}
 
 <div class="wrap">
   <div class="card">
-    <div id="avatar" class="avatar">LT</div>
-    <div id="name" class="name"></div>
-    <div id="trade" class="trade"></div>
-    <div id="location" class="location"></div>
-    <div id="bio" class="bio"></div>
+
+    <div class="header">
+      <div id="avatar" class="avatar">LT</div>
+      <div id="name" class="name"></div>
+      <div id="trade" class="trade"></div>
+      <div id="location" class="location"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary">Connect</button>
+      <button class="btn btn-secondary">Message</button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">About</div>
+      <div id="bio" class="bio"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Skills</div>
+      <div id="skills" class="tags"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Certifications</div>
+      <div id="certs" class="bio"></div>
+    </div>
+
   </div>
 </div>
 
@@ -77,24 +172,26 @@ const userId = params.get("id");
 async function loadProfile(){
   if(!userId) return;
 
-  const docRef = doc(db, "users", userId);
-  const snap = await getDoc(docRef);
-
+  const snap = await getDoc(doc(db, "users", userId));
   if(!snap.exists()) return;
 
   const user = snap.data();
 
-  const photo = user.profileImageUrl || user.profileImage || "";
+  const photo = user.profileImageUrl || "";
   const name = user.name || "Trade Member";
   const trade = user.trade || "";
   const city = user.city || "";
   const state = user.state || "";
   const bio = user.bio || "";
+  const skills = user.skills || "";
+  const certs = user.certifications || "";
 
   document.getElementById("name").innerText = name;
   document.getElementById("trade").innerText = trade;
-  document.getElementById("location").innerText = city || state ? `${city} ${state}` : "";
+  document.getElementById("location").innerText =
+    city || state ? `${city} ${state}` : "";
   document.getElementById("bio").innerText = bio;
+  document.getElementById("certs").innerText = certs;
 
   const avatar = document.getElementById("avatar");
 
@@ -102,6 +199,17 @@ async function loadProfile(){
     avatar.innerHTML = `<img src="${photo}">`;
   }else{
     avatar.innerText = name.substring(0,2).toUpperCase();
+  }
+
+  // skills tags
+  const skillsContainer = document.getElementById("skills");
+  if(skills){
+    skills.split(",").forEach(skill=>{
+      const el = document.createElement("div");
+      el.className = "tag";
+      el.innerText = skill.trim();
+      skillsContainer.appendChild(el);
+    });
   }
 }
 
