@@ -125,7 +125,7 @@
 
       card.innerHTML = `
         <div class="avatar">
-          ${photo ? `<img src="${photo}">` : getInitials(name)}
+          ${photo ? `<img src="${photo}" alt="${name}">` : getInitials(name)}
         </div>
 
         <div class="name">${name}</div>
@@ -134,7 +134,9 @@
         ${location ? `<div class="location">${location}</div>` : ""}
         ${bio ? `<div class="bio">${bio}</div>` : ""}
 
-        <button class="btn">View Profile</button>
+        <button class="btn" onclick="window.location.href='profile.html?id=${member.id}'">
+          View Profile
+        </button>
       `;
 
       grid.appendChild(card);
@@ -165,6 +167,7 @@
     const filtered = members.filter(member => {
       const text = `
         ${member.name || ""}
+        ${member.fullName || ""}
         ${member.trade || ""}
         ${member.city || ""}
         ${member.state || ""}
