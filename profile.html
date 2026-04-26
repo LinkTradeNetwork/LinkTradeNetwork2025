@@ -7,106 +7,27 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#f0f4f8;color:#293241}
-
-.topbar{
-  background:#3d5a80;
-  color:white;
-  padding:16px 24px;
-  display:flex;
-  justify-content:space-between;
-}
-
-.nav a{
-  color:white;
-  margin-left:16px;
-  text-decoration:none;
-  font-weight:700;
-}
-
-.wrap{
-  max-width:900px;
-  margin:40px auto;
-  padding:20px;
-}
-
-.card{
-  background:white;
-  padding:30px;
-  border-radius:20px;
-  box-shadow:0 10px 30px rgba(0,0,0,.1);
-}
-
-.header{
-  text-align:center;
-  margin-bottom:20px;
-}
-
-.avatar{
-  width:140px;height:140px;
-  border-radius:50%;
-  background:#3d5a80;
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:50px;
-  font-weight:800;
-  margin:0 auto 15px;
-  overflow:hidden;
-}
+.topbar{background:#3d5a80;color:white;padding:16px 24px;display:flex;justify-content:space-between}
+.nav a{color:white;margin-left:16px;text-decoration:none;font-weight:700}
+.wrap{max-width:900px;margin:40px auto;padding:20px}
+.card{background:white;padding:30px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.1)}
+.header{text-align:center;margin-bottom:20px}
+.avatar{width:140px;height:140px;border-radius:50%;background:#3d5a80;color:white;display:flex;align-items:center;justify-content:center;font-size:50px;font-weight:800;margin:0 auto 15px;overflow:hidden}
 .avatar img{width:100%;height:100%;object-fit:cover}
-
 .name{font-size:30px;font-weight:800}
 .trade{color:#ea6a00;font-weight:800;margin-top:5px}
 .location{color:#64748b;margin-top:5px}
-
-.section{
-  margin-top:25px;
-}
-
-.section-title{
-  font-weight:800;
-  margin-bottom:10px;
-  border-bottom:1px solid #ddd;
-  padding-bottom:5px;
-}
-
-.bio{
-  color:#475569;
-  line-height:1.6;
-}
-
-.tags{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
-.tag{
-  background:#f1f5f9;
-  padding:6px 12px;
-  border-radius:20px;
-  font-size:13px;
-}
-
-.actions{
-  margin-top:25px;
-  display:flex;
-  gap:10px;
-  justify-content:center;
-}
-
-.btn{
-  padding:10px 20px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  font-weight:700;
-}
-
+.section{margin-top:25px}
+.section-title{font-weight:800;margin-bottom:10px;border-bottom:1px solid #ddd;padding-bottom:5px}
+.bio{color:#475569;line-height:1.6}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{background:#f1f5f9;padding:6px 12px;border-radius:20px;font-size:13px}
+.actions{margin-top:25px;display:flex;gap:10px;justify-content:center}
+.btn{padding:10px 20px;border:none;border-radius:10px;cursor:pointer;font-weight:700}
 .btn-primary{background:#ea6a00;color:white}
 .btn-secondary{background:#3d5a80;color:white}
-
+.btn-disabled{background:#94a3b8;color:white;cursor:not-allowed}
+.status{text-align:center;margin-top:12px;color:#64748b;font-size:14px}
 </style>
 </head>
 
@@ -131,9 +52,11 @@ body{margin:0;font-family:Arial;background:#f0f4f8;color:#293241}
     </div>
 
     <div class="actions">
-      <button class="btn btn-primary">Connect</button>
-      <button class="btn btn-secondary">Message</button>
+      <button id="connectBtn" class="btn btn-primary" onclick="sendConnectionRequest()">Connect</button>
+      <button class="btn btn-secondary" onclick="alert('Messaging coming next.')">Message</button>
     </div>
+
+    <div id="connectStatus" class="status"></div>
 
     <div class="section">
       <div class="section-title">About</div>
@@ -155,31 +78,67 @@ body{margin:0;font-family:Arial;background:#f0f4f8;color:#293241}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
   authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
   projectId: "linktradenetwork-2dcd1",
+  storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
+  messagingSenderId: "219091766597",
+  appId: "1:219091766597:web:9878c199ba17e0ed89c22c"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 const params = new URLSearchParams(window.location.search);
-const userId = params.get("id");
+const profileUserId = params.get("id");
+
+let currentUser = null;
+let profileUserData = null;
+
+function setButton(text, disabled=false){
+  const btn = document.getElementById("connectBtn");
+  btn.innerText = text;
+  btn.disabled = disabled;
+
+  if(disabled){
+    btn.className = "btn btn-disabled";
+  }else{
+    btn.className = "btn btn-primary";
+  }
+}
 
 async function loadProfile(){
-  if(!userId) return;
+  if(!profileUserId){
+    document.getElementById("name").innerText = "Profile not found";
+    setButton("No Profile", true);
+    return;
+  }
 
-  const snap = await getDoc(doc(db, "users", userId));
-  if(!snap.exists()) return;
+  const snap = await getDoc(doc(db, "users", profileUserId));
+
+  if(!snap.exists()){
+    document.getElementById("name").innerText = "Profile not found";
+    setButton("No Profile", true);
+    return;
+  }
 
   const user = snap.data();
+  profileUserData = user;
 
-  const photo = user.profileImageUrl || "";
-  const name = user.name || "Trade Member";
-  const trade = user.trade || "";
+  const photo = user.profileImageUrl || user.profileImage || user.photoURL || "";
+  const name = user.name || user.fullName || "Trade Member";
+  const trade = user.trade || "Trade Not Selected";
   const city = user.city || "";
   const state = user.state || "";
   const bio = user.bio || "";
@@ -189,31 +148,124 @@ async function loadProfile(){
   document.getElementById("name").innerText = name;
   document.getElementById("trade").innerText = trade;
   document.getElementById("location").innerText =
-    city || state ? `${city} ${state}` : "";
-  document.getElementById("bio").innerText = bio;
-  document.getElementById("certs").innerText = certs;
+    city || state ? `${city}${city && state ? ", " : ""}${state}` : "";
+  document.getElementById("bio").innerText = bio || "No bio added yet.";
+  document.getElementById("certs").innerText = certs || "No certifications added yet.";
 
   const avatar = document.getElementById("avatar");
 
   if(photo){
-    avatar.innerHTML = `<img src="${photo}">`;
+    avatar.innerHTML = `<img src="${photo}" alt="${name}">`;
   }else{
     avatar.innerText = name.substring(0,2).toUpperCase();
   }
 
-  // skills tags
   const skillsContainer = document.getElementById("skills");
+  skillsContainer.innerHTML = "";
+
   if(skills){
     skills.split(",").forEach(skill=>{
-      const el = document.createElement("div");
-      el.className = "tag";
-      el.innerText = skill.trim();
-      skillsContainer.appendChild(el);
+      const cleanSkill = skill.trim();
+      if(cleanSkill){
+        const el = document.createElement("div");
+        el.className = "tag";
+        el.innerText = cleanSkill;
+        skillsContainer.appendChild(el);
+      }
     });
+  }else{
+    skillsContainer.innerHTML = `<div class="bio">No skills added yet.</div>`;
   }
 }
 
-loadProfile();
+async function checkConnectionStatus(){
+  if(!currentUser || !profileUserId) return;
+
+  if(currentUser.uid === profileUserId){
+    setButton("Your Profile", true);
+    document.getElementById("connectStatus").innerText = "This is your profile.";
+    return;
+  }
+
+  const connectionId = currentUser.uid + "_" + profileUserId;
+  const reverseConnectionId = profileUserId + "_" + currentUser.uid;
+
+  const connectionSnap = await getDoc(doc(db, "connections", connectionId));
+  const reverseSnap = await getDoc(doc(db, "connections", reverseConnectionId));
+
+  if(connectionSnap.exists()){
+    const data = connectionSnap.data();
+
+    if(data.status === "pending"){
+      setButton("Connection Sent", true);
+      document.getElementById("connectStatus").innerText = "Your connection request is pending.";
+    }else if(data.status === "accepted"){
+      setButton("Connected", true);
+      document.getElementById("connectStatus").innerText = "You are connected.";
+    }
+    return;
+  }
+
+  if(reverseSnap.exists()){
+    const data = reverseSnap.data();
+
+    if(data.status === "pending"){
+      setButton("Request Pending", true);
+      document.getElementById("connectStatus").innerText = "This member already sent a connection request.";
+    }else if(data.status === "accepted"){
+      setButton("Connected", true);
+      document.getElementById("connectStatus").innerText = "You are connected.";
+    }
+    return;
+  }
+
+  setButton("Connect", false);
+}
+
+window.sendConnectionRequest = async function(){
+  if(!currentUser){
+    alert("Please log in first.");
+    window.location.href = "front.html";
+    return;
+  }
+
+  if(!profileUserId){
+    alert("Profile not found.");
+    return;
+  }
+
+  if(currentUser.uid === profileUserId){
+    alert("You cannot connect with yourself.");
+    return;
+  }
+
+  const connectionId = currentUser.uid + "_" + profileUserId;
+
+  try{
+    await setDoc(doc(db, "connections", connectionId), {
+      fromUserId: currentUser.uid,
+      toUserId: profileUserId,
+      fromName: currentUser.displayName || currentUser.email || "",
+      toName: profileUserData?.name || profileUserData?.fullName || "",
+      status: "pending",
+      createdAt: serverTimestamp()
+    });
+
+    setButton("Connection Sent", true);
+    document.getElementById("connectStatus").innerText = "Your connection request was sent.";
+    alert("Connection request sent!");
+
+  }catch(error){
+    console.error(error);
+    alert("Connection failed. Check Firebase rules.");
+  }
+};
+
+onAuthStateChanged(auth, async (user)=>{
+  currentUser = user;
+  await loadProfile();
+  await checkConnectionStatus();
+});
 </script>
 
 </body>
