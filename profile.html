@@ -78,13 +78,16 @@ body{margin:0;font-family:Arial;background:#f0f4f8;color:#293241}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import {
   getFirestore,
   doc,
   getDoc,
   setDoc,
-  serverTimestamp
+  serverTimestamp,
+  collection,
+  query,
+  where,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -98,12 +101,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
 
 const params = new URLSearchParams(window.location.search);
 const profileUserId = params.get("id");
 
-let currentUser = null;
+let currentUserId = null;
+let currentUserEmail = localStorage.getItem("userEmail") || "";
+let currentUserData = null;
 let profileUserData = null;
 
 function setButton(text, disabled=false){
@@ -115,6 +119,26 @@ function setButton(text, disabled=false){
     btn.className = "btn btn-disabled";
   }else{
     btn.className = "btn btn-primary";
+  }
+}
+
+async function findCurrentUserFromLocalStorage(){
+  currentUserEmail = localStorage.getItem("userEmail") || "";
+
+  if(!currentUserEmail){
+    currentUserId = null;
+    currentUserData = null;
+    return;
+  }
+
+  const usersRef = collection(db, "users");
+  const q = query(usersRef, where("email", "==", currentUserEmail));
+  const snap = await getDocs(q);
+
+  if(!snap.empty){
+    const userDoc = snap.docs[0];
+    currentUserId = userDoc.id;
+    currentUserData = userDoc.data();
   }
 }
 
@@ -179,16 +203,26 @@ async function loadProfile(){
 }
 
 async function checkConnectionStatus(){
-  if(!currentUser || !profileUserId) return;
+  if(!currentUserEmail){
+    setButton("Go to Dashboard to Connect", false);
+    document.getElementById("connectStatus").innerText = "You must be logged in through your dashboard to connect.";
+    return;
+  }
 
-  if(currentUser.uid === profileUserId){
+  if(!currentUserId){
+    setButton("Save Your Profile First", true);
+    document.getElementById("connectStatus").innerText = "Go to your dashboard and save your profile first.";
+    return;
+  }
+
+  if(currentUserId === profileUserId){
     setButton("Your Profile", true);
     document.getElementById("connectStatus").innerText = "This is your profile.";
     return;
   }
 
-  const connectionId = currentUser.uid + "_" + profileUserId;
-  const reverseConnectionId = profileUserId + "_" + currentUser.uid;
+  const connectionId = currentUserId + "_" + profileUserId;
+  const reverseConnectionId = profileUserId + "_" + currentUserId;
 
   const connectionSnap = await getDoc(doc(db, "connections", connectionId));
   const reverseSnap = await getDoc(doc(db, "connections", reverseConnectionId));
@@ -220,12 +254,18 @@ async function checkConnectionStatus(){
   }
 
   setButton("Connect", false);
+  document.getElementById("connectStatus").innerText = "";
 }
 
 window.sendConnectionRequest = async function(){
-  if(!currentUser){
-    alert("Please go back to the dashboard and log in first.");
+  if(!currentUserEmail){
+    alert("Please go to your dashboard and log in first.");
     window.location.href = "dashboard.html";
+    return;
+  }
+
+  if(!currentUserId){
+    alert("Please save your profile from the dashboard first.");
     return;
   }
 
@@ -234,18 +274,20 @@ window.sendConnectionRequest = async function(){
     return;
   }
 
-  if(currentUser.uid === profileUserId){
+  if(currentUserId === profileUserId){
     alert("You cannot connect with yourself.");
     return;
   }
 
-  const connectionId = currentUser.uid + "_" + profileUserId;
+  const connectionId = currentUserId + "_" + profileUserId;
 
   try{
     await setDoc(doc(db, "connections", connectionId), {
-      fromUserId: currentUser.uid,
+      fromUserId: currentUserId,
       toUserId: profileUserId,
-      fromName: currentUser.displayName || currentUser.email || "",
+      fromEmail: currentUserEmail,
+      toEmail: profileUserData?.email || "",
+      fromName: currentUserData?.name || currentUserData?.fullName || currentUserEmail,
       toName: profileUserData?.name || profileUserData?.fullName || "",
       status: "pending",
       createdAt: serverTimestamp()
@@ -261,18 +303,13 @@ window.sendConnectionRequest = async function(){
   }
 };
 
-onAuthStateChanged(auth, async (user)=>{
-  currentUser = user;
+async function init(){
   await loadProfile();
-
-  if(!user){
-    setButton("Sign in to Connect", false);
-    document.getElementById("connectStatus").innerText = "You must be logged in to connect.";
-    return;
-  }
-
+  await findCurrentUserFromLocalStorage();
   await checkConnectionStatus();
-});
+}
+
+init();
 </script>
 
 </body>
