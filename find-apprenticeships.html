@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Apprenticeships | LinkTradeNetwork</title>
+
+<style>
+:root{
+  --bg:#f0f4f8;
+  --ink:#293241;
+  --muted:#5d7290;
+  --line:#cfd9e6;
+  --panel:#ffffff;
+  --panel2:#f8fafc;
+  --brand:#ea6a00;
+  --brand2:#c35700;
+  --accent:#3d5a80;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:Arial, sans-serif;
+}
+
+.topbar{
+  background:var(--accent);
+  color:white;
+  padding:16px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+}
+
+.logo{
+  font-size:22px;
+  font-weight:800;
+}
+
+.nav{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.nav a{
+  color:white;
+  text-decoration:none;
+  font-weight:700;
+  padding:10px 16px;
+  border-radius:8px;
+}
+
+.nav a:hover{
+  background:rgba(255,255,255,.15);
+}
+
+.nav .active{
+  background:var(--brand);
+}
+
+.wrap{
+  max-width:1150px;
+  margin:0 auto;
+  padding:28px 20px;
+}
+
+.hero{
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  color:white;
+  border-radius:18px;
+  padding:30px;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+  margin-bottom:22px;
+}
+
+.hero h1{
+  margin:0 0 8px;
+  font-size:34px;
+}
+
+.hero p{
+  margin:0;
+  font-size:17px;
+  color:rgba(255,255,255,.92);
+}
+
+.filters{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px;
+  margin-bottom:22px;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);
+}
+
+.filter-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;
+}
+
+label{
+  font-weight:700;
+  font-size:14px;
+  display:block;
+  margin-bottom:6px;
+}
+
+input,select{
+  width:100%;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  font-size:15px;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+
+button,.btn{
+  background:var(--brand);
+  color:white;
+  border:none;
+  padding:12px 18px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  text-decoration:none;
+}
+
+button:hover,.btn:hover{
+  background:var(--brand2);
+}
+
+.btn-secondary{
+  background:var(--accent);
+}
+
+.btn-secondary:hover{
+  background:#2c4566;
+}
+
+.results-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.results-header h2{
+  margin:0;
+  font-size:24px;
+}
+
+.count{
+  background:#fff4e8;
+  color:#c35700;
+  padding:6px 12px;
+  border-radius:999px;
+  font-weight:800;
+}
+
+.list{
+  display:grid;
+  gap:16px;
+}
+
+.job-card{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);
+}
+
+.job-card h3{
+  margin:0 0 8px;
+  font-size:22px;
+}
+
+.meta{
+  color:var(--muted);
+  font-size:14px;
+  margin-bottom:12px;
+}
+
+.tags{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:12px 0;
+}
+
+.tag{
+  background:var(--panel2);
+  color:var(--accent);
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:13px;
+  font-weight:700;
+}
+
+.desc{
+  color:#334155;
+  line-height:1.5;
+}
+
+.empty{
+  background:white;
+  border:1px dashed var(--line);
+  border-radius:16px;
+  padding:28px;
+  text-align:center;
+  color:var(--muted);
+}
+
+.note{
+  margin-top:20px;
+  background:white;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+@media(max-width:700px){
+  .hero h1{font-size:28px}
+  .topbar{align-items:flex-start}
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="logo">LTN • Find Apprenticeships</div>
+
+  <nav class="nav">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="apprenticeship.html">Track Progress</a>
+    <a href="find-apprenticeships.html" class="active">Find Apprenticeships</a>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <h1>🔎 Find Apprenticeships</h1>
+    <p>Search beginner-friendly trade opportunities, helper roles, apprenticeships, and entry-level jobs.</p>
+  </section>
+
+  <section class="filters">
+    <div class="filter-grid">
+      <div>
+        <label>Trade</label>
+        <select id="trade-filter">
+          <option value="All">All Trades</option>
+          <option value="Low Voltage">Low Voltage</option>
+          <option value="Electrical">Electrical</option>
+          <option value="Plumbing">Plumbing</option>
+          <option value="HVAC">HVAC</option>
+          <option value="Physical Security">Physical Security</option>
+          <option value="General Contractor">General Contractor</option>
+          <option value="Sprinkler">Sprinkler</option>
+        </select>
+      </div>
+
+      <div>
+        <label>City / State</label>
+        <input id="location-filter" placeholder="Detroit, MI">
+      </div>
+
+      <div>
+        <label>Keyword</label>
+        <input id="keyword-filter" placeholder="helper, apprentice, entry level">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button onclick="applyFilters()">Search</button>
+      <button class="btn-secondary" onclick="resetFilters()">Reset</button>
+      <a href="dashboard.html" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+  </section>
+
+  <div class="results-header">
+    <h2>Apprenticeship Opportunities</h2>
+    <div class="count" id="result-count">0 found</div>
+  </div>
+
+  <section id="results" class="list"></section>
+
+  <section class="note">
+    <strong>Note:</strong> This page is built to pull apprenticeship-friendly listings from your existing job list. Right now it includes starter sample listings so the page works immediately. Once your Firebase job collection is connected, this page can automatically show live jobs marked as apprentice, helper, entry level, or no experience.
+  </section>
+
+</main>
+
+<script>
+const SAMPLE_JOBS = [
+  {
+    title:"Low Voltage Apprentice / Helper",
+    company:"LTN Partner Contractor",
+    trade:"Low Voltage",
+    location:"Detroit, MI",
+    pay:"$18-$24/hr",
+    type:"Apprenticeship",
+    tags:["Apprentice","Helper","Entry Level","Low Voltage"],
+    description:"Assist with pulling cable, labeling, basic terminations, camera installs, and jobsite support. Great role for someone starting in the trade."
+  },
+  {
+    title:"Electrical Apprentice",
+    company:"Metro Electrical Services",
+    trade:"Electrical",
+    location:"Warren, MI",
+    pay:"$20-$28/hr",
+    type:"Apprenticeship",
+    tags:["Apprentice","Electrical","Training"],
+    description:"Entry-level electrical apprentice role assisting journeymen with conduit, wiring, material handling, and basic installation work."
+  },
+  {
+    title:"HVAC Helper",
+    company:"Comfort Mechanical",
+    trade:"HVAC",
+    location:"Livonia, MI",
+    pay:"$17-$23/hr",
+    type:"Entry Level",
+    tags:["Helper","HVAC","No Experience"],
+    description:"Support HVAC technicians with installs, service preparation, equipment movement, and learning basic HVAC field tasks."
+  },
+  {
+    title:"Security Installer Trainee",
+    company:"Physical Security Contractor",
+    trade:"Physical Security",
+    location:"Troy, MI",
+    pay:"$18-$25/hr",
+    type:"Entry Level",
+    tags:["Trainee","Cameras","Access Control","No Experience"],
+    description:"Learn camera, access control, intercom, and intrusion installation. Good fit for low voltage or security beginners."
+  }
+];
+
+let allJobs = [...SAMPLE_JOBS];
+
+function isApprenticeshipFriendly(job){
+  const text = [
+    job.title,
+    job.type,
+    job.trade,
+    job.description,
+    ...(job.tags || [])
+  ].join(" ").toLowerCase();
+
+  const keywords = [
+    "apprentice",
+    "apprenticeship",
+    "helper",
+    "entry level",
+    "entry-level",
+    "trainee",
+    "no experience",
+    "beginner",
+    "trade school"
+  ];
+
+  return keywords.some(k => text.includes(k));
+}
+
+function renderJobs(jobs){
+  const results = document.getElementById("results");
+  document.getElementById("result-count").innerText = `${jobs.length} found`;
+
+  if(!jobs.length){
+    results.innerHTML = `
+      <div class="empty">
+        <h3>No apprenticeships found</h3>
+        <p>Try changing the trade, city, or keyword.</p>
+      </div>
+    `;
+    return;
+  }
+
+  results.innerHTML = jobs.map(job => `
+    <div class="job-card">
+      <h3>${escapeHtml(job.title)}</h3>
+      <div class="meta">
+        ${escapeHtml(job.company || "Company TBD")} • 
+        ${escapeHtml(job.location || "Location TBD")} • 
+        ${escapeHtml(job.pay || "Pay TBD")}
+      </div>
+
+      <div class="tags">
+        ${(job.tags || []).map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}
+      </div>
+
+      <p class="desc">${escapeHtml(job.description || "Details coming soon.")}</p>
+
+      <div class="actions">
+        <button onclick="alert('Apply feature coming next. This will connect to profile/applications.')">Apply / Interested</button>
+        <a class="btn btn-secondary" href="apprenticeship.html">Track My Progress</a>
+      </div>
+    </div>
+  `).join("");
+}
+
+function applyFilters(){
+  const trade = document.getElementById("trade-filter").value.toLowerCase();
+  const location = document.getElementById("location-filter").value.trim().toLowerCase();
+  const keyword = document.getElementById("keyword-filter").value.trim().toLowerCase();
+
+  let filtered = allJobs.filter(isApprenticeshipFriendly);
+
+  if(trade !== "all"){
+    filtered = filtered.filter(job => String(job.trade || "").toLowerCase().includes(trade));
+  }
+
+  if(location){
+    filtered = filtered.filter(job => String(job.location || "").toLowerCase().includes(location));
+  }
+
+  if(keyword){
+    filtered = filtered.filter(job => {
+      const text = [
+        job.title,
+        job.company,
+        job.trade,
+        job.location,
+        job.type,
+        job.description,
+        ...(job.tags || [])
+      ].join(" ").toLowerCase();
+
+      return text.includes(keyword);
+    });
+  }
+
+  renderJobs(filtered);
+}
+
+function resetFilters(){
+  document.getElementById("trade-filter").value = "All";
+  document.getElementById("location-filter").value = "";
+  document.getElementById("keyword-filter").value = "";
+  applyFilters();
+}
+
+function escapeHtml(value){
+  return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+document.addEventListener("DOMContentLoaded", applyFilters);
+</script>
+
+</body>
+</html>
