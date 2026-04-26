@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LTN Profile</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#f0f4f8;color:#293241}
+
+.topbar{background:#3d5a80;color:white;padding:16px 24px;display:flex;justify-content:space-between}
+.nav a{color:white;margin-left:16px;text-decoration:none;font-weight:700}
+
+.wrap{max-width:800px;margin:40px auto;padding:20px}
+
+.card{
+  background:white;
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.1);
+  text-align:center;
+}
+
+.avatar{
+  width:120px;height:120px;border-radius:50%;
+  background:#3d5a80;color:white;
+  display:flex;align-items:center;justify-content:center;
+  font-size:40px;font-weight:800;margin:0 auto 20px;
+  overflow:hidden;
+}
+.avatar img{width:100%;height:100%;object-fit:cover}
+
+.name{font-size:28px;font-weight:800}
+.trade{color:#ea6a00;font-weight:800;margin:10px 0}
+.location{color:#64748b;margin-bottom:10px}
+.bio{color:#475569;margin-top:10px}
+
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div>LTN • LinkTradeNetwork</div>
+  <div class="nav">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="members.html">Members</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <div id="avatar" class="avatar">LT</div>
+    <div id="name" class="name"></div>
+    <div id="trade" class="trade"></div>
+    <div id="location" class="location"></div>
+    <div id="bio" class="bio"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
+  authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
+  projectId: "linktradenetwork-2dcd1",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const params = new URLSearchParams(window.location.search);
+const userId = params.get("id");
+
+async function loadProfile(){
+  if(!userId) return;
+
+  const docRef = doc(db, "users", userId);
+  const snap = await getDoc(docRef);
+
+  if(!snap.exists()) return;
+
+  const user = snap.data();
+
+  const photo = user.profileImageUrl || user.profileImage || "";
+  const name = user.name || "Trade Member";
+  const trade = user.trade || "";
+  const city = user.city || "";
+  const state = user.state || "";
+  const bio = user.bio || "";
+
+  document.getElementById("name").innerText = name;
+  document.getElementById("trade").innerText = trade;
+  document.getElementById("location").innerText = city || state ? `${city} ${state}` : "";
+  document.getElementById("bio").innerText = bio;
+
+  const avatar = document.getElementById("avatar");
+
+  if(photo){
+    avatar.innerHTML = `<img src="${photo}">`;
+  }else{
+    avatar.innerText = name.substring(0,2).toUpperCase();
+  }
+}
+
+loadProfile();
+</script>
+
+</body>
+</html>
