@@ -1,1 +1,2847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6CYFMPH84F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-6CYFMPH84F');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LinkTradeNetwork • Skilled Trades</title>
+<style>
+:root{
+  --bg:#f0f4f8;--ink:#293241;--muted:#5d7290;--line:#cfd9e6;--panel:#ffffff;--panel2:#f8fafc;
+  --brand:#ea6a00;--brand2:#c35700;--accent:#3d5a80
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Poppins',system-ui,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}
 
+.topbar{background:var(--accent);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;color:white}
+.topbar-inner{max-width:1200px;margin:auto;padding:12px 16px;display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#ff7e00,#ffaa00);display:grid;place-items:center;color:white;font-weight:800;font-size:18px;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+.logo-text{font-size:18px;font-weight:700}
+
+/* ===== MOBILE MENU ===== */
+.mobile-menu-btn{display:none;background:none;border:none;color:white;cursor:pointer;padding:8px;width:44px;height:44px;align-items:center;justify-content:center}
+.mobile-menu-btn svg{width:28px;height:28px}
+
+.nav{display:flex;align-items:center;gap:8px}
+.nav a,.btn{color:white;text-decoration:none;font-weight:600;padding:10px 18px;border-radius:8px;font-size:15px;transition:all .2s;white-space:nowrap}
+.nav a:hover{background:rgba(255,255,255,.1)}
+.btn{cursor:pointer;border:none;min-height:44px}
+.btn-primary{background:var(--brand);color:white;font-weight:600}
+.btn-primary:hover{background:var(--brand2);transform:translateY(-2px);box-shadow:0 2px 5px rgba(0,0,0,.1)}
+.btn-secondary{background:rgba(255,255,255,.15);backdrop-filter:blur(10px)}
+.btn-secondary:hover{background:rgba(255,255,255,.25)}
+.btn-success{background:#10b981;color:white}
+.btn-success:hover{background:#059669}
+.btn-danger{background:#ef4444;color:white}
+.btn-danger:hover{background:#dc2626}
+
+/* ===== NOTIFICATION BADGE ===== */
+.notification-badge{position:absolute;top:-5px;right:-5px;background:#ef4444;color:white;border-radius:999px;padding:2px 6px;font-size:11px;font-weight:700;min-width:18px;text-align:center;line-height:1.4}
+
+/* ===== NETWORK & MESSAGING ===== */
+.network-tabs{display:flex;gap:8px;border-bottom:2px solid var(--line);margin-bottom:16px}
+.network-tab{padding:10px 16px;cursor:pointer;font-weight:600;color:var(--muted);transition:all .2s;border-bottom:3px solid transparent;margin-bottom:-2px;font-size:14px}
+.network-tab:hover{color:var(--accent)}
+.network-tab.active{color:var(--brand);border-bottom-color:var(--brand)}
+
+.person-card{display:flex;gap:12px;padding:14px;border:1px solid var(--line);border-radius:8px;margin-bottom:10px;transition:all .2s;background:var(--panel)}
+.person-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);transform:translateY(-1px)}
+.person-avatar{width:60px;height:60px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-weight:700;font-size:20px;color:var(--accent)}
+.person-avatar img{width:100%;height:100%;object-fit:cover}
+.person-info{flex:1;min-width:0}
+.person-name{font-weight:700;font-size:15px;margin-bottom:2px}
+.person-trade{color:var(--muted);font-size:13px;margin-bottom:4px}
+.person-location{color:var(--muted);font-size:12px;display:flex;align-items:center;gap:4px}
+.person-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.person-actions button{font-size:13px;padding:6px 12px;min-height:32px}
+
+.message-list{max-height:400px;overflow-y:auto}
+.message-item{display:flex;gap:12px;padding:12px;border-bottom:1px solid var(--line);cursor:pointer;transition:all .2s}
+.message-item:hover{background:var(--panel2)}
+.message-item.unread{background:rgba(234,106,0,.05)}
+.message-avatar{width:50px;height:50px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-weight:700;font-size:18px;color:var(--accent)}
+.message-avatar img{width:100%;height:100%;object-fit:cover}
+.message-content{flex:1;min-width:0}
+.message-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.message-sender{font-weight:700;font-size:14px}
+.message-time{font-size:11px;color:var(--muted)}
+.message-preview{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.chat-view{display:flex;flex-direction:column;height:500px}
+.chat-header{padding:16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+.chat-header .person-avatar{width:40px;height:40px;font-size:16px}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.chat-message{max-width:70%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4}
+.chat-message.sent{align-self:flex-end;background:var(--brand);color:white;border-radius:12px 12px 0 12px}
+.chat-message.received{align-self:flex-start;background:var(--panel2);border-radius:12px 12px 12px 0}
+.chat-input-area{padding:12px;border-top:1px solid var(--line);display:flex;gap:8px}
+.chat-input{flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;resize:none;min-height:44px;max-height:100px}
+.chat-send-btn{padding:10px 20px;background:var(--brand);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;min-height:44px}
+.chat-send-btn:hover{background:var(--brand2)}
+
+.search-input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:16px}
+.search-input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 2px rgba(234,106,0,.1)}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state svg{width:50px;height:50px;margin-bottom:12px;opacity:.3}
+.empty-state h3{margin:0 0 6px;font-size:16px;color:var(--ink)}
+.empty-state p{margin:0;font-size:14px}
+
+/* ===== SEARCH ===== */
+.search-container{flex-grow:1;max-width:400px;margin:0 10px;position:relative;min-width:200px}
+#ai-search-input{min-height:44px;font-size:16px}
+#ai-search-input::placeholder{color:rgba(255,255,255,.85)}
+#ai-results-container{z-index:9999 !important}
+
+/* ===== MAIN LAYOUT ===== */
+.shell{max-width:1200px;margin:auto;padding:20px;display:grid;gap:20px;grid-template-columns:300px 1fr 320px}
+
+/* ===== CARDS ===== */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.05);overflow:hidden;transition:transform .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.card .hd{padding:16px 20px;font-weight:700;border-bottom:1px solid var(--line);background:var(--panel2);font-size:16px;display:flex;justify-content:space-between;align-items:center}
+.card .bd{padding:20px}
+
+/* ===== PROFILE ===== */
+.profile-image-container{position:relative;width:100%;height:180px;border-radius:12px;background:var(--panel2);margin-bottom:16px;display:flex;align-items:center;justify-content:center;border:2px dashed var(--line);color:var(--muted);overflow:hidden;cursor:pointer;transition:all .2s}
+.profile-image-container:hover{border-color:var(--brand);background:rgba(234,106,0,.05)}
+.profile-image-container img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.profile-image-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:600;flex-direction:column;gap:8px}
+.profile-image-container:hover .profile-image-overlay{display:flex}
+.profile-image-overlay button{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:white;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.profile-image-overlay button:hover{background:rgba(255,255,255,.3)}
+.profile-placeholder-content{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+.profile-placeholder-content svg{width:40px;height:40px;margin-bottom:8px;opacity:.5}
+
+.profile-info{text-align:center;margin:15px 0;padding:15px;background:var(--panel2);border-radius:8px}
+.profile-name{font-weight:700;font-size:18px;margin-bottom:4px}
+.profile-trade{color:var(--muted);font-size:14px;margin-bottom:8px}
+.profile-location{color:var(--muted);font-size:13px;display:flex;align-items:center;justify-content:center;gap:4px}
+
+.documents-list{margin-top:15px}
+.document-item{display:flex;align-items:center;justify-content:space-between;padding:10px;background:var(--panel2);border-radius:6px;margin-bottom:8px;font-size:13px}
+.document-item svg{width:16px;height:16px;margin-right:8px;opacity:.7}
+.document-remove{color:var(--brand);cursor:pointer;font-weight:600;font-size:12px}
+.document-remove:hover{text-decoration:underline}
+
+.small{font-size:14px;color:var(--muted)}
+
+/* ===== SUCCESS STORIES ===== */
+.story-card{border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px;background:var(--panel);transition:all .2s}
+.story-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08);transform:translateY(-2px)}
+.story-image{width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:15px}
+.story-header{display:flex;align-items:center;gap:12px;margin-bottom:15px;padding-bottom:15px;border-bottom:1px solid var(--line)}
+.story-avatar{width:60px;height:60px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:var(--accent);flex-shrink:0;overflow:hidden}
+.story-avatar img{width:100%;height:100%;object-fit:cover}
+.story-meta{flex:1}
+.story-author{font-weight:700;font-size:16px;margin-bottom:4px}
+.story-author-trade{color:var(--muted);font-size:13px;margin-bottom:4px}
+.story-location{color:var(--muted);font-size:12px;display:flex;align-items:center;gap:4px}
+.story-title{font-size:20px;font-weight:700;margin-bottom:12px;line-height:1.3}
+.story-text{line-height:1.7;margin-bottom:15px}
+.story-date{font-size:12px;color:var(--muted)}
+.story-actions{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.story-actions button{font-size:13px;padding:8px 16px}
+
+/* ===== MODAL ===== */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop.active{display:flex}
+.modal{background:var(--panel);border-radius:12px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.modal-header{padding:20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.modal-header h2{margin:0;font-size:20px}
+.modal-close{background:none;border:none;font-size:28px;cursor:pointer;color:var(--muted);line-height:1;padding:0;width:32px;height:32px}
+.modal-close:hover{color:var(--ink)}
+.modal-body{padding:20px}
+.modal-footer{padding:20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+
+/* ===== FILTERS ===== */
+.section-title{font-weight:700;margin-bottom:12px;font-size:16px;color:var(--accent)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.fbtn{padding:10px 16px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--muted);font-size:14px;cursor:pointer;transition:all .2s;font-weight:500;min-height:44px;display:inline-flex;align-items:center}
+.fbtn:hover{border-color:var(--brand);color:var(--brand)}
+.fbtn.active{background:var(--brand);color:white;border-color:var(--brand)}
+
+/* ===== JOBS ===== */
+.jobs-container{display:flex;flex-direction:column;gap:16px}
+.job{padding:18px;border:1px solid var(--line);border-radius:12px;transition:all .2s;background:var(--panel)}
+.job:hover{border-color:var(--brand);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.job .title{font-weight:700;font-size:17px;margin-bottom:8px;line-height:1.3}
+.job .meta{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.meta-dot{display:inline-block;width:4px;height:4px;background:var(--muted);border-radius:50%}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tag{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;font-size:13px;font-weight:500;color:var(--accent)}
+.apply{display:flex;gap:10px;flex-wrap:wrap}
+
+/* ===== FORMS ===== */
+.upload-area{border:2px dashed var(--line);border-radius:8px;padding:20px;text-align:center;cursor:pointer;margin-bottom:20px;transition:all .2s;min-height:120px;display:flex;flex-direction:column;justify-content:center}
+.upload-area:hover{border-color:var(--brand);background:rgba(234,106,0,.05)}
+.upload-icon{display:block;width:40px;height:40px;margin:0 auto 10px;opacity:.5}
+.form-group{margin-bottom:15px}
+.form-group label{display:block;margin-bottom:5px;font-weight:500;font-size:15px}
+.form-control{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-family:inherit;font-size:16px;color:var(--ink);min-height:44px}
+.form-control:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 2px rgba(234,106,0,.1)}
+textarea.form-control{min-height:100px;resize:vertical}
+select.form-control{cursor:pointer}
+
+/* ===== BADGES & STATS ===== */
+.badge{display:inline-block;padding:4px 10px;font-size:12px;font-weight:600;border-radius:999px;background:#e6f5eb;color:#2a9d51}
+.badge-warning{background:#fff9e6;color:#b37400}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:15px 0}
+.stat-card{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:14px;text-align:center}
+.stat-number{font-size:24px;font-weight:700;color:var(--accent)}
+.stat-label{font-size:13px;color:var(--muted)}
+
+/* ===== AI SEARCH ===== */
+.ai-results{padding:12px;color:var(--ink)}
+.ai-thinking{display:flex;align-items:center;gap:8px;padding:10px;color:var(--muted)}
+.ai-thinking-dots{display:flex}
+.ai-thinking-dots span{width:6px;height:6px;margin:0 2px;background:var(--brand);border-radius:50%;animation:ai-thinking 1.4s infinite ease-in-out both}
+.ai-thinking-dots span:nth-child(1){animation-delay:-.32s}
+.ai-thinking-dots span:nth-child(2){animation-delay:-.16s}
+@keyframes ai-thinking{0%,80%,100%{transform:scale(0)}40%{transform:scale(1.0)}}
+.ai-result{padding:12px;border-bottom:1px solid var(--line)}
+.ai-result:last-child{border-bottom:none}
+.ai-result-title{font-weight:600;margin-bottom:4px}
+
+/* ===== SPONSORS ===== */
+.sponsors-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.sponsor-card{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;align-items:center;text-align:center;transition:all .2s;text-decoration:none;color:var(--ink)}
+.sponsor-card:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(0,0,0,.08);transform:translateY(-2px)}
+.sponsor-logo{max-width:120px;max-height:50px;object-fit:contain;margin-bottom:10px}
+.sponsor-placeholder{width:100%;padding:20px;border:2px dashed var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:15px;font-weight:600;margin-bottom:10px;background:var(--panel)}
+.sponsor-description{font-size:13px;color:var(--muted);margin:0;line-height:1.4}
+.sponsor-featured{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none}
+.sponsor-featured .sponsor-description{color:rgba(255,255,255,.9)}
+
+/* ===== CONNECTION ALERT BANNER ===== */
+.connection-alert{display:none;background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;padding:12px 20px;text-align:center;font-weight:600;font-size:14px;cursor:pointer;animation:pulse-alert 2s ease-in-out infinite}
+.connection-alert:hover{opacity:.9}
+@keyframes pulse-alert{0%,100%{opacity:1}50%{opacity:.85}}
+
+
+/* ===== COMMUNITY MEDIA ===== */
+.media-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.media-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.media-btn{cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--muted);font-size:13px;font-weight:500;transition:all .2s}
+.media-btn:hover{border-color:var(--brand);color:var(--brand)}
+.post-preview{display:none;margin-bottom:10px;position:relative}
+.post-preview img,.post-preview video{width:100%;max-height:320px;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:#000}
+.post-card .post-media{width:100%;border-radius:10px;margin:0 0 12px;background:#000;overflow:hidden}
+.post-card .post-media video,.post-card .post-media img{width:100%;display:block;max-height:460px;object-fit:cover}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1100px){.shell{grid-template-columns:1fr 1fr;gap:16px}.right-sidebar{grid-column:span 2}}
+@media(max-width:768px){
+  .topbar-inner{padding:10px 12px}.logo-text{font-size:16px}.logo-badge{width:38px;height:38px;font-size:16px}
+  .mobile-menu-btn{display:flex}
+  .nav{position:fixed;top:62px;left:0;right:0;background:var(--accent);flex-direction:column;align-items:stretch;padding:12px;gap:8px;transform:translateX(-100%);transition:transform .3s;box-shadow:0 4px 15px rgba(0,0,0,.2);max-height:calc(100vh - 62px);overflow-y:auto}
+  .nav.open{transform:translateX(0)}
+  .nav a,.nav .btn{width:100%;text-align:center;justify-content:center;padding:14px 18px}
+  .search-container{width:100%;max-width:none;margin:10px 0 0 0;order:3;flex-basis:100%}
+  .shell{grid-template-columns:1fr;padding:12px;gap:16px}.right-sidebar{grid-column:span 1}
+  .card .bd{padding:16px}.card .hd{padding:14px 16px;font-size:15px}
+  .modal{margin:10px}.modal-body{padding:16px}
+  .job{padding:16px}.job .title{font-size:16px}.job .meta{font-size:13px}
+  .form-control{font-size:16px;padding:12px}.fbtn{font-size:13px;padding:8px 14px;min-height:40px}
+  .stats{gap:8px}.stat-card{padding:12px}.stat-number{font-size:20px}
+  .story-card{padding:16px}.story-title{font-size:18px}.story-header{flex-direction:column;text-align:center}
+}
+@media(max-width:480px){
+  .topbar-inner{padding:8px 10px;gap:8px}.logo-text{font-size:14px}.logo-badge{width:36px;height:36px;font-size:14px}
+  .shell{padding:10px;gap:12px}.card .bd{padding:14px}.card .hd{padding:12px 14px;font-size:14px;flex-direction:column;align-items:flex-start;gap:8px}
+  .modal-header h2{font-size:18px}.modal-body{padding:14px}
+  .job{padding:14px}.job .title{font-size:15px}.job .meta{font-size:12px;gap:6px}.meta-dot{width:3px;height:3px}
+  .tags{gap:4px}.tag{padding:5px 10px;font-size:12px}.apply{gap:8px}.apply button,.apply a{font-size:14px;padding:10px 16px}
+  .filters{gap:6px}.fbtn{font-size:12px;padding:8px 12px;min-height:38px}
+  .form-group label{font-size:14px}.form-control{font-size:16px;padding:10px 12px}
+  .stats{grid-template-columns:1fr 1fr;gap:6px}.stat-card{padding:10px}.stat-number{font-size:18px}.stat-label{font-size:12px}
+  .profile-image-container{height:150px}.upload-area{padding:16px;min-height:100px}
+  .sponsor-card{padding:14px}.sponsor-logo{max-width:100px;max-height:40px}
+  .small{font-size:13px}button,.btn{font-size:15px;padding:10px 16px}
+  .story-card{padding:14px}.story-title{font-size:16px}
+}
+@media(max-width:360px){
+  .logo-text{display:none}.job .title{font-size:14px}.job .meta{font-size:11px}
+  .apply{flex-direction:column}.apply button,.apply a{width:100%}
+  .stats{grid-template-columns:1fr}.fbtn{font-size:11px;padding:6px 10px;min-height:36px}
+}
+@media(max-height:500px) and (orientation:landscape){.nav{max-height:calc(100vh - 52px)}.topbar-inner{padding:6px 12px}.logo-badge{width:34px;height:34px}}
+</style>
+</head>
+<body>
+
+<!-- LIVE ALERT BANNER - shows when user has connection requests or unread messages -->
+<div class="connection-alert" id="connection-alert-banner" onclick="openAlerts()" style="display:none">
+  🔔 <span id="alert-text">You have updates</span>
+</div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">
+      <div class="logo-badge">LTN</div>
+      <div class="logo-text">LinkTradeNetwork</div>
+    </div>
+
+    <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+
+    <div class="search-container">
+      <div class="ai-search-wrapper" style="position:relative;">
+        <input type="text" id="ai-search-input" class="form-control" placeholder="Ask LTN AI — trade, state, jobs..." style="background:rgba(255,255,255,.15);border:none;color:white;padding-left:36px;min-width:240px">
+        <svg style="position:absolute;left:10px;top:13px;width:16px;height:16px;opacity:.8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        <div style="position:absolute;right:8px;top:12px;font-size:10px;background:var(--brand);color:white;padding:1px 6px;border-radius:10px;font-weight:700">AI</div>
+      </div>
+      <div id="ai-results-container" style="display:none;position:absolute;top:58px;left:0;right:0;background:white;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:100;max-height:400px;overflow-y:auto;padding:16px"></div>
+    </div>
+
+    <nav class="nav" id="main-nav">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="members.html">Members</a>
+      <a href="apprenticeship.html" class="btn btn-primary">Apprenticeships</a>
+      <a href="#jobs">Jobs</a>
+      <a href="#" onclick="NetworkManager.openNetworkModal(); return false;" style="position:relative">
+        Network
+        <span id="network-badge" class="notification-badge" style="display:none">0</span>
+      </a>
+      <a href="#" onclick="MessageManager.openMessagesModal(); return false;" style="position:relative">
+        Messages
+        <span id="messages-badge" class="notification-badge" style="display:none">0</span>
+      </a>
+      <button class="btn btn-primary" onclick="JobPostManager.openModal()">Post a Job</button>
+      <a href="index.html" class="btn btn-secondary">Logout</a>
+    </nav>
+  </div>
+</header>
+
+
+<main class="shell">
+  <!-- LEFT -->
+  <aside>
+    <section class="card">
+      <div class="hd"><span>Profile</span><span class="badge">Professional</span></div>
+      <div class="bd">
+        <div class="profile-image-container" id="profile-image-area">
+          <div class="profile-placeholder-content">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <div>Click to add profile image</div>
+          </div>
+          <div class="profile-image-overlay">
+            <button onclick="ProfileManager.selectImage(event)">Change Photo</button>
+            <button onclick="ProfileManager.deleteImage(event)" id="delete-image-btn" style="display:none;background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.4)">Delete Photo</button>
+          </div>
+        </div>
+        <input type="file" id="profile-image-input" accept="image/*" style="display:none">
+
+        <div class="profile-info" id="profile-info-display">
+          <div class="profile-name" id="display-name">Your Name</div>
+          <div class="profile-trade" id="display-trade">Your Trade</div>
+          <div class="profile-location">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z"/><path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z"/></svg>
+            <span id="display-location">Your Location</span>
+          </div>
+        </div>
+
+        <div class="documents-list" id="documents-list"></div>
+
+        <div class="upload-area" id="profile-upload">
+          <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"/></svg>
+          <div class="small">Click to upload documents</div>
+          <div class="small">(Resume, certifications, licenses)</div>
+          <input type="file" id="file-upload" style="display:none" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+        </div>
+
+        <div class="stats">
+          <div class="stat-card"><div class="stat-number" id="connections-count">0</div><div class="stat-label">Connections</div></div>
+          <div class="stat-card"><div class="stat-number" id="applications-count">0</div><div class="stat-label">Applications</div></div>
+        </div>
+
+        <p class="small">Complete your profile to improve visibility with contractors and employers.</p>
+        <button class="btn-primary" id="edit-profile-btn" style="width:100%;margin-top:10px">Edit Profile</button>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:20px">
+      <div class="hd">Job Alerts</div>
+      <div class="bd">
+        <p class="small">Get notified when new jobs match your skills.</p>
+        <div class="form-group"><label>Skills & Trades</label><input type="text" class="form-control" placeholder="e.g. Electrical, Low Voltage"></div>
+        <div class="form-group"><label>Location</label><input type="text" class="form-control" placeholder="City, State, or Zip"></div>
+        <button class="btn-primary" style="width:100%">Create Alert</button>
+      </div>
+    </section>
+  </aside>
+
+  <!-- MIDDLE -->
+  <section>
+    <!-- APPRENTICESHIP ENTRY CTA -->
+    <div style="margin-bottom:20px;text-align:center">
+
+      <!-- MAIN APPRENTICESHIP BUTTON -->
+      <a href="apprenticeship.html" style="
+        display:inline-block;
+        background:linear-gradient(135deg,#ea6a00,#c35700);
+        color:white;
+        padding:18px 32px;
+        font-size:20px;
+        font-weight:800;
+        border-radius:12px;
+        text-decoration:none;
+        box-shadow:0 6px 20px rgba(0,0,0,.2);
+      ">
+        Start Your Trade Career (Apprenticeships)
+      </a>
+
+      <!-- APPRENTICESHIP ACTION BUTTONS -->
+      <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+
+        <a href="find-apprenticeships.html" style="
+          display:inline-block;
+          background:#3d5a80;
+          color:white;
+          padding:14px 26px;
+          font-size:16px;
+          font-weight:800;
+          border-radius:10px;
+          text-decoration:none;
+          box-shadow:0 4px 12px rgba(0,0,0,.12);
+        ">
+          🔎 Find Apprenticeships
+        </a>
+
+        <a href="apprenticeship.html" style="
+          display:inline-block;
+          background:#1e293b;
+          color:white;
+          padding:14px 26px;
+          font-size:16px;
+          font-weight:800;
+          border-radius:10px;
+          text-decoration:none;
+          box-shadow:0 4px 12px rgba(0,0,0,.12);
+        ">
+          📊 Track My Progress
+        </a>
+
+      </div>
+
+    </div>
+
+    <div class="card" id="jobs">
+      <div class="hd"><span>Skilled Trade Opportunities</span><span class="badge badge-warning" id="jobs-new-badge">Loading...</span></div>
+      <div class="bd">
+        <div class="filters" id="jobs-filter-bar">
+          <button class="fbtn active">All</button>
+          <button class="fbtn">Low Voltage</button>
+          <button class="fbtn">Electrical</button>
+          <button class="fbtn">Plumbing</button>
+          <button class="fbtn">HVAC</button>
+          <button class="fbtn">General Contractor</button>
+          <button class="fbtn">Physical Security</button>
+          <button class="fbtn">Sprinkler</button>
+        </div>
+        <div id="jobs-list" class="jobs-container"></div>
+        <div id="jobs-empty" class="empty-state" style="display:none">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <h3>No jobs found</h3>
+          <p>Try another trade, keyword, or location — or be the first to <a href="#" onclick="JobPostManager.openModal();return false;" style="color:var(--brand)">post a job</a>!</p>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button id="jobs-prev" class="btn btn-secondary" disabled>Prev</button>
+          <button id="jobs-next" class="btn btn-secondary" disabled>Next</button>
+          <div class="small" id="jobs-count" style="margin-left:auto;color:var(--muted);align-self:center"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POSTS FEED -->
+    <div class="card" style="margin-top:24px">
+      <div class="hd">
+        <span>Community Feed</span>
+        <span class="badge">Live</span>
+      </div>
+      <div class="bd">
+        <!-- Create Post Box -->
+        <div id="create-post-box" style="margin-bottom:20px;border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--panel2)">
+          <textarea id="post-content" class="form-control" placeholder="Share something with the LTN community — tips, wins, questions, opportunities..." style="min-height:80px;margin-bottom:10px;resize:none"></textarea>
+
+          <div id="post-image-preview" class="post-preview">
+            <img id="post-image-preview-img" alt="Photo preview">
+            <button onclick="PostsFeed.removeImage()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center">✕</button>
+          </div>
+
+          <div id="post-video-preview" class="post-preview">
+            <video id="post-video-preview-video" controls playsinline muted></video>
+            <button onclick="PostsFeed.removeVideo()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center">✕</button>
+          </div>
+
+          <div class="media-toolbar">
+            <div class="media-actions">
+              <label for="post-image-input" class="media-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                Add Photo
+              </label>
+              <input type="file" id="post-image-input" accept="image/*" style="display:none" onchange="PostsFeed.handleImageSelect(this.files[0])">
+
+              <label for="post-video-input" class="media-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14m-9 4h8a2 2 0 002-2V8a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                Add 10s Video
+              </label>
+              <input type="file" id="post-video-input" accept="video/mp4,video/quicktime,video/webm" style="display:none" onchange="PostsFeed.handleVideoSelect(this.files[0])">
+
+              <div style="font-size:12px;color:var(--muted)">💡 Photos + 10 second videos</div>
+            </div>
+            <button class="btn btn-primary" style="padding:8px 20px;font-size:14px" onclick="PostsFeed.createPost()">Post</button>
+          </div>
+        </div>
+        <!-- Posts List -->
+        <div id="posts-container">
+          <div style="text-align:center;padding:20px;color:var(--muted)">Loading community posts...</div>
+        </div>
+        <div style="text-align:center;margin-top:16px">
+          <button id="load-more-posts" class="btn btn-secondary" onclick="PostsFeed.loadMore()" style="display:none">Load More Posts</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCCESS STORIES -->
+    <div class="card" style="margin-top:24px">
+      <div class="hd">
+        <span>Success Stories</span>
+        <button class="btn btn-primary" style="padding:6px 12px;font-size:13px;min-height:32px" onclick="SuccessStories.openAddModal()">Share Your Story</button>
+      </div>
+      <div class="bd">
+        <div id="stories-container">
+          <div style="text-align:center;padding:20px;color:var(--muted)">Loading stories...</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:20px;justify-content:center">
+          <button id="stories-prev" class="btn btn-secondary" onclick="SuccessStories.prevPage()" style="display:none">Previous</button>
+          <button id="stories-next" class="btn btn-secondary" onclick="SuccessStories.nextPage()" style="display:none">Load More Stories</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- POST JOB -->
+    <div class="card" style="margin-top:24px">
+      <div class="hd">Post a New Job</div>
+      <div class="bd">
+        <div class="form-group"><label>Job Title *</label><input type="text" id="inline-job-title" class="form-control" placeholder="e.g. Experienced Plumber for Commercial Project"></div>
+        <div class="form-group"><label>Company / Business Name</label><input type="text" id="inline-job-company" class="form-control" placeholder="ABC Plumbing Co."></div>
+        <div class="form-group"><label>Job Type</label><select id="inline-job-type" class="form-control"><option>Full-time</option><option>Contract</option><option>Part-time</option><option>Project-based</option></select></div>
+        <div class="form-group"><label>Location (City, State) *</label><input type="text" id="inline-job-location" class="form-control" placeholder="Milwaukee, WI"></div>
+        <div class="form-group"><label>Pay Range</label><div style="display:flex;gap:10px;flex-wrap:wrap"><input type="text" id="inline-job-pay-min" class="form-control" placeholder="Min $" style="flex:1;min-width:100px"><input type="text" id="inline-job-pay-max" class="form-control" placeholder="Max $" style="flex:1;min-width:100px"><select id="inline-job-pay-period" class="form-control" style="flex:1;min-width:100px"><option>hourly</option><option>daily</option><option>project</option></select></div></div>
+        <div class="form-group">
+          <label>Required Skills (select all that apply)</label>
+          <div class="filters" id="inline-job-skills" style="margin-top:5px">
+            <button class="fbtn" type="button">Low Voltage</button>
+            <button class="fbtn" type="button">Electrical</button>
+            <button class="fbtn" type="button">Plumbing</button>
+            <button class="fbtn" type="button">HVAC</button>
+            <button class="fbtn" type="button">General Contractor</button>
+            <button class="fbtn" type="button">Physical Security</button>
+            <button class="fbtn" type="button">Sprinkler</button>
+            <button class="fbtn" type="button">Welding</button>
+            <button class="fbtn" type="button">Carpentry</button>
+          </div>
+        </div>
+        <div class="form-group"><label>Job Description *</label><textarea id="inline-job-desc" class="form-control" placeholder="Describe the job requirements, responsibilities, and what you're looking for..."></textarea></div>
+        <div class="form-group"><label>External Application Link (optional)</label><input type="url" id="inline-job-link" class="form-control" placeholder="https://..."></div>
+        <button class="btn-primary" style="width:100%" onclick="JobPostManager.submitInlineJob()">Post Job</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT -->
+  <aside class="right-sidebar">
+    <section class="card">
+      <div class="hd">Our Sponsors</div>
+      <div class="bd">
+        <div id="sponsors-container" class="sponsors-grid">
+          <div class="small" style="text-align:center;padding:20px;color:var(--muted)">Loading sponsors...</div>
+        </div>
+        <div style="margin-top:16px;padding:14px;background:var(--panel2);border-radius:8px;border:1px solid var(--line);text-align:center">
+          <div style="font-weight:700;font-size:14px;margin-bottom:4px;color:var(--accent)">Advertise on LTN</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">Reach thousands of skilled trade professionals and contractors nationwide.</div>
+          <button class="btn-primary" style="width:100%;font-size:14px" onclick="SponsorManager.openInquiryModal()">Become a Sponsor</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:20px">
+      <div class="hd">Get Connected</div>
+      <div class="bd small">
+        <p>Join the network built for skilled trades professionals:</p>
+        <ul style="margin:0 0 15px 18px;padding:0">
+          <li style="margin-bottom:8px">Find verified trade jobs with competitive pay</li>
+          <li style="margin-bottom:8px">Connect with local contractors and employers</li>
+          <li style="margin-bottom:8px">Showcase your skills and certifications</li>
+          <li>Get matched with projects in your area</li>
+        </ul>
+        <button class="btn-primary" style="width:100%" onclick="NetworkManager.openNetworkModal()">Join Network</button>
+      </div>
+    </section>
+
+    <!-- REFERRAL CARD -->
+    <section class="card" style="margin-top:20px">
+      <div class="hd">🔗 Refer & Earn $5</div>
+      <div class="bd small">
+        <p style="margin-bottom:12px">Share your referral code — earn <strong>$5</strong> for every new member who completes their profile! Cap: <strong>$50/month</strong>.</p>
+        <div style="background:var(--panel2);border:2px dashed var(--brand);border-radius:8px;padding:12px;text-align:center;margin-bottom:12px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">YOUR REFERRAL CODE</div>
+          <div id="referral-code-display" style="font-size:22px;font-weight:800;color:var(--brand);letter-spacing:4px">Loading...</div>
+        </div>
+        <button class="btn-primary" style="width:100%;margin-bottom:8px;padding:10px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:14px" onclick="copyReferralCode()">📋 Copy Referral Code</button>
+        <button class="btn btn-secondary" style="width:100%;font-size:13px" onclick="shareReferralLink()">↗ Share on Social Media</button>
+        <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">Paid via PayPal on the last day of each month. Min $10 payout. Program may be modified or ended at any time.</p>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:20px">
+      <div class="hd">Get The LTN Mobile App</div>
+      <div class="bd" style="padding:0">
+        <div style="background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;padding:20px;text-align:center;border-radius:0 0 12px 12px">
+          <svg style="width:60px;height:60px;margin-bottom:10px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <h3 style="margin:0 0 10px;font-size:18px">Find Trade Jobs On The Go</h3>
+          <p style="margin:0 0 15px;font-size:14px">Get instant job alerts, apply with one tap, and chat with employers directly from your phone.</p>
+          <button class="btn-secondary" style="display:inline-block;padding:12px 24px;font-size:16px">Get The LTN App</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:20px">
+      <div class="hd">Upcoming Events</div>
+      <div class="bd small">
+        <div style="margin-bottom:15px"><div style="font-weight:600">BICSI Spring Conference</div><div style="font-size:13px">May 15, 2026 • 9:00 AM</div><div style="color:var(--muted);font-size:13px">Tampa Convention Center</div></div>
+        <div style="margin-bottom:15px"><div style="font-weight:600">Low Voltage Code Updates</div><div style="font-size:13px">May 22, 2026 • 1:00 PM</div><div style="color:var(--muted);font-size:13px">Online Webinar</div></div>
+        <div><div style="font-weight:600">Contractor Networking Mixer</div><div style="font-size:13px">June 5, 2026 • 6:00 PM</div><div style="color:var(--muted);font-size:13px">Detroit Trade Association</div></div>
+        <button class="btn-primary" style="width:100%;margin-top:15px">View All Events</button>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:20px">
+      <div class="hd">Quick Resources</div>
+      <div class="bd small">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <a href="https://www.careeronestop.org/Toolkit/Training/find-licenses.aspx" target="_blank" rel="noopener noreferrer" style="text-decoration:none"><div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;color:var(--ink);min-height:80px;display:flex;flex-direction:column;justify-content:center"><svg style="width:24px;height:24px;margin:0 auto 8px;display:block;opacity:.7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h2l2-2 4-4M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><div>License Info</div></div></a>
+          <a href="https://www.nccer.org/" target="_blank" rel="noopener noreferrer" style="text-decoration:none"><div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;color:var(--ink);min-height:80px;display:flex;flex-direction:column;justify-content:center"><svg style="width:24px;height:24px;margin:0 auto 8px;display:block;opacity:.7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><div>Training</div></div></a>
+          <a href="https://www.bicsi.org/" target="_blank" rel="noopener noreferrer" style="text-decoration:none"><div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;color:var(--ink);min-height:80px;display:flex;flex-direction:column;justify-content:center"><svg style="width:24px;height:24px;margin:0 auto 8px;display:block;opacity:.7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><div>Certifications</div></div></a>
+          <a href="https://www.osha.gov/" target="_blank" rel="noopener noreferrer" style="text-decoration:none"><div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;color:var(--ink);min-height:80px;display:flex;flex-direction:column;justify-content:center"><svg style="width:24px;height:24px;margin:0 auto 8px;display:block;opacity:.7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9"/></svg><div>Support</div></div></a>
+        </div>
+      </div>
+    </section>
+  </aside>
+</main>
+
+<!-- Edit Profile Modal -->
+<div class="modal-backdrop" id="profile-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Edit Profile</h2>
+      <button class="modal-close" id="close-modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="profile-form">
+        <div class="form-group"><label>Full Name *</label><input type="text" id="input-name" class="form-control" placeholder="John Smith" required></div>
+        <div class="form-group"><label>Email Address *</label><input type="email" id="input-email" class="form-control" placeholder="john@example.com" required></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="input-phone" class="form-control" placeholder="(555) 123-4567"></div>
+        <div class="form-group"><label>Trade / Specialty *</label>
+          <select id="input-trade" class="form-control" required>
+            <option value="">Select your trade</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Low Voltage">Low Voltage</option>
+            <option value="Plumbing">Plumbing</option>
+            <option value="HVAC">HVAC</option>
+            <option value="General Contractor">General Contractor</option>
+            <option value="Physical Security">Physical Security</option>
+            <option value="Sprinkler Systems">Sprinkler Systems</option>
+            <option value="Carpentry">Carpentry</option>
+            <option value="Welding">Welding</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div style="margin:18px 0;padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)">
+          <label style="display:flex;align-items:center;gap:10px;font-weight:700;cursor:pointer">
+            <input type="checkbox" id="input-is-apprentice" style="width:auto;min-height:auto">
+            I am currently an apprentice
+          </label>
+          <div id="apprentice-fields" style="display:none;margin-top:14px">
+            <div class="form-group"><label>Apprenticeship Program / School</label><input type="text" id="input-apprentice-program" class="form-control" placeholder="Detroit Trade School, IBEW, company program, etc."></div>
+            <div class="form-group"><label>Employer / Contractor</label><input type="text" id="input-apprentice-employer" class="form-control" placeholder="Company or contractor name"></div>
+            <div class="form-group"><label>Apprenticeship Start Date</label><input type="date" id="input-apprentice-start-date" class="form-control"></div>
+            <div class="form-group"><label>Current Hours Completed</label><input type="number" id="input-apprentice-hours" class="form-control" placeholder="0" min="0" max="8000"></div>
+          </div>
+        </div>
+        <div class="form-group"><label>Years of Experience</label><input type="number" id="input-experience" class="form-control" placeholder="5" min="0" max="50"></div>
+        <div class="form-group"><label>City *</label><input type="text" id="input-city" class="form-control" placeholder="Milwaukee" required></div>
+        <div class="form-group"><label>State *</label>
+          <select id="input-state" class="form-control" required>
+            <option value="">Select state</option>
+            <option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option><option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option><option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option><option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option><option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option><option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option><option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option><option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option><option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option><option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option><option value="WI">Wisconsin</option><option value="WY">Wyoming</option>
+          </select>
+        </div>
+        <div class="form-group"><label>About / Bio</label><textarea id="input-bio" class="form-control" placeholder="Tell employers about your skills and experience..."></textarea></div>
+        <div class="form-group"><label>Skills (comma separated)</label><input type="text" id="input-skills" class="form-control" placeholder="Wiring, Code Compliance, Blueprint Reading"></div>
+        <div class="form-group"><label>Certifications / Licenses</label><textarea id="input-certifications" class="form-control" placeholder="Master Electrician License - State of WI&#10;OSHA 30-Hour Construction"></textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancel-modal">Cancel</button>
+      <button class="btn btn-primary" id="save-profile">Save Profile</button>
+    </div>
+  </div>
+</div>
+
+<!-- Network Modal -->
+<div class="modal-backdrop" id="network-modal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h2>Network</h2>
+      <button class="modal-close" onclick="NetworkManager.closeNetworkModal()">&times;</button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div class="network-tabs" style="padding:0 20px;margin-bottom:0">
+        <div class="network-tab active" onclick="NetworkManager.showTab('connections')">My Connections <span id="conn-count-tab">(0)</span></div>
+        <div class="network-tab" onclick="NetworkManager.showTab('requests')">Requests <span id="req-count-tab" class="notification-badge" style="display:none;position:relative;top:0;right:0;margin-left:6px">0</span></div>
+        <div class="network-tab" onclick="NetworkManager.showTab('suggested')">Suggested</div>
+        <div class="network-tab" onclick="NetworkManager.showTab('search')">Search</div>
+      </div>
+      <div id="network-connections" class="network-tab-content" style="padding:20px"><div id="connections-list"></div></div>
+      <div id="network-requests" class="network-tab-content" style="display:none;padding:20px"><div id="requests-list"></div></div>
+      <div id="network-suggested" class="network-tab-content" style="display:none;padding:20px"><div id="suggested-list"></div></div>
+      <div id="network-search" class="network-tab-content" style="display:none;padding:20px">
+        <input type="text" id="people-search-input" class="search-input" placeholder="Search by name, trade, location...">
+        <div id="search-results"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Messages Modal -->
+<div class="modal-backdrop" id="messages-modal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h2 id="messages-header-title">Messages</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-primary" style="padding:6px 14px;font-size:13px;min-height:36px" onclick="MessageManager.showNewMessage()">+ New Message</button>
+        <button class="modal-close" onclick="MessageManager.closeMessagesModal()">&times;</button>
+      </div>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <!-- New Message Search Panel -->
+      <div id="new-message-panel" style="display:none;padding:16px;border-bottom:1px solid var(--line);background:var(--panel2)">
+        <div style="font-weight:600;font-size:14px;margin-bottom:10px;color:var(--accent)">Search for a member to message:</div>
+        <input type="text" id="new-message-search" class="search-input" placeholder="Type a name or trade..." style="margin-bottom:8px">
+        <div id="new-message-results"></div>
+      </div>
+      <div id="messages-list-view"><div class="message-list" id="messages-list"></div></div>
+      <div id="messages-chat-view" style="display:none">
+        <div class="chat-view">
+          <div class="chat-header">
+            <button onclick="MessageManager.backToList()" style="background:none;border:none;cursor:pointer;padding:8px;margin-right:8px">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <div class="person-avatar" id="chat-avatar"></div>
+            <div><div class="person-name" id="chat-name"></div><div class="person-trade" id="chat-trade"></div></div>
+          </div>
+          <div class="chat-messages" id="chat-messages"></div>
+          <div class="chat-input-area">
+            <textarea id="chat-input" class="chat-input" placeholder="Type a message..." rows="1"></textarea>
+            <button class="chat-send-btn" onclick="MessageManager.sendMessage()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Story Modal -->
+<div class="modal-backdrop" id="story-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="story-modal-title">Share Your Success Story</h2>
+      <button class="modal-close" onclick="SuccessStories.closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="story-form">
+        <div class="form-group"><label>Your Name *</label><input type="text" id="story-name" class="form-control" placeholder="John Smith" required></div>
+        <div class="form-group"><label>Your Trade *</label><input type="text" id="story-trade" class="form-control" placeholder="Electrician" required></div>
+        <div class="form-group"><label>Story Title *</label><input type="text" id="story-title" class="form-control" placeholder="From Apprentice to Master Electrician in 5 Years" required></div>
+        <div class="form-group"><label>Your Story * (min 50 characters)</label><textarea id="story-text" class="form-control" style="min-height:150px" placeholder="Share your journey, challenges you overcame, and what helped you succeed..." required></textarea></div>
+        <div class="form-group"><label>Location (City, State — optional)</label><input type="text" id="story-location" class="form-control" placeholder="Milwaukee, WI"></div>
+        <div class="form-group">
+          <label>Add Photo (optional)</label>
+          <div class="upload-area" id="story-image-upload" onclick="document.getElementById('story-image-input').click()">
+            <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <div class="small">Click to add a photo</div>
+          </div>
+          <input type="file" id="story-image-input" accept="image/*" style="display:none">
+          <div id="story-image-preview" style="display:none;margin-top:10px">
+            <img id="story-image-preview-img" style="max-width:100%;border-radius:8px" alt="Preview">
+            <button type="button" class="btn btn-danger" style="margin-top:8px;width:100%" onclick="SuccessStories.removeImage()">Remove Image</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="SuccessStories.closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="save-story-btn" onclick="SuccessStories.saveStory()">Share Story</button>
+    </div>
+  </div>
+</div>
+
+<!-- My Stories Modal -->
+<div class="modal-backdrop" id="my-stories-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>My Success Stories</h2>
+      <button class="modal-close" onclick="SuccessStories.closeMyStoriesModal()">&times;</button>
+    </div>
+    <div class="modal-body"><div id="my-stories-list"><div style="text-align:center;padding:20px;color:var(--muted)">Loading your stories...</div></div></div>
+  </div>
+</div>
+
+<!-- Post Job Modal -->
+<div class="modal-backdrop" id="post-job-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Post a Job</h2>
+      <button class="modal-close" onclick="JobPostManager.closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="small" style="margin-bottom:16px">Fill out the form below to post a job to the LTN network.</p>
+      <div class="form-group"><label>Job Title *</label><input type="text" id="modal-job-title" class="form-control" placeholder="Licensed Electrician for Commercial Project"></div>
+      <div class="form-group"><label>Company / Business Name</label><input type="text" id="modal-job-company" class="form-control" placeholder="ABC Electric Co."></div>
+      <div class="form-group"><label>Job Type</label><select id="modal-job-type" class="form-control"><option>Full-time</option><option>Contract</option><option>Part-time</option><option>Project-based</option></select></div>
+      <div class="form-group"><label>Location (City, State) *</label><input type="text" id="modal-job-location" class="form-control" placeholder="Detroit, MI"></div>
+      <div class="form-group"><label>Pay</label><input type="text" id="modal-job-pay" class="form-control" placeholder="$35-$45/hr or $80,000/yr"></div>
+      <div class="form-group"><label>Trade Tags (comma separated)</label><input type="text" id="modal-job-tags" class="form-control" placeholder="Electrical, Low Voltage"></div>
+      <div class="form-group"><label>Job Description *</label><textarea id="modal-job-desc" class="form-control" placeholder="Describe the job..."></textarea></div>
+      <div class="form-group"><label>Application Link (optional)</label><input type="url" id="modal-job-link" class="form-control" placeholder="https://..."></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="JobPostManager.closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modal-post-job-btn" onclick="JobPostManager.submitModalJob()">Post Job</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sponsor Inquiry Modal -->
+<div class="modal-backdrop" id="sponsor-inquiry-modal">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-header">
+      <h2>Become a Sponsor</h2>
+      <button class="modal-close" onclick="SponsorManager.closeInquiryModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px">
+        <div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;background:var(--panel2)">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Basic</div>
+          <div style="font-size:20px;font-weight:700;color:var(--accent)">$49</div>
+          <div style="font-size:11px;color:var(--muted)">/month</div>
+          <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">Logo + link<br>Standard slot</div>
+        </div>
+        <div style="border:2px solid var(--brand);border-radius:8px;padding:12px;text-align:center;background:rgba(234,106,0,.04)">
+          <div style="font-size:11px;font-weight:600;color:var(--brand);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Featured ⭐</div>
+          <div style="font-size:20px;font-weight:700;color:var(--brand)">$99</div>
+          <div style="font-size:11px;color:var(--muted)">/month</div>
+          <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">Top slot<br>Highlighted card</div>
+        </div>
+        <div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;background:var(--panel2)">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Premium</div>
+          <div style="font-size:20px;font-weight:700;color:var(--accent)">$199</div>
+          <div style="font-size:11px;color:var(--muted)">/month</div>
+          <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">All pages<br>+ AI mentions</div>
+        </div>
+      </div>
+      <form id="sponsor-form">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label>Business Name *</label><input type="text" id="sp-business" class="form-control" placeholder="ABC Electric Co." required></div>
+          <div class="form-group"><label>Your Name *</label><input type="text" id="sp-contact" class="form-control" placeholder="Mike Johnson" required></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label>Email Address *</label><input type="email" id="sp-email" class="form-control" placeholder="mike@company.com" required></div>
+          <div class="form-group"><label>Phone Number</label><input type="tel" id="sp-phone" class="form-control" placeholder="(414) 555-0100"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group"><label>Industry / Trade</label>
+            <select id="sp-industry" class="form-control">
+              <option value="">Select industry</option>
+              <option>Electrical Supply</option><option>Plumbing Supply</option><option>HVAC Equipment</option>
+              <option>Tools & Equipment</option><option>Safety & PPE</option><option>Training & Certification</option>
+              <option>Insurance</option><option>Software / Technology</option><option>Staffing / Recruiting</option>
+              <option>General Contractor</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Sponsorship Tier</label>
+            <select id="sp-slot" class="form-control">
+              <option value="">I'll discuss with you</option>
+              <option value="Basic — $49/mo">Basic — $49/mo</option>
+              <option value="Featured — $99/mo">Featured — $99/mo (Top slot)</option>
+              <option value="Premium — $199/mo">Premium — $199/mo (All pages)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label>Tell us about your business (optional)</label><textarea id="sp-message" class="form-control" style="min-height:80px" placeholder="What trades do you serve? What are you hoping to promote?"></textarea></div>
+      </form>
+      <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px">No payment required now — we'll reach out within 1–2 business days to discuss details and get you set up.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="SponsorManager.closeInquiryModal()">Cancel</button>
+      <button class="btn btn-primary" id="sponsor-submit-btn" onclick="SponsorManager.submitInquiry()">Send Inquiry</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Firebase compat SDK for syncing dashboard profile to Members page -->
+<script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
+
+<script>
+/* ===== CONFIG ===== */
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbws8lpL8vPivEBRoExKXqqxwszg8dbfwtqk1Z12xqNFjVYnuRfzjmaid2vq0ZT3TQ-D/exec";
+const CLOUDINARY_CLOUD_NAME = "doasaii6h";
+const CLOUDINARY_UPLOAD_PRESET = "o6zrbqqm";
+
+/* ===== FIREBASE SYNC FOR MEMBERS PAGE ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
+  authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
+  projectId: "linktradenetwork-2dcd1",
+  storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
+  messagingSenderId: "219091766597",
+  appId: "1:219091766597:web:9878c199ba17e0ed89c22c"
+};
+
+let firebaseDb = null;
+let firebaseAuth = null;
+
+try{
+  if(window.firebase){
+    if(!firebase.apps.length){ firebase.initializeApp(firebaseConfig); }
+    firebaseDb = firebase.firestore();
+    firebaseAuth = firebase.auth();
+  }
+}catch(e){
+  console.log('Firebase sync setup skipped:', e);
+}
+
+function safeDocIdFromEmail(email){
+  return String(email || 'unknown-user').toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+}
+
+async function saveProfileToFirestore(profile){
+  if(!firebaseDb || !profile || !profile.email) return;
+
+  const cleanProfile = {
+    name: profile.fullName || profile.name || '',
+    fullName: profile.fullName || profile.name || '',
+    email: profile.email || '',
+    phone: profile.phone || '',
+    trade: profile.trade || '',
+    experience: profile.experience || '',
+    city: profile.city || '',
+    state: profile.state || '',
+    bio: profile.bio || '',
+    skills: profile.skills || '',
+    certifications: profile.certifications || '',
+    profileImageUrl: profile.profileImageUrl || '',
+    apprenticeship: profile.apprenticeship || {},
+    hours: profile.apprenticeship && profile.apprenticeship.isApprentice ? Number(profile.apprenticeship.hours || 0) : Number(profile.hours || 0),
+    profileImage: profile.profileImageUrl || '',
+    photoURL: profile.profileImageUrl || '',
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try{
+    let docId = null;
+
+    if(firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid){
+      docId = firebaseAuth.currentUser.uid;
+    }
+
+    if(!docId){
+      const existing = await firebaseDb.collection('users').where('email', '==', profile.email).limit(1).get();
+      if(!existing.empty){ docId = existing.docs[0].id; }
+    }
+
+    if(!docId){ docId = safeDocIdFromEmail(profile.email); }
+
+    await firebaseDb.collection('users').doc(docId).set(cleanProfile, { merge:true });
+    console.log('Profile synced to Firestore members page');
+  }catch(e){
+    console.error('Firestore profile sync failed:', e);
+  }
+}
+
+
+/* ===== ANALYTICS ===== */
+const GA_MEASUREMENT_ID = 'G-6CYFMPH84F';
+function trackEvent(eventName, params = {}){
+  try{
+    if(typeof gtag === 'function' && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX'){
+      gtag('event', eventName, params);
+    }
+  }catch(e){
+    console.log('Analytics tracking skipped:', e);
+  }
+}
+
+/* ===== UTILS ===== */
+function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
+const isHtmlResponse=(res)=>{const ct=res.headers.get('content-type')||'';return ct.includes('text/html')};
+
+async function apiCall(payload){
+  const res = await fetch(WEBAPP_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload)
+  });
+  return res.json();
+}
+
+/* ===== FIREBASE USER / NETWORK HELPERS ===== */
+function getStoredUserEmail(){
+  let email = (localStorage.getItem('userEmail') || '').trim().toLowerCase();
+  if(!email){
+    try{
+      const u = JSON.parse(localStorage.getItem('ltn_user') || '{}');
+      if(u.email) email = String(u.email).trim().toLowerCase();
+    }catch(e){}
+  }
+  return email;
+}
+async function getCurrentFirebaseUserRecord(){
+  const email = getStoredUserEmail();
+  if(!email || !firebaseDb) return null;
+  const snap = await firebaseDb.collection('users').where('email','==',email).limit(1).get();
+  if(!snap.empty){ const d = snap.docs[0]; return { id:d.id, ...d.data() }; }
+  return null;
+}
+function firebaseInitials(name,email){
+  const base = (name || email || 'LT').trim();
+  return base.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2) || 'LT';
+}
+function firebasePersonCard(user, actionsHtml){
+  const name = user.name || user.fullName || user.email || 'Trade Member';
+  const trade = user.trade || 'Trade Not Selected';
+  const location = [user.city,user.state].filter(Boolean).join(', ');
+  const photo = user.profileImageUrl || user.profileImage || user.photoURL || '';
+  const initials = firebaseInitials(name,user.email);
+  return `<div class="person-card">
+    <div class="person-avatar">${photo ? `<img src="${photo}" alt="${name}">` : initials}</div>
+    <div class="person-info">
+      <div class="person-name">${name}</div>
+      <div class="person-trade">${trade}</div>
+      ${location ? `<div class="person-location">${location}</div>` : ''}
+      <div class="person-actions">${actionsHtml || ''}</div>
+    </div>
+  </div>`;
+}
+async function getUserById(userId){
+  if(!userId || !firebaseDb) return null;
+  const snap = await firebaseDb.collection('users').doc(userId).get();
+  return snap.exists ? { id:snap.id, ...snap.data() } : null;
+}
+
+/* ===== FIREBASE: CHECK PENDING CONNECTIONS ON PAGE LOAD ===== */
+let firebaseAlertUnsubscribers = [];
+let currentAlertCounts = { requests: 0, messages: 0 };
+
+function updateLiveAlertUI(){
+  const networkBadge = document.getElementById('network-badge');
+  const messagesBadge = document.getElementById('messages-badge');
+  const tabBadge = document.getElementById('req-count-tab');
+  const banner = document.getElementById('connection-alert-banner');
+  const alertText = document.getElementById('alert-text');
+
+  const requestCount = currentAlertCounts.requests || 0;
+  const messageCount = currentAlertCounts.messages || 0;
+
+  if(networkBadge){
+    if(requestCount > 0){ networkBadge.textContent = requestCount; networkBadge.style.display = 'block'; }
+    else{ networkBadge.style.display = 'none'; }
+  }
+
+  if(tabBadge){
+    if(requestCount > 0){ tabBadge.textContent = requestCount; tabBadge.style.display = 'inline-block'; }
+    else{ tabBadge.style.display = 'none'; }
+  }
+
+  if(messagesBadge){
+    if(messageCount > 0){ messagesBadge.textContent = messageCount; messagesBadge.style.display = 'block'; }
+    else{ messagesBadge.style.display = 'none'; }
+  }
+
+  if(banner && alertText){
+    if(requestCount > 0 && messageCount > 0){
+      alertText.textContent = `You have ${requestCount} connection request(s) and ${messageCount} unread message(s) — Click to view`;
+      banner.style.display = 'block';
+    }else if(requestCount > 0){
+      alertText.textContent = `You have ${requestCount} pending connection request(s) — Click to view`;
+      banner.style.display = 'block';
+    }else if(messageCount > 0){
+      alertText.textContent = `You have ${messageCount} unread message(s) — Click to view`;
+      banner.style.display = 'block';
+    }else{
+      banner.style.display = 'none';
+    }
+  }
+}
+
+function openAlerts(){
+  if(currentAlertCounts.requests > 0){
+    NetworkManager.openNetworkModal();
+    setTimeout(()=>NetworkManager.showTab('requests'),150);
+    return;
+  }
+  if(currentAlertCounts.messages > 0){
+    MessageManager.openMessagesModal();
+    return;
+  }
+  NetworkManager.openNetworkModal();
+}
+
+async function startFirebaseAlertListeners(){
+  if(!firebaseDb) return;
+
+  firebaseAlertUnsubscribers.forEach(unsub=>{ try{ unsub(); }catch(e){} });
+  firebaseAlertUnsubscribers = [];
+
+  const current = await getCurrentFirebaseUserRecord();
+  if(!current){
+    currentAlertCounts = { requests: 0, messages: 0 };
+    updateLiveAlertUI();
+    return;
+  }
+
+  try{
+    const reqUnsub = firebaseDb.collection('connections')
+      .where('toUserId','==',current.id)
+      .where('status','==','pending')
+      .onSnapshot(snap=>{
+        currentAlertCounts.requests = snap.size;
+        updateLiveAlertUI();
+        const list = document.getElementById('requests-list');
+        if(list && document.getElementById('network-modal')?.classList.contains('active')){
+          NetworkManager.loadRequests();
+        }
+      }, err=>console.error('Connection alert listener failed:', err));
+
+    firebaseAlertUnsubscribers.push(reqUnsub);
+  }catch(e){ console.error('Firebase connection alert setup failed:', e); }
+
+  try{
+    const msgUnsub = firebaseDb.collection('conversations')
+      .where('participants','array-contains',current.id)
+      .onSnapshot(snap=>{
+        let unreadTotal = 0;
+        snap.forEach(d=>{
+          const data = d.data();
+          unreadTotal += (data.unread && data.unread[current.id]) ? Number(data.unread[current.id]) : 0;
+        });
+        currentAlertCounts.messages = unreadTotal;
+        updateLiveAlertUI();
+      }, err=>console.error('Message alert listener failed:', err));
+
+    firebaseAlertUnsubscribers.push(msgUnsub);
+  }catch(e){ console.error('Firebase message alert setup failed:', e); }
+}
+
+async function checkPendingConnections(){
+  await startFirebaseAlertListeners();
+}
+
+/* ===== JOB POST MANAGER ===== */
+const JobPostManager = {
+  openModal(){
+    const email = localStorage.getItem('userEmail');
+    if(!email){ alert('Please sign in first to post a job.'); return; }
+    document.getElementById('post-job-modal').classList.add('active');
+  },
+  closeModal(){
+    document.getElementById('post-job-modal').classList.remove('active');
+  },
+  parseLocation(locStr){
+    const parts = locStr.split(',').map(s=>s.trim());
+    return { city: parts[0]||'', state: parts[1]||'' };
+  },
+  async submitModalJob(){
+    const email = localStorage.getItem('userEmail');
+    if(!email){ alert('Please sign in first.'); return; }
+    const title = document.getElementById('modal-job-title').value.trim();
+    const loc   = document.getElementById('modal-job-location').value.trim();
+    if(!title){ alert('Job title is required.'); return; }
+    if(!loc)  { alert('Location is required.'); return; }
+    const btn = document.getElementById('modal-post-job-btn');
+    btn.disabled=true; btn.textContent='Posting...';
+    try{
+      const {city,state} = this.parseLocation(loc);
+      const data = await apiCall({
+        action:'post-job', email,
+        title,
+        company:     document.getElementById('modal-job-company').value.trim(),
+        type:        document.getElementById('modal-job-type').value,
+        city, state,
+        pay:         document.getElementById('modal-job-pay').value.trim(),
+        tradeTags:   document.getElementById('modal-job-tags').value.trim(),
+        description: document.getElementById('modal-job-desc').value.trim(),
+        link:        document.getElementById('modal-job-link').value.trim()
+      });
+      if(data.success){
+        alert('Job posted successfully!');
+        this.closeModal();
+        loadJobs();
+      } else {
+        alert('Error: '+(data.error||'Failed to post job'));
+      }
+    }catch(e){ alert('Failed to post job. Please try again.'); }
+    finally{ btn.disabled=false; btn.textContent='Post Job'; }
+  },
+  async submitInlineJob(){
+    const email = localStorage.getItem('userEmail');
+    if(!email){ alert('Please sign in first to post a job.'); return; }
+    const title = document.getElementById('inline-job-title').value.trim();
+    const loc   = document.getElementById('inline-job-location').value.trim();
+    const desc  = document.getElementById('inline-job-desc').value.trim();
+    if(!title){ alert('Job title is required.'); return; }
+    if(!loc)  { alert('Location is required.'); return; }
+    if(!desc) { alert('Job description is required.'); return; }
+
+    const skillBtns = document.querySelectorAll('#inline-job-skills .fbtn.active');
+    let tradeTags = Array.from(skillBtns).map(b=>b.textContent.trim()).join(', ');
+
+    if(!tradeTags){
+      const allTrades = ['Low Voltage','Electrical','Plumbing','HVAC','General Contractor','Physical Security','Sprinkler','Welding','Carpentry'];
+      const titleLower = title.toLowerCase() + ' ' + desc.toLowerCase();
+      const detected = allTrades.filter(t => titleLower.includes(t.toLowerCase()));
+      tradeTags = detected.join(', ') || title;
+    }
+
+    const payMin    = document.getElementById('inline-job-pay-min').value.trim();
+    const payMax    = document.getElementById('inline-job-pay-max').value.trim();
+    const payPeriod = document.getElementById('inline-job-pay-period').value;
+    let pay = '';
+    if(payMin && payMax) pay = `$${payMin}-$${payMax}/${payPeriod}`;
+    else if(payMin) pay = `$${payMin}/${payPeriod}`;
+
+    const btn = document.querySelector('[onclick="JobPostManager.submitInlineJob()"]');
+    btn.disabled=true; btn.textContent='Posting...';
+    try{
+      const {city,state} = this.parseLocation(loc);
+      const data = await apiCall({
+        action:'post-job', email,
+        title,
+        company:     document.getElementById('inline-job-company').value.trim(),
+        type:        document.getElementById('inline-job-type').value,
+        city, state, pay, tradeTags, description: desc,
+        link:        document.getElementById('inline-job-link').value.trim()
+      });
+      if(data.success){
+        alert('Job posted successfully!');
+        ['inline-job-title','inline-job-company','inline-job-location','inline-job-pay-min','inline-job-pay-max','inline-job-desc','inline-job-link'].forEach(id=>{
+          const el=document.getElementById(id); if(el) el.value='';
+        });
+        document.querySelectorAll('#inline-job-skills .fbtn').forEach(b=>b.classList.remove('active'));
+        document.querySelectorAll('#jobs-filter-bar .fbtn').forEach(x=>x.classList.remove('active'));
+        const allBtn = document.querySelector('#jobs-filter-bar .fbtn');
+        if(allBtn) allBtn.classList.add('active');
+        loadJobs({trade:'', offset:0});
+        window.scrollTo({top:0,behavior:'smooth'});
+      } else {
+        alert('Error: '+(data.error||'Failed to post job'));
+      }
+    }catch(e){ alert('Failed to post job. Please try again.'); }
+    finally{ btn.disabled=false; btn.textContent='Post Job'; }
+  }
+};
+
+/* ===== PROFILE MANAGER ===== */
+const ProfileManager = {
+  currentImageUrl: null,
+  init(){
+    this.checkAuthStatus();
+    this.loadProfile();
+    this.loadDocuments();
+    this.bindEvents();
+  },
+  checkAuthStatus(){
+    const email = localStorage.getItem('userEmail');
+    const editBtn = document.getElementById('edit-profile-btn');
+    if(!email){
+      editBtn.textContent='Sign In to Complete Profile';
+      editBtn.onclick=()=>{ window.location.href='index.html'; };
+    } else {
+      editBtn.textContent='Edit Profile';
+      editBtn.onclick=()=>this.openModal();
+    }
+  },
+  bindEvents(){
+    const imageInput = document.getElementById('profile-image-input');
+    if(imageInput) imageInput.addEventListener('change',e=>this.handleImageUpload(e.target.files[0]));
+    const uploadArea = document.getElementById('profile-upload');
+    const fileUpload = document.getElementById('file-upload');
+    if(uploadArea) uploadArea.addEventListener('click',()=>{ if(!localStorage.getItem('userEmail')){alert('Please sign in first');return;} fileUpload.click(); });
+    if(fileUpload) fileUpload.addEventListener('change',e=>this.handleDocumentUpload(e.target.files));
+    const closeBtn  = document.getElementById('close-modal');
+    const cancelBtn = document.getElementById('cancel-modal');
+    const saveBtn   = document.getElementById('save-profile');
+    if(closeBtn)  closeBtn.addEventListener('click',()=>this.closeModal());
+    if(cancelBtn) cancelBtn.addEventListener('click',()=>this.closeModal());
+    if(saveBtn)   saveBtn.addEventListener('click',()=>this.saveProfile());
+    const apprenticeToggle = document.getElementById('input-is-apprentice');
+    if(apprenticeToggle) apprenticeToggle.addEventListener('change',()=>this.toggleApprenticeFields());
+    const modal = document.getElementById('profile-modal');
+    if(modal) modal.addEventListener('click',e=>{ if(e.target.id==='profile-modal') this.closeModal(); });
+  },
+  selectImage(e){ e.stopPropagation(); if(!localStorage.getItem('userEmail')){alert('Please sign in first');return;} document.getElementById('profile-image-input').click(); },
+  async deleteImage(e){
+    e.stopPropagation();
+    if(!confirm('Delete your profile image?')) return;
+    this.currentImageUrl=null;
+    this.displayPlaceholder();
+    await this.saveProfile();
+    alert('Profile image deleted!');
+  },
+  displayPlaceholder(){
+    document.getElementById('profile-image-area').innerHTML=`
+      <div class="profile-placeholder-content">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <div>Click to add profile image</div>
+      </div>
+      <div class="profile-image-overlay"><button onclick="ProfileManager.selectImage(event)">Change Photo</button></div>`;
+  },
+  async handleImageUpload(file){
+    if(!file) return;
+    if(!file.type.startsWith('image/')){ alert('Please select an image file'); return; }
+    if(!localStorage.getItem('userEmail')){ alert('Please sign in first'); return; }
+    const reader = new FileReader();
+    reader.onload=(e)=>{
+      const img = new Image();
+      img.onload=()=>{
+        const MAX=200;
+        let w=img.width, h=img.height;
+        if(w>h){ if(w>MAX){h=Math.round(h*MAX/w);w=MAX;} }
+        else    { if(h>MAX){w=Math.round(w*MAX/h);h=MAX;} }
+        const canvas=document.createElement('canvas');
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        const compressed=canvas.toDataURL('image/jpeg',0.7);
+        this.currentImageUrl=compressed;
+        this.displayProfileImage(compressed);
+        alert('Image ready! Click Save Profile to keep it.');
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  },
+  displayProfileImage(imageData){
+    document.getElementById('profile-image-area').innerHTML=`
+      <img src="${imageData}" alt="Profile">
+      <div class="profile-image-overlay">
+        <button onclick="ProfileManager.selectImage(event)">Change Photo</button>
+        <button onclick="ProfileManager.deleteImage(event)" style="background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.4)">Delete Photo</button>
+      </div>`;
+  },
+  handleDocumentUpload(files){
+    if(!files||!files.length) return;
+    const documents = JSON.parse(localStorage.getItem('profileDocuments')||'[]');
+    Array.from(files).forEach(file=>documents.push({id:Date.now()+Math.random(),name:file.name,size:file.size,type:file.type,uploadedAt:new Date().toISOString()}));
+    localStorage.setItem('profileDocuments',JSON.stringify(documents));
+    this.displayDocuments();
+    alert('Documents added!');
+  },
+  displayDocuments(){
+    const documents = JSON.parse(localStorage.getItem('profileDocuments')||'[]');
+    const container = document.getElementById('documents-list');
+    if(!documents.length){ container.innerHTML=''; return; }
+    container.innerHTML=`<div style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--accent)">Uploaded Documents</div>`+
+      documents.map(doc=>`<div class="document-item"><div style="display:flex;align-items:center;flex:1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span style="flex:1">${doc.name}</span></div><span class="document-remove" onclick="ProfileManager.removeDocument('${doc.id}')">Remove</span></div>`).join('');
+  },
+  removeDocument(id){
+    const docs = JSON.parse(localStorage.getItem('profileDocuments')||'[]').filter(d=>d.id!=id);
+    localStorage.setItem('profileDocuments',JSON.stringify(docs));
+    this.displayDocuments();
+  },
+  async openModal(){
+    const email = localStorage.getItem('userEmail');
+    if(!email){ alert('Please sign in first.'); window.location.href='index.html'; return; }
+    try{
+      const data = await apiCall({action:'get-profile',email});
+      if(data.success&&data.profile){ this.populateForm(data.profile); if(data.profile.profileImageUrl) this.currentImageUrl=data.profile.profileImageUrl; }
+      else { document.getElementById('input-email').value=email; document.getElementById('input-email').disabled=true; }
+    }catch(e){ document.getElementById('input-email').value=email; document.getElementById('input-email').disabled=true; }
+    document.getElementById('profile-modal').classList.add('active');
+  },
+  toggleApprenticeFields(){
+    const checkbox = document.getElementById('input-is-apprentice');
+    const fields = document.getElementById('apprentice-fields');
+    if(fields) fields.style.display = (checkbox && checkbox.checked) ? 'block' : 'none';
+  },
+  populateForm(p){
+    document.getElementById('input-name').value=p.fullName||'';
+    document.getElementById('input-email').value=p.email||'';
+    document.getElementById('input-email').disabled=true;
+    document.getElementById('input-phone').value=p.phone||'';
+    document.getElementById('input-trade').value=p.trade||'';
+    document.getElementById('input-experience').value=p.experience||'';
+    document.getElementById('input-city').value=p.city||'';
+    document.getElementById('input-state').value=p.state||'';
+    document.getElementById('input-bio').value=p.bio||'';
+    document.getElementById('input-skills').value=p.skills||'';
+    document.getElementById('input-certifications').value=p.certifications||'';
+    const app = p.apprenticeship || {};
+    const isApprentice = document.getElementById('input-is-apprentice');
+    if(isApprentice) isApprentice.checked = !!app.isApprentice;
+    const appProgram = document.getElementById('input-apprentice-program');
+    const appEmployer = document.getElementById('input-apprentice-employer');
+    const appStart = document.getElementById('input-apprentice-start-date');
+    const appHours = document.getElementById('input-apprentice-hours');
+    if(appProgram) appProgram.value = app.program || '';
+    if(appEmployer) appEmployer.value = app.employer || '';
+    if(appStart) appStart.value = app.startDate || '';
+    if(appHours) appHours.value = app.hours || '';
+    this.toggleApprenticeFields();
+  },
+  closeModal(){ document.getElementById('profile-modal').classList.remove('active'); document.getElementById('input-email').disabled=false; },
+  async saveProfile(){
+    const saveBtn = document.getElementById('save-profile');
+    const email = localStorage.getItem('userEmail');
+    if(!email){ alert('Please sign in first.'); window.location.href='index.html'; return; }
+    const profile={
+      email,
+      fullName:       document.getElementById('input-name').value.trim(),
+      phone:          document.getElementById('input-phone').value.trim(),
+      trade:          document.getElementById('input-trade').value,
+      experience:     document.getElementById('input-experience').value,
+      city:           document.getElementById('input-city').value.trim(),
+      state:          document.getElementById('input-state').value,
+      bio:            document.getElementById('input-bio').value.trim(),
+      skills:         document.getElementById('input-skills').value.trim(),
+      certifications: document.getElementById('input-certifications').value.trim(),
+      profileImageUrl:this.currentImageUrl||'',
+      apprenticeship: {
+        isApprentice: !!(document.getElementById('input-is-apprentice') && document.getElementById('input-is-apprentice').checked),
+        program:      (document.getElementById('input-apprentice-program')||{}).value ? document.getElementById('input-apprentice-program').value.trim() : '',
+        employer:     (document.getElementById('input-apprentice-employer')||{}).value ? document.getElementById('input-apprentice-employer').value.trim() : '',
+        startDate:    (document.getElementById('input-apprentice-start-date')||{}).value || '',
+        hours:        Number((document.getElementById('input-apprentice-hours')||{}).value || 0)
+      }
+    };
+    if(!profile.fullName||!profile.trade||!profile.city||!profile.state){ alert('Please fill in: Full Name, Trade, City, State'); return; }
+    try{
+      localStorage.setItem('ltn_user', JSON.stringify(profile));
+      localStorage.setItem('ltn_apprentice_profile', JSON.stringify(profile.apprenticeship || {}));
+      if(profile.apprenticeship && profile.apprenticeship.isApprentice){
+        localStorage.setItem('ltn_apprentice_hours', String(Number(profile.apprenticeship.hours || 0)));
+      }
+    }catch(storageError){ console.warn('Could not save apprenticeship profile locally', storageError); }
+    try{
+      if(saveBtn){ saveBtn.disabled=true; saveBtn.textContent='Saving...'; }
+      const data = await apiCall({action:'save-profile',...profile});
+      if(data.success){
+        await saveProfileToFirestore(profile);
+        this.displayProfile(profile);
+        this.closeModal();
+        alert('Profile saved!');
+        this.checkAuthStatus();
+      }
+      else { alert('Failed: '+(data.error||'Unknown error')); }
+    }catch(e){ alert('Failed to save profile. Please try again.'); }
+    finally{ if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent='Save Profile'; } }
+  },
+  async loadProfile(){
+    const email = localStorage.getItem('userEmail');
+    if(!email){ this.displayProfile({}); return; }
+    try{
+      const data = await apiCall({action:'get-profile',email});
+      if(data.success&&data.profile){
+        this.displayProfile(data.profile);
+        if(data.profile.profileImageUrl){ this.currentImageUrl=data.profile.profileImageUrl; this.displayProfileImage(data.profile.profileImageUrl); }
+      } else { this.displayProfile({}); }
+    }catch(e){ this.displayProfile({}); }
+  },
+  loadDocuments(){ this.displayDocuments(); },
+  displayProfile(p){
+    if(!p) p={};
+    document.getElementById('display-name').textContent=p.fullName||p.name||'Your Name';
+    document.getElementById('display-trade').textContent=p.trade?(p.experience?`${p.trade} • ${p.experience} years`:p.trade):'Your Trade';
+    document.getElementById('display-location').textContent=(p.city&&p.state)?`${p.city}, ${p.state}`:'Your Location';
+  }
+};
+
+/* ===== SUCCESS STORIES ===== */
+const SuccessStories = {
+  currentPage:0, limit:5, total:0, currentStoryId:null, currentImageData:null,
+  async init(){ this.loadStories(); this.bindEvents(); },
+  bindEvents(){
+    const imageInput = document.getElementById('story-image-input');
+    if(imageInput) imageInput.addEventListener('change',e=>this.handleImageSelect(e.target.files[0]));
+  },
+  handleImageSelect(file){
+    if(!file||!file.type.startsWith('image/')){ alert('Please select an image file'); return; }
+    const reader = new FileReader();
+    reader.onload=(e)=>{
+      const img = new Image();
+      img.onload=()=>{
+        const MAX=400;
+        let w=img.width, h=img.height;
+        if(w>h){ if(w>MAX){h=Math.round(h*MAX/w);w=MAX;} }
+        else    { if(h>MAX){w=Math.round(w*MAX/h);h=MAX;} }
+        const canvas=document.createElement('canvas');
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        const compressed=canvas.toDataURL('image/jpeg',0.75);
+        this.currentImageData=compressed;
+        document.getElementById('story-image-preview-img').src=compressed;
+        document.getElementById('story-image-preview').style.display='block';
+        document.getElementById('story-image-upload').style.display='none';
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  },
+  removeImage(){
+    this.currentImageData=null;
+    document.getElementById('story-image-preview').style.display='none';
+    document.getElementById('story-image-upload').style.display='flex';
+    document.getElementById('story-image-input').value='';
+  },
+  async loadStories(){
+    const container=document.getElementById('stories-container');
+    container.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading stories...</div>';
+    try{
+      const data = await apiCall({ action:'get-stories', limit:this.limit });
+      if(data.success){ this.total=data.count||0; this.renderStories(data.stories||[]); }
+      else { container.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">No stories yet — be the first to share!</div>'; }
+    }catch(e){
+      container.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load stories. Please refresh.</div>';
+    }
+  },
+  renderStories(stories){
+    const container=document.getElementById('stories-container');
+    const email=localStorage.getItem('userEmail');
+    if(!stories.length){
+      container.innerHTML=`<div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        <h3>No success stories yet</h3><p>Be the first to share your journey!</p></div>`;
+      return;
+    }
+    container.innerHTML=stories.map(story=>{
+      const name    = story.fullName || 'Trade Pro';
+      const trade   = story.trade    || '';
+      const title   = story.title    || '';
+      const text    = story.storyText|| '';
+      const postedAt= story.postedAt || '';
+      const imgUrl  = story.profileImageUrl || '';
+      const loc     = [story.city, story.state].filter(Boolean).join(', ');
+      const initials= name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+      const isOwner = email && story.email && email.toLowerCase()===story.email.toLowerCase();
+      return `<div class="story-card">
+        ${imgUrl?`<img src="${imgUrl}" class="story-image" alt="${title}">`:''}
+        <div class="story-header">
+          <div class="story-avatar">${initials}</div>
+          <div class="story-meta">
+            <div class="story-author">${name}</div>
+            <div class="story-author-trade">${trade}</div>
+            ${loc?`<div class="story-location"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z"/><path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z"/></svg>${loc}</div>`:''}
+          </div>
+        </div>
+        <h3 class="story-title">${title}</h3>
+        <p class="story-text">${text}</p>
+        <div class="story-date">Shared on ${postedAt?new Date(postedAt).toLocaleDateString():''}</div>
+        ${isOwner?`<div class="story-actions">
+          <button class="btn btn-secondary" onclick="SuccessStories.editStory('${story.storyId}')">Edit</button>
+          <button class="btn btn-danger" onclick="SuccessStories.deleteStory('${story.storyId}')">Delete</button>
+        </div>`:''}
+      </div>`;
+    }).join('');
+    document.getElementById('stories-prev').style.display=this.currentPage>0?'inline-block':'none';
+    document.getElementById('stories-next').style.display=(this.currentPage+1)*this.limit<this.total?'inline-block':'none';
+  },
+  nextPage(){ this.currentPage++; this.loadStories(); window.scrollTo({top:0,behavior:'smooth'}); },
+  prevPage(){ if(this.currentPage>0){ this.currentPage--; this.loadStories(); window.scrollTo({top:0,behavior:'smooth'}); } },
+  openAddModal(){
+    const email=localStorage.getItem('userEmail');
+    if(!email){ alert('Please sign in to share your story.'); return; }
+    this.currentStoryId=null; this.currentImageData=null;
+    document.getElementById('story-modal-title').textContent='Share Your Success Story';
+    document.getElementById('save-story-btn').textContent='Share Story';
+    document.getElementById('story-form').reset();
+    document.getElementById('story-image-preview').style.display='none';
+    document.getElementById('story-image-upload').style.display='flex';
+    document.getElementById('story-modal').classList.add('active');
+  },
+  async editStory(storyId){
+    this.currentStoryId=storyId;
+    document.getElementById('story-modal-title').textContent='Edit Your Story';
+    document.getElementById('save-story-btn').textContent='Update Story';
+    try{
+      const email=localStorage.getItem('userEmail');
+      const data = await apiCall({action:'get-my-stories',email});
+      if(data.success){
+        const story=data.stories.find(s=>s.storyId===storyId);
+        if(story){
+          document.getElementById('story-name').value=story.fullName||'';
+          document.getElementById('story-trade').value=story.trade||'';
+          document.getElementById('story-title').value=story.title||'';
+          document.getElementById('story-text').value=story.storyText||'';
+          document.getElementById('story-location').value=[story.city,story.state].filter(Boolean).join(', ')||'';
+          if(story.profileImageUrl){
+            this.currentImageData=story.profileImageUrl;
+            document.getElementById('story-image-preview-img').src=story.profileImageUrl;
+            document.getElementById('story-image-preview').style.display='block';
+            document.getElementById('story-image-upload').style.display='none';
+          }
+          document.getElementById('story-modal').classList.add('active');
+        }
+      }
+    }catch(e){ alert('Failed to load story for editing.'); }
+  },
+  async deleteStory(storyId){
+    if(!confirm('Delete this success story? This cannot be undone.')) return;
+    const email=localStorage.getItem('userEmail');
+    if(!email) return;
+    try{
+      const data = await apiCall({action:'delete-story',email,storyId});
+      if(data.success){ alert('Story deleted.'); this.loadStories(); }
+      else { alert(data.error||'Failed to delete story'); }
+    }catch(e){ alert('Failed to delete story.'); }
+  },
+  async saveStory(){
+    const email=localStorage.getItem('userEmail');
+    if(!email){ alert('Please sign in to share your story.'); return; }
+    const name      = document.getElementById('story-name').value.trim();
+    const trade     = document.getElementById('story-trade').value.trim();
+    const title     = document.getElementById('story-title').value.trim();
+    const storyText = document.getElementById('story-text').value.trim();
+    const location  = document.getElementById('story-location').value.trim();
+    if(!name||!trade||!title||!storyText){ alert('Please fill in all required fields.'); return; }
+    if(storyText.length<50){ alert('Story must be at least 50 characters.'); return; }
+    const saveBtn=document.getElementById('save-story-btn');
+    const originalText=saveBtn.textContent;
+    try{
+      saveBtn.disabled=true; saveBtn.textContent='Saving...';
+      const parts=location.split(',').map(s=>s.trim());
+      const payload={
+        action: this.currentStoryId ? 'update-story' : 'save-story',
+        email,
+        fullName:  name,
+        trade, title, storyText,
+        city:  parts[0]||'',
+        state: parts[1]||'',
+        profileImageUrl: this.currentImageData||''
+      };
+      if(this.currentStoryId) payload.storyId=this.currentStoryId;
+      const data = await apiCall(payload);
+      if(data.success){
+        alert(this.currentStoryId?'Story updated!':'Story shared successfully!');
+        this.closeModal();
+        this.loadStories();
+      } else { alert(data.error||'Failed to save story'); }
+    }catch(e){ alert('Failed to save story. Please try again.'); }
+    finally{ saveBtn.disabled=false; saveBtn.textContent=originalText; }
+  },
+  closeModal(){
+    document.getElementById('story-modal').classList.remove('active');
+    this.currentStoryId=null; this.currentImageData=null;
+  },
+  closeMyStoriesModal(){ document.getElementById('my-stories-modal').classList.remove('active'); }
+};
+
+/* ===== MOBILE MENU ===== */
+document.getElementById('mobile-menu-toggle').addEventListener('click',function(){
+  const nav=document.getElementById('main-nav');
+  nav.classList.toggle('open');
+  const icon=this.querySelector('svg');
+  icon.innerHTML=nav.classList.contains('open')
+    ?'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>'
+    :'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
+});
+document.addEventListener('click',function(e){
+  const nav=document.getElementById('main-nav');
+  const toggle=document.getElementById('mobile-menu-toggle');
+  if(nav.classList.contains('open')&&!nav.contains(e.target)&&!toggle.contains(e.target)){
+    nav.classList.remove('open');
+    toggle.querySelector('svg').innerHTML='<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
+  }
+});
+document.querySelectorAll('.nav a,.nav button').forEach(item=>{
+  item.addEventListener('click',function(){
+    if(window.innerWidth<=768){
+      const nav=document.getElementById('main-nav');
+      nav.classList.remove('open');
+      document.getElementById('mobile-menu-toggle').querySelector('svg').innerHTML='<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
+    }
+  });
+});
+
+/* ===== SPONSOR MANAGER ===== */
+const SponsorManager = {
+  openInquiryModal() {
+    document.getElementById('sponsor-form').reset();
+    document.getElementById('sponsor-inquiry-modal').classList.add('active');
+  },
+  closeInquiryModal() {
+    document.getElementById('sponsor-inquiry-modal').classList.remove('active');
+  },
+  async submitInquiry() {
+    const businessName   = document.getElementById('sp-business').value.trim();
+    const contactName    = document.getElementById('sp-contact').value.trim();
+    const email          = document.getElementById('sp-email').value.trim();
+    const phone          = document.getElementById('sp-phone').value.trim();
+    const industry       = document.getElementById('sp-industry').value;
+    const slotPreference = document.getElementById('sp-slot').value;
+    const message        = document.getElementById('sp-message').value.trim();
+    if (!businessName) { alert('Please enter your business name.'); return; }
+    if (!contactName)  { alert('Please enter your name.'); return; }
+    if (!email)        { alert('Please enter your email address.'); return; }
+    const btn = document.getElementById('sponsor-submit-btn');
+    btn.disabled = true; btn.textContent = 'Sending...';
+    try {
+      const data = await apiCall({ action:'sponsor-inquiry', businessName, contactName, email, phone, industry, slotPreference, message });
+      if (data.success) {
+        this.closeInquiryModal();
+        alert('Thank you, ' + contactName + '! We received your inquiry and will be in touch within 1–2 business days.');
+      } else {
+        alert('Something went wrong: ' + (data.error || 'Please try again.'));
+      }
+    } catch(e) {
+      alert('Failed to send. Please try again or email us at Team@linktradenetwork.com');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Send Inquiry';
+    }
+  }
+};
+
+/* ===== FIX: SPONSOR DISPLAY - handles missing logos gracefully ===== */
+function renderEmptySponsors_() {
+  return Array(4).fill(0).map(() => `
+    <div class="sponsor-card" onclick="SponsorManager.openInquiryModal()" style="cursor:pointer;border:2px dashed var(--line)">
+      <div style="width:100%;padding:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px">
+        <svg style="width:28px;height:28px;opacity:.3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <div style="font-weight:700;font-size:14px;color:var(--accent)">Your Company Here</div>
+        <div style="font-size:11px;color:var(--muted);text-align:center">Click to advertise to<br>trade professionals</div>
+        <div style="font-size:11px;font-weight:600;color:var(--brand);margin-top:4px">From $49/mo →</div>
+      </div>
+    </div>`).join('');
+}
+
+async function loadSponsors(){
+  const container=document.getElementById('sponsors-container');
+  try{
+    const data=await apiCall({action:'get-sponsors'});
+    if(!data.success||!data.sponsors||!data.sponsors.length){
+      container.innerHTML=renderEmptySponsors_();
+      return;
+    }
+    container.innerHTML=data.sponsors.map((sponsor,i)=>{
+      // FIX: treat any sponsor without a real logo URL as a placeholder
+      const hasLogo = sponsor.logoUrl && sponsor.logoUrl.trim() !== '' && !sponsor.logoUrl.includes('logo.png');
+      const isPlaceholder = sponsor.name==='Your Company Here' || (!hasLogo && sponsor.link&&sponsor.link.startsWith('mailto:'));
+      if(isPlaceholder){
+        return `<div class="sponsor-card" onclick="SponsorManager.openInquiryModal()" style="cursor:pointer;border:2px dashed var(--line)">
+          <div style="width:100%;padding:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px">
+            <svg style="width:28px;height:28px;opacity:.3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <div style="font-weight:700;font-size:14px;color:var(--accent)">Your Company Here</div>
+            <div style="font-size:11px;color:var(--muted);text-align:center">Click to advertise to<br>trade professionals</div>
+            <div style="font-size:11px;font-weight:600;color:var(--brand);margin-top:4px">From $49/mo →</div>
+          </div>
+        </div>`;
+      }
+      const featured=i===0;
+      return `<a href="${sponsor.link}" target="_blank" rel="noopener noreferrer" class="sponsor-card${featured?' sponsor-featured':''}">
+        ${hasLogo?`<img src="${sponsor.logoUrl}" alt="${sponsor.name}" class="sponsor-logo" onerror="this.style.display='none'">`:`<div class="sponsor-placeholder">${sponsor.name}</div>`}
+        <p class="sponsor-description">${sponsor.description}</p>
+      </a>`;
+    }).join('');
+  }catch(e){ container.innerHTML=renderEmptySponsors_(); }
+}
+
+/* ===== FILTER BUTTONS ===== */
+document.addEventListener('DOMContentLoaded',function(){
+  ProfileManager.init();
+  SuccessStories.init();
+
+  // Jobs filter buttons
+  const jobFilterBar=document.getElementById('jobs-filter-bar');
+  if(jobFilterBar){
+    jobFilterBar.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',()=>{
+      jobFilterBar.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const label = b.textContent.trim();
+      const trade = label.toLowerCase() === 'all' ? '' : label.toLowerCase();
+      const list = document.getElementById('jobs-list');
+      const empty = document.getElementById('jobs-empty');
+      if(list) list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Filtering jobs...</div>';
+      if(empty) empty.style.display = 'none';
+      loadJobs({trade, offset:0});
+    }));
+  }
+
+  // Skill filter buttons for inline job form
+  const skillBar=document.getElementById('inline-job-skills');
+  if(skillBar){
+    skillBar.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',e=>{
+      e.preventDefault();
+      b.classList.toggle('active');
+    }));
+  }
+
+  /* ===== AI SEARCH ===== */
+/* ===== LTN AI SEARCH ===== */
+(function(){
+  const input = document.getElementById('ai-search-input');
+  const box   = document.getElementById('ai-results-container');
+  if (!input || !box) return;
+
+  function showThinking() {
+    box.style.display = 'block';
+    box.innerHTML = '<div style="display:flex;align-items:center;gap:10px;color:var(--muted);padding:8px 0"><svg style="width:20px;height:20px;animation:spin 1s linear infinite" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="30" stroke-linecap="round"/></svg><span>LTN AI is thinking...</span></div>';
+  }
+
+  function showResult(title, content) {
+    box.style.display = 'block';
+    box.innerHTML = '<div><div style="font-weight:700;font-size:15px;color:var(--brand);margin-bottom:8px">' + title + '</div><div style="font-size:14px;color:var(--ink);line-height:1.6;white-space:pre-wrap">' + content + '</div></div>';
+  }
+
+  function showError() {
+    box.style.display = 'block';
+    box.innerHTML = '<div style="color:var(--muted);font-size:13px">LTN AI is temporarily unavailable. Please try again in a moment.</div>';
+  }
+
+  async function aiSearch(query) {
+    if (!query.trim()) { box.style.display = 'none'; return; }
+    showThinking();
+    try {
+      const email = localStorage.getItem('userEmail') || '';
+      const userName = localStorage.getItem('userName') || '';
+      const fullQuery = userName ? '[Member: ' + userName + '] ' + query : query;
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 20000);
+      const res = await fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'ai-search', query: fullQuery, email }),
+        signal: controller.signal
+      });
+      clearTimeout(t);
+      const data = await res.json();
+      if (data.success && data.response) {
+        showResult(data.response.title || 'LTN AI', data.response.content || 'No results found.');
+      } else {
+        showError();
+      }
+    } catch(e) {
+      showError();
+    }
+  }
+
+  const debounced = debounce(q => aiSearch(q), 600);
+  input.addEventListener('input', function() { debounced(this.value); });
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && this.value.trim()) aiSearch(this.value);
+    if (e.key === 'Escape') { box.style.display = 'none'; }
+  });
+  input.addEventListener('focus', function() { if (this.value.trim()) aiSearch(this.value); });
+  document.addEventListener('click', function(e) {
+    if (!input.contains(e.target) && !box.contains(e.target)) box.style.display = 'none';
+  });
+})();
+
+  window.storeUserEmail=function(email,name){ 
+    if(email&&typeof email==='string') localStorage.setItem('userEmail',email); 
+    if(name&&typeof name==='string') localStorage.setItem('userName',name);
+  };
+
+  /* ===== FIREBASE BACKGROUND PRELOADER — requests + message badge ===== */
+(function(){
+  setTimeout(function(){ checkPendingConnections(); }, 800);
+  setInterval(function(){ checkPendingConnections(); if(MessageManager && MessageManager.loadConversations){ /* badges refresh when modal opens */ } }, 90000);
+})();
+
+
+  /* ===== JOB SEARCH ===== */
+  window.JOBS_STATE={q:'',location:'',trade:'',limit:10,offset:0,total:0};
+
+  /* ===== FIX: JOB CARD RENDERING - shows full details ===== */
+  function renderJobs_(items){
+    const list=document.getElementById('jobs-list');
+    const empty=document.getElementById('jobs-empty');
+    const prev=document.getElementById('jobs-prev');
+    const next=document.getElementById('jobs-next');
+    const count=document.getElementById('jobs-count');
+    const badge=document.getElementById('jobs-new-badge');
+    list.innerHTML='';
+    if(!items||!items.length){
+      empty.style.display='block';
+      prev.disabled=true; next.disabled=true; count.textContent='';
+      if(badge) badge.textContent='0 jobs';
+      return;
+    }
+    empty.style.display='none';
+    if(badge) badge.textContent=`${window.JOBS_STATE.total} jobs`;
+    items.forEach(j=>{
+      const el=document.createElement('article');
+      el.className='job';
+      const when=j.postedAt?new Date(j.postedAt):null;
+      // FIX: use j.title directly — if empty show placeholder
+      const jobTitle = (j.title && j.title.trim()) ? j.title : 'Untitled Job';
+      const jobLocation = [j.city, j.state].filter(Boolean).join(', ') || 'Location not specified';
+      const jobType = j.type || '';
+      const jobPay = j.pay || '';
+      const jobTags = j.tradeTags || '';
+      const jobDesc = j.description || '';
+      // FIX: Apply button now tracks the application
+      el.innerHTML=`
+        <div class="title">${jobTitle}</div>
+        ${j.company?`<div style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:6px">${j.company}</div>`:''}
+        <div class="meta">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z"/><path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z"/></svg>
+          ${jobLocation}
+          ${jobType?`<span class="meta-dot"></span> ${jobType}`:''}
+          ${jobPay?`<span class="meta-dot"></span> ${jobPay}`:''}
+          ${when?`<span class="meta-dot"></span> ${when.toLocaleDateString()}`:''}
+        </div>
+        ${jobTags?`<div class="tags">${jobTags.split(',').filter(Boolean).slice(0,4).map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>`:''}
+        ${jobDesc?`<div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5">${jobDesc.substring(0,150)}${jobDesc.length>150?'...':''}</div>`:''}
+        <div class="apply">
+          ${j.link
+            ?`<a class="btn btn-primary" href="${j.link}" target="_blank" rel="noopener">Apply Now</a>`
+            :`<button class="btn-primary" onclick="applyToJob('${jobTitle.replace(/'/g,"\\'")}','${(j.company||'').replace(/'/g,"\\'")}')">Apply</button>`
+          }
+          <button class="btn btn-secondary" onclick="saveJob('${jobTitle.replace(/'/g,"\\'")}')">Save</button>
+        </div>`;
+      list.appendChild(el);
+    });
+    const{offset,limit,total}=window.JOBS_STATE;
+    const end=Math.min(offset+limit,total);
+    prev.disabled=offset<=0; next.disabled=end>=total;
+    count.textContent=total?`${offset+1}–${end} of ${total}`:'';
+  }
+
+  window.loadJobs=async function(opts={}){
+    window.JOBS_STATE={...window.JOBS_STATE,...opts};
+    const{q,location,trade,limit,offset}=window.JOBS_STATE;
+    try{
+      const data=await apiCall({action:'job-search',query:q,location,trade,limit,offset});
+      if(!data.success) throw new Error(data.error||'Job search failed');
+      window.JOBS_STATE.total=data.total||0;
+      renderJobs_(data.results||[]);
+    }catch(e){ console.error('job-search error:',e); renderJobs_([]); }
+  };
+
+  function loadJobs(opts){ window.loadJobs(opts||{}); }
+
+  document.getElementById('jobs-prev').addEventListener('click',()=>{ const{offset,limit}=window.JOBS_STATE; if(offset>0) loadJobs({offset:Math.max(0,offset-limit)}); });
+  document.getElementById('jobs-next').addEventListener('click',()=>{ const{offset,limit,total}=window.JOBS_STATE; if(offset+limit<total) loadJobs({offset:offset+limit}); });
+
+  loadJobs();
+  loadSponsors();
+
+  // FIX: Initialize posts feed, rewards and leaderboard
+  PostsFeed.init();
+
+  // Load referral code if signed in
+  const _email = localStorage.getItem('userEmail');
+  if (_email) {
+    apiCall({ action: 'get-referral-code', email: _email }).then(function(data) {
+      if (data.success) {
+        const el = document.getElementById('referral-code-display');
+        if (el) el.textContent = data.referralCode;
+      }
+    }).catch(function(){});
+  }
+});
+
+/* ===== FIX: APPLY TO JOB - now tracks in Google Sheets ===== */
+async function applyToJob(jobTitle, company){
+  const email = localStorage.getItem('userEmail');
+  if(!email){ alert('Please sign in to apply for jobs.'); return; }
+  try{
+    const data = await apiCall({action:'apply-job', email, jobTitle, company});
+    if(data.success){
+      alert('Application submitted! The employer will be in touch.');
+      // Update applications count
+      const appCount = document.getElementById('applications-count');
+      if(appCount) appCount.textContent = (parseInt(appCount.textContent)||0) + 1;
+    } else {
+      alert(data.error||'Failed to submit application');
+    }
+  }catch(e){
+    alert('Failed to submit application. Please try again.');
+  }
+}
+
+/* ===== SAVE JOB ===== */
+function saveJob(jobTitle){
+  const saved = JSON.parse(localStorage.getItem('savedJobs')||'[]');
+  if(!saved.includes(jobTitle)){
+    saved.push(jobTitle);
+    localStorage.setItem('savedJobs', JSON.stringify(saved));
+    alert(`"${jobTitle}" saved to your profile!`);
+  } else {
+    alert('You already saved this job.');
+  }
+}
+
+/* ===== POSTS FEED ===== */
+const PostsFeed = {
+  offset: 0,
+  limit: 10,
+  total: 0,
+  currentImageData: null,
+  currentVideoData: null,
+  currentVideoObjectUrl: null,
+  currentThumbnailData: null,
+
+  async init() {
+    await this.loadPosts();
+  },
+
+  handleImageSelect(file) {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
+    if (file.size > 5 * 1024 * 1024) { alert('Image too large — please use an image under 5MB.'); return; }
+    this.removeVideo();
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 800;
+        let w = img.width, h = img.height;
+        if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+        else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.78);
+        this.currentImageData = compressed;
+        document.getElementById('post-image-preview-img').src = compressed;
+        document.getElementById('post-image-preview').style.display = 'block';
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  },
+
+  handleVideoSelect(file) {
+    if (!file) return;
+    const allowed = ['video/mp4', 'video/quicktime', 'video/webm'];
+    if (!allowed.includes(file.type)) { alert('Please select an MP4, MOV, or WEBM video.'); return; }
+    if (file.size > 10 * 1024 * 1024) { alert('Video too large — keep it under 10MB.'); return; }
+    this.removeImage();
+
+    const objectUrl = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.onloadedmetadata = () => {
+      if (video.duration > 10.2) {
+        URL.revokeObjectURL(objectUrl);
+        alert('Video must be 10 seconds or less.');
+        return;
+      }
+
+      this.currentVideoData = file;
+      this.currentVideoObjectUrl = objectUrl;
+      const preview = document.getElementById('post-video-preview-video');
+      preview.src = objectUrl;
+      document.getElementById('post-video-preview').style.display = 'block';
+      this.captureVideoThumbnail(file);
+    };
+    video.src = objectUrl;
+  },
+
+  captureVideoThumbnail(file) {
+    const objectUrl = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.muted = true;
+    video.playsInline = true;
+    video.onloadeddata = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const width = video.videoWidth || 720;
+        const height = video.videoHeight || 1280;
+        const maxWidth = 720;
+        let w = width, h = height;
+        if (w > maxWidth) {
+          h = Math.round(h * maxWidth / w);
+          w = maxWidth;
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, w, h);
+        this.currentThumbnailData = canvas.toDataURL('image/jpeg', 0.7);
+      } catch (e) {
+        this.currentThumbnailData = '';
+      }
+      URL.revokeObjectURL(objectUrl);
+    };
+    video.src = objectUrl;
+  },
+
+  async uploadVideoToCloudinary(file) {
+    const cloudName = CLOUDINARY_CLOUD_NAME || '';
+    const uploadPreset = CLOUDINARY_UPLOAD_PRESET || '';
+    if (!cloudName || !uploadPreset) {
+      alert('Cloudinary is not set up correctly in front.html. Check CLOUDINARY_CLOUD_NAME and CLOUDINARY_UPLOAD_PRESET.');
+      throw new Error('Cloudinary not configured');
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', uploadPreset);
+    formData.append('folder', 'linktradenetwork/videos');
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.secure_url) throw new Error(data.error && data.error.message ? data.error.message : 'Video upload failed');
+
+    return {
+      videoUrl: data.secure_url || '',
+      thumbnailUrl: data.secure_url ? data.secure_url.replace(/\.[^/.?]+($|\?)/, '.jpg$1') : ''
+    };
+  },
+
+  removeImage() {
+    this.currentImageData = null;
+    const box = document.getElementById('post-image-preview');
+    const img = document.getElementById('post-image-preview-img');
+    const input = document.getElementById('post-image-input');
+    if (box) box.style.display = 'none';
+    if (img) img.src = '';
+    if (input) input.value = '';
+  },
+
+  removeVideo() {
+    this.currentVideoData = null;
+    this.currentThumbnailData = null;
+    const box = document.getElementById('post-video-preview');
+    const video = document.getElementById('post-video-preview-video');
+    const input = document.getElementById('post-video-input');
+    if (video) {
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+    }
+    if (this.currentVideoObjectUrl) {
+      URL.revokeObjectURL(this.currentVideoObjectUrl);
+      this.currentVideoObjectUrl = null;
+    }
+    if (box) box.style.display = 'none';
+    if (input) input.value = '';
+  },
+
+  async createPost() {
+    const email = localStorage.getItem('userEmail');
+    if (!email) { alert('Please sign in to post.'); return; }
+    const content = document.getElementById('post-content').value.trim();
+    if (!content && !this.currentImageData && !this.currentVideoData) { alert('Please write something, add a photo, or add a video.'); return; }
+    if (content.length > 1000) { alert('Post too long — max 1000 characters.'); return; }
+
+    const btn = document.querySelector('[onclick="PostsFeed.createPost()"]');
+    btn.disabled = true;
+    btn.textContent = this.currentVideoData ? 'Uploading video...' : 'Posting...';
+
+    try {
+      let payload = {
+        action: 'create-post',
+        email,
+        content,
+        mediaType: 'text',
+        imageUrl: '',
+        videoUrl: '',
+        thumbnailUrl: ''
+      };
+
+      if (this.currentVideoData) {
+        const upload = await this.uploadVideoToCloudinary(this.currentVideoData);
+        payload.mediaType = 'video';
+        payload.videoUrl = upload.videoUrl || '';
+        payload.thumbnailUrl = this.currentThumbnailData || upload.thumbnailUrl || '';
+      } else if (this.currentImageData) {
+        payload.mediaType = 'image';
+        payload.imageUrl = this.currentImageData;
+      }
+
+      const data = await apiCall(payload);
+      if (data.success) {
+        document.getElementById('post-content').value = '';
+        this.removeImage();
+        this.removeVideo();
+        this.offset = 0;
+        await this.loadPosts();
+        await RewardsManager.load();
+      } else {
+        alert(data.error || 'Failed to post');
+      }
+    } catch (e) {
+      alert(e.message || 'Failed to post. Please try again.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Post';
+    }
+  },
+
+  async loadPosts(append = false) {
+    const container = document.getElementById('posts-container');
+    if (!append) {
+      this.offset = 0;
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading posts...</div>';
+    }
+    const email = localStorage.getItem('userEmail') || '';
+    try {
+      const data = await apiCall({ action: 'get-posts', email, limit: this.limit, offset: this.offset });
+      if (data.success) {
+        this.total = data.total || 0;
+        if (!append) container.innerHTML = '';
+        if (data.posts && data.posts.length) {
+          data.posts.forEach(post => {
+            const el = document.createElement('div');
+            el.innerHTML = this.renderPost(post);
+            container.appendChild(el.firstChild);
+          });
+          this.offset += data.posts.length;
+        } else if (!append) {
+          container.innerHTML = `<div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+            </svg>
+            <h3>No posts yet</h3>
+            <p>Be the first to post in the community!</p>
+          </div>`;
+        }
+        const loadMoreBtn = document.getElementById('load-more-posts');
+        if (loadMoreBtn) loadMoreBtn.style.display = this.offset < this.total ? 'inline-block' : 'none';
+      }
+    } catch(e) {
+      if (!append) container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load posts</div>';
+    }
+  },
+
+  loadMore() { this.loadPosts(true); },
+
+  renderPost(post) {
+    const initials = (post.fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    const loc = [post.city, post.state].filter(Boolean).join(', ');
+    const when = post.postedAt ? new Date(post.postedAt).toLocaleDateString() : '';
+    const safeContent = (post.content || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+    const likeBtn = post.hasLiked
+      ? `<button onclick="PostsFeed.unlike('${post.postId}', this)" style="background:var(--brand);color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px">❤️ ${post.likeCount} Liked</button>`
+      : `<button onclick="PostsFeed.like('${post.postId}', this)" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">🤍 ${post.likeCount} Like</button>`;
+
+    let media = '';
+    let mediaUrl = '';
+    let mediaDownloadName = '';
+
+    if (post.mediaType === 'video' && post.videoUrl) {
+      mediaUrl = post.videoUrl;
+      mediaDownloadName = `LTN-video-${post.postId || Date.now()}.mp4`;
+      media = `<div class="post-media"><video controls playsinline preload="metadata" poster="${post.thumbnailUrl || ''}"><source src="${post.videoUrl}" type="video/mp4">Your browser does not support video.</video></div>`;
+    } else if (post.imageUrl) {
+      mediaUrl = post.imageUrl;
+      mediaDownloadName = `LTN-photo-${post.postId || Date.now()}.jpg`;
+      media = `<div class="post-media"><img src="${post.imageUrl}" alt="Post image"></div>`;
+    }
+
+    const mediaDownloadBtn = mediaUrl
+      ? `<a href="${mediaUrl}" download="${mediaDownloadName}" target="_blank" rel="noopener noreferrer" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:4px">⬇ Download</a>`
+      : '';
+
+    return `<div class="post-card" id="post-${post.postId}" style="border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;background:var(--panel);transition:all .2s">
+      <div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0">${initials}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:15px">${post.fullName || 'Member'}</div>
+          <div style="font-size:12px;color:var(--muted)">${post.trade || ''}${loc ? ' • ' + loc : ''}${when ? ' • ' + when : ''}</div>
+        </div>
+        ${post.isOwner ? `<button onclick="PostsFeed.deletePost('${post.postId}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px" title="Delete post">🗑</button>` : ''}
+      </div>
+      ${safeContent ? `<p style="margin:0 0 14px;line-height:1.6;font-size:15px">${safeContent}</p>` : ''}
+      ${media}
+      <div style="display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--line);align-items:center;flex-wrap:wrap">
+        ${likeBtn}
+        <button onclick="PostsFeed.toggleComments('${post.postId}')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">💬 ${post.commentCount} Comment${post.commentCount !== 1 ? 's' : ''}</button>
+        <button onclick="PostsFeed.sharePost('${post.postId}', '${(post.fullName || '').replace(/'/g,"\'")}', '${(post.content || '').substring(0,50).replace(/'/g,"\'")}...')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted)">↗ Share</button>
+        ${mediaDownloadBtn}
+      </div>
+      <div id="comments-${post.postId}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
+        <div id="comments-list-${post.postId}"><div style="text-align:center;padding:10px;color:var(--muted);font-size:13px">Loading comments...</div></div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <input type="text" id="comment-input-${post.postId}" class="form-control" placeholder="Write a comment..." style="font-size:13px;padding:8px 12px;min-height:36px">
+          <button onclick="PostsFeed.addComment('${post.postId}')" style="background:var(--brand);color:white;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap">Post</button>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  async like(postId, btn) {
+    const email = localStorage.getItem('userEmail');
+    if (!email) { alert('Please sign in to like posts.'); return; }
+    btn.disabled = true;
+    try {
+      const data = await apiCall({ action: 'like-post', email, postId });
+      if (data.success) {
+        await this.refreshSinglePost(postId);
+      } else {
+        alert(data.error || 'Failed to like post');
+      }
+    } catch(e) {
+      alert('Failed to like post');
+    } finally {
+      btn.disabled = false;
+    }
+  },
+
+  async unlike(postId, btn) {
+    const email = localStorage.getItem('userEmail');
+    if (!email) { alert('Please sign in to unlike posts.'); return; }
+    btn.disabled = true;
+    try {
+      const data = await apiCall({ action: 'unlike-post', email, postId });
+      if (data.success) {
+        await this.refreshSinglePost(postId);
+      } else {
+        alert(data.error || 'Failed to unlike post');
+      }
+    } catch(e) {
+      alert('Failed to unlike post');
+    } finally {
+      btn.disabled = false;
+    }
+  },
+
+  async refreshSinglePost(postId) {
+    const email = localStorage.getItem('userEmail') || '';
+    try {
+      const data = await apiCall({ action: 'get-posts', email, limit: Math.max(this.total || 20, 20), offset: 0 });
+      if (data.success && data.posts) {
+        const post = data.posts.find(p => p.postId === postId);
+        const existing = document.getElementById(`post-${postId}`);
+        if (post && existing) {
+          const wrapper = document.createElement('div');
+          wrapper.innerHTML = this.renderPost(post);
+          existing.replaceWith(wrapper.firstChild);
+        }
+      }
+    } catch(e) {}
+  },
+
+  async deletePost(postId) {
+    const email = localStorage.getItem('userEmail');
+    if (!email) return;
+    if (!confirm('Delete this post?')) return;
+    try {
+      const data = await apiCall({ action: 'delete-post', email, postId });
+      if (data.success) {
+        const el = document.getElementById(`post-${postId}`);
+        if (el) el.remove();
+      } else {
+        alert(data.error || 'Failed to delete post');
+      }
+    } catch(e) {
+      alert('Failed to delete post');
+    }
+  },
+
+  async toggleComments(postId) {
+    const box = document.getElementById(`comments-${postId}`);
+    if (!box) return;
+    const open = box.style.display !== 'none';
+    box.style.display = open ? 'none' : 'block';
+    if (!open) await this.loadComments(postId);
+  },
+
+  async loadComments(postId) {
+    const list = document.getElementById(`comments-list-${postId}`);
+    if (!list) return;
+    list.innerHTML = '<div style="text-align:center;padding:10px;color:var(--muted);font-size:13px">Loading comments...</div>';
+    try {
+      const data = await apiCall({ action: 'get-comments', postId });
+      if (data.success) {
+        if (!data.comments || !data.comments.length) {
+          list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">No comments yet.</div>';
+          return;
+        }
+        list.innerHTML = data.comments.map(c => {
+          const when = c.postedAt ? new Date(c.postedAt).toLocaleDateString() : '';
+          return `<div style="padding:8px 0;border-bottom:1px solid var(--line)">
+            <div style="font-size:13px;font-weight:700">${c.fullName || 'Member'} <span style="color:var(--muted);font-weight:400">${when}</span></div>
+            <div style="font-size:13px;line-height:1.5">${(c.commentText || '').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+          </div>`;
+        }).join('');
+      } else {
+        list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">Failed to load comments.</div>';
+      }
+    } catch(e) {
+      list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">Failed to load comments.</div>';
+    }
+  },
+
+  async addComment(postId) {
+    const email = localStorage.getItem('userEmail');
+    if (!email) { alert('Please sign in to comment.'); return; }
+    const input = document.getElementById(`comment-input-${postId}`);
+    if (!input) return;
+    const commentText = input.value.trim();
+    if (!commentText) return;
+    try {
+      const data = await apiCall({ action: 'add-comment', email, postId, commentText });
+      if (data.success) {
+        input.value = '';
+        await this.loadComments(postId);
+        await this.refreshSinglePost(postId);
+      } else {
+        alert(data.error || 'Failed to add comment');
+      }
+    } catch(e) {
+      alert('Failed to add comment');
+    }
+  },
+
+  async sharePost(postId, author, preview) {
+    const shareUrl = `${window.location.origin}${window.location.pathname}#post-${postId}`;
+    const text = `${author} on LinkTradeNetwork: ${preview}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'LinkTradeNetwork Post', text, url: shareUrl });
+        return;
+      } catch(e) {}
+    }
+    try {
+      await navigator.clipboard.writeText(`${text} ${shareUrl}`);
+      alert('Post link copied!');
+    } catch(e) {
+      alert('Could not copy post link.');
+    }
+  }
+};
+
+/* ===== REWARDS MANAGER ===== */
+const RewardsManager = {
+  async load() {
+    const email = localStorage.getItem('userEmail');
+    if (!email) return;
+    try {
+      const data = await apiCall({ action: 'get-rewards', email });
+      if (data.success && data.rewards) this.render(data.rewards);
+      const refData = await apiCall({ action: 'get-referral-code', email });
+      if (refData.success) {
+        const el = document.getElementById('referral-code-display');
+        if (el) el.textContent = refData.referralCode;
+      }
+    } catch(e) { console.log('Rewards load skipped'); }
+  },
+
+  render(r) {
+    const badge = document.getElementById('rewards-level-badge');
+    if (badge) { badge.textContent = ''; badge.style.display = 'none'; }
+
+    const dashboard = document.getElementById('rewards-dashboard');
+    if (!dashboard) return;
+
+    const monthly   = Number(r.monthlyEarned   || 0);
+    const total     = Number(r.totalEarned     || 0);
+    const refs      = Number(r.monthlyReferrals || 0);
+    const totalRefs = Number(r.totalReferrals  || 0);
+    const cap       = Number(r.monthlyCap      || 50);
+    const pct       = Math.min(100, Math.round((monthly / cap) * 100));
+    const paypal    = String(r.paypalEmail     || '');
+    const status    = String(r.paymentStatus   || 'No earnings yet');
+
+    dashboard.innerHTML = `
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:36px;font-weight:800;color:var(--brand)">$${monthly.toFixed(2)}</div>
+        <div style="font-size:12px;color:var(--muted)">This month's earnings</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Monthly cap: $${cap} • Paid via PayPal last day of month</div>
+      </div>
+      <div style="background:var(--panel2);border-radius:8px;padding:12px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+          <span style="font-weight:600">Monthly Progress</span>
+          <span style="color:var(--muted)">${refs} / ${Math.round(cap/5)} referrals</span>
+        </div>
+        <div style="background:var(--line);border-radius:999px;height:10px;overflow:hidden">
+          <div style="background:var(--brand);height:100%;border-radius:999px;width:${pct}%;transition:width .5s"></div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">${pct}% of monthly cap reached</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--panel2);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:var(--accent)">${refs}</div>
+          <div style="font-size:11px;color:var(--muted)">Referrals This Month</div>
+        </div>
+        <div style="background:var(--panel2);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:var(--accent)">$${total.toFixed(2)}</div>
+          <div style="font-size:11px;color:var(--muted)">All-Time Earned</div>
+        </div>
+      </div>
+      <div style="background:var(--panel2);border-radius:8px;padding:10px;margin-bottom:12px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600">Payment Status</div>
+        <div style="font-size:13px;color:${status==='Pending Payment'?'#10b981':status.startsWith('Paid')?'#3d5a80':'var(--muted)'};font-weight:600">${status}</div>
+        ${paypal ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">PayPal: ${paypal}</div>` : `<div style="font-size:11px;color:var(--brand);margin-top:6px;cursor:pointer;font-weight:600" onclick="RewardsManager.showPaypalForm()">⚠️ Add your PayPal email to get paid</div>`}
+      </div>
+      <div id="paypal-form-box" style="display:none;background:#fff9f0;border:1px solid var(--brand);border-radius:8px;padding:12px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--brand)">Add PayPal Email</div>
+        <input type="email" id="paypal-email-input" class="form-control" placeholder="your@paypal.com" style="margin-bottom:8px;font-size:13px">
+        <button class="btn btn-primary" style="width:100%;padding:8px;font-size:13px" onclick="RewardsManager.savePaypal()">Save PayPal Email</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6;padding:10px;background:var(--panel2);border-radius:8px">
+        <strong>How to earn:</strong> Refer a trade professional → they complete their profile → you earn <strong>$5</strong><br>
+        <span style="color:var(--brand);font-weight:600">Cap: $50/month • Min payout: $10 • Paid via PayPal</span>
+      </div>`;
+  },
+
+  showPaypalForm() {
+    const box = document.getElementById('paypal-form-box');
+    if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  },
+
+  async savePaypal() {
+    const email       = localStorage.getItem('userEmail');
+    const paypalEmail = document.getElementById('paypal-email-input').value.trim();
+    if (!email || !paypalEmail) { alert('Please enter your PayPal email.'); return; }
+    try {
+      const data = await apiCall({ action: 'save-payment-info', email, paypalEmail });
+      if (data.success) {
+        alert('PayPal email saved! You will receive payments on the last day of each month.');
+        document.getElementById('paypal-form-box').style.display = 'none';
+        await this.load();
+      } else { alert(data.error || 'Failed to save'); }
+    } catch(e) { alert('Failed to save PayPal email'); }
+  }
+};
+
+/* ===== LEADERBOARD ===== */
+async function loadLeaderboard() {
+  const container = document.getElementById('leaderboard-container');
+  try {
+    const data = await apiCall({ action: 'get-leaderboard' });
+    if (data.success && data.leaderboard && data.leaderboard.length) {
+      container.innerHTML = data.leaderboard.map((member, i) => {
+        const medal    = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+        const initials = (member.fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">
+          <div style="font-size:18px;width:24px;text-align:center">${medal}</div>
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;flex-shrink:0">${initials}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${member.fullName}</div>
+            <div style="font-size:11px;color:var(--muted)">${member.monthlyReferrals} referral${member.monthlyReferrals !== 1 ? 's' : ''} this month</div>
+          </div>
+          <div style="font-weight:700;color:var(--brand);font-size:14px">$${Number(member.monthlyEarned||0).toFixed(2)}</div>
+        </div>`;
+      }).join('') + `<div style="font-size:11px;color:var(--muted);margin-top:10px;padding:8px;background:var(--panel2);border-radius:6px;line-height:1.5">
+        $5 per referral who completes their profile • $50 cap/month<br>
+        <span style="color:var(--brand)">Paid via PayPal on the last day of each month</span>
+      </div>`;
+    } else {
+      container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">
+        No referrals yet this month.<br>Share your code and be first on the board!
+      </div>`;
+    }
+  } catch(e) { container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Failed to load leaderboard</div>'; }
+}
+
+/* ===== REFERRAL HELPERS ===== */
+function copyReferralCode() {
+  const code = document.getElementById('referral-code-display').textContent;
+  if (!code || code === 'Sign in' || code === 'Loading...') { alert('Please sign in first to get your referral code.'); return; }
+  const name = localStorage.getItem('userName') || localStorage.getItem('userEmail') || 'A trade professional';
+  const text =
+    `${name} invited you to join LinkTradeNetwork — the platform built for skilled trade professionals!\n\n` +
+    `Use referral code: ${code}\n\n` +
+    `Sign up free at: www.linktradenetwork.com\n\n` +
+    `LinkTradeNetwork connects electricians, plumbers, HVAC techs, low voltage specialists, and contractors with jobs and opportunities across the USA.`;
+  navigator.clipboard.writeText(text).then(() => alert('Referral message copied!\n\nPaste it in a text, email, or social media post.'));
+}
+
+function shareReferralLink() {
+  const code = document.getElementById('referral-code-display').textContent;
+  if (!code || code === 'Sign in' || code === 'Loading...') { alert('Please sign in first to get your referral code.'); return; }
+  const name = localStorage.getItem('userName') || localStorage.getItem('userEmail') || 'A trade professional';
+  const text =
+    `${name} invited you to join LinkTradeNetwork!\n\n` +
+    `The free platform built for skilled trade professionals — electricians, plumbers, HVAC, low voltage, contractors and more.\n\n` +
+    `Use referral code: ${code}\n` +
+    `Sign up at: www.linktradenetwork.com\n\n` +
+    `#trades #electrician #plumber #HVAC #lowvoltage #contractor #LTN`;
+  if (navigator.share) {
+    navigator.share({ title: 'Join LinkTradeNetwork', text, url: 'https://www.linktradenetwork.com' });
+  } else {
+    navigator.clipboard.writeText(text).then(() => alert('Share message copied! Paste it on LinkedIn, Facebook, TikTok, or anywhere.'));
+  }
+}
+
+/* ===== FIREBASE NETWORK MANAGER ===== */
+const NetworkManager={
+  currentUser:null,
+  async ensureUser(){ this.currentUser = await getCurrentFirebaseUserRecord(); return this.currentUser; },
+  async openNetworkModal(){
+    const user = await this.ensureUser();
+    if(!user){ alert('Please save your profile first from the dashboard.'); return; }
+    document.getElementById('network-modal').classList.add('active');
+    this.showTab('connections');
+    this.loadRequests();
+  },
+  closeNetworkModal(){ document.getElementById('network-modal').classList.remove('active'); },
+  showTab(tabName){
+    document.querySelectorAll('.network-tab').forEach(t=>t.classList.remove('active'));
+    const tab = document.querySelector(`.network-tab[onclick*="${tabName}"]`); if(tab) tab.classList.add('active');
+    document.querySelectorAll('.network-tab-content').forEach(c=>c.style.display='none');
+    const panel = document.getElementById(`network-${tabName}`); if(panel) panel.style.display='block';
+    if(tabName==='connections') this.loadConnections();
+    if(tabName==='requests') this.loadRequests();
+    if(tabName==='suggested') this.loadSuggested();
+    if(tabName==='search') setTimeout(()=>document.getElementById('people-search-input').focus(),100);
+  },
+  async loadConnections(){
+    const list=document.getElementById('connections-list');
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading connections...</div>';
+    const current = await this.ensureUser();
+    if(!current){ list.innerHTML='<div class="empty-state"><h3>No profile found</h3><p>Save your profile first.</p></div>'; return; }
+    try{
+      const sent = await firebaseDb.collection('connections').where('fromUserId','==',current.id).where('status','==','accepted').get();
+      const received = await firebaseDb.collection('connections').where('toUserId','==',current.id).where('status','==','accepted').get();
+      const ids = [];
+      sent.forEach(d=>ids.push(d.data().toUserId));
+      received.forEach(d=>ids.push(d.data().fromUserId));
+      const unique = [...new Set(ids)].filter(Boolean);
+      document.getElementById('connections-count').textContent=unique.length;
+      document.getElementById('conn-count-tab').textContent=`(${unique.length})`;
+      if(!unique.length){ list.innerHTML='<div class="empty-state"><h3>No connections yet</h3><p>Use Members to view profiles and connect.</p></div>'; return; }
+      const cards=[];
+      for(const id of unique){
+        const u = await getUserById(id);
+        if(u) cards.push(firebasePersonCard(u, `<button class="btn btn-secondary" onclick="MessageManager.startChat('${u.id}')">Message</button><button class="btn btn-primary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
+      }
+      list.innerHTML = cards.join('') || '<div class="empty-state"><h3>No connections found</h3></div>';
+    }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>Failed to load connections</h3></div>'; }
+  },
+  async loadRequests(){
+    const list=document.getElementById('requests-list');
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading requests...</div>';
+    const current = await this.ensureUser();
+    if(!current){ list.innerHTML='<div class="empty-state"><h3>No profile found</h3><p>Save your profile first.</p></div>'; return; }
+    try{
+      const snap = await firebaseDb.collection('connections').where('toUserId','==',current.id).where('status','==','pending').get();
+      const count = snap.size;
+      const badge=document.getElementById('network-badge');
+      const tabBadge=document.getElementById('req-count-tab');
+      const banner=document.getElementById('connection-alert-banner');
+      const alertCount=document.getElementById('alert-count');
+      if(count>0){
+        if(badge){ badge.textContent=count; badge.style.display='block'; }
+        if(tabBadge){ tabBadge.textContent=count; tabBadge.style.display='inline-block'; }
+        if(banner&&alertCount){ alertCount.textContent=count; banner.style.display='block'; }
+      }else{
+        if(badge) badge.style.display='none';
+        if(tabBadge) tabBadge.style.display='none';
+        if(banner) banner.style.display='none';
+      }
+      if(!count){ list.innerHTML='<div class="empty-state"><h3>No pending requests</h3><p>You are all caught up.</p></div>'; return; }
+      const cards=[];
+      for(const docSnap of snap.docs){
+        const req = docSnap.data();
+        const u = await getUserById(req.fromUserId);
+        if(u) cards.push(firebasePersonCard(u, `<button class="btn btn-success" onclick="NetworkManager.acceptConnection('${docSnap.id}')">Accept</button><button class="btn btn-danger" onclick="NetworkManager.declineConnection('${docSnap.id}')">Decline</button><button class="btn btn-primary" onclick="window.location.href='profile.html?id=${u.id}'">View</button>`));
+      }
+      list.innerHTML = cards.join('');
+    }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>Failed to load requests</h3></div>'; }
+  },
+  async loadSuggested(){
+    const list=document.getElementById('suggested-list');
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading members...</div>';
+    const current = await this.ensureUser();
+    if(!current){ list.innerHTML='<div class="empty-state"><h3>No profile found</h3><p>Save your profile first.</p></div>'; return; }
+    try{
+      const users = await firebaseDb.collection('users').limit(20).get();
+      const cards=[];
+      users.forEach(d=>{
+        if(d.id!==current.id){
+          const u={id:d.id,...d.data()};
+          cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="NetworkManager.sendConnectionById('${u.id}')">Connect</button><button class="btn btn-secondary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
+        }
+      });
+      list.innerHTML = cards.join('') || '<div class="empty-state"><h3>No suggestions yet</h3></div>';
+    }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>Failed to load suggestions</h3></div>'; }
+  },
+  async searchPeople(searchText){
+    const results=document.getElementById('search-results');
+    const q=(searchText||'').trim().toLowerCase();
+    if(!q){ results.innerHTML='<div class="empty-state"><h3>Search members</h3><p>Search by name, trade, city, or state.</p></div>'; return; }
+    results.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Searching...</div>';
+    const current = await this.ensureUser();
+    try{
+      const users = await firebaseDb.collection('users').limit(100).get();
+      const cards=[];
+      users.forEach(d=>{
+        if(current && d.id===current.id) return;
+        const u={id:d.id,...d.data()};
+        const text = `${u.name||''} ${u.fullName||''} ${u.trade||''} ${u.city||''} ${u.state||''} ${u.bio||''}`.toLowerCase();
+        if(text.includes(q)) cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="NetworkManager.sendConnectionById('${u.id}')">Connect</button><button class="btn btn-secondary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
+      });
+      results.innerHTML = cards.join('') || '<div class="empty-state"><h3>No members found</h3><p>Try a different search.</p></div>';
+    }catch(e){ console.error(e); results.innerHTML='<div class="empty-state"><h3>Search failed</h3></div>'; }
+  },
+  async sendConnectionById(targetUserId){
+    const current = await this.ensureUser();
+    if(!current){ alert('Save your profile first.'); return; }
+    if(current.id===targetUserId){ alert('You cannot connect with yourself.'); return; }
+    const connectionId = current.id + '_' + targetUserId;
+    const reverseId = targetUserId + '_' + current.id;
+    const existing = await firebaseDb.collection('connections').doc(connectionId).get();
+    const reverse = await firebaseDb.collection('connections').doc(reverseId).get();
+    if(existing.exists || reverse.exists){ alert('Connection already exists or is pending.'); return; }
+    const target = await getUserById(targetUserId);
+    await firebaseDb.collection('connections').doc(connectionId).set({
+      fromUserId: current.id,
+      toUserId: targetUserId,
+      fromEmail: current.email || getStoredUserEmail(),
+      toEmail: target?.email || '',
+      fromName: current.name || current.fullName || current.email || '',
+      toName: target?.name || target?.fullName || '',
+      status:'pending',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert('Connection request sent!');
+    this.loadSuggested(); this.loadRequests(); checkPendingConnections();
+  },
+  async acceptConnection(connectionId){
+    await firebaseDb.collection('connections').doc(connectionId).set({ status:'accepted', acceptedAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
+    alert('Connection accepted.');
+    this.loadRequests(); this.loadConnections(); checkPendingConnections();
+  },
+  async declineConnection(connectionId){
+    if(!confirm('Decline this connection request?')) return;
+    await firebaseDb.collection('connections').doc(connectionId).set({ status:'declined', declinedAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
+    this.loadRequests(); checkPendingConnections();
+  }
+};
+let searchTimeout=null;
+const peopleSearchInput=document.getElementById('people-search-input');
+if(peopleSearchInput){ peopleSearchInput.addEventListener('input',function(){ clearTimeout(searchTimeout); searchTimeout=setTimeout(()=>NetworkManager.searchPeople(this.value),400); }); }
+
+/* ===== FIREBASE MESSAGE MANAGER ===== */
+const MessageManager={
+  currentUser:null,
+  currentChatUser:null,
+  unsubscribe:null,
+  async ensureUser(){ this.currentUser = await getCurrentFirebaseUserRecord(); return this.currentUser; },
+  async openMessagesModal(){
+    const user = await this.ensureUser();
+    if(!user){ alert('Please save your profile first.'); return; }
+    document.getElementById('messages-modal').classList.add('active'); this.loadConversations();
+  },
+  closeMessagesModal(){ document.getElementById('messages-modal').classList.remove('active'); this.backToList(); this.hideNewMessage(); },
+  showNewMessage(){
+    const panel=document.getElementById('new-message-panel'); const input=document.getElementById('new-message-search');
+    if(panel.style.display==='none'||panel.style.display===''){
+      panel.style.display='block'; setTimeout(()=>input.focus(),100);
+      input.oninput=debounce(async()=>{
+        const term=input.value.trim().toLowerCase(); const results=document.getElementById('new-message-results');
+        if(!term){ results.innerHTML=''; return; }
+        results.innerHTML='<div style="text-align:center;padding:10px;color:var(--muted)">Searching...</div>';
+        const current=await this.ensureUser(); const snap=await firebaseDb.collection('users').limit(100).get(); const cards=[];
+        snap.forEach(d=>{
+          if(current && d.id===current.id) return;
+          const u={id:d.id,...d.data()}; const txt=`${u.name||''} ${u.fullName||''} ${u.trade||''} ${u.city||''} ${u.state||''}`.toLowerCase();
+          if(txt.includes(term)) cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="MessageManager.startChat('${u.id}')">Message</button>`));
+        });
+        results.innerHTML=cards.join('') || '<div style="text-align:center;padding:12px;color:var(--muted)">No members found</div>';
+      },400);
+    }else{ this.hideNewMessage(); }
+  },
+  hideNewMessage(){
+    const panel=document.getElementById('new-message-panel'); if(panel) panel.style.display='none';
+    const input=document.getElementById('new-message-search'); if(input) input.value='';
+    const results=document.getElementById('new-message-results'); if(results) results.innerHTML='';
+  },
+  conversationId(a,b){ return [a,b].sort().join('_'); },
+  async loadConversations(){
+    const list=document.getElementById('messages-list'); list.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)">Loading messages...</div>';
+    const current=await this.ensureUser(); if(!current){ list.innerHTML='<div class="empty-state"><h3>No profile found</h3></div>'; return; }
+    try{
+      const snap=await firebaseDb.collection('conversations').where('participants','array-contains',current.id).orderBy('updatedAt','desc').get();
+      if(snap.empty){ list.innerHTML=`<div class="empty-state" style="padding:60px 20px"><h3>No messages yet</h3><p>Click <b>+ New Message</b> to start a conversation.</p></div>`; const badge=document.getElementById('messages-badge'); if(badge) badge.style.display='none'; return; }
+      let unreadTotal=0; const rows=[];
+      for(const d of snap.docs){
+        const conv=d.data(); const otherId=(conv.participants||[]).find(id=>id!==current.id); const other=await getUserById(otherId); if(!other) continue;
+        const name=other.name||other.fullName||other.email||'Member'; const initials=firebaseInitials(name,other.email); const unread=(conv.unread&&conv.unread[current.id])||0; unreadTotal+=unread;
+        const timeStr = conv.updatedAt&&conv.updatedAt.toDate ? conv.updatedAt.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
+        rows.push(`<div class="message-item${unread>0?' unread':''}" onclick="MessageManager.openChat('${other.id}')"><div class="message-avatar">${other.profileImageUrl?`<img src="${other.profileImageUrl}" alt="${name}">`:initials}</div><div class="message-content"><div class="message-header"><div class="message-sender">${name}</div><div class="message-time">${timeStr}</div></div><div class="message-preview">${conv.lastMessage||'No messages yet'}</div></div></div>`);
+      }
+      list.innerHTML=rows.join(''); const badge=document.getElementById('messages-badge'); if(badge){ if(unreadTotal>0){ badge.textContent=unreadTotal; badge.style.display='block'; } else badge.style.display='none'; }
+    }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>Failed to load messages</h3></div>'; }
+  },
+  async startChat(userId){ NetworkManager.closeNetworkModal(); this.hideNewMessage(); document.getElementById('messages-modal').classList.add('active'); setTimeout(()=>this.openChat(userId),100); },
+  async openChat(userId){
+    const current=await this.ensureUser(); const other=await getUserById(userId); if(!current||!other) return;
+    this.currentChatUser=other; document.getElementById('messages-list-view').style.display='none'; document.getElementById('messages-chat-view').style.display='block';
+    const name=other.name||other.fullName||other.email||'Member'; document.getElementById('chat-avatar').innerHTML=other.profileImageUrl?`<img src="${other.profileImageUrl}" alt="${name}">`:firebaseInitials(name,other.email);
+    document.getElementById('chat-name').textContent=name; document.getElementById('chat-trade').textContent=other.trade||'';
+    await this.loadChatMessages(); const convId=this.conversationId(current.id,other.id); await firebaseDb.collection('conversations').doc(convId).set({ [`unread.${current.id}`]:0 }, {merge:true});
+  },
+  async loadChatMessages(){
+    const container=document.getElementById('chat-messages'); container.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px">Loading...</div>';
+    const current=await this.ensureUser(); if(!current||!this.currentChatUser) return; const convId=this.conversationId(current.id,this.currentChatUser.id);
+    if(this.unsubscribe) this.unsubscribe();
+    this.unsubscribe=firebaseDb.collection('conversations').doc(convId).collection('messages').orderBy('createdAt','asc').onSnapshot(snap=>{
+      if(snap.empty){ container.innerHTML='<div style="text-align:center;color:var(--muted);padding:30px">No messages yet — say hello!</div>'; return; }
+      container.innerHTML=snap.docs.map(d=>{ const msg=d.data(); return `<div class="chat-message ${msg.fromUserId===current.id?'sent':'received'}">${msg.messageText||''}</div>`; }).join('');
+      container.scrollTop=container.scrollHeight;
+    });
+  },
+  backToList(){
+    if(this.unsubscribe){ this.unsubscribe(); this.unsubscribe=null; }
+    this.currentChatUser=null; document.getElementById('messages-list-view').style.display='block'; document.getElementById('messages-chat-view').style.display='none';
+    const input=document.getElementById('chat-input'); if(input) input.value=''; this.loadConversations();
+  },
+  async sendMessage(){
+    const input=document.getElementById('chat-input'); const text=input.value.trim(); if(!text||!this.currentChatUser) return;
+    const current=await this.ensureUser(); const other=this.currentChatUser; const convId=this.conversationId(current.id,other.id); input.value='';
+    const convRef=firebaseDb.collection('conversations').doc(convId);
+    await convRef.set({ participants:[current.id,other.id], participantEmails:[current.email||'',other.email||''], lastMessage:text, updatedAt:firebase.firestore.FieldValue.serverTimestamp(), [`unread.${other.id}`]:firebase.firestore.FieldValue.increment(1) },{merge:true});
+    await convRef.collection('messages').add({ fromUserId:current.id, toUserId:other.id, fromName:current.name||current.fullName||current.email||'', toName:other.name||other.fullName||other.email||'', messageText:text, createdAt:firebase.firestore.FieldValue.serverTimestamp() });
+  }
+};
+
+
+document.addEventListener('DOMContentLoaded',function(){
+  trackEvent('page_view', { page_title: document.title, page_location: window.location.href, page_path: window.location.pathname });
+
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('click', () => {
+      const label = (el.innerText || el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 80);
+      if(label){ trackEvent('ui_click', { element_label: label, element_type: el.tagName.toLowerCase() }); }
+    });
+  });
+
+  const chatInput=document.getElementById('chat-input');
+  if(chatInput) chatInput.addEventListener('keydown',function(e){
+    if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); MessageManager.sendMessage(); }
+  });
+  const sendBtn = document.querySelector('.chat-send-btn');
+  if(sendBtn) sendBtn.onclick = ()=>MessageManager.sendMessage();
+
+  checkPendingConnections();
+});
+</script>
+</body>
+</html>
