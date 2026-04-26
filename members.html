@@ -6,157 +6,27 @@
   <title>LTN Members</title>
 
   <style>
-    body{
-      margin:0;
-      font-family:Arial, sans-serif;
-      background:#f0f4f8;
-      color:#293241;
-    }
-
-    .topbar{
-      background:#3d5a80;
-      color:white;
-      padding:16px 24px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
-
-    .logo{
-      font-weight:800;
-      font-size:22px;
-    }
-
-    .nav a{
-      color:white;
-      text-decoration:none;
-      margin-left:16px;
-      font-weight:700;
-    }
-
-    .hero{
-      background:linear-gradient(135deg,#ff8c3a,#ea6a00);
-      color:white;
-      padding:50px 20px;
-      text-align:center;
-    }
-
-    .hero h1{
-      margin:0;
-      font-size:38px;
-    }
-
-    .hero p{
-      font-size:18px;
-      margin-top:10px;
-    }
-
-    .wrap{
-      max-width:1150px;
-      margin:0 auto;
-      padding:30px 20px;
-    }
-
-    .search-box{
-      background:white;
-      padding:20px;
-      border-radius:18px;
-      box-shadow:0 8px 25px rgba(0,0,0,.08);
-      margin-bottom:25px;
-    }
-
-    input{
-      width:100%;
-      padding:14px;
-      border:1px solid #cfd9e6;
-      border-radius:12px;
-      font-size:16px;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-      gap:20px;
-    }
-
-    .card{
-      background:white;
-      border-radius:18px;
-      padding:22px;
-      box-shadow:0 8px 25px rgba(0,0,0,.08);
-      border:1px solid #e2e8f0;
-    }
-
-    .avatar{
-      width:70px;
-      height:70px;
-      border-radius:50%;
-      background:#3d5a80;
-      color:white;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:26px;
-      font-weight:800;
-      margin-bottom:14px;
-      overflow:hidden;
-    }
-
-    .avatar img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-    }
-
-    .name{
-      font-size:22px;
-      font-weight:800;
-      margin-bottom:5px;
-    }
-
-    .trade{
-      color:#ea6a00;
-      font-weight:800;
-      margin-bottom:6px;
-    }
-
-    .location{
-      color:#64748b;
-      font-size:14px;
-      margin-bottom:10px;
-    }
-
-    .bio{
-      color:#475569;
-      font-size:14px;
-      margin-bottom:14px;
-    }
-
-    .btn{
-      display:inline-block;
-      background:#ea6a00;
-      color:white;
-      padding:10px 16px;
-      border-radius:10px;
-      text-decoration:none;
-      font-weight:800;
-      cursor:pointer;
-      border:none;
-      margin-top:10px;
-    }
-
-    .btn:hover{
-      background:#c35700;
-    }
-
-    .empty{
-      background:white;
-      padding:25px;
-      border-radius:18px;
-      text-align:center;
-      color:#64748b;
-      box-shadow:0 8px 25px rgba(0,0,0,.08);
-    }
+    body{margin:0;font-family:Arial,sans-serif;background:#f0f4f8;color:#293241}
+    .topbar{background:#3d5a80;color:white;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+    .logo{font-weight:800;font-size:22px}
+    .nav a{color:white;text-decoration:none;margin-left:16px;font-weight:700}
+    .hero{background:linear-gradient(135deg,#ff8c3a,#ea6a00);color:white;padding:50px 20px;text-align:center}
+    .hero h1{margin:0;font-size:38px}
+    .hero p{font-size:18px;margin-top:10px}
+    .wrap{max-width:1150px;margin:0 auto;padding:30px 20px}
+    .search-box{background:white;padding:20px;border-radius:18px;box-shadow:0 8px 25px rgba(0,0,0,.08);margin-bottom:25px}
+    input{width:100%;padding:14px;border:1px solid #cfd9e6;border-radius:12px;font-size:16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+    .card{background:white;border-radius:18px;padding:22px;box-shadow:0 8px 25px rgba(0,0,0,.08);border:1px solid #e2e8f0}
+    .avatar{width:70px;height:70px;border-radius:50%;background:#3d5a80;color:white;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;margin-bottom:14px;overflow:hidden}
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    .name{font-size:22px;font-weight:800;margin-bottom:5px}
+    .trade{color:#ea6a00;font-weight:800;margin-bottom:6px}
+    .location{color:#64748b;font-size:14px;margin-bottom:10px}
+    .bio{color:#475569;font-size:14px;margin-bottom:14px}
+    .btn{display:inline-block;background:#ea6a00;color:white;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:800;cursor:pointer;border:none;margin-top:10px}
+    .btn:hover{background:#c35700}
+    .empty{background:white;padding:25px;border-radius:18px;text-align:center;color:#64748b;box-shadow:0 8px 25px rgba(0,0,0,.08)}
   </style>
 </head>
 
@@ -176,7 +46,6 @@
 </section>
 
 <div class="wrap">
-
   <div class="search-box">
     <input id="searchInput" type="text" placeholder="Search by name, trade, city, or state...">
   </div>
@@ -184,7 +53,6 @@
   <div id="membersGrid" class="grid">
     <div class="empty">Loading members...</div>
   </div>
-
 </div>
 
 <script type="module">
@@ -235,7 +103,12 @@
       const state = member.state || "";
       const location = city || state ? `${city}${city && state ? ", " : ""}${state}` : "";
       const bio = member.bio || member.about || "";
-      const photo = member.profileImage || member.photoURL || "";
+
+      const photo =
+        member.profileImageUrl ||
+        member.profileImage ||
+        member.photoURL ||
+        "";
 
       const card = document.createElement("div");
       card.className = "card";
