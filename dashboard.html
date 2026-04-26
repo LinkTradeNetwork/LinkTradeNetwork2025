@@ -836,11 +836,87 @@ select.form-control{cursor:pointer}
   </div>
 </div>
 
+
+<!-- Firebase compat SDK for syncing dashboard profile to Members page -->
+<script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
+
 <script>
 /* ===== CONFIG ===== */
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbws8lpL8vPivEBRoExKXqqxwszg8dbfwtqk1Z12xqNFjVYnuRfzjmaid2vq0ZT3TQ-D/exec";
 const CLOUDINARY_CLOUD_NAME = "doasaii6h";
 const CLOUDINARY_UPLOAD_PRESET = "o6zrbqqm";
+
+/* ===== FIREBASE SYNC FOR MEMBERS PAGE ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
+  authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
+  projectId: "linktradenetwork-2dcd1",
+  storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
+  messagingSenderId: "219091766597",
+  appId: "1:219091766597:web:9878c199ba17e0ed89c22c"
+};
+
+let firebaseDb = null;
+let firebaseAuth = null;
+
+try{
+  if(window.firebase){
+    if(!firebase.apps.length){ firebase.initializeApp(firebaseConfig); }
+    firebaseDb = firebase.firestore();
+    firebaseAuth = firebase.auth();
+  }
+}catch(e){
+  console.log('Firebase sync setup skipped:', e);
+}
+
+function safeDocIdFromEmail(email){
+  return String(email || 'unknown-user').toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+}
+
+async function saveProfileToFirestore(profile){
+  if(!firebaseDb || !profile || !profile.email) return;
+
+  const cleanProfile = {
+    name: profile.fullName || profile.name || '',
+    fullName: profile.fullName || profile.name || '',
+    email: profile.email || '',
+    phone: profile.phone || '',
+    trade: profile.trade || '',
+    experience: profile.experience || '',
+    city: profile.city || '',
+    state: profile.state || '',
+    bio: profile.bio || '',
+    skills: profile.skills || '',
+    certifications: profile.certifications || '',
+    profileImageUrl: profile.profileImageUrl || '',
+    profileImage: profile.profileImageUrl || '',
+    photoURL: profile.profileImageUrl || '',
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try{
+    let docId = null;
+
+    if(firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid){
+      docId = firebaseAuth.currentUser.uid;
+    }
+
+    if(!docId){
+      const existing = await firebaseDb.collection('users').where('email', '==', profile.email).limit(1).get();
+      if(!existing.empty){ docId = existing.docs[0].id; }
+    }
+
+    if(!docId){ docId = safeDocIdFromEmail(profile.email); }
+
+    await firebaseDb.collection('users').doc(docId).set(cleanProfile, { merge:true });
+    console.log('Profile synced to Firestore members page');
+  }catch(e){
+    console.error('Firestore profile sync failed:', e);
+  }
+}
+
 
 /* ===== ANALYTICS ===== */
 const GA_MEASUREMENT_ID = 'G-6CYFMPH84F';
@@ -1153,7 +1229,13 @@ const ProfileManager = {
     try{
       if(saveBtn){ saveBtn.disabled=true; saveBtn.textContent='Saving...'; }
       const data = await apiCall({action:'save-profile',...profile});
-      if(data.success){ this.displayProfile(profile); this.closeModal(); alert('Profile saved!'); this.checkAuthStatus(); }
+      if(data.success){
+        await saveProfileToFirestore(profile);
+        this.displayProfile(profile);
+        this.closeModal();
+        alert('Profile saved!');
+        this.checkAuthStatus();
+      }
       else { alert('Failed: '+(data.error||'Unknown error')); }
     }catch(e){ alert('Failed to save profile. Please try again.'); }
     finally{ if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent='Save Profile'; } }
