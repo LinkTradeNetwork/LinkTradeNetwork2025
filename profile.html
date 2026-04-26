@@ -224,8 +224,8 @@ async function checkConnectionStatus(){
 
 window.sendConnectionRequest = async function(){
   if(!currentUser){
-    alert("Please log in first.");
-    window.location.href = "front.html";
+    alert("Please go back to the dashboard and log in first.");
+    window.location.href = "dashboard.html";
     return;
   }
 
@@ -264,6 +264,13 @@ window.sendConnectionRequest = async function(){
 onAuthStateChanged(auth, async (user)=>{
   currentUser = user;
   await loadProfile();
+
+  if(!user){
+    setButton("Sign in to Connect", false);
+    document.getElementById("connectStatus").innerText = "You must be logged in to connect.";
+    return;
+  }
+
   await checkConnectionStatus();
 });
 </script>
