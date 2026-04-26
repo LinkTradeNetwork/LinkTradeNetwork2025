@@ -278,9 +278,9 @@ select.form-control{cursor:pointer}
 </head>
 <body>
 
-<!-- FIX: Connection alert banner - shows when user has pending requests -->
-<div class="connection-alert" id="connection-alert-banner" onclick="NetworkManager.openNetworkModal()">
-  🔔 You have <span id="alert-count">0</span> pending connection request(s) — Click to view
+<!-- LIVE ALERT BANNER - shows when user has connection requests or unread messages -->
+<div class="connection-alert" id="connection-alert-banner" onclick="openAlerts()" style="display:none">
+  🔔 <span id="alert-text">You have updates</span>
 </div>
 
 <header class="topbar">
@@ -988,32 +988,111 @@ async function getUserById(userId){
 }
 
 /* ===== FIREBASE: CHECK PENDING CONNECTIONS ON PAGE LOAD ===== */
-async function checkPendingConnections(){
-  if(!firebaseDb) return;
-  const current = await getCurrentFirebaseUserRecord();
-  const badge = document.getElementById('network-badge');
+let firebaseAlertUnsubscribers = [];
+let currentAlertCounts = { requests: 0, messages: 0 };
+
+function updateLiveAlertUI(){
+  const networkBadge = document.getElementById('network-badge');
+  const messagesBadge = document.getElementById('messages-badge');
   const tabBadge = document.getElementById('req-count-tab');
   const banner = document.getElementById('connection-alert-banner');
-  const alertCount = document.getElementById('alert-count');
-  if(!current){
-    if(badge) badge.style.display='none';
-    if(tabBadge) tabBadge.style.display='none';
-    if(banner) banner.style.display='none';
+  const alertText = document.getElementById('alert-text');
+
+  const requestCount = currentAlertCounts.requests || 0;
+  const messageCount = currentAlertCounts.messages || 0;
+
+  if(networkBadge){
+    if(requestCount > 0){ networkBadge.textContent = requestCount; networkBadge.style.display = 'block'; }
+    else{ networkBadge.style.display = 'none'; }
+  }
+
+  if(tabBadge){
+    if(requestCount > 0){ tabBadge.textContent = requestCount; tabBadge.style.display = 'inline-block'; }
+    else{ tabBadge.style.display = 'none'; }
+  }
+
+  if(messagesBadge){
+    if(messageCount > 0){ messagesBadge.textContent = messageCount; messagesBadge.style.display = 'block'; }
+    else{ messagesBadge.style.display = 'none'; }
+  }
+
+  if(banner && alertText){
+    if(requestCount > 0 && messageCount > 0){
+      alertText.textContent = `You have ${requestCount} connection request(s) and ${messageCount} unread message(s) — Click to view`;
+      banner.style.display = 'block';
+    }else if(requestCount > 0){
+      alertText.textContent = `You have ${requestCount} pending connection request(s) — Click to view`;
+      banner.style.display = 'block';
+    }else if(messageCount > 0){
+      alertText.textContent = `You have ${messageCount} unread message(s) — Click to view`;
+      banner.style.display = 'block';
+    }else{
+      banner.style.display = 'none';
+    }
+  }
+}
+
+function openAlerts(){
+  if(currentAlertCounts.requests > 0){
+    NetworkManager.openNetworkModal();
+    setTimeout(()=>NetworkManager.showTab('requests'),150);
     return;
   }
+  if(currentAlertCounts.messages > 0){
+    MessageManager.openMessagesModal();
+    return;
+  }
+  NetworkManager.openNetworkModal();
+}
+
+async function startFirebaseAlertListeners(){
+  if(!firebaseDb) return;
+
+  firebaseAlertUnsubscribers.forEach(unsub=>{ try{ unsub(); }catch(e){} });
+  firebaseAlertUnsubscribers = [];
+
+  const current = await getCurrentFirebaseUserRecord();
+  if(!current){
+    currentAlertCounts = { requests: 0, messages: 0 };
+    updateLiveAlertUI();
+    return;
+  }
+
   try{
-    const snap = await firebaseDb.collection('connections').where('toUserId','==',current.id).where('status','==','pending').get();
-    const count = snap.size;
-    if(count>0){
-      if(badge){ badge.textContent=count; badge.style.display='block'; }
-      if(tabBadge){ tabBadge.textContent=count; tabBadge.style.display='inline-block'; }
-      if(banner&&alertCount){ alertCount.textContent=count; banner.style.display='block'; }
-    }else{
-      if(badge) badge.style.display='none';
-      if(tabBadge) tabBadge.style.display='none';
-      if(banner) banner.style.display='none';
-    }
-  }catch(e){ console.error('Firebase connection check failed:', e); }
+    const reqUnsub = firebaseDb.collection('connections')
+      .where('toUserId','==',current.id)
+      .where('status','==','pending')
+      .onSnapshot(snap=>{
+        currentAlertCounts.requests = snap.size;
+        updateLiveAlertUI();
+        const list = document.getElementById('requests-list');
+        if(list && document.getElementById('network-modal')?.classList.contains('active')){
+          NetworkManager.loadRequests();
+        }
+      }, err=>console.error('Connection alert listener failed:', err));
+
+    firebaseAlertUnsubscribers.push(reqUnsub);
+  }catch(e){ console.error('Firebase connection alert setup failed:', e); }
+
+  try{
+    const msgUnsub = firebaseDb.collection('conversations')
+      .where('participants','array-contains',current.id)
+      .onSnapshot(snap=>{
+        let unreadTotal = 0;
+        snap.forEach(d=>{
+          const data = d.data();
+          unreadTotal += (data.unread && data.unread[current.id]) ? Number(data.unread[current.id]) : 0;
+        });
+        currentAlertCounts.messages = unreadTotal;
+        updateLiveAlertUI();
+      }, err=>console.error('Message alert listener failed:', err));
+
+    firebaseAlertUnsubscribers.push(msgUnsub);
+  }catch(e){ console.error('Firebase message alert setup failed:', e); }
+}
+
+async function checkPendingConnections(){
+  await startFirebaseAlertListeners();
 }
 
 /* ===== JOB POST MANAGER ===== */
