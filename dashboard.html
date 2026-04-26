@@ -2474,144 +2474,223 @@ function shareReferralLink() {
   }
 }
 
-/* ===== NETWORK MANAGER ===== */
+/* ===== NETWORK MANAGER - FIREBASE CONNECTION REQUEST PANEL ===== */
 const NetworkManager={
   get currentUser(){ return localStorage.getItem('userEmail'); },
+  firebaseUserId:null,
+  firebaseUserData:null,
+
+  async getFirebaseUser(){
+    const email=(this.currentUser||'').toLowerCase().trim();
+    this.firebaseUserId=null;
+    this.firebaseUserData=null;
+
+    if(!email || !firebaseDb) return null;
+
+    try{
+      const snap=await firebaseDb.collection('users').where('email','==',email).limit(1).get();
+      if(!snap.empty){
+        this.firebaseUserId=snap.docs[0].id;
+        this.firebaseUserData=snap.docs[0].data();
+        return {id:this.firebaseUserId,...this.firebaseUserData};
+      }
+    }catch(e){ console.error('Firebase user lookup failed:',e); }
+
+    return null;
+  },
+
+  async getUserById(userId){
+    if(!firebaseDb || !userId) return null;
+    try{
+      const snap=await firebaseDb.collection('users').doc(userId).get();
+      if(snap.exists){ return {id:snap.id,...snap.data()}; }
+    }catch(e){ console.error('Firebase get user failed:',e); }
+    return null;
+  },
+
   openNetworkModal(){
     if(!this.currentUser){ alert('Please complete your profile first.'); return; }
     document.getElementById('network-modal').classList.add('active');
     this.showTab('connections');
     this.loadRequests();
   },
+
   closeNetworkModal(){ document.getElementById('network-modal').classList.remove('active'); },
+
   showTab(tabName){
     document.querySelectorAll('.network-tab').forEach(t=>t.classList.remove('active'));
-    document.querySelector(`.network-tab[onclick*="${tabName}"]`).classList.add('active');
+    const tab=document.querySelector(`.network-tab[onclick*=\"${tabName}\"]`);
+    if(tab) tab.classList.add('active');
     document.querySelectorAll('.network-tab-content').forEach(c=>c.style.display='none');
-    document.getElementById(`network-${tabName}`).style.display='block';
+    const content=document.getElementById(`network-${tabName}`);
+    if(content) content.style.display='block';
     if(tabName==='connections') this.loadConnections();
     if(tabName==='requests')   this.loadRequests();
     if(tabName==='suggested')  this.loadSuggested();
     if(tabName==='search') setTimeout(()=>document.getElementById('people-search-input').focus(),100);
   },
+
   async loadConnections(){
     const list=document.getElementById('connections-list');
-    const email=this.currentUser;
-    // Show cached data instantly
-    const cached=window._cachedConnections;
-    if(cached&&cached.connections){
-      document.getElementById('connections-count').textContent=cached.count||0;
-      document.getElementById('conn-count-tab').textContent=`(${cached.count||0})`;
-      list.innerHTML=cached.connections.length?cached.connections.map(p=>this.renderPerson(p,'connected')).join(''):
-        `<div class="empty-state"><h3>No connections yet</h3><p>Search for trade professionals to connect with</p></div>`;
-    } else {
-      list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading Firebase connections...</div>';
+
+    const me=await this.getFirebaseUser();
+    if(!me){
+      list.innerHTML='<div class="empty-state"><h3>Profile not synced yet</h3><p>Save your profile first, then your Firebase connections will show here.</p></div>';
+      document.getElementById('connections-count').textContent='0';
+      document.getElementById('conn-count-tab').textContent='(0)';
+      return;
     }
-    // Always refresh in background
+
     try{
-      const data=await apiCall({action:'get-connections',email:email});
-      if(data.success){
-        window._cachedConnections=data;
-        localStorage.setItem('ltn_connections_'+email,JSON.stringify(data));
-        document.getElementById('connections-count').textContent=data.count;
-        document.getElementById('conn-count-tab').textContent=`(${data.count})`;
-        list.innerHTML=data.connections.length?data.connections.map(p=>this.renderPerson(p,'connected')).join(''):
-          `<div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg><h3>No connections yet</h3><p>Search for trade professionals to connect with</p></div>`;
+      const sentSnap=await firebaseDb.collection('connections')
+        .where('fromUserId','==',me.id).where('status','==','accepted').get();
+      const receivedSnap=await firebaseDb.collection('connections')
+        .where('toUserId','==',me.id).where('status','==','accepted').get();
+
+      const people=[];
+      for(const d of sentSnap.docs){
+        const c=d.data();
+        const u=await this.getUserById(c.toUserId);
+        if(u) people.push(this.normalizeFirebasePerson(u,d.id));
       }
-    }catch(e){ if(!cached) list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load</div>'; }
+      for(const d of receivedSnap.docs){
+        const c=d.data();
+        const u=await this.getUserById(c.fromUserId);
+        if(u) people.push(this.normalizeFirebasePerson(u,d.id));
+      }
+
+      const unique=[];
+      const seen=new Set();
+      people.forEach(p=>{ if(!seen.has(p.userId)){ seen.add(p.userId); unique.push(p); } });
+
+      document.getElementById('connections-count').textContent=unique.length;
+      document.getElementById('conn-count-tab').textContent=`(${unique.length})`;
+
+      list.innerHTML=unique.length?unique.map(p=>this.renderPerson(p,'connected')).join(''):
+        `<div class="empty-state"><h3>No Firebase connections yet</h3><p>Open a member profile and click Connect.</p></div>`;
+    }catch(e){
+      console.error(e);
+      list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load Firebase connections. Check Firestore rules/indexes.</div>';
+    }
   },
+
   async loadRequests(){
     const list=document.getElementById('requests-list');
-    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading Firebase requests...</div>';
+
+    const me=await this.getFirebaseUser();
+    if(!me){
+      this.updateRequestBadges(0);
+      list.innerHTML='<div class="empty-state"><h3>Profile not synced yet</h3><p>Save your profile first, then incoming Firebase requests will show here.</p></div>';
+      return;
+    }
+
     try{
-      const data=await apiCall({action:'get-requests',email:this.currentUser});
-      if(data.success){
-        const count=data.count;
-        const badge=document.getElementById('network-badge');
-        const tabBadge=document.getElementById('req-count-tab');
-        const banner=document.getElementById('connection-alert-banner');
-        const alertCount=document.getElementById('alert-count');
-        if(count>0){
-          badge.textContent=count; badge.style.display='block';
-          tabBadge.textContent=count; tabBadge.style.display='inline-block';
-          if(banner&&alertCount){ alertCount.textContent=count; banner.style.display='block'; }
-        } else {
-          badge.style.display='none'; tabBadge.style.display='none';
-          if(banner) banner.style.display='none';
-        }
-        list.innerHTML=data.requests.length?data.requests.map(p=>this.renderPerson(p,'request')).join(''):
-          `<div class="empty-state"><h3>No pending requests</h3><p>You're all caught up!</p></div>`;
+      const reqSnap=await firebaseDb.collection('connections')
+        .where('toUserId','==',me.id).where('status','==','pending').get();
+
+      const requests=[];
+      for(const d of reqSnap.docs){
+        const c=d.data();
+        const u=await this.getUserById(c.fromUserId);
+        requests.push(this.normalizeFirebasePerson(u||{},d.id,c));
       }
-    }catch(e){ list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load</div>'; }
+
+      this.updateRequestBadges(requests.length);
+
+      list.innerHTML=requests.length?requests.map(p=>this.renderPerson(p,'request')).join(''):
+        `<div class="empty-state"><h3>No pending Firebase requests</h3><p>You're all caught up.</p></div>`;
+    }catch(e){
+      console.error(e);
+      this.updateRequestBadges(0);
+      list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load Firebase requests. Check Firestore rules/indexes.</div>';
+    }
   },
+
+  updateRequestBadges(count){
+    const badge=document.getElementById('network-badge');
+    const tabBadge=document.getElementById('req-count-tab');
+    const banner=document.getElementById('connection-alert-banner');
+    const alertCount=document.getElementById('alert-count');
+    if(count>0){
+      if(badge){ badge.textContent=count; badge.style.display='block'; }
+      if(tabBadge){ tabBadge.textContent=count; tabBadge.style.display='inline-block'; }
+      if(banner&&alertCount){ alertCount.textContent=count; banner.style.display='block'; }
+    }else{
+      if(badge) badge.style.display='none';
+      if(tabBadge) tabBadge.style.display='none';
+      if(banner) banner.style.display='none';
+    }
+  },
+
   async loadSuggested(){
     const list=document.getElementById('suggested-list');
-    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
-    try{
-      const data=await apiCall({action:'get-suggested',email:this.currentUser});
-      if(data.success){
-        list.innerHTML=data.suggestions.length?data.suggestions.map(p=>this.renderPerson(p,'suggested')).join(''):
-          `<div class="empty-state"><h3>No suggestions yet</h3><p>Complete your profile to get suggestions</p></div>`;
-      }
-    }catch(e){ list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load</div>'; }
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Suggested members are still using the original system. Use the Members page to connect through Firebase.</div>';
   },
+
+  normalizeFirebasePerson(user,requestId,connectionData={}){
+    const fullName=user.name||user.fullName||connectionData.fromName||connectionData.toName||'Trade Member';
+    return {
+      userId:user.id||connectionData.fromUserId||connectionData.toUserId||'',
+      requestId,
+      email:user.email||connectionData.fromEmail||connectionData.toEmail||'',
+      fullName,
+      trade:user.trade||'Trade Not Selected',
+      experience:user.experience||'',
+      city:user.city||'',
+      state:user.state||'',
+      profileImageUrl:user.profileImageUrl||user.profileImage||user.photoURL||'',
+      message:connectionData.message||''
+    };
+  },
+
   renderPerson(person,type){
     const initials=(person.fullName||'U').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
     const location=[person.city,person.state].filter(Boolean).join(', ');
     let actions='';
-    if(type==='request') actions=`<button class="btn btn-success" onclick="NetworkManager.acceptConnection('${person.requestId}')">Accept</button><button class="btn btn-danger" onclick="NetworkManager.declineConnection('${person.requestId}')">Decline</button>`;
-    else if(type==='suggested'||type==='search') actions=`<button class="btn btn-primary" onclick="NetworkManager.sendConnection('${person.email}')">Connect</button>`;
-    else if(type==='connected') actions=`<button class="btn btn-secondary" onclick="MessageManager.startChat('${person.email}','${(person.fullName||'').replace(/'/g,'')}','${(person.trade||'').replace(/'/g,'')}')">Message</button>`;
+    if(type==='request'){
+      actions=`<button class="btn btn-success" onclick="NetworkManager.acceptConnection('${person.requestId}')">Accept</button><button class="btn btn-danger" onclick="NetworkManager.declineConnection('${person.requestId}')">Decline</button>`;
+    }else if(type==='connected'){
+      actions=`<button class="btn btn-secondary" onclick="MessageManager.startChat('${person.email}','${(person.fullName||'').replace(/'/g,'')}','${(person.trade||'').replace(/'/g,'')}')">Message</button>`;
+    }else{
+      actions=`<a class="btn btn-primary" href="profile.html?id=${person.userId}">View Profile</a>`;
+    }
     const message=person.message?`<div style="margin-top:6px;padding:8px;background:var(--panel2);border-radius:6px;font-size:13px">"${person.message}"</div>`:'';
-    const reason=person.reason?`<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic">${person.reason}</div>`:'';
     return `<div class="person-card">
       <div class="person-avatar">${person.profileImageUrl?`<img src="${person.profileImageUrl}" alt="${person.fullName}">`:initials}</div>
       <div class="person-info">
         <div class="person-name">${person.fullName}</div>
         <div class="person-trade">${person.trade}${person.experience?` • ${person.experience} years`:''}</div>
         ${location?`<div class="person-location"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z"/><path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z"/></svg>${location}</div>`:''}
-        ${reason}${message}
+        ${message}
         <div class="person-actions">${actions}</div>
       </div>
     </div>`;
   },
+
   async sendConnection(toEmail){
-    const message=prompt('Add a personal message (optional):');
-    if(message===null) return;
-    try{
-      const data=await apiCall({action:'send-connection',fromEmail:this.currentUser,toEmail,message});
-      if(data.success){ alert('Connection request sent!'); this.loadSuggested(); }
-      else { alert(data.error||'Failed to send request'); }
-    }catch(e){ alert('Failed to send request'); }
+    alert('Use Members → View Profile → Connect for Firebase connections.');
   },
+
   async acceptConnection(requestId){
     try{
-      const data=await apiCall({action:'accept-connection',requestId,email:this.currentUser});
-      if(data.success){
-        alert('Connection accepted!');
-        this.loadRequests();
-        this.loadConnections();
-        // Hide banner after accepting
-        const banner=document.getElementById('connection-alert-banner');
-        if(banner) checkPendingConnections();
-      }
-      else { alert(data.error||'Failed to accept'); }
-    }catch(e){ alert('Failed to accept'); }
+      await firebaseDb.collection('connections').doc(requestId).set({status:'accepted',acceptedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      alert('Connection accepted!');
+      this.loadRequests();
+      this.loadConnections();
+    }catch(e){ console.error(e); alert('Failed to accept. Check Firebase rules.'); }
   },
+
   async declineConnection(requestId){
     if(!confirm('Decline this request?')) return;
     try{
-      const data=await apiCall({action:'decline-connection',requestId,email:this.currentUser});
-      if(data.success){
-        alert('Request declined');
-        this.loadRequests();
-        checkPendingConnections();
-      }
-      else { alert(data.error||'Failed to decline'); }
-    }catch(e){ alert('Failed to decline'); }
+      await firebaseDb.collection('connections').doc(requestId).set({status:'declined',declinedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      alert('Request declined');
+      this.loadRequests();
+    }catch(e){ console.error(e); alert('Failed to decline. Check Firebase rules.'); }
   }
 };
-
 /* ===== PEOPLE SEARCH ===== */
 let searchTimeout;
 document.addEventListener('DOMContentLoaded',function(){
