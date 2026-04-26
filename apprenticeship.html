@@ -35,7 +35,6 @@
     .log-list{margin-top:14px;display:grid;gap:10px}
     .log-item{background:#f8fafc;border:1px solid #e2e8f0;padding:12px 14px;border-radius:12px;display:flex;justify-content:space-between;gap:10px;font-size:14px}
     .empty{color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;padding:14px;border-radius:12px;margin-top:14px;font-size:14px}
-    @media(max-width:750px){.card.big{grid-column:span 1}.topbar{padding:14px 16px}.logo{font-size:18px}h1{font-size:28px}.hero{padding:24px}}
   </style>
 </head>
 
@@ -89,197 +88,46 @@
 
       <div class="small" id="progressText">0% toward industry benchmark</div>
 
-      <div class="metric-row">
-        <div class="metric"><strong id="percentBox">0%</strong><span>Progress</span></div>
-        <div class="metric"><strong id="remainingHours">8000</strong><span>Hours Remaining</span></div>
-        <div class="metric"><strong id="loggedCount">0</strong><span>Hour Logs</span></div>
-      </div>
-
       <button class="button" onclick="addHours()">+ Add Hours Worked</button>
     </div>
-
-    <div class="card">
-      <div class="label">Why 8000 Hours?</div>
-      <div class="value" style="font-size:22px">Industry Accepted Benchmark</div>
-      <div class="small">
-        LTN uses 8000 hours as a simple industry benchmark, not a legal licensing requirement.
-      </div>
-    </div>
-  </div>
-
-  <div class="section-title">Apprentice Progress</div>
-
-  <div class="grid">
-    <div class="card">
-      <div class="label">Skills Completed</div>
-      <div class="value">0</div>
-      <div class="small">Start adding skills like terminations, conduit, testing, safety.</div>
-      <button class="button secondary">Add Skill</button>
-    </div>
-
-    <div class="card">
-      <div class="label">Certifications</div>
-      <div class="value">0</div>
-      <div class="small">Upload OSHA, lift certs, manufacturer training, or licenses later.</div>
-      <button class="button secondary">Add Certification</button>
-    </div>
-
-    <div class="card">
-      <div class="label">Trade Profile</div>
-      <div class="value">In Progress</div>
-      <div class="small">This dashboard is for apprentice progress. Photos and videos will stay in the community feed.</div>
-    </div>
-  </div>
-
-  <div class="section-title">Recent Hours Log</div>
-
-  <div class="card">
-    <div class="label">Hours Worked History</div>
-    <div id="hoursLog" class="log-list"></div>
   </div>
 
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-  import {
-    getFirestore, doc, getDoc, setDoc, collection, addDoc, getDocs,
-    query, orderBy, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
-    authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
-    projectId: "linktradenetwork-2dcd1",
-    storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
-    messagingSenderId: "219091766597",
-    appId: "1:219091766597:web:9878c199ba17e0ed89c22c"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
+  authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
+  projectId: "linktradenetwork-2dcd1"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  function getLevel(hours) {
-    if (hours >= 8000) return "Journeyman Ready";
-    if (hours >= 6000) return "Advanced Apprentice";
-    if (hours >= 3000) return "Apprentice 2";
-    if (hours >= 1000) return "Apprentice 1";
-    return "New Apprentice";
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "front.html"; // ✅ FIXED
+    return;
   }
 
-  function updateDashboard(data, userEmail) {
-    const name = data.name || "Trade Worker";
-    const email = data.email || userEmail;
-    const trade = data.trade || "Not selected";
-    const hours = Number(data.hours || 0);
-    const targetHours = 8000;
-    const percent = Math.min((hours / targetHours) * 100, 100);
-    const remaining = Math.max(targetHours - hours, 0);
+  const docRef = doc(db, "users", user.uid);
+  const docSnap = await getDoc(docRef);
 
-    document.getElementById("welcome").innerText = "Welcome, " + name;
-    document.getElementById("userName").innerText = name;
-    document.getElementById("userEmail").innerText = email;
-    document.getElementById("userTrade").innerText = trade;
-    document.getElementById("userHours").innerText = hours;
-    document.getElementById("hoursBar").style.width = percent + "%";
-    document.getElementById("progressText").innerText = Math.round(percent) + "% toward industry benchmark (8000 hrs)";
-    document.getElementById("percentBox").innerText = Math.round(percent) + "%";
-    document.getElementById("remainingHours").innerText = remaining;
-    document.getElementById("currentLevel").innerText = getLevel(hours);
+  if (docSnap.exists()) {
+    document.getElementById("userName").innerText = docSnap.data().name || "User";
   }
+});
 
-  async function loadHourLogs(userId) {
-    const logBox = document.getElementById("hoursLog");
-    logBox.innerHTML = "";
-
-    const logsRef = collection(db, "users", userId, "hourLogs");
-    const q = query(logsRef, orderBy("createdAt", "desc"));
-    const logsSnap = await getDocs(q);
-    let count = 0;
-
-    logsSnap.forEach((logDoc) => {
-      count++;
-      const log = logDoc.data();
-      const item = document.createElement("div");
-      item.className = "log-item";
-
-      const dateText = log.createdAt && log.createdAt.toDate
-        ? log.createdAt.toDate().toLocaleDateString()
-        : "Just now";
-
-      item.innerHTML = `<span>${dateText}</span><strong>+${log.hoursAdded || 0} hrs</strong>`;
-      logBox.appendChild(item);
-    });
-
-    document.getElementById("loggedCount").innerText = count;
-
-    if (count === 0) {
-      logBox.innerHTML = `<div class="empty">No hours logged yet.</div>`;
-    }
-  }
-
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "front-firebase.html";
-      return;
-    }
-
-    const docRef = doc(db, "users", user.uid);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      updateDashboard(docSnap.data(), user.email);
-      await loadHourLogs(user.uid);
-    }
+window.logout = function () {
+  signOut(auth).then(() => {
+    window.location.href = "front.html"; // ✅ FIXED
   });
-
-  window.addHours = async function () {
-    const input = prompt("Enter hours worked:");
-    if (!input) return;
-
-    const hoursToAdd = Number(input);
-    if (isNaN(hoursToAdd) || hoursToAdd <= 0) {
-      alert("Enter a valid number.");
-      return;
-    }
-
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const docRef = doc(db, "users", user.uid);
-    const docSnap = await getDoc(docRef);
-
-    if (!docSnap.exists()) return;
-
-    const data = docSnap.data();
-    const newTotal = Number(data.hours || 0) + hoursToAdd;
-
-    const updatedData = {
-      ...data,
-      hours: newTotal,
-      updatedAt: serverTimestamp()
-    };
-
-    await setDoc(docRef, updatedData);
-
-    await addDoc(collection(db, "users", user.uid, "hourLogs"), {
-      hoursAdded: hoursToAdd,
-      totalAfter: newTotal,
-      createdAt: serverTimestamp()
-    });
-
-    updateDashboard(updatedData, user.email);
-    await loadHourLogs(user.uid);
-    alert("Hours added!");
-  };
-
-  window.logout = function () {
-    signOut(auth).then(() => {
-      window.location.href = "front-firebase.html";
-    });
-  };
+};
 </script>
 
 </body>
