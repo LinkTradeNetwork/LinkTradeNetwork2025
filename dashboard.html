@@ -306,7 +306,7 @@ select.form-control{cursor:pointer}
     </div>
 
     <nav class="nav" id="main-nav">
-      <a href="front.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
       <a href="members.html">Members</a>
       <a href="#jobs">Jobs</a>
       <a href="#" onclick="NetworkManager.openNetworkModal(); return false;" style="position:relative">
@@ -943,36 +943,77 @@ async function apiCall(payload){
   return res.json();
 }
 
-/* ===== FIX: CHECK PENDING CONNECTIONS ON PAGE LOAD ===== */
-async function checkPendingConnections(){
-  const email = localStorage.getItem('userEmail');
-  if(!email) return;
-  try{
-    const data = await apiCall({action:'get-requests', email:email});
-    if(data.success && data.count > 0){
-      // Show red badge on Network button
-      const badge = document.getElementById('network-badge');
-      if(badge){ badge.textContent = data.count; badge.style.display = 'block'; }
-      // Show tab badge inside modal
-      const tabBadge = document.getElementById('req-count-tab');
-      if(tabBadge){ tabBadge.textContent = data.count; tabBadge.style.display = 'inline-block'; }
-      // Show alert banner at top of page
-      const banner = document.getElementById('connection-alert-banner');
-      const alertCount = document.getElementById('alert-count');
-      if(banner && alertCount){
-        alertCount.textContent = data.count;
-        banner.style.display = 'block';
-      }
-    } else {
-      // Hide everything if no pending requests
-      const badge = document.getElementById('network-badge');
-      if(badge) badge.style.display = 'none';
-      const banner = document.getElementById('connection-alert-banner');
-      if(banner) banner.style.display = 'none';
-    }
-  }catch(e){
-    console.log('Connection check skipped:', e);
+/* ===== FIREBASE USER / NETWORK HELPERS ===== */
+function getStoredUserEmail(){
+  let email = (localStorage.getItem('userEmail') || '').trim().toLowerCase();
+  if(!email){
+    try{
+      const u = JSON.parse(localStorage.getItem('ltn_user') || '{}');
+      if(u.email) email = String(u.email).trim().toLowerCase();
+    }catch(e){}
   }
+  return email;
+}
+async function getCurrentFirebaseUserRecord(){
+  const email = getStoredUserEmail();
+  if(!email || !firebaseDb) return null;
+  const snap = await firebaseDb.collection('users').where('email','==',email).limit(1).get();
+  if(!snap.empty){ const d = snap.docs[0]; return { id:d.id, ...d.data() }; }
+  return null;
+}
+function firebaseInitials(name,email){
+  const base = (name || email || 'LT').trim();
+  return base.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2) || 'LT';
+}
+function firebasePersonCard(user, actionsHtml){
+  const name = user.name || user.fullName || user.email || 'Trade Member';
+  const trade = user.trade || 'Trade Not Selected';
+  const location = [user.city,user.state].filter(Boolean).join(', ');
+  const photo = user.profileImageUrl || user.profileImage || user.photoURL || '';
+  const initials = firebaseInitials(name,user.email);
+  return `<div class="person-card">
+    <div class="person-avatar">${photo ? `<img src="${photo}" alt="${name}">` : initials}</div>
+    <div class="person-info">
+      <div class="person-name">${name}</div>
+      <div class="person-trade">${trade}</div>
+      ${location ? `<div class="person-location">${location}</div>` : ''}
+      <div class="person-actions">${actionsHtml || ''}</div>
+    </div>
+  </div>`;
+}
+async function getUserById(userId){
+  if(!userId || !firebaseDb) return null;
+  const snap = await firebaseDb.collection('users').doc(userId).get();
+  return snap.exists ? { id:snap.id, ...snap.data() } : null;
+}
+
+/* ===== FIREBASE: CHECK PENDING CONNECTIONS ON PAGE LOAD ===== */
+async function checkPendingConnections(){
+  if(!firebaseDb) return;
+  const current = await getCurrentFirebaseUserRecord();
+  const badge = document.getElementById('network-badge');
+  const tabBadge = document.getElementById('req-count-tab');
+  const banner = document.getElementById('connection-alert-banner');
+  const alertCount = document.getElementById('alert-count');
+  if(!current){
+    if(badge) badge.style.display='none';
+    if(tabBadge) tabBadge.style.display='none';
+    if(banner) banner.style.display='none';
+    return;
+  }
+  try{
+    const snap = await firebaseDb.collection('connections').where('toUserId','==',current.id).where('status','==','pending').get();
+    const count = snap.size;
+    if(count>0){
+      if(badge){ badge.textContent=count; badge.style.display='block'; }
+      if(tabBadge){ tabBadge.textContent=count; tabBadge.style.display='inline-block'; }
+      if(banner&&alertCount){ alertCount.textContent=count; banner.style.display='block'; }
+    }else{
+      if(badge) badge.style.display='none';
+      if(tabBadge) tabBadge.style.display='none';
+      if(banner) banner.style.display='none';
+    }
+  }catch(e){ console.error('Firebase connection check failed:', e); }
 }
 
 /* ===== JOB POST MANAGER ===== */
@@ -1644,117 +1685,11 @@ document.addEventListener('DOMContentLoaded',function(){
     if(name&&typeof name==='string') localStorage.setItem('userName',name);
   };
 
-  /* ===== BACKGROUND PRELOADER — badges + connections cache ===== */
-  (function() {
-    const email = localStorage.getItem('userEmail');
-    if (!email) return;
-
-    // Cache keys
-    const CONN_KEY = 'ltn_connections_' + email;
-    const CONV_KEY = 'ltn_conversations_' + email;
-
-    // Restore connections from cache instantly when Network tab opens
-    const cachedConn = localStorage.getItem(CONN_KEY);
-    if (cachedConn) {
-      try {
-        const parsed = JSON.parse(cachedConn);
-        if (parsed && parsed.connections) {
-          // Pre-populate count badge from cache
-          const countEl = document.getElementById('connections-count');
-          if (countEl) countEl.textContent = parsed.count || 0;
-          // Store for NetworkManager to use
-          window._cachedConnections = parsed;
-        }
-      } catch(e) {}
-    }
-
-    // Restore message badge from cache instantly
-    const cachedConv = localStorage.getItem(CONV_KEY);
-    if (cachedConv) {
-      try {
-        const parsed = JSON.parse(cachedConv);
-        if (parsed && parsed.conversations) {
-          const unread = parsed.conversations.reduce(function(sum, c) { return sum + (c.unreadCount || 0); }, 0);
-          const badge = document.getElementById('messages-badge');
-          if (badge) {
-            if (unread > 0) { badge.textContent = unread; badge.style.display = 'block'; }
-            else { badge.style.display = 'none'; }
-          }
-        }
-      } catch(e) {}
-    }
-
-    // After page settles — fetch fresh data in background
-    setTimeout(async function() {
-      try {
-        // Run all background checks in parallel
-        const [convData, connData, reqData] = await Promise.all([
-          apiCall({ action: 'get-conversations', email: email }),
-          apiCall({ action: 'get-connections',   email: email }),
-          apiCall({ action: 'get-requests',      email: email })
-        ]);
-
-        // Update message badge
-        if (convData && convData.success && convData.conversations) {
-          localStorage.setItem(CONV_KEY, JSON.stringify(convData));
-          const unread = convData.conversations.reduce(function(sum, c) { return sum + (c.unreadCount || 0); }, 0);
-          const badge = document.getElementById('messages-badge');
-          if (badge) {
-            if (unread > 0) { badge.textContent = unread; badge.style.display = 'block'; }
-            else { badge.style.display = 'none'; }
-          }
-        }
-
-        // Cache connections so Network tab loads instantly
-        if (connData && connData.success && connData.connections) {
-          localStorage.setItem(CONN_KEY, JSON.stringify(connData));
-          window._cachedConnections = connData;
-          const countEl = document.getElementById('connections-count');
-          if (countEl) countEl.textContent = connData.count || 0;
-        }
-
-        // Update connection request badge
-        if (reqData && reqData.success) {
-          const count = reqData.count || 0;
-          const badge  = document.getElementById('network-badge');
-          const tab    = document.getElementById('req-count-tab');
-          const banner = document.getElementById('connection-alert-banner');
-          const alertCount = document.getElementById('alert-count');
-          if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'block' : 'none'; }
-          if (tab)   { tab.textContent = count; tab.style.display = count > 0 ? 'inline-block' : 'none'; }
-          if (banner && alertCount) { alertCount.textContent = count; banner.style.display = count > 0 ? 'block' : 'none'; }
-        }
-
-      } catch(e) { console.log('Background preload error:', e); }
-
-    }, 800); // Wait 800ms for page to finish rendering first
-
-    // Recheck every 90 seconds for new messages/requests
-    setInterval(async function() {
-      try {
-        const [convData, reqData] = await Promise.all([
-          apiCall({ action: 'get-conversations', email: email }),
-          apiCall({ action: 'get-requests',      email: email })
-        ]);
-        if (convData && convData.success) {
-          localStorage.setItem(CONV_KEY, JSON.stringify(convData));
-          const unread = convData.conversations.reduce(function(sum, c) { return sum + (c.unreadCount || 0); }, 0);
-          const badge = document.getElementById('messages-badge');
-          if (badge) {
-            if (unread > 0) { badge.textContent = unread; badge.style.display = 'block'; }
-            else { badge.style.display = 'none'; }
-          }
-        }
-        if (reqData && reqData.success) {
-          const count = reqData.count || 0;
-          const badge = document.getElementById('network-badge');
-          if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'block' : 'none'; }
-        }
-      } catch(e) {}
-    }, 90000);
-
-  })();
-
+  /* ===== FIREBASE BACKGROUND PRELOADER — requests + message badge ===== */
+(function(){
+  setTimeout(function(){ checkPendingConnections(); }, 800);
+  setInterval(function(){ checkPendingConnections(); if(MessageManager && MessageManager.loadConversations){ /* badges refresh when modal opens */ } }, 90000);
+})();
 
 
   /* ===== JOB SEARCH ===== */
@@ -2474,449 +2409,239 @@ function shareReferralLink() {
   }
 }
 
-/* ===== NETWORK MANAGER - FIREBASE CONNECTION REQUEST PANEL ===== */
+/* ===== FIREBASE NETWORK MANAGER ===== */
 const NetworkManager={
-  get currentUser(){ return localStorage.getItem('userEmail'); },
-  firebaseUserId:null,
-  firebaseUserData:null,
-
-  async getFirebaseUser(){
-    const email=(this.currentUser||'').toLowerCase().trim();
-    this.firebaseUserId=null;
-    this.firebaseUserData=null;
-
-    if(!email || !firebaseDb) return null;
-
-    try{
-      const snap=await firebaseDb.collection('users').where('email','==',email).limit(1).get();
-      if(!snap.empty){
-        this.firebaseUserId=snap.docs[0].id;
-        this.firebaseUserData=snap.docs[0].data();
-        return {id:this.firebaseUserId,...this.firebaseUserData};
-      }
-    }catch(e){ console.error('Firebase user lookup failed:',e); }
-
-    return null;
-  },
-
-  async getUserById(userId){
-    if(!firebaseDb || !userId) return null;
-    try{
-      const snap=await firebaseDb.collection('users').doc(userId).get();
-      if(snap.exists){ return {id:snap.id,...snap.data()}; }
-    }catch(e){ console.error('Firebase get user failed:',e); }
-    return null;
-  },
-
-  openNetworkModal(){
-    if(!this.currentUser){ alert('Please complete your profile first.'); return; }
+  currentUser:null,
+  async ensureUser(){ this.currentUser = await getCurrentFirebaseUserRecord(); return this.currentUser; },
+  async openNetworkModal(){
+    const user = await this.ensureUser();
+    if(!user){ alert('Please save your profile first from the dashboard.'); return; }
     document.getElementById('network-modal').classList.add('active');
     this.showTab('connections');
     this.loadRequests();
   },
-
   closeNetworkModal(){ document.getElementById('network-modal').classList.remove('active'); },
-
   showTab(tabName){
     document.querySelectorAll('.network-tab').forEach(t=>t.classList.remove('active'));
-    const tab=document.querySelector(`.network-tab[onclick*=\"${tabName}\"]`);
-    if(tab) tab.classList.add('active');
+    const tab = document.querySelector(`.network-tab[onclick*="${tabName}"]`); if(tab) tab.classList.add('active');
     document.querySelectorAll('.network-tab-content').forEach(c=>c.style.display='none');
-    const content=document.getElementById(`network-${tabName}`);
-    if(content) content.style.display='block';
+    const panel = document.getElementById(`network-${tabName}`); if(panel) panel.style.display='block';
     if(tabName==='connections') this.loadConnections();
-    if(tabName==='requests')   this.loadRequests();
-    if(tabName==='suggested')  this.loadSuggested();
+    if(tabName==='requests') this.loadRequests();
+    if(tabName==='suggested') this.loadSuggested();
     if(tabName==='search') setTimeout(()=>document.getElementById('people-search-input').focus(),100);
   },
-
   async loadConnections(){
     const list=document.getElementById('connections-list');
-    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading Firebase connections...</div>';
-
-    const me=await this.getFirebaseUser();
-    if(!me){
-      list.innerHTML='<div class="empty-state"><h3>Profile not synced yet</h3><p>Save your profile first, then your Firebase connections will show here.</p></div>';
-      document.getElementById('connections-count').textContent='0';
-      document.getElementById('conn-count-tab').textContent='(0)';
-      return;
-    }
-
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading connections...</div>';
+    const current = await this.ensureUser();
+    if(!current){ list.innerHTML='<div class="empty-state"><h3>No profile found</h3><p>Save your profile first.</p></div>'; return; }
     try{
-      const sentSnap=await firebaseDb.collection('connections')
-        .where('fromUserId','==',me.id).where('status','==','accepted').get();
-      const receivedSnap=await firebaseDb.collection('connections')
-        .where('toUserId','==',me.id).where('status','==','accepted').get();
-
-      const people=[];
-      for(const d of sentSnap.docs){
-        const c=d.data();
-        const u=await this.getUserById(c.toUserId);
-        if(u) people.push(this.normalizeFirebasePerson(u,d.id));
-      }
-      for(const d of receivedSnap.docs){
-        const c=d.data();
-        const u=await this.getUserById(c.fromUserId);
-        if(u) people.push(this.normalizeFirebasePerson(u,d.id));
-      }
-
-      const unique=[];
-      const seen=new Set();
-      people.forEach(p=>{ if(!seen.has(p.userId)){ seen.add(p.userId); unique.push(p); } });
-
+      const sent = await firebaseDb.collection('connections').where('fromUserId','==',current.id).where('status','==','accepted').get();
+      const received = await firebaseDb.collection('connections').where('toUserId','==',current.id).where('status','==','accepted').get();
+      const ids = [];
+      sent.forEach(d=>ids.push(d.data().toUserId));
+      received.forEach(d=>ids.push(d.data().fromUserId));
+      const unique = [...new Set(ids)].filter(Boolean);
       document.getElementById('connections-count').textContent=unique.length;
       document.getElementById('conn-count-tab').textContent=`(${unique.length})`;
-
-      list.innerHTML=unique.length?unique.map(p=>this.renderPerson(p,'connected')).join(''):
-        `<div class="empty-state"><h3>No Firebase connections yet</h3><p>Open a member profile and click Connect.</p></div>`;
-    }catch(e){
-      console.error(e);
-      list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load Firebase connections. Check Firestore rules/indexes.</div>';
-    }
+      if(!unique.length){ list.innerHTML='<div class="empty-state"><h3>No connections yet</h3><p>Use Members to view profiles and connect.</p></div>'; return; }
+      const cards=[];
+      for(const id of unique){
+        const u = await getUserById(id);
+        if(u) cards.push(firebasePersonCard(u, `<button class="btn btn-secondary" onclick="MessageManager.startChat('${u.id}')">Message</button><button class="btn btn-primary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
+      }
+      list.innerHTML = cards.join('') || '<div class="empty-state"><h3>No connections found</h3></div>';
+    }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>Failed to load connections</h3></div>'; }
   },
-
   async loadRequests(){
     const list=document.getElementById('requests-list');
-    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading Firebase requests...</div>';
-
-    const me=await this.getFirebaseUser();
-    if(!me){
-      this.updateRequestBadges(0);
-      list.innerHTML='<div class="empty-state"><h3>Profile not synced yet</h3><p>Save your profile first, then incoming Firebase requests will show here.</p></div>';
-      return;
-    }
-
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading requests...</div>';
+    const current = await this.ensureUser();
+    if(!current){ list.innerHTML='<div class="empty-state"><h3>No profile found</h3><p>Save your profile first.</p></div>'; return; }
     try{
-      const reqSnap=await firebaseDb.collection('connections')
-        .where('toUserId','==',me.id).where('status','==','pending').get();
-
-      const requests=[];
-      for(const d of reqSnap.docs){
-        const c=d.data();
-        const u=await this.getUserById(c.fromUserId);
-        requests.push(this.normalizeFirebasePerson(u||{},d.id,c));
+      const snap = await firebaseDb.collection('connections').where('toUserId','==',current.id).where('status','==','pending').get();
+      const count = snap.size;
+      const badge=document.getElementById('network-badge');
+      const tabBadge=document.getElementById('req-count-tab');
+      const banner=document.getElementById('connection-alert-banner');
+      const alertCount=document.getElementById('alert-count');
+      if(count>0){
+        if(badge){ badge.textContent=count; badge.style.display='block'; }
+        if(tabBadge){ tabBadge.textContent=count; tabBadge.style.display='inline-block'; }
+        if(banner&&alertCount){ alertCount.textContent=count; banner.style.display='block'; }
+      }else{
+        if(badge) badge.style.display='none';
+        if(tabBadge) tabBadge.style.display='none';
+        if(banner) banner.style.display='none';
       }
-
-      this.updateRequestBadges(requests.length);
-
-      list.innerHTML=requests.length?requests.map(p=>this.renderPerson(p,'request')).join(''):
-        `<div class="empty-state"><h3>No pending Firebase requests</h3><p>You're all caught up.</p></div>`;
-    }catch(e){
-      console.error(e);
-      this.updateRequestBadges(0);
-      list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load Firebase requests. Check Firestore rules/indexes.</div>';
-    }
+      if(!count){ list.innerHTML='<div class="empty-state"><h3>No pending requests</h3><p>You are all caught up.</p></div>'; return; }
+      const cards=[];
+      for(const docSnap of snap.docs){
+        const req = docSnap.data();
+        const u = await getUserById(req.fromUserId);
+        if(u) cards.push(firebasePersonCard(u, `<button class="btn btn-success" onclick="NetworkManager.acceptConnection('${docSnap.id}')">Accept</button><button class="btn btn-danger" onclick="NetworkManager.declineConnection('${docSnap.id}')">Decline</button><button class="btn btn-primary" onclick="window.location.href='profile.html?id=${u.id}'">View</button>`));
+      }
+      list.innerHTML = cards.join('');
+    }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>Failed to load requests</h3></div>'; }
   },
-
-  updateRequestBadges(count){
-    const badge=document.getElementById('network-badge');
-    const tabBadge=document.getElementById('req-count-tab');
-    const banner=document.getElementById('connection-alert-banner');
-    const alertCount=document.getElementById('alert-count');
-    if(count>0){
-      if(badge){ badge.textContent=count; badge.style.display='block'; }
-      if(tabBadge){ tabBadge.textContent=count; tabBadge.style.display='inline-block'; }
-      if(banner&&alertCount){ alertCount.textContent=count; banner.style.display='block'; }
-    }else{
-      if(badge) badge.style.display='none';
-      if(tabBadge) tabBadge.style.display='none';
-      if(banner) banner.style.display='none';
-    }
-  },
-
   async loadSuggested(){
     const list=document.getElementById('suggested-list');
-    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Suggested members are still using the original system. Use the Members page to connect through Firebase.</div>';
-  },
-
-  normalizeFirebasePerson(user,requestId,connectionData={}){
-    const fullName=user.name||user.fullName||connectionData.fromName||connectionData.toName||'Trade Member';
-    return {
-      userId:user.id||connectionData.fromUserId||connectionData.toUserId||'',
-      requestId,
-      email:user.email||connectionData.fromEmail||connectionData.toEmail||'',
-      fullName,
-      trade:user.trade||'Trade Not Selected',
-      experience:user.experience||'',
-      city:user.city||'',
-      state:user.state||'',
-      profileImageUrl:user.profileImageUrl||user.profileImage||user.photoURL||'',
-      message:connectionData.message||''
-    };
-  },
-
-  renderPerson(person,type){
-    const initials=(person.fullName||'U').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-    const location=[person.city,person.state].filter(Boolean).join(', ');
-    let actions='';
-    if(type==='request'){
-      actions=`<button class="btn btn-success" onclick="NetworkManager.acceptConnection('${person.requestId}')">Accept</button><button class="btn btn-danger" onclick="NetworkManager.declineConnection('${person.requestId}')">Decline</button>`;
-    }else if(type==='connected'){
-      actions=`<button class="btn btn-secondary" onclick="MessageManager.startChat('${person.email}','${(person.fullName||'').replace(/'/g,'')}','${(person.trade||'').replace(/'/g,'')}')">Message</button>`;
-    }else{
-      actions=`<a class="btn btn-primary" href="profile.html?id=${person.userId}">View Profile</a>`;
-    }
-    const message=person.message?`<div style="margin-top:6px;padding:8px;background:var(--panel2);border-radius:6px;font-size:13px">"${person.message}"</div>`:'';
-    return `<div class="person-card">
-      <div class="person-avatar">${person.profileImageUrl?`<img src="${person.profileImageUrl}" alt="${person.fullName}">`:initials}</div>
-      <div class="person-info">
-        <div class="person-name">${person.fullName}</div>
-        <div class="person-trade">${person.trade}${person.experience?` • ${person.experience} years`:''}</div>
-        ${location?`<div class="person-location"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z"/><path d="M19 10c0 4.418-7 10-7 10S5 14.418 5 10a7 7 0 1 1 14 0Z"/></svg>${location}</div>`:''}
-        ${message}
-        <div class="person-actions">${actions}</div>
-      </div>
-    </div>`;
-  },
-
-  async sendConnection(toEmail){
-    alert('Use Members → View Profile → Connect for Firebase connections.');
-  },
-
-  async acceptConnection(requestId){
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Loading members...</div>';
+    const current = await this.ensureUser();
+    if(!current){ list.innerHTML='<div class="empty-state"><h3>No profile found</h3><p>Save your profile first.</p></div>'; return; }
     try{
-      await firebaseDb.collection('connections').doc(requestId).set({status:'accepted',acceptedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-      alert('Connection accepted!');
-      this.loadRequests();
-      this.loadConnections();
-    }catch(e){ console.error(e); alert('Failed to accept. Check Firebase rules.'); }
-  },
-
-  async declineConnection(requestId){
-    if(!confirm('Decline this request?')) return;
-    try{
-      await firebaseDb.collection('connections').doc(requestId).set({status:'declined',declinedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-      alert('Request declined');
-      this.loadRequests();
-    }catch(e){ console.error(e); alert('Failed to decline. Check Firebase rules.'); }
-  }
-};
-/* ===== PEOPLE SEARCH ===== */
-let searchTimeout;
-document.addEventListener('DOMContentLoaded',function(){
-  const searchInput=document.getElementById('people-search-input');
-  if(searchInput) searchInput.addEventListener('input',function(){ clearTimeout(searchTimeout); searchTimeout=setTimeout(()=>NetworkManager.searchPeople(this.value),500); });
-});
-NetworkManager.searchPeople=async function(query){
-  const list=document.getElementById('search-results');
-  if(!query.trim()){ list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Enter a name, trade, or location</div>'; return; }
-  list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Searching...</div>';
-  try{
-    const data=await apiCall({action:'search-people',query,email:this.currentUser});
-    if(data.success){
-      list.innerHTML=data.people.length
-        ?`<div style="margin-bottom:12px;color:var(--muted);font-size:13px">Showing ${data.showing} of ${data.total} results</div>${data.people.map(p=>this.renderPerson(p,'search')).join('')}`
-        :'<div style="text-align:center;padding:20px;color:var(--muted)">No results found</div>';
-    }
-  }catch(e){ list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Search failed</div>'; }
-};
-
-/* ===== MESSAGE MANAGER - FIXED: Uses Google Sheets backend + New Message Search ===== */
-const MessageManager={
-  get currentUser(){ return localStorage.getItem('userEmail'); },
-  currentChat:null,
-  currentChatName:'',
-  currentChatTrade:'',
-
-  openMessagesModal(){
-    if(!this.currentUser){ alert('Please sign in first.'); return; }
-    document.getElementById('messages-modal').classList.add('active');
-    this.loadConversations();
-  },
-
-  closeMessagesModal(){
-    document.getElementById('messages-modal').classList.remove('active');
-    this.backToList();
-    this.hideNewMessage();
-  },
-
-  /* ===== NEW MESSAGE SEARCH ===== */
-  showNewMessage(){
-    const panel = document.getElementById('new-message-panel');
-    const input = document.getElementById('new-message-search');
-    if(panel.style.display === 'none' || panel.style.display === ''){
-      panel.style.display = 'block';
-      setTimeout(()=>input.focus(), 100);
-      input.oninput = debounce(async()=>{
-        const query = input.value.trim();
-        const results = document.getElementById('new-message-results');
-        if(!query){ results.innerHTML=''; return; }
-        results.innerHTML='<div style="text-align:center;padding:10px;color:var(--muted)">Searching...</div>';
-        try{
-          const data = await apiCall({action:'search-people', query, email:this.currentUser});
-          if(data.success && data.people && data.people.length){
-            results.innerHTML = data.people.map(p=>{
-              const initials=(p.fullName||'U').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-              const loc=[p.city,p.state].filter(Boolean).join(', ');
-              return `<div class="person-card" style="cursor:pointer;margin-bottom:8px" onclick="MessageManager.startChat('${p.email}','${(p.fullName||'').replace(/'/g,"\\'")}','${(p.trade||'').replace(/'/g,"\\'")}')">
-                <div class="person-avatar" style="width:44px;height:44px;font-size:16px;flex-shrink:0">
-                  ${p.profileImageUrl?`<img src="${p.profileImageUrl}" alt="${p.fullName}">`:`${initials}`}
-                </div>
-                <div class="person-info">
-                  <div class="person-name">${p.fullName}</div>
-                  <div class="person-trade">${p.trade||''}${p.experience?` • ${p.experience} years`:''}</div>
-                  ${loc?`<div class="person-location" style="font-size:12px;color:var(--muted)">${loc}</div>`:''}
-                </div>
-                <div style="align-self:center;color:var(--brand);font-size:13px;font-weight:600">Message →</div>
-              </div>`;
-            }).join('');
-          } else {
-            results.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted)">No members found — try a different name or trade</div>';
-          }
-        }catch(e){ results.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted)">Search failed. Please try again.</div>'; }
-      }, 400);
-    } else {
-      this.hideNewMessage();
-    }
-  },
-
-  hideNewMessage(){
-    const panel = document.getElementById('new-message-panel');
-    if(panel) panel.style.display = 'none';
-    const input = document.getElementById('new-message-search');
-    if(input) input.value = '';
-    const results = document.getElementById('new-message-results');
-    if(results) results.innerHTML = '';
-  },
-
-  /* ===== LOAD CONVERSATIONS FROM BACKEND ===== */
-  async loadConversations(){
-    const list = document.getElementById('messages-list');
-    list.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)">Loading messages...</div>';
-    try{
-      const data = await apiCall({action:'get-conversations', email:this.currentUser});
-      if(data.success && data.conversations && data.conversations.length){
-        let unreadTotal = 0;
-        list.innerHTML = data.conversations.map(conv=>{
-          const initials=(conv.name||'U').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-          unreadTotal += conv.unreadCount||0;
-          const timeStr = conv.lastMessageTime ? new Date(conv.lastMessageTime).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
-          return `<div class="message-item${conv.unreadCount>0?' unread':''}"
-            onclick="MessageManager.openChat('${conv.email}','${(conv.name||'').replace(/'/g,"\\'")}','${(conv.trade||'').replace(/'/g,"\\'")}')">
-            <div class="message-avatar">${initials}</div>
-            <div class="message-content">
-              <div class="message-header">
-                <div class="message-sender">${conv.name}</div>
-                <div class="message-time">${timeStr}</div>
-              </div>
-              <div class="message-preview">${conv.lastMessage||'No messages yet'}</div>
-            </div>
-          </div>`;
-        }).join('');
-        // Update messages badge count
-        const badge = document.getElementById('messages-badge');
-        if(badge){
-          if(unreadTotal>0){ badge.textContent=unreadTotal; badge.style.display='block'; }
-          else { badge.style.display='none'; }
+      const users = await firebaseDb.collection('users').limit(20).get();
+      const cards=[];
+      users.forEach(d=>{
+        if(d.id!==current.id){
+          const u={id:d.id,...d.data()};
+          cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="NetworkManager.sendConnectionById('${u.id}')">Connect</button><button class="btn btn-secondary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
         }
-      } else {
-        list.innerHTML=`<div class="empty-state" style="padding:60px 20px">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-          </svg>
-          <h3>No messages yet</h3>
-          <p>Click <b>+ New Message</b> to start a conversation with any LTN member</p>
-        </div>`;
-      }
-    }catch(e){
-      list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load messages. Please try again.</div>';
-    }
-  },
-
-  /* ===== START CHAT FROM NETWORK OR NEW MESSAGE ===== */
-  startChat(email, name, trade){
-    NetworkManager.closeNetworkModal();
-    this.hideNewMessage();
-    document.getElementById('messages-modal').classList.add('active');
-    setTimeout(()=>this.openChat(email, name, trade), 150);
-  },
-
-  /* ===== OPEN INDIVIDUAL CHAT ===== */
-  async openChat(email, name, trade){
-    this.currentChat = email;
-    this.currentChatName = name;
-    this.currentChatTrade = trade;
-
-    this.hideNewMessage();
-    document.getElementById('messages-list-view').style.display='none';
-    document.getElementById('messages-chat-view').style.display='block';
-
-    const initials=(name||'U').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-    document.getElementById('chat-avatar').textContent=initials;
-    document.getElementById('chat-name').textContent=name;
-    document.getElementById('chat-trade').textContent=trade||'';
-
-    await this.loadChatMessages();
-
-    // Mark messages as read
-    try{
-      await apiCall({action:'mark-read', toEmail:this.currentUser, fromEmail:email});
-    }catch(e){ console.log('Mark read skipped'); }
-  },
-
-  /* ===== LOAD CHAT MESSAGES FROM BACKEND ===== */
-  async loadChatMessages(){
-    const container = document.getElementById('chat-messages');
-    container.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px">Loading...</div>';
-    try{
-      const data = await apiCall({
-        action:'get-messages',
-        email: this.currentUser,
-        withEmail: this.currentChat
       });
-      if(data.success && data.messages && data.messages.length){
-        container.innerHTML = data.messages.map(msg=>`
-          <div class="chat-message ${msg.fromEmail===this.currentUser?'sent':'received'}">
-            ${msg.messageText}
-          </div>`).join('');
-        container.scrollTop = container.scrollHeight;
-      } else {
-        container.innerHTML='<div style="text-align:center;color:var(--muted);padding:30px">No messages yet — say hello!</div>';
-      }
-    }catch(e){
-      container.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px">Failed to load messages</div>';
-    }
+      list.innerHTML = cards.join('') || '<div class="empty-state"><h3>No suggestions yet</h3></div>';
+    }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>Failed to load suggestions</h3></div>'; }
   },
-
-  /* ===== BACK TO CONVERSATION LIST ===== */
-  backToList(){
-    this.currentChat=null;
-    this.currentChatName='';
-    this.currentChatTrade='';
-    document.getElementById('messages-list-view').style.display='block';
-    document.getElementById('messages-chat-view').style.display='none';
-    document.getElementById('chat-input').value='';
-    this.loadConversations();
-  },
-
-  /* ===== SEND MESSAGE TO BACKEND ===== */
-  async sendMessage(){
-    const input = document.getElementById('chat-input');
-    const text = input.value.trim();
-    if(!text || !this.currentChat) return;
-
-    // Show message immediately in UI for instant feedback
-    const container = document.getElementById('chat-messages');
-    const tempDiv = document.createElement('div');
-    tempDiv.className = 'chat-message sent';
-    tempDiv.textContent = text;
-    container.appendChild(tempDiv);
-    container.scrollTop = container.scrollHeight;
-    input.value = '';
-
-    // Save to Google Sheets backend
+  async searchPeople(searchText){
+    const results=document.getElementById('search-results');
+    const q=(searchText||'').trim().toLowerCase();
+    if(!q){ results.innerHTML='<div class="empty-state"><h3>Search members</h3><p>Search by name, trade, city, or state.</p></div>'; return; }
+    results.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Searching...</div>';
+    const current = await this.ensureUser();
     try{
-      await apiCall({
-        action:'send-message',
-        fromEmail: this.currentUser,
-        toEmail: this.currentChat,
-        messageText: text
+      const users = await firebaseDb.collection('users').limit(100).get();
+      const cards=[];
+      users.forEach(d=>{
+        if(current && d.id===current.id) return;
+        const u={id:d.id,...d.data()};
+        const text = `${u.name||''} ${u.fullName||''} ${u.trade||''} ${u.city||''} ${u.state||''} ${u.bio||''}`.toLowerCase();
+        if(text.includes(q)) cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="NetworkManager.sendConnectionById('${u.id}')">Connect</button><button class="btn btn-secondary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
       });
-    }catch(e){
-      console.error('Message save failed:', e);
-    }
+      results.innerHTML = cards.join('') || '<div class="empty-state"><h3>No members found</h3><p>Try a different search.</p></div>';
+    }catch(e){ console.error(e); results.innerHTML='<div class="empty-state"><h3>Search failed</h3></div>'; }
+  },
+  async sendConnectionById(targetUserId){
+    const current = await this.ensureUser();
+    if(!current){ alert('Save your profile first.'); return; }
+    if(current.id===targetUserId){ alert('You cannot connect with yourself.'); return; }
+    const connectionId = current.id + '_' + targetUserId;
+    const reverseId = targetUserId + '_' + current.id;
+    const existing = await firebaseDb.collection('connections').doc(connectionId).get();
+    const reverse = await firebaseDb.collection('connections').doc(reverseId).get();
+    if(existing.exists || reverse.exists){ alert('Connection already exists or is pending.'); return; }
+    const target = await getUserById(targetUserId);
+    await firebaseDb.collection('connections').doc(connectionId).set({
+      fromUserId: current.id,
+      toUserId: targetUserId,
+      fromEmail: current.email || getStoredUserEmail(),
+      toEmail: target?.email || '',
+      fromName: current.name || current.fullName || current.email || '',
+      toName: target?.name || target?.fullName || '',
+      status:'pending',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert('Connection request sent!');
+    this.loadSuggested(); this.loadRequests(); checkPendingConnections();
+  },
+  async acceptConnection(connectionId){
+    await firebaseDb.collection('connections').doc(connectionId).set({ status:'accepted', acceptedAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
+    alert('Connection accepted.');
+    this.loadRequests(); this.loadConnections(); checkPendingConnections();
+  },
+  async declineConnection(connectionId){
+    if(!confirm('Decline this connection request?')) return;
+    await firebaseDb.collection('connections').doc(connectionId).set({ status:'declined', declinedAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
+    this.loadRequests(); checkPendingConnections();
   }
 };
+let searchTimeout=null;
+const peopleSearchInput=document.getElementById('people-search-input');
+if(peopleSearchInput){ peopleSearchInput.addEventListener('input',function(){ clearTimeout(searchTimeout); searchTimeout=setTimeout(()=>NetworkManager.searchPeople(this.value),400); }); }
+
+/* ===== FIREBASE MESSAGE MANAGER ===== */
+const MessageManager={
+  currentUser:null,
+  currentChatUser:null,
+  unsubscribe:null,
+  async ensureUser(){ this.currentUser = await getCurrentFirebaseUserRecord(); return this.currentUser; },
+  async openMessagesModal(){
+    const user = await this.ensureUser();
+    if(!user){ alert('Please save your profile first.'); return; }
+    document.getElementById('messages-modal').classList.add('active'); this.loadConversations();
+  },
+  closeMessagesModal(){ document.getElementById('messages-modal').classList.remove('active'); this.backToList(); this.hideNewMessage(); },
+  showNewMessage(){
+    const panel=document.getElementById('new-message-panel'); const input=document.getElementById('new-message-search');
+    if(panel.style.display==='none'||panel.style.display===''){
+      panel.style.display='block'; setTimeout(()=>input.focus(),100);
+      input.oninput=debounce(async()=>{
+        const term=input.value.trim().toLowerCase(); const results=document.getElementById('new-message-results');
+        if(!term){ results.innerHTML=''; return; }
+        results.innerHTML='<div style="text-align:center;padding:10px;color:var(--muted)">Searching...</div>';
+        const current=await this.ensureUser(); const snap=await firebaseDb.collection('users').limit(100).get(); const cards=[];
+        snap.forEach(d=>{
+          if(current && d.id===current.id) return;
+          const u={id:d.id,...d.data()}; const txt=`${u.name||''} ${u.fullName||''} ${u.trade||''} ${u.city||''} ${u.state||''}`.toLowerCase();
+          if(txt.includes(term)) cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="MessageManager.startChat('${u.id}')">Message</button>`));
+        });
+        results.innerHTML=cards.join('') || '<div style="text-align:center;padding:12px;color:var(--muted)">No members found</div>';
+      },400);
+    }else{ this.hideNewMessage(); }
+  },
+  hideNewMessage(){
+    const panel=document.getElementById('new-message-panel'); if(panel) panel.style.display='none';
+    const input=document.getElementById('new-message-search'); if(input) input.value='';
+    const results=document.getElementById('new-message-results'); if(results) results.innerHTML='';
+  },
+  conversationId(a,b){ return [a,b].sort().join('_'); },
+  async loadConversations(){
+    const list=document.getElementById('messages-list'); list.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)">Loading messages...</div>';
+    const current=await this.ensureUser(); if(!current){ list.innerHTML='<div class="empty-state"><h3>No profile found</h3></div>'; return; }
+    try{
+      const snap=await firebaseDb.collection('conversations').where('participants','array-contains',current.id).orderBy('updatedAt','desc').get();
+      if(snap.empty){ list.innerHTML=`<div class="empty-state" style="padding:60px 20px"><h3>No messages yet</h3><p>Click <b>+ New Message</b> to start a conversation.</p></div>`; const badge=document.getElementById('messages-badge'); if(badge) badge.style.display='none'; return; }
+      let unreadTotal=0; const rows=[];
+      for(const d of snap.docs){
+        const conv=d.data(); const otherId=(conv.participants||[]).find(id=>id!==current.id); const other=await getUserById(otherId); if(!other) continue;
+        const name=other.name||other.fullName||other.email||'Member'; const initials=firebaseInitials(name,other.email); const unread=(conv.unread&&conv.unread[current.id])||0; unreadTotal+=unread;
+        const timeStr = conv.updatedAt&&conv.updatedAt.toDate ? conv.updatedAt.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
+        rows.push(`<div class="message-item${unread>0?' unread':''}" onclick="MessageManager.openChat('${other.id}')"><div class="message-avatar">${other.profileImageUrl?`<img src="${other.profileImageUrl}" alt="${name}">`:initials}</div><div class="message-content"><div class="message-header"><div class="message-sender">${name}</div><div class="message-time">${timeStr}</div></div><div class="message-preview">${conv.lastMessage||'No messages yet'}</div></div></div>`);
+      }
+      list.innerHTML=rows.join(''); const badge=document.getElementById('messages-badge'); if(badge){ if(unreadTotal>0){ badge.textContent=unreadTotal; badge.style.display='block'; } else badge.style.display='none'; }
+    }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>Failed to load messages</h3></div>'; }
+  },
+  async startChat(userId){ NetworkManager.closeNetworkModal(); this.hideNewMessage(); document.getElementById('messages-modal').classList.add('active'); setTimeout(()=>this.openChat(userId),100); },
+  async openChat(userId){
+    const current=await this.ensureUser(); const other=await getUserById(userId); if(!current||!other) return;
+    this.currentChatUser=other; document.getElementById('messages-list-view').style.display='none'; document.getElementById('messages-chat-view').style.display='block';
+    const name=other.name||other.fullName||other.email||'Member'; document.getElementById('chat-avatar').innerHTML=other.profileImageUrl?`<img src="${other.profileImageUrl}" alt="${name}">`:firebaseInitials(name,other.email);
+    document.getElementById('chat-name').textContent=name; document.getElementById('chat-trade').textContent=other.trade||'';
+    await this.loadChatMessages(); const convId=this.conversationId(current.id,other.id); await firebaseDb.collection('conversations').doc(convId).set({ [`unread.${current.id}`]:0 }, {merge:true});
+  },
+  async loadChatMessages(){
+    const container=document.getElementById('chat-messages'); container.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px">Loading...</div>';
+    const current=await this.ensureUser(); if(!current||!this.currentChatUser) return; const convId=this.conversationId(current.id,this.currentChatUser.id);
+    if(this.unsubscribe) this.unsubscribe();
+    this.unsubscribe=firebaseDb.collection('conversations').doc(convId).collection('messages').orderBy('createdAt','asc').onSnapshot(snap=>{
+      if(snap.empty){ container.innerHTML='<div style="text-align:center;color:var(--muted);padding:30px">No messages yet — say hello!</div>'; return; }
+      container.innerHTML=snap.docs.map(d=>{ const msg=d.data(); return `<div class="chat-message ${msg.fromUserId===current.id?'sent':'received'}">${msg.messageText||''}</div>`; }).join('');
+      container.scrollTop=container.scrollHeight;
+    });
+  },
+  backToList(){
+    if(this.unsubscribe){ this.unsubscribe(); this.unsubscribe=null; }
+    this.currentChatUser=null; document.getElementById('messages-list-view').style.display='block'; document.getElementById('messages-chat-view').style.display='none';
+    const input=document.getElementById('chat-input'); if(input) input.value=''; this.loadConversations();
+  },
+  async sendMessage(){
+    const input=document.getElementById('chat-input'); const text=input.value.trim(); if(!text||!this.currentChatUser) return;
+    const current=await this.ensureUser(); const other=this.currentChatUser; const convId=this.conversationId(current.id,other.id); input.value='';
+    const convRef=firebaseDb.collection('conversations').doc(convId);
+    await convRef.set({ participants:[current.id,other.id], participantEmails:[current.email||'',other.email||''], lastMessage:text, updatedAt:firebase.firestore.FieldValue.serverTimestamp(), [`unread.${other.id}`]:firebase.firestore.FieldValue.increment(1) },{merge:true});
+    await convRef.collection('messages').add({ fromUserId:current.id, toUserId:other.id, fromName:current.name||current.fullName||current.email||'', toName:other.name||other.fullName||other.email||'', messageText:text, createdAt:firebase.firestore.FieldValue.serverTimestamp() });
+  }
+};
+
 
 document.addEventListener('DOMContentLoaded',function(){
   trackEvent('page_view', { page_title: document.title, page_location: window.location.href, page_path: window.location.pathname });
@@ -2924,22 +2649,18 @@ document.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('a, button').forEach(el => {
     el.addEventListener('click', () => {
       const label = (el.innerText || el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 80);
-      if(label){
-        trackEvent('ui_click', { element_label: label, element_type: el.tagName.toLowerCase() });
-      }
+      if(label){ trackEvent('ui_click', { element_label: label, element_type: el.tagName.toLowerCase() }); }
     });
   });
 
   const chatInput=document.getElementById('chat-input');
   if(chatInput) chatInput.addEventListener('keydown',function(e){
-    if(e.key==='Enter'&&!e.shiftKey){
-      e.preventDefault();
-      MessageManager.sendMessage();
-    }
+    if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); MessageManager.sendMessage(); }
   });
-  // Also wire send button
   const sendBtn = document.querySelector('.chat-send-btn');
   if(sendBtn) sendBtn.onclick = ()=>MessageManager.sendMessage();
+
+  checkPendingConnections();
 });
 </script>
 </body>
