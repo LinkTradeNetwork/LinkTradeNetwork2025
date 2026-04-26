@@ -63,7 +63,7 @@
 
   <div class="hero">
     <div>
-      <h1 id="welcome">Welcome</h1>
+      <h1 id="welcome">Welcome, Trade Worker</h1>
       <div class="sub">Track your apprenticeship, hours, skills, certifications, and progress.</div>
     </div>
     <div class="hero-badge">Apprentice Progress Profile</div>
@@ -109,6 +109,7 @@
       </div>
 
       <button class="button" onclick="addHours()">+ Add Hours Worked</button>
+      <button class="button secondary" onclick="resetHours()">Reset Hours</button>
     </div>
 
     <div class="card">
@@ -148,44 +149,14 @@
 
   <div class="card">
     <div class="label">Hours Worked History</div>
-    <div id="hoursLog" class="log-list">
-      <div class="empty">Sign in later to save hours permanently.</div>
-    </div>
+    <div id="hoursLog" class="log-list"></div>
   </div>
 
 </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-  import {
-    getFirestore,
-    doc,
-    getDoc,
-    setDoc,
-    collection,
-    addDoc,
-    getDocs,
-    query,
-    orderBy,
-    serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
-    authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
-    projectId: "linktradenetwork-2dcd1",
-    storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
-    messagingSenderId: "219091766597",
-    appId: "1:219091766597:web:9878c199ba17e0ed89c22c"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  let currentUser = null;
-  let guestHours = 0;
+<script>
+  let guestHours = Number(localStorage.getItem("ltn_apprentice_hours") || 0);
+  let hourLogs = JSON.parse(localStorage.getItem("ltn_apprentice_logs") || "[]");
 
   function getLevel(hours) {
     if (hours >= 8000) return "Journeyman Ready";
@@ -195,112 +166,43 @@
     return "New Apprentice";
   }
 
-  function updateDashboard(data, userEmail) {
-    const name = data.name || data.fullName || "Trade Worker";
-    const email = data.email || userEmail || "Guest User";
-    const trade = data.trade || data.specialty || "Not selected";
-    const hours = Number(data.hours || 0);
+  function updateDashboard() {
     const targetHours = 8000;
-    const percent = Math.min((hours / targetHours) * 100, 100);
-    const remaining = Math.max(targetHours - hours, 0);
+    const percent = Math.min((guestHours / targetHours) * 100, 100);
+    const remaining = Math.max(targetHours - guestHours, 0);
 
-    document.getElementById("welcome").innerText = "Welcome, " + name;
-    document.getElementById("userName").innerText = name;
-    document.getElementById("userEmail").innerText = email;
-    document.getElementById("userTrade").innerText = trade;
-    document.getElementById("userHours").innerText = hours;
+    document.getElementById("welcome").innerText = "Welcome, Trade Worker";
+    document.getElementById("userName").innerText = "Trade Worker";
+    document.getElementById("userEmail").innerText = "Guest User";
+    document.getElementById("userTrade").innerText = "Not selected";
+    document.getElementById("userHours").innerText = guestHours;
     document.getElementById("hoursBar").style.width = percent + "%";
     document.getElementById("progressText").innerText = Math.round(percent) + "% toward industry benchmark (8000 hrs)";
     document.getElementById("percentBox").innerText = Math.round(percent) + "%";
     document.getElementById("remainingHours").innerText = remaining;
-    document.getElementById("currentLevel").innerText = getLevel(hours);
+    document.getElementById("currentLevel").innerText = getLevel(guestHours);
+
+    renderLogs();
   }
 
-  async function loadHourLogs(userId) {
+  function renderLogs() {
     const logBox = document.getElementById("hoursLog");
-    logBox.innerHTML = "";
+    document.getElementById("loggedCount").innerText = hourLogs.length;
 
-    try {
-      const logsRef = collection(db, "users", userId, "hourLogs");
-      const q = query(logsRef, orderBy("createdAt", "desc"));
-      const logsSnap = await getDocs(q);
-      let count = 0;
-
-      logsSnap.forEach((logDoc) => {
-        count++;
-        const log = logDoc.data();
-        const item = document.createElement("div");
-        item.className = "log-item";
-
-        const dateText = log.createdAt && log.createdAt.toDate
-          ? log.createdAt.toDate().toLocaleDateString()
-          : "Just now";
-
-        item.innerHTML = `<span>${dateText}</span><strong>+${log.hoursAdded || 0} hrs</strong>`;
-        logBox.appendChild(item);
-      });
-
-      document.getElementById("loggedCount").innerText = count;
-
-      if (count === 0) {
-        logBox.innerHTML = `<div class="empty">No hours logged yet.</div>`;
-      }
-    } catch (error) {
-      console.error("Hour logs failed:", error);
-      logBox.innerHTML = `<div class="empty">Could not load hour logs. Check Firebase rules.</div>`;
-    }
-  }
-
-  onAuthStateChanged(auth, async (user) => {
-    currentUser = user || null;
-
-    if (!user) {
-      updateDashboard({
-        name: "Trade Worker",
-        email: "Guest User",
-        trade: "Not selected",
-        hours: 0
-      }, "Guest User");
-
-      document.getElementById("hoursLog").innerHTML =
-        `<div class="empty">Guest mode: you can view the dashboard. Sign in later to save hours permanently.</div>`;
-
+    if (hourLogs.length === 0) {
+      logBox.innerHTML = `<div class="empty">No hours logged yet. Hours are saved on this device.</div>`;
       return;
     }
 
-    try {
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
+    logBox.innerHTML = hourLogs.map(log => `
+      <div class="log-item">
+        <span>${log.date}</span>
+        <strong>+${log.hours} hrs</strong>
+      </div>
+    `).join("");
+  }
 
-      if (docSnap.exists()) {
-        updateDashboard(docSnap.data(), user.email);
-        await loadHourLogs(user.uid);
-      } else {
-        const newUserData = {
-          name: user.displayName || user.email || "Trade Worker",
-          email: user.email || "",
-          trade: "Not selected",
-          hours: 0,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        };
-
-        await setDoc(docRef, newUserData);
-        updateDashboard(newUserData, user.email);
-        await loadHourLogs(user.uid);
-      }
-    } catch (error) {
-      console.error("Apprenticeship dashboard load failed:", error);
-      updateDashboard({
-        name: "Trade Worker",
-        email: "Guest User",
-        trade: "Not selected",
-        hours: 0
-      }, "Guest User");
-    }
-  });
-
-  window.addHours = async function () {
+  window.addHours = function () {
     const input = prompt("Enter hours worked:");
     if (!input) return;
 
@@ -311,58 +213,33 @@
       return;
     }
 
-    if (!currentUser) {
-      guestHours += hoursToAdd;
-      updateDashboard({
-        name: "Trade Worker",
-        email: "Guest User",
-        trade: "Not selected",
-        hours: guestHours
-      }, "Guest User");
+    guestHours += hoursToAdd;
 
-      document.getElementById("hoursLog").innerHTML =
-        `<div class="log-item"><span>Guest session</span><strong>+${hoursToAdd} hrs</strong></div>
-         <div class="empty">Guest hours are temporary. Sign in later to save permanently.</div>`;
-      return;
-    }
+    hourLogs.unshift({
+      hours: hoursToAdd,
+      date: new Date().toLocaleDateString()
+    });
 
-    try {
-      const docRef = doc(db, "users", currentUser.uid);
-      const docSnap = await getDoc(docRef);
+    localStorage.setItem("ltn_apprentice_hours", guestHours);
+    localStorage.setItem("ltn_apprentice_logs", JSON.stringify(hourLogs));
 
-      let data = docSnap.exists() ? docSnap.data() : {
-        name: currentUser.displayName || currentUser.email || "Trade Worker",
-        email: currentUser.email || "",
-        trade: "Not selected",
-        hours: 0,
-        createdAt: serverTimestamp()
-      };
-
-      const newTotal = Number(data.hours || 0) + hoursToAdd;
-
-      const updatedData = {
-        ...data,
-        hours: newTotal,
-        updatedAt: serverTimestamp()
-      };
-
-      await setDoc(docRef, updatedData, { merge: true });
-
-      await addDoc(collection(db, "users", currentUser.uid, "hourLogs"), {
-        hoursAdded: hoursToAdd,
-        totalAfter: newTotal,
-        createdAt: serverTimestamp()
-      });
-
-      updateDashboard(updatedData, currentUser.email);
-      await loadHourLogs(currentUser.uid);
-
-      alert("Hours added!");
-    } catch (error) {
-      console.error("Add hours failed:", error);
-      alert("Could not add hours. Check Firebase rules.");
-    }
+    updateDashboard();
   };
+
+  window.resetHours = function () {
+    const confirmReset = confirm("Reset apprentice hours on this device?");
+    if (!confirmReset) return;
+
+    guestHours = 0;
+    hourLogs = [];
+
+    localStorage.removeItem("ltn_apprentice_hours");
+    localStorage.removeItem("ltn_apprentice_logs");
+
+    updateDashboard();
+  };
+
+  updateDashboard();
 </script>
 
 </body>
