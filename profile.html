@@ -93,10 +93,7 @@ import {
 const firebaseConfig = {
   apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
   authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
-  projectId: "linktradenetwork-2dcd1",
-  storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
-  messagingSenderId: "219091766597",
-  appId: "1:219091766597:web:9878c199ba17e0ed89c22c"
+  projectId: "linktradenetwork-2dcd1"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -106,7 +103,7 @@ const params = new URLSearchParams(window.location.search);
 const profileUserId = params.get("id");
 
 let currentUserId = null;
-let currentUserEmail = localStorage.getItem("userEmail") || "";
+let currentUserEmail = "";
 let currentUserData = null;
 let profileUserData = null;
 
@@ -114,199 +111,117 @@ function setButton(text, disabled=false){
   const btn = document.getElementById("connectBtn");
   btn.innerText = text;
   btn.disabled = disabled;
-
-  if(disabled){
-    btn.className = "btn btn-disabled";
-  }else{
-    btn.className = "btn btn-primary";
-  }
+  btn.className = disabled ? "btn btn-disabled" : "btn btn-primary";
 }
 
-async function findCurrentUserFromLocalStorage(){
-  currentUserEmail = localStorage.getItem("userEmail") || "";
+function getStoredUser(){
+  let email = localStorage.getItem("userEmail") || "";
+  let name = localStorage.getItem("userName") || "";
 
-  if(!currentUserEmail){
-    currentUserId = null;
-    currentUserData = null;
-    return;
-  }
+  try{
+    const u = JSON.parse(localStorage.getItem("ltn_user") || "{}");
+    if(!email && u.email) email = u.email;
+    if(!name && u.name) name = u.name;
+  }catch(e){}
 
-  const usersRef = collection(db, "users");
-  const q = query(usersRef, where("email", "==", currentUserEmail));
+  return { email: email.trim().toLowerCase(), name: name.trim() };
+}
+
+async function findCurrentUser(){
+  const stored = getStoredUser();
+  currentUserEmail = stored.email;
+
+  if(!currentUserEmail) return;
+
+  const q = query(collection(db,"users"), where("email","==",currentUserEmail));
   const snap = await getDocs(q);
 
   if(!snap.empty){
-    const userDoc = snap.docs[0];
-    currentUserId = userDoc.id;
-    currentUserData = userDoc.data();
+    const docu = snap.docs[0];
+    currentUserId = docu.id;
+    currentUserData = docu.data();
   }
 }
 
 async function loadProfile(){
-  if(!profileUserId){
-    document.getElementById("name").innerText = "Profile not found";
-    setButton("No Profile", true);
-    return;
-  }
-
-  const snap = await getDoc(doc(db, "users", profileUserId));
-
+  const snap = await getDoc(doc(db,"users",profileUserId));
   if(!snap.exists()){
     document.getElementById("name").innerText = "Profile not found";
-    setButton("No Profile", true);
+    setButton("No Profile",true);
     return;
   }
 
-  const user = snap.data();
-  profileUserData = user;
+  const u = snap.data();
+  profileUserData = u;
 
-  const photo = user.profileImageUrl || user.profileImage || user.photoURL || "";
-  const name = user.name || user.fullName || "Trade Member";
-  const trade = user.trade || "Trade Not Selected";
-  const city = user.city || "";
-  const state = user.state || "";
-  const bio = user.bio || "";
-  const skills = user.skills || "";
-  const certs = user.certifications || "";
-
-  document.getElementById("name").innerText = name;
-  document.getElementById("trade").innerText = trade;
-  document.getElementById("location").innerText =
-    city || state ? `${city}${city && state ? ", " : ""}${state}` : "";
-  document.getElementById("bio").innerText = bio || "No bio added yet.";
-  document.getElementById("certs").innerText = certs || "No certifications added yet.";
+  document.getElementById("name").innerText = u.name || "Trade Member";
+  document.getElementById("trade").innerText = u.trade || "";
+  document.getElementById("location").innerText = (u.city||"") + " " + (u.state||"");
+  document.getElementById("bio").innerText = u.bio || "No bio added yet.";
+  document.getElementById("certs").innerText = u.certifications || "No certifications added yet.";
 
   const avatar = document.getElementById("avatar");
-
-  if(photo){
-    avatar.innerHTML = `<img src="${photo}" alt="${name}">`;
+  if(u.profileImageUrl){
+    avatar.innerHTML = `<img src="${u.profileImageUrl}">`;
   }else{
-    avatar.innerText = name.substring(0,2).toUpperCase();
+    avatar.innerText = (u.name||"LT").substring(0,2).toUpperCase();
   }
 
-  const skillsContainer = document.getElementById("skills");
-  skillsContainer.innerHTML = "";
-
-  if(skills){
-    skills.split(",").forEach(skill=>{
-      const cleanSkill = skill.trim();
-      if(cleanSkill){
-        const el = document.createElement("div");
-        el.className = "tag";
-        el.innerText = cleanSkill;
-        skillsContainer.appendChild(el);
-      }
+  const skillsBox = document.getElementById("skills");
+  skillsBox.innerHTML="";
+  if(u.skills){
+    u.skills.split(",").forEach(s=>{
+      let el=document.createElement("div");
+      el.className="tag";
+      el.innerText=s.trim();
+      skillsBox.appendChild(el);
     });
   }else{
-    skillsContainer.innerHTML = `<div class="bio">No skills added yet.</div>`;
+    skillsBox.innerHTML="<div class='bio'>No skills added yet.</div>";
   }
 }
 
-async function checkConnectionStatus(){
-  if(!currentUserEmail){
-    setButton("Go to Dashboard to Connect", false);
-    document.getElementById("connectStatus").innerText = "You must be logged in through your dashboard to connect.";
+async function checkConnection(){
+  setButton("Connect",false);
+
+  if(!currentUserEmail) return;
+
+  if(currentUserId===profileUserId){
+    setButton("Your Profile",true);
     return;
   }
 
-  if(!currentUserId){
-    setButton("Save Your Profile First", true);
-    document.getElementById("connectStatus").innerText = "Go to your dashboard and save your profile first.";
-    return;
+  const id=currentUserId+"_"+profileUserId;
+  const snap=await getDoc(doc(db,"connections",id));
+
+  if(snap.exists()){
+    setButton("Connection Sent",true);
   }
-
-  if(currentUserId === profileUserId){
-    setButton("Your Profile", true);
-    document.getElementById("connectStatus").innerText = "This is your profile.";
-    return;
-  }
-
-  const connectionId = currentUserId + "_" + profileUserId;
-  const reverseConnectionId = profileUserId + "_" + currentUserId;
-
-  const connectionSnap = await getDoc(doc(db, "connections", connectionId));
-  const reverseSnap = await getDoc(doc(db, "connections", reverseConnectionId));
-
-  if(connectionSnap.exists()){
-    const data = connectionSnap.data();
-
-    if(data.status === "pending"){
-      setButton("Connection Sent", true);
-      document.getElementById("connectStatus").innerText = "Your connection request is pending.";
-    }else if(data.status === "accepted"){
-      setButton("Connected", true);
-      document.getElementById("connectStatus").innerText = "You are connected.";
-    }
-    return;
-  }
-
-  if(reverseSnap.exists()){
-    const data = reverseSnap.data();
-
-    if(data.status === "pending"){
-      setButton("Request Pending", true);
-      document.getElementById("connectStatus").innerText = "This member already sent a connection request.";
-    }else if(data.status === "accepted"){
-      setButton("Connected", true);
-      document.getElementById("connectStatus").innerText = "You are connected.";
-    }
-    return;
-  }
-
-  setButton("Connect", false);
-  document.getElementById("connectStatus").innerText = "";
 }
 
 window.sendConnectionRequest = async function(){
   if(!currentUserEmail){
-    alert("Please go to your dashboard and log in first.");
-    window.location.href = "dashboard.html";
+    alert("Go back to dashboard first.");
     return;
   }
 
-  if(!currentUserId){
-    alert("Please save your profile from the dashboard first.");
-    return;
-  }
+  const id=currentUserId+"_"+profileUserId;
 
-  if(!profileUserId){
-    alert("Profile not found.");
-    return;
-  }
+  await setDoc(doc(db,"connections",id),{
+    fromUserId:currentUserId,
+    toUserId:profileUserId,
+    status:"pending",
+    createdAt:serverTimestamp()
+  });
 
-  if(currentUserId === profileUserId){
-    alert("You cannot connect with yourself.");
-    return;
-  }
-
-  const connectionId = currentUserId + "_" + profileUserId;
-
-  try{
-    await setDoc(doc(db, "connections", connectionId), {
-      fromUserId: currentUserId,
-      toUserId: profileUserId,
-      fromEmail: currentUserEmail,
-      toEmail: profileUserData?.email || "",
-      fromName: currentUserData?.name || currentUserData?.fullName || currentUserEmail,
-      toName: profileUserData?.name || profileUserData?.fullName || "",
-      status: "pending",
-      createdAt: serverTimestamp()
-    });
-
-    setButton("Connection Sent", true);
-    document.getElementById("connectStatus").innerText = "Your connection request was sent.";
-    alert("Connection request sent!");
-
-  }catch(error){
-    console.error(error);
-    alert("Connection failed. Check Firebase rules.");
-  }
+  setButton("Connection Sent",true);
+  alert("Connection sent");
 };
 
 async function init(){
   await loadProfile();
-  await findCurrentUserFromLocalStorage();
-  await checkConnectionStatus();
+  await findCurrentUser();
+  await checkConnection();
 }
 
 init();
