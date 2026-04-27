@@ -2842,6 +2842,54 @@ document.addEventListener('DOMContentLoaded',function(){
 
   checkPendingConnections();
 });
+<script>
+document.getElementById("ai-search-input").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    askLTNAI();
+  }
+});
+
+async function askLTNAI() {
+  const input = document.getElementById("ai-search-input");
+  const container = document.getElementById("ai-results-container");
+
+  const message = input.value.trim();
+  if (!message) return;
+
+  container.style.display = "block";
+  container.innerHTML = `
+    <div class="ai-thinking">
+      Thinking...
+      <div class="ai-thinking-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  `;
+
+  try {
+    const res = await fetch("https://us-central1-linktradenetwork-2dcd1.cloudfunctions.net/ltnAI", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message })
+    });
+
+    const data = await res.json();
+
+    container.innerHTML = `
+      <div class="ai-result">
+        <div class="ai-result-title">LTN AI</div>
+        <div>${data.reply || "No response"}</div>
+      </div>
+    `;
+
+  } catch (err) {
+    container.innerHTML = `
+      <div style="color:red;">Error: ${err.message}</div>
+    `;
+  }
+}
 </script>
 </body>
 </html>
