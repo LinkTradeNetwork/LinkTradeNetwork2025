@@ -100,6 +100,16 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Poppins',system
 #ai-search-input{min-height:44px;font-size:16px}
 #ai-search-input::placeholder{color:rgba(255,255,255,.85)}
 #ai-results-container{z-index:9999 !important}
+#ai-search-input:focus{background:rgba(255,255,255,.15) !important;color:white !important;border:none !important;box-shadow:none !important;outline:none !important}
+#ai-search-input:-webkit-autofill,
+#ai-search-input:-webkit-autofill:hover,
+#ai-search-input:-webkit-autofill:focus{
+  -webkit-text-fill-color:white !important;
+  -webkit-box-shadow:0 0 0 1000px rgba(255,255,255,.15) inset !important;
+  transition:background-color 5000s ease-in-out 0s;
+}
+.ai-result-title{font-weight:700;margin-bottom:6px;color:var(--brand)}
+.ai-result-content{font-size:14px;color:var(--ink);line-height:1.6;white-space:pre-wrap}
 
 /* ===== MAIN LAYOUT ===== */
 .shell{max-width:1200px;margin:auto;padding:20px;display:grid;gap:20px;grid-template-columns:300px 1fr 320px}
@@ -298,7 +308,7 @@ select.form-control{cursor:pointer}
 
     <div class="search-container">
       <div class="ai-search-wrapper" style="position:relative;">
-        <input type="text" id="ai-search-input" class="form-control" placeholder="Ask LTN AI — trade, state, jobs..." style="background:rgba(255,255,255,.15);border:none;color:white;padding-left:36px;min-width:240px">
+        <input type="text" id="ai-search-input" class="form-control" placeholder="Ask LTN AI — trade, state, jobs..." autocomplete="off" style="background:rgba(255,255,255,.15) !important;border:none !important;color:white !important;padding-left:36px;min-width:240px;border-radius:10px;box-shadow:none">
         <svg style="position:absolute;left:10px;top:13px;width:16px;height:16px;opacity:.8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
         <div style="position:absolute;right:8px;top:12px;font-size:10px;background:var(--brand);color:white;padding:1px 6px;border-radius:10px;font-weight:700">AI</div>
       </div>
@@ -1800,62 +1810,104 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 
   /* ===== AI SEARCH ===== */
-/* ===== LTN AI SEARCH ===== */
+/* ===== LTN AI SEARCH - FIREBASE CLAUDE */
 (function(){
   const input = document.getElementById('ai-search-input');
   const box   = document.getElementById('ai-results-container');
+  const AI_ENDPOINT = 'https://us-central1-linktradenetwork-2dcd1.cloudfunctions.net/ltnAI';
+  let aiTimer = null;
+
   if (!input || !box) return;
 
-  function showThinking() {
-    box.style.display = 'block';
-    box.innerHTML = '<div style="display:flex;align-items:center;gap:10px;color:var(--muted);padding:8px 0"><svg style="width:20px;height:20px;animation:spin 1s linear infinite" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="30" stroke-linecap="round"/></svg><span>LTN AI is thinking...</span></div>';
+  function escapeHtml(value){
+    return String(value || '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#039;');
   }
 
-  function showResult(title, content) {
+  function showThinking(){
     box.style.display = 'block';
-    box.innerHTML = '<div><div style="font-weight:700;font-size:15px;color:var(--brand);margin-bottom:8px">' + title + '</div><div style="font-size:14px;color:var(--ink);line-height:1.6;white-space:pre-wrap">' + content + '</div></div>';
+    box.innerHTML = `
+      <div class="ai-thinking">
+        <span>LTN AI is thinking...</span>
+        <div class="ai-thinking-dots"><span></span><span></span><span></span></div>
+      </div>
+    `;
   }
 
-  function showError() {
+  function showResult(content){
     box.style.display = 'block';
-    box.innerHTML = '<div style="color:var(--muted);font-size:13px">LTN AI is temporarily unavailable. Please try again in a moment.</div>';
+    box.innerHTML = `
+      <div class="ai-result">
+        <div class="ai-result-title">LTN AI</div>
+        <div class="ai-result-content">${escapeHtml(content || 'No response')}</div>
+      </div>
+    `;
   }
 
-  async function aiSearch(query) {
-    if (!query.trim()) { box.style.display = 'none'; return; }
+  function showError(message){
+    box.style.display = 'block';
+    box.innerHTML = `
+      <div class="ai-result">
+        <div class="ai-result-title">LTN AI</div>
+        <div class="ai-result-content">${escapeHtml(message || 'LTN AI is temporarily unavailable. Please try again.')}</div>
+      </div>
+    `;
+  }
+
+  async function aiSearch(query){
+    const message = String(query || '').trim();
+    if (!message) {
+      box.style.display = 'none';
+      return;
+    }
+
     showThinking();
+
     try {
-      const email = localStorage.getItem('userEmail') || '';
-      const userName = localStorage.getItem('userName') || '';
-      const fullQuery = userName ? '[Member: ' + userName + '] ' + query : query;
-      const controller = new AbortController();
-      const t = setTimeout(() => controller.abort(), 20000);
-      const res = await fetch(WEBAPP_URL, {
+      const res = await fetch(AI_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'ai-search', query: fullQuery, email }),
-        signal: controller.signal
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
       });
-      clearTimeout(t);
+
       const data = await res.json();
-      if (data.success && data.response) {
-        showResult(data.response.title || 'LTN AI', data.response.content || 'No results found.');
-      } else {
-        showError();
+
+      if (!res.ok) {
+        showError(data.error || 'LTN AI could not process that request.');
+        return;
       }
-    } catch(e) {
-      showError();
+
+      showResult(data.reply || 'No response');
+    } catch (err) {
+      showError('Connection error. Please try again.');
     }
   }
 
-  const debounced = debounce(q => aiSearch(q), 600);
-  input.addEventListener('input', function() { debounced(this.value); });
-  input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && this.value.trim()) aiSearch(this.value);
-    if (e.key === 'Escape') { box.style.display = 'none'; }
+  input.addEventListener('input', function(){
+    clearTimeout(aiTimer);
+    const value = this.value.trim();
+    if (!value) {
+      box.style.display = 'none';
+      return;
+    }
+    aiTimer = setTimeout(() => aiSearch(value), 650);
   });
-  input.addEventListener('focus', function() { if (this.value.trim()) aiSearch(this.value); });
-  document.addEventListener('click', function(e) {
+
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') {
+      clearTimeout(aiTimer);
+      aiSearch(this.value);
+    }
+    if (e.key === 'Escape') {
+      box.style.display = 'none';
+    }
+  });
+
+  document.addEventListener('click', function(e){
     if (!input.contains(e.target) && !box.contains(e.target)) box.style.display = 'none';
   });
 })();
@@ -2842,54 +2894,6 @@ document.addEventListener('DOMContentLoaded',function(){
 
   checkPendingConnections();
 });
-<script>
-document.getElementById("ai-search-input").addEventListener("keypress", function(e) {
-  if (e.key === "Enter") {
-    askLTNAI();
-  }
-});
-
-async function askLTNAI() {
-  const input = document.getElementById("ai-search-input");
-  const container = document.getElementById("ai-results-container");
-
-  const message = input.value.trim();
-  if (!message) return;
-
-  container.style.display = "block";
-  container.innerHTML = `
-    <div class="ai-thinking">
-      Thinking...
-      <div class="ai-thinking-dots">
-        <span></span><span></span><span></span>
-      </div>
-    </div>
-  `;
-
-  try {
-    const res = await fetch("https://us-central1-linktradenetwork-2dcd1.cloudfunctions.net/ltnAI", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ message })
-    });
-
-    const data = await res.json();
-
-    container.innerHTML = `
-      <div class="ai-result">
-        <div class="ai-result-title">LTN AI</div>
-        <div>${data.reply || "No response"}</div>
-      </div>
-    `;
-
-  } catch (err) {
-    container.innerHTML = `
-      <div style="color:red;">Error: ${err.message}</div>
-    `;
-  }
-}
 </script>
 </body>
 </html>
