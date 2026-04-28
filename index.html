@@ -225,6 +225,80 @@
       touch-action:manipulation;
       -webkit-tap-highlight-color:transparent;
     }
+
+    .ltn-ai-agent{
+      width:100%;
+      max-width:720px;
+      margin:34px auto 0;
+      background:rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.22);
+      border-radius:22px;
+      padding:22px;
+      backdrop-filter:blur(14px);
+      box-shadow:0 14px 36px rgba(0,0,0,0.12);
+      animation:fadeUp 0.6s 0.38s ease both;
+    }
+    .ltn-ai-title{
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:28px;
+      font-weight:900;
+      text-transform:uppercase;
+      margin-bottom:6px;
+      color:white;
+    }
+    .ltn-ai-sub{
+      font-size:14px;
+      color:rgba(255,255,255,0.88);
+      margin-bottom:16px;
+    }
+    .ltn-ai-row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .ltn-ai-input{
+      flex:1;
+      min-width:0;
+      border:none;
+      outline:none;
+      border-radius:50px;
+      padding:16px 18px;
+      font-family:'Barlow',sans-serif;
+      font-size:15px;
+      color:#0a0c10;
+      background:white;
+    }
+    .ltn-ai-button{
+      border:none;
+      cursor:pointer;
+      border-radius:50px;
+      padding:16px 26px;
+      font-family:'Barlow',sans-serif;
+      font-size:15px;
+      font-weight:800;
+      color:white;
+      background:linear-gradient(135deg,#d86b00,#b95700);
+      box-shadow:0 6px 18px rgba(0,0,0,0.16);
+      white-space:nowrap;
+    }
+    .ltn-ai-result{
+      display:none;
+      margin-top:16px;
+      text-align:left;
+      background:rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.16);
+      border-radius:16px;
+      padding:16px;
+      color:white;
+      font-size:15px;
+      line-height:1.6;
+    }
+    .ltn-ai-note{
+      font-size:12px;
+      color:rgba(255,255,255,0.78);
+      margin-top:10px;
+    }
+
     .hero-trades{
       display:flex;gap:12px;flex-wrap:wrap;
       justify-content:center;
@@ -481,48 +555,6 @@
     }
     .who-desc{font-size:13px;color:rgba(255,255,255,0.88)}
 
-    .referral-section{
-      padding:100px 32px;
-      text-align:center;
-      background:transparent;
-    }
-    .referral-box{
-      max-width:700px;margin:0 auto;
-      background:rgba(255,255,255,0.10);
-      border:1px solid rgba(255,255,255,0.18);
-      border-radius:24px;
-      padding:56px 48px;
-      backdrop-filter:blur(14px);
-    }
-    .referral-h2{
-      font-family:'Barlow Condensed',sans-serif;
-      font-weight:900;font-size:48px;
-      text-transform:uppercase;margin-bottom:16px;
-      color:white;
-    }
-    .referral-h2 span{color:white}
-    .referral-desc{font-size:16px;color:rgba(255,255,255,0.90);margin-bottom:32px;line-height:1.7}
-    .referral-steps{
-      display:flex;flex-direction:column;gap:16px;
-      text-align:left;margin-bottom:40px;
-    }
-    .step{
-      display:flex;align-items:center;gap:16px;
-      background:rgba(255,255,255,0.08);
-      border-radius:12px;padding:16px 20px;
-      border:1px solid rgba(255,255,255,0.12);
-    }
-    .step-num{
-      width:32px;height:32px;
-      background:#d86b00;border-radius:50%;
-      display:grid;place-items:center;
-      font-weight:700;font-size:14px;
-      flex-shrink:0;
-      color:white;
-    }
-    .step-text{font-size:14px;font-weight:500;color:white}
-    .step-text span{color:white;font-weight:700}
-
     .hs-section{
       padding:100px 32px;
       background:rgba(255,255,255,0.05);
@@ -637,7 +669,7 @@
         transform:translateY(-2px);
         box-shadow:0 6px 20px rgba(0,0,0,0.20);
       }
-      .btn-primary:hover{
+      .btn-primary:hover,.ltn-ai-button:hover{
         transform:translateY(-3px);
         box-shadow:0 10px 32px rgba(0,0,0,0.20);
       }
@@ -665,10 +697,11 @@
       .hero-content{padding:40px 20px 60px}
       .hero-btns{flex-direction:column;align-items:center}
       .btn-primary,.btn-secondary{width:100%;max-width:320px;justify-content:center}
-      .section,.who-section,.referral-section,.hs-section,.cta-section,.apprentice-section,.contractor-section{padding:60px 20px}
+      .ltn-ai-row{flex-direction:column}
+      .ltn-ai-input,.ltn-ai-button{width:100%}
+      .section,.who-section,.hs-section,.cta-section,.apprentice-section,.contractor-section{padding:60px 20px}
       .hs-inner,.apprentice-grid,.contractor-box{grid-template-columns:1fr;gap:40px}
       .hs-stats{grid-template-columns:1fr 1fr}
-      .referral-box{padding:36px 24px}
       .stats-inner{gap:24px}
       .footer-inner{flex-direction:column;text-align:center}
       .footer-links{justify-content:center}
@@ -703,11 +736,11 @@
     <div class="hero-overlay"></div>
 
     <nav class="hero-nav">
-      <a href="/" class="nav-logo">
+      <a href="index.html" class="nav-logo">
         <div class="nav-badge">LTN</div>
         <span class="nav-name">LinkTradeNetwork</span>
       </a>
-      <a href="/front.html" class="nav-cta">Join Free →</a>
+      <a href="front.html" class="nav-cta">Join Free →</a>
     </nav>
 
     <div class="hero-content">
@@ -727,11 +760,22 @@
       </p>
 
       <div class="hero-btns">
-        <a href="/front.html" class="btn-primary">
-          🔧 Start Your Apprenticeship
-        </a>
-        <a href="/front.html" class="btn-secondary">🔎 Find Apprenticeships</a>
-        <a href="#apprentice-progress" class="btn-secondary">See How It Works ↓</a>
+        <a href="front.html" class="btn-primary">🔧 Start Your Apprenticeship</a>
+        <a href="front.html" class="btn-secondary">🔎 Find Apprenticeships</a>
+        <a href="front.html" class="btn-secondary">See How It Works ↓</a>
+      </div>
+
+      <div class="ltn-ai-agent">
+        <div class="ltn-ai-title">🤖 LTN AI Agent</div>
+        <div class="ltn-ai-sub">Ask about trades, apprenticeship paths, tools, skills, or how to get started.</div>
+
+        <div class="ltn-ai-row">
+          <input id="ai-search-input" class="ltn-ai-input" type="text" placeholder="Example: How do I become an electrician?">
+          <button class="ltn-ai-button" onclick="askLTNAI()">Ask AI</button>
+        </div>
+
+        <div id="ai-results-container" class="ltn-ai-result"></div>
+        <div class="ltn-ai-note">AI guidance is for general trade information. Always verify with local programs, contractors, and licensing requirements.</div>
       </div>
 
       <div class="hero-trades">
@@ -776,8 +820,8 @@
         </p>
 
         <div class="hero-btns" style="justify-content:flex-start">
-          <a href="/front.html" class="btn-primary">🔎 Find Apprenticeships</a>
-          <a href="/front.html" class="btn-secondary">📊 Track My Progress</a>
+          <a href="front.html" class="btn-primary">🔎 Find Apprenticeships</a>
+          <a href="front.html" class="btn-secondary">📊 Track My Progress</a>
         </div>
       </div>
 
@@ -876,7 +920,7 @@
         <div class="feature-card">
           <div class="feature-icon">🤖</div>
           <div class="feature-title">LTN AI Job Agent</div>
-          <div class="feature-desc">Tell the AI your trade and state. It searches the LTN job board and finds your best matches instantly.</div>
+          <div class="feature-desc">Ask questions about trades, apprenticeship paths, tools, skills, and how to get started.</div>
         </div>
       </div>
     </div>
@@ -946,7 +990,7 @@
         <p class="section-sub" style="margin-top:-24px">
           LinkTradeNetwork helps young trade workers start building their profile before their first job — with hours, skills, certifications, and proof of completed work.
         </p>
-        <a href="/front.html" class="btn-primary" style="display:inline-flex;margin-top:8px">
+        <a href="front.html" class="btn-primary" style="display:inline-flex;margin-top:8px">
           🔎 Find Apprenticeships →
         </a>
       </div>
@@ -980,7 +1024,7 @@
         <p class="section-sub" style="margin-bottom:32px">
           Contractors do not just need names. They need to know who has real experience, who is learning fast, and who is worth bringing onto a jobsite.
         </p>
-        <a href="/front.html" class="btn-primary">Find Trade Workers →</a>
+        <a href="front.html" class="btn-primary">Find Trade Workers →</a>
       </div>
 
       <div class="contractor-list">
@@ -993,37 +1037,6 @@
     </div>
   </section>
 
-  <section class="referral-section" id="earn">
-    <div class="referral-box">
-      <div class="section-tag" style="text-align:center">Referral Rewards Program</div>
-      <h2 class="referral-h2">Refer a Friend.<br><span>Get Paid.</span></h2>
-      <p class="referral-desc">
-        The trades have always run on word of mouth. Now word of mouth pays. Earn $5 for every trade professional you bring to LTN — up to $50 per month paid directly to your PayPal.
-      </p>
-
-      <div class="referral-steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-text">Sign up free and get your personal <span>referral code</span></div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-text">Share your code with anyone in the trades</div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-text">They sign up and complete their profile</div>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <div class="step-text">You earn <span>$5 paid to your PayPal</span> — every month</div>
-        </div>
-      </div>
-
-      <a href="/front.html" class="btn-primary" style="display:inline-flex">Get Your Referral Code →</a>
-    </div>
-  </section>
-
   <section class="cta-section">
     <h2 class="cta-h2">Start Building Your<br><span>Trade Profile Today.</span></h2>
     <p class="cta-sub">
@@ -1031,38 +1044,75 @@
     </p>
 
     <div class="hero-btns">
-      <a href="/front.html" class="btn-primary" style="font-size:18px;padding:20px 48px">
+      <a href="front.html" class="btn-primary" style="font-size:18px;padding:20px 48px">
         Join LinkTradeNetwork Free →
       </a>
-      <a href="/front.html" class="btn-secondary" style="font-size:18px;padding:20px 48px">
+      <a href="front.html" class="btn-secondary" style="font-size:18px;padding:20px 48px">
         🔎 Find Apprenticeships
       </a>
     </div>
 
     <p class="cta-note">
       Already a member?
-      <a href="/front.html" style="color:white;text-decoration:none;font-weight:600">Sign In here</a>
+      <a href="front.html" style="color:white;text-decoration:none;font-weight:600">Sign In here</a>
     </p>
   </section>
 
   <footer>
     <div class="footer-inner">
-      <a href="/" class="nav-logo" style="text-decoration:none">
+      <a href="index.html" class="nav-logo" style="text-decoration:none">
         <div class="nav-badge" style="width:36px;height:36px;font-size:15px;border-radius:10px">LTN</div>
         <span class="nav-name" style="font-size:22px">LinkTradeNetwork</span>
       </a>
 
       <div class="footer-links">
-        <a href="/front.html">Sign Up</a>
-        <a href="/front.html">Sign In</a>
-        <a href="/front.html">Find Apprenticeships</a>
-        <a href="/terms.html">Terms & Conditions</a>
+        <a href="front.html">Sign Up</a>
+        <a href="front.html">Sign In</a>
+        <a href="front.html">Find Apprenticeships</a>
+        <a href="terms.html">Terms & Conditions</a>
         <a href="mailto:Team@linktradenetwork.com">Contact Us</a>
       </div>
 
       <div class="footer-copy">© 2026 LinkTradeNetwork · All rights reserved</div>
     </div>
   </footer>
+
+  <script>
+    const aiInput = document.getElementById("ai-search-input");
+    const aiResults = document.getElementById("ai-results-container");
+
+    if (aiInput) {
+      aiInput.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+          askLTNAI();
+        }
+      });
+    }
+
+    async function askLTNAI() {
+      const message = aiInput.value.trim();
+      if (!message) return;
+
+      aiResults.style.display = "block";
+      aiResults.innerHTML = "Thinking...";
+
+      try {
+        const res = await fetch("https://us-central1-linktradenetwork.cloudfunctions.net/askLTNAI", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ message: message })
+        });
+
+        const data = await res.json();
+
+        aiResults.innerHTML = data.reply || data.answer || "No response received.";
+      } catch (error) {
+        aiResults.innerHTML = "LTN AI is having trouble connecting right now. Please try again.";
+      }
+    }
+  </script>
 
 </body>
 </html>
