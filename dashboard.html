@@ -318,7 +318,7 @@ select.form-control{cursor:pointer}
     <nav class="nav" id="main-nav">
       <a href="dashboard.html">Dashboard</a>
       <a href="members.html">Members</a>
-      <a href="apprenticeship.html" onclick="ltnSyncBeforeTrackProgress()" class="btn btn-primary">Apprenticeships</a>
+      <a href="apprenticeship.html" class="btn btn-primary">Apprenticeships</a>
       <a href="#jobs">Jobs</a>
       <a href="#" onclick="NetworkManager.openNetworkModal(); return false;" style="position:relative">
         Network
@@ -398,7 +398,7 @@ select.form-control{cursor:pointer}
     <div style="margin-bottom:20px;text-align:center">
 
       <!-- MAIN APPRENTICESHIP BUTTON -->
-      <a href="apprenticeship.html" onclick="ltnSyncBeforeTrackProgress()" style="
+      <a href="apprenticeship.html" style="
         display:inline-block;
         background:linear-gradient(135deg,#ea6a00,#c35700);
         color:white;
@@ -429,7 +429,7 @@ select.form-control{cursor:pointer}
           🔎 Find Apprenticeships
         </a>
 
-        <a href="apprenticeship.html" onclick="ltnSyncBeforeTrackProgress()" style="
+        <a href="apprenticeship.html" style="
           display:inline-block;
           background:#1e293b;
           color:white;
@@ -1277,109 +1277,9 @@ const JobPostManager = {
   }
 };
 
-/* ===== LTN PROFILE LOCAL SYNC FIX ===== */
-function ltnSafeParse(key, fallback = {}){
-  try{
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  }catch(e){ return fallback; }
-}
-function ltnWriteProfileEverywhere(profile){
-  if(!profile) return;
-  const fullName = profile.fullName || profile.name || localStorage.getItem('userName') || '';
-  const trade = profile.trade || '';
-  const image = profile.profileImageUrl || localStorage.getItem('ltn_profile_image') || '';
-  const apprentice = profile.apprenticeship || {};
-  const isApprentice = !!apprentice.isApprentice;
-  const completeProfile = {
-    ...profile,
-    name: fullName,
-    fullName: fullName,
-    profileImageUrl: image,
-    profileImage: image,
-    photoURL: image,
-    isApprentice: isApprentice,
-    apprentice: isApprentice
-  };
-  const trackProfile = {
-    ...apprentice,
-    isApprentice: isApprentice,
-    apprentice: isApprentice,
-    name: fullName,
-    fullName: fullName,
-    displayName: fullName,
-    userName: fullName,
-    email: profile.email || localStorage.getItem('userEmail') || '',
-    trade: trade,
-    selectedTrade: trade,
-    city: profile.city || '',
-    state: profile.state || '',
-    location: [profile.city, profile.state].filter(Boolean).join(', '),
-    phone: profile.phone || '',
-    experience: profile.experience || '',
-    hours: Number(apprentice.hours || localStorage.getItem('ltn_apprentice_hours') || 0),
-    currentHours: Number(apprentice.hours || localStorage.getItem('ltn_apprentice_hours') || 0),
-    profileImageUrl: image,
-    profileImage: image,
-    photoURL: image
-  };
-  try{
-    localStorage.setItem('ltn_user', JSON.stringify(completeProfile));
-    localStorage.setItem('ltn_profile', JSON.stringify(completeProfile));
-    localStorage.setItem('userProfile', JSON.stringify(completeProfile));
-    localStorage.setItem('currentUser', JSON.stringify(completeProfile));
-    localStorage.setItem('ltn_current_user', JSON.stringify(completeProfile));
-    localStorage.setItem('ltn_apprentice_profile', JSON.stringify(trackProfile));
-    localStorage.setItem('apprenticeProfile', JSON.stringify(trackProfile));
-    localStorage.setItem('apprenticeshipProfile', JSON.stringify(trackProfile));
-    localStorage.setItem('ltn_progress_profile', JSON.stringify(trackProfile));
-    localStorage.setItem('trackMyProgressProfile', JSON.stringify(trackProfile));
-    localStorage.setItem('userName', fullName);
-    localStorage.setItem('ltn_user_name', fullName);
-    localStorage.setItem('apprenticeName', fullName);
-    localStorage.setItem('tradeWorkerName', fullName);
-    localStorage.setItem('currentUserName', fullName);
-    localStorage.setItem('ltn_user_trade', trade);
-    localStorage.setItem('selectedTrade', trade);
-    localStorage.setItem('ltn_is_apprentice', isApprentice ? 'true' : 'false');
-    localStorage.setItem('isApprentice', isApprentice ? 'true' : 'false');
-    localStorage.setItem('ltn_apprentice_hours', String(trackProfile.hours || 0));
-    if(image) localStorage.setItem('ltn_profile_image', image);
-  }catch(e){ console.warn('LTN local profile sync failed:', e); }
-}
-function ltnGetBestLocalProfile(){
-  const base = ltnSafeParse('ltn_user', {});
-  const alt = ltnSafeParse('ltn_profile', {});
-  const app = ltnSafeParse('ltn_apprentice_profile', {});
-  const image = localStorage.getItem('ltn_profile_image') || base.profileImageUrl || alt.profileImageUrl || app.profileImageUrl || '';
-  return {
-    ...alt,
-    ...base,
-    fullName: base.fullName || base.name || alt.fullName || alt.name || app.fullName || app.name || localStorage.getItem('userName') || '',
-    trade: base.trade || alt.trade || app.trade || localStorage.getItem('ltn_user_trade') || '',
-    email: base.email || alt.email || app.email || localStorage.getItem('userEmail') || '',
-    city: base.city || alt.city || app.city || '',
-    state: base.state || alt.state || app.state || '',
-    profileImageUrl: image,
-    profileImage: image,
-    photoURL: image,
-    apprenticeship: {
-      ...(base.apprenticeship || {}),
-      ...app,
-      isApprentice: (app.isApprentice === true || (base.apprenticeship && base.apprenticeship.isApprentice === true) || localStorage.getItem('ltn_is_apprentice') === 'true'),
-      hours: Number(app.hours || (base.apprenticeship && base.apprenticeship.hours) || localStorage.getItem('ltn_apprentice_hours') || 0)
-    }
-  };
-}
-function ltnSyncBeforeTrackProgress(){
-  const profile = ltnGetBestLocalProfile();
-  ltnWriteProfileEverywhere(profile);
-  return true;
-}
-
 /* ===== PROFILE MANAGER ===== */
 const ProfileManager = {
-  currentImageUrl: localStorage.getItem('ltn_profile_image') || null,
+  currentImageUrl: null,
   init(){
     this.checkAuthStatus();
     this.loadProfile();
@@ -1449,12 +1349,7 @@ const ProfileManager = {
         canvas.getContext('2d').drawImage(img,0,0,w,h);
         const compressed=canvas.toDataURL('image/jpeg',0.7);
         this.currentImageUrl=compressed;
-        localStorage.setItem('ltn_profile_image', compressed);
-        const existingProfile = ltnGetBestLocalProfile();
-        existingProfile.profileImageUrl = compressed;
-        existingProfile.profileImage = compressed;
-        existingProfile.photoURL = compressed;
-        ltnWriteProfileEverywhere(existingProfile);
+        try { localStorage.setItem('ltn_profile_image', compressed); } catch(e) {}
         this.displayProfileImage(compressed);
         alert('Image ready! Click Save Profile to keep it.');
       };
@@ -1496,7 +1391,8 @@ const ProfileManager = {
 
     // LTN FIX: Always start with the local saved profile first so the apprentice checkbox
     // does not get wiped out if the backend has an older copy.
-    let localProfile = ltnGetBestLocalProfile();
+    let localProfile = {};
+    try { localProfile = JSON.parse(localStorage.getItem('ltn_user') || '{}'); } catch(e) { localProfile = {}; }
 
     try{
       const data = await apiCall({action:'get-profile',email});
@@ -1504,7 +1400,7 @@ const ProfileManager = {
         const mergedProfile = { ...data.profile, ...localProfile };
         if(localProfile.apprenticeship){ mergedProfile.apprenticeship = localProfile.apprenticeship; }
         this.populateForm(mergedProfile);
-        if(mergedProfile.profileImageUrl){ this.currentImageUrl=mergedProfile.profileImageUrl; this.displayProfileImage(mergedProfile.profileImageUrl); }
+        if(mergedProfile.profileImageUrl) this.currentImageUrl=mergedProfile.profileImageUrl;
       }
       else if(localProfile && (localProfile.fullName || localProfile.email)){
         this.populateForm(localProfile);
@@ -1537,9 +1433,9 @@ const ProfileManager = {
     document.getElementById('input-bio').value=p.bio||'';
     document.getElementById('input-skills').value=p.skills||'';
     document.getElementById('input-certifications').value=p.certifications||'';
-    let localApprentice = ltnSafeParse('ltn_apprentice_profile', {});
-    const hasLocalApprentice = localApprentice && (localApprentice.isApprentice || localApprentice.program || localApprentice.employer || localApprentice.startDate || localApprentice.hours);
-    const app = hasLocalApprentice ? localApprentice : (p.apprenticeship || {});
+    let localApprentice = {};
+    try { localApprentice = JSON.parse(localStorage.getItem('ltn_apprentice_profile') || '{}'); } catch(e) { localApprentice = {}; }
+    const app = p.apprenticeship || localApprentice || {};
     const isApprentice = document.getElementById('input-is-apprentice');
     if(isApprentice) isApprentice.checked = !!(app.isApprentice || p.isApprentice || localApprentice.isApprentice);
     const appProgram = document.getElementById('input-apprentice-program');
@@ -1557,6 +1453,12 @@ const ProfileManager = {
     const saveBtn = document.getElementById('save-profile');
     const email = localStorage.getItem('userEmail');
     if(!email){ alert('Please sign in first.'); window.location.href='index.html'; return; }
+
+    // LTN FIX: Keep anything already saved locally, especially the profile image.
+    let existingLocalProfile = {};
+    try { existingLocalProfile = JSON.parse(localStorage.getItem('ltn_user') || '{}'); } catch(e) { existingLocalProfile = {}; }
+    const existingImageUrl = this.currentImageUrl || existingLocalProfile.profileImageUrl || localStorage.getItem('ltn_profile_image') || '';
+
     const profile={
       email,
       fullName:       document.getElementById('input-name').value.trim(),
@@ -1568,7 +1470,7 @@ const ProfileManager = {
       bio:            document.getElementById('input-bio').value.trim(),
       skills:         document.getElementById('input-skills').value.trim(),
       certifications: document.getElementById('input-certifications').value.trim(),
-      profileImageUrl:this.currentImageUrl || localStorage.getItem('ltn_profile_image') || ltnGetBestLocalProfile().profileImageUrl || '',
+      profileImageUrl:existingImageUrl,
       apprenticeship: {
         isApprentice: !!(document.getElementById('input-is-apprentice') && document.getElementById('input-is-apprentice').checked),
         program:      (document.getElementById('input-apprentice-program')||{}).value ? document.getElementById('input-apprentice-program').value.trim() : '',
@@ -1579,18 +1481,19 @@ const ProfileManager = {
     };
     if(!profile.fullName||!profile.trade||!profile.city||!profile.state){ alert('Please fill in: Full Name, Trade, City, State'); return; }
     try{
-      // LTN FIX: Save the full profile locally in every key used by Dashboard and Track My Progress.
-      // This keeps the apprentice checkbox, name, trade, hours, and profile picture from getting wiped out.
-      ltnWriteProfileEverywhere(profile);
-    }catch(storageError){ console.warn('Could not save profile locally', storageError); }
+      // LTN FIX: Save the full profile locally and save every key that Track My Progress may read.
+      if (typeof LTNProfileBridge !== 'undefined' && LTNProfileBridge.save) {
+        LTNProfileBridge.save(profile);
+      } else {
+        localStorage.setItem('ltn_user', JSON.stringify(profile));
+      }
+    }catch(storageError){ console.warn('Could not save apprenticeship profile locally', storageError); }
     try{
       if(saveBtn){ saveBtn.disabled=true; saveBtn.textContent='Saving...'; }
       const data = await apiCall({action:'save-profile',...profile});
       if(data.success){
         await saveProfileToFirestore(profile);
-        ltnWriteProfileEverywhere(profile);
-        this.displayProfile(ltnGetBestLocalProfile());
-        if((this.currentImageUrl || localStorage.getItem('ltn_profile_image'))){ this.displayProfileImage(this.currentImageUrl || localStorage.getItem('ltn_profile_image')); }
+        this.displayProfile(profile);
         this.closeModal();
         alert('Profile saved!');
         this.checkAuthStatus();
@@ -1605,30 +1508,32 @@ const ProfileManager = {
     try{
       const data = await apiCall({action:'get-profile',email});
       if(data.success&&data.profile){
-        let localProfile = ltnGetBestLocalProfile();
+        let localProfile = {};
+        try { localProfile = JSON.parse(localStorage.getItem('ltn_user') || '{}'); } catch(err) { localProfile = {}; }
         const mergedProfile = { ...data.profile, ...localProfile };
         if(localProfile.apprenticeship){ mergedProfile.apprenticeship = localProfile.apprenticeship; }
-        mergedProfile.profileImageUrl = localProfile.profileImageUrl || data.profile.profileImageUrl || localStorage.getItem('ltn_profile_image') || '';
-        ltnWriteProfileEverywhere(mergedProfile);
         this.displayProfile(mergedProfile);
         if(mergedProfile.profileImageUrl){ this.currentImageUrl=mergedProfile.profileImageUrl; this.displayProfileImage(mergedProfile.profileImageUrl); }
       } else {
-        let localProfile = ltnGetBestLocalProfile();
+        let localProfile = {};
+        try { localProfile = JSON.parse(localStorage.getItem('ltn_user') || '{}'); } catch(err) { localProfile = {}; }
         this.displayProfile(localProfile || {});
       }
     }catch(e){
-      let localProfile = ltnGetBestLocalProfile();
+      let localProfile = {};
+      try { localProfile = JSON.parse(localStorage.getItem('ltn_user') || '{}'); } catch(err) { localProfile = {}; }
       this.displayProfile(localProfile || {});
     }
   },
   loadDocuments(){ this.displayDocuments(); },
   displayProfile(p){
     if(!p) p={};
-    document.getElementById('display-name').textContent=p.fullName||p.name||'Your Name';
-    document.getElementById('display-trade').textContent=p.trade?(p.experience?`${p.trade} • ${p.experience} years`:p.trade):'Your Trade';
+    const savedImage = p.profileImageUrl || this.currentImageUrl || localStorage.getItem('ltn_profile_image') || '';
+    document.getElementById('display-name').textContent=p.fullName||p.name||localStorage.getItem('userName')||'Your Name';
+    document.getElementById('display-trade').textContent=p.trade?(p.experience?`${p.trade} • ${p.experience} years`:p.trade):(localStorage.getItem('ltn_user_trade')||'Your Trade');
     document.getElementById('display-location').textContent=(p.city&&p.state)?`${p.city}, ${p.state}`:'Your Location';
-    const savedImg = p.profileImageUrl || localStorage.getItem('ltn_profile_image') || '';
-    if(savedImg){ this.currentImageUrl = savedImg; this.displayProfileImage(savedImg); }
+    if(savedImage){ this.currentImageUrl = savedImage; this.displayProfileImage(savedImage); }
+    if(typeof LTNProfileBridge !== 'undefined' && (p.fullName || p.name || p.trade || p.apprenticeship)){ LTNProfileBridge.save(p); }
   }
 };
 
@@ -1919,6 +1824,131 @@ async function loadSponsors(){
     }).join('');
   }catch(e){ container.innerHTML=renderEmptySponsors_(); }
 }
+
+
+/* ===== LTN PROFILE BRIDGE - DASHBOARD TO TRACK MY PROGRESS =====
+   This is the main fix: it saves the profile under multiple localStorage/sessionStorage
+   names so apprenticeship.html can read the user's name, trade, apprentice checkbox,
+   hours, program, employer, city, state, email, phone, and profile photo. */
+const LTNProfileBridge = {
+  build(profile){
+    profile = profile || {};
+    const app = profile.apprenticeship || {};
+    const fullName = (profile.fullName || profile.name || localStorage.getItem('userName') || localStorage.getItem('ltn_user_name') || '').trim();
+    const trade = (profile.trade || localStorage.getItem('ltn_user_trade') || '').trim();
+    const city = (profile.city || '').trim();
+    const state = (profile.state || '').trim();
+    const email = (profile.email || localStorage.getItem('userEmail') || '').trim();
+    const image = profile.profileImageUrl || localStorage.getItem('ltn_profile_image') || '';
+    const hours = Number(app.hours || localStorage.getItem('ltn_apprentice_hours') || localStorage.getItem('apprenticeHours') || localStorage.getItem('hoursCompleted') || 0);
+    const isApprentice = !!(app.isApprentice || profile.isApprentice || localStorage.getItem('ltn_is_apprentice') === 'true');
+
+    const fullProfile = {
+      ...profile,
+      name: fullName,
+      fullName: fullName,
+      email: email,
+      trade: trade,
+      city: city,
+      state: state,
+      profileImageUrl: image,
+      isApprentice: isApprentice,
+      apprenticeship: {
+        isApprentice: isApprentice,
+        program: app.program || '',
+        employer: app.employer || '',
+        startDate: app.startDate || '',
+        hours: hours
+      }
+    };
+
+    const trackerProfile = {
+      ...fullProfile.apprenticeship,
+      name: fullName,
+      fullName: fullName,
+      apprenticeName: fullName,
+      email: email,
+      phone: profile.phone || '',
+      trade: trade,
+      selectedTrade: trade,
+      city: city,
+      state: state,
+      experience: profile.experience || '',
+      profileImageUrl: image,
+      isApprentice: isApprentice,
+      hours: hours,
+      hoursCompleted: hours,
+      currentHoursCompleted: hours
+    };
+
+    return { fullProfile, trackerProfile, fullName, trade, email, image, hours, isApprentice };
+  },
+
+  save(profile){
+    const data = this.build(profile);
+    const fullProfile = data.fullProfile;
+    const trackerProfile = data.trackerProfile;
+
+    const jsonProfile = JSON.stringify(fullProfile);
+    const jsonTracker = JSON.stringify(trackerProfile);
+
+    const profileKeys = [
+      'ltn_user','ltn_profile','userProfile','currentUser','loggedInUser','ltn_current_user','profile'
+    ];
+    const apprenticeKeys = [
+      'ltn_apprentice_profile','ltn_apprenticeship_profile','apprenticeProfile','apprenticeshipProfile',
+      'apprentice_user','apprenticeUser','trackMyProgressProfile','apprenticeshipTrackerProfile','ltn_apprentice_tracker'
+    ];
+
+    profileKeys.forEach(k => { try { localStorage.setItem(k, jsonProfile); sessionStorage.setItem(k, jsonProfile); } catch(e) {} });
+    apprenticeKeys.forEach(k => { try { localStorage.setItem(k, jsonTracker); sessionStorage.setItem(k, jsonTracker); } catch(e) {} });
+
+    const stringPairs = {
+      userName: data.fullName,
+      ltn_user_name: data.fullName,
+      fullName: data.fullName,
+      name: data.fullName,
+      apprenticeName: data.fullName,
+      apprenticeFullName: data.fullName,
+      ltn_apprentice_name: data.fullName,
+      ltn_user_trade: data.trade,
+      trade: data.trade,
+      selectedTrade: data.trade,
+      apprenticeTrade: data.trade,
+      ltn_apprentice_trade: data.trade,
+      userEmail: data.email,
+      ltn_apprentice_hours: String(data.hours),
+      apprenticeHours: String(data.hours),
+      hoursCompleted: String(data.hours),
+      currentHoursCompleted: String(data.hours),
+      ltn_is_apprentice: data.isApprentice ? 'true' : 'false'
+    };
+
+    Object.keys(stringPairs).forEach(k => {
+      try { localStorage.setItem(k, stringPairs[k]); sessionStorage.setItem(k, stringPairs[k]); } catch(e) {}
+    });
+
+    if(data.image){
+      try { localStorage.setItem('ltn_profile_image', data.image); sessionStorage.setItem('ltn_profile_image', data.image); } catch(e) {}
+    }
+
+    return trackerProfile;
+  },
+
+  syncBeforeApprenticeship(){
+    let profile = {};
+    try { profile = JSON.parse(localStorage.getItem('ltn_user') || localStorage.getItem('userProfile') || '{}'); } catch(e) { profile = {}; }
+    return this.save(profile);
+  }
+};
+
+window.LTNProfileBridge = LTNProfileBridge;
+
+// Make every apprenticeship link save the latest profile right before leaving dashboard.
+document.addEventListener('click', function(e){
+  const link = e.target.closest && e.target.closest('a[href*="apprenticeship.html"]');
+  if(link && window.LTNProfileBridge){ window.LTNProfileBridge.syncBeforeApprenticeship(); }
+}, true);
 
 /* ===== FILTER BUTTONS ===== */
 document.addEventListener('DOMContentLoaded',function(){
