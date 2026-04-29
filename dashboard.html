@@ -1452,7 +1452,20 @@ const ProfileManager = {
     if(!profile.fullName||!profile.trade||!profile.city||!profile.state){ alert('Please fill in: Full Name, Trade, City, State'); return; }
     try{
       localStorage.setItem('ltn_user', JSON.stringify(profile));
-      localStorage.setItem('ltn_apprentice_profile', JSON.stringify(profile.apprenticeship || {}));
+      // Save apprentice profile WITH the user name/trade/location so Track My Progress can say Welcome, [Name]
+      localStorage.setItem('ltn_apprentice_profile', JSON.stringify({
+        ...(profile.apprenticeship || {}),
+        fullName: profile.fullName || '',
+        name: profile.fullName || '',
+        trade: profile.trade || '',
+        city: profile.city || '',
+        state: profile.state || '',
+        email: profile.email || ''
+      }));
+
+      // Extra backup values used by the Track My Progress page
+      localStorage.setItem('userName', profile.fullName || '');
+      localStorage.setItem('ltn_user_name', profile.fullName || '');
       if(profile.apprenticeship && profile.apprenticeship.isApprentice){
         localStorage.setItem('ltn_apprentice_hours', String(Number(profile.apprenticeship.hours || 0)));
       }
