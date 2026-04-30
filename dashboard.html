@@ -318,7 +318,7 @@ select.form-control{cursor:pointer}
     <nav class="nav" id="main-nav">
       <a href="dashboard.html">Dashboard</a>
       <a href="members.html">Members</a>
-      <a href="apprenticeship.html" onclick="return prepareApprenticeTrackerFromDashboard()" class="btn btn-primary">Apprenticeships</a>
+      <a href="apprenticeship.html" onclick="prepareApprenticeTrackerFromDashboard()" class="btn btn-primary">Apprenticeships</a>
       <a href="#jobs">Jobs</a>
       <a href="#" onclick="NetworkManager.openNetworkModal(); return false;" style="position:relative">
         Network
@@ -398,7 +398,7 @@ select.form-control{cursor:pointer}
     <div style="margin-bottom:20px;text-align:center">
 
       <!-- MAIN APPRENTICESHIP BUTTON -->
-      <a href="apprenticeship.html" onclick="return prepareApprenticeTrackerFromDashboard()" style="
+      <a href="apprenticeship.html" onclick="prepareApprenticeTrackerFromDashboard()" style="
         display:inline-block;
         background:linear-gradient(135deg,#ea6a00,#c35700);
         color:white;
@@ -429,7 +429,7 @@ select.form-control{cursor:pointer}
           🔎 Find Apprenticeships
         </a>
 
-        <a href="apprenticeship.html" onclick="return prepareApprenticeTrackerFromDashboard()" style="
+        <a href="apprenticeship.html" onclick="prepareApprenticeTrackerFromDashboard()" style="
           display:inline-block;
           background:#1e293b;
           color:white;
@@ -1279,67 +1279,140 @@ const JobPostManager = {
 
 /* ===== PROFILE MANAGER ===== */
 /*
-  FINAL FIX:
-  1) Edit Profile saves the full profile immediately for the signed-in user.
-  2) If "I am currently an apprentice" is checked, the SAME name/trade/program/employer/city/state/hours
-     are written to all dashboard + apprenticeship tracker storage keys.
-  3) The tracker receives fullName/name/displayName/userName/tradeWorkerName plus hours aliases.
-  4) No default profile picture is forced. Only the signed-in user's uploaded photo is used.
+  FIXED:
+  1) Edit Profile now saves the dashboard profile immediately.
+  2) Apprentice name/trade/hours are saved to the tracker keys at the same time.
+  3) Profile picture is per signed-in user only. No pre-profile picture will show.
 */
-function ltnSafeEmailKey(email){ return String(email || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '_'); }
-function ltnGetCurrentEmail(){ return String(localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail') || '').trim().toLowerCase(); }
-function ltnProfileKey(email){ return 'ltn_profile_' + ltnSafeEmailKey(email); }
-function ltnApprenticeKey(email){ return 'ltn_apprentice_profile_' + ltnSafeEmailKey(email); }
-function ltnReadJSONFrom(storage, key, fallback){ try { return JSON.parse(storage.getItem(key) || '') || fallback; } catch(e){ return fallback; } }
-function ltnReadJSON(key, fallback){ return ltnReadJSONFrom(localStorage, key, fallback); }
-function ltnWriteJSON(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); } catch(e){} try { sessionStorage.setItem(key, JSON.stringify(value)); } catch(e){} }
-function ltnSetBoth(key, value){ const v = value == null ? '' : String(value); try { localStorage.setItem(key, v); } catch(e){} try { sessionStorage.setItem(key, v); } catch(e){} }
-function ltnReadFirstJSON(keys){
-  for(const key of keys){
-    const local = ltnReadJSONFrom(localStorage, key, null);
-    if(local && typeof local === 'object') return local;
-    const session = ltnReadJSONFrom(sessionStorage, key, null);
-    if(session && typeof session === 'object') return session;
-  }
-  return {};
+function ltnSafeEmailKey(email){
+  return String(email || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+}
+function ltnGetCurrentEmail(){
+  let email = String(localStorage.getItem('userEmail') || '').trim().toLowerCase();
+  if(!email){ try{ const u = JSON.parse(localStorage.getItem('ltn_user') || '{}'); if(u && u.email) email = String(u.email).trim().toLowerCase(); }catch(e){} }
+  if(!email){ try{ const u = JSON.parse(localStorage.getItem('ltn_current_profile') || '{}'); if(u && u.email) email = String(u.email).trim().toLowerCase(); }catch(e){} }
+  return email;
+}
+function ltnProfileKey(email){
+  return 'ltn_profile_' + ltnSafeEmailKey(email);
+}
+function ltnApprenticeKey(email){
+  return 'ltn_apprentice_profile_' + ltnSafeEmailKey(email);
+}
+function ltnReadJSON(key, fallback){
+  try { return JSON.parse(localStorage.getItem(key) || '') || fallback; }
+  catch(e){ return fallback; }
+}
+function ltnWriteJSON(key, value){
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch(e){}
 }
 function ltnReadCurrentProfile(){
   const email = ltnGetCurrentEmail();
   if(!email) return {};
-  let profile = ltnReadFirstJSON([ltnProfileKey(email),'ltn_current_profile','ltn_user','ltnUser','ltnUserProfile','tradeWorkerProfile','userProfile','currentUser','loggedInUser','profile']);
-  if(profile && profile.email && String(profile.email).toLowerCase() !== email){ profile = ltnReadJSON(ltnProfileKey(email), {}); }
-  if(!profile || typeof profile !== 'object') profile = {};
-  if(!profile.email) profile.email = email;
-  return profile;
+
+  let profile = ltnReadJSON(ltnProfileKey(email), {});
+  const oldProfile = ltnReadJSON('ltn_user', {});
+
+  if((!profile || !profile.email) && oldProfile && String(oldProfile.email || '').toLowerCase() === email){
+    profile = oldProfile;
+  }
+
+  if(profile && profile.email && String(profile.email).toLowerCase() !== email){
+    return {};
+  }
+  return profile || {};
 }
 function ltnBuildApprenticeProfile(profile){
   profile = profile || {};
   const app = profile.apprenticeship || {};
-  const fullName = (profile.fullName || profile.name || profile.displayName || localStorage.getItem('userName') || '').trim();
-  const email = String(profile.email || ltnGetCurrentEmail() || '').trim().toLowerCase();
-  const trade = profile.trade || profile.specialty || '';
-  const city = profile.city || '';
-  const state = profile.state || '';
-  const location = [city, state].filter(Boolean).join(', ');
-  const hours = Number(app.hours || profile.apprenticeHours || profile.completedHours || profile.currentHours || profile.hours || 0);
-  const isApprentice = !!(app.isApprentice || profile.isApprentice || localStorage.getItem('isApprentice') === 'true');
-  return { isApprentice, role:isApprentice?'Apprentice':'Trade Worker', accountType:isApprentice?'apprenticeship':'trade_worker', memberType:isApprentice?'apprentice':'trade_worker', fullName, name:fullName, displayName:fullName, userName:fullName, tradeWorkerName:fullName, apprenticeName:fullName, apprenticeFullName:fullName, email, phone:profile.phone||'', trade, specialty:trade, experience:profile.experience||'', city, state, location, program:app.program||profile.program||profile.apprenticeProgram||'', apprenticeshipProgram:app.program||profile.program||profile.apprenticeProgram||'', school:app.program||profile.program||profile.apprenticeProgram||'', employer:app.employer||profile.employer||profile.apprenticeEmployer||'', contractor:app.employer||profile.employer||profile.apprenticeEmployer||'', startDate:app.startDate||profile.startDate||profile.apprenticeStartDate||'', apprenticeshipStartDate:app.startDate||profile.startDate||profile.apprenticeStartDate||'', hours, apprenticeHours:hours, completedHours:hours, currentHours:hours, totalHours:hours, hoursCompleted:hours, bio:profile.bio||'', skills:profile.skills||'', certifications:profile.certifications||'', profileImageUrl:profile.profileImageUrl||'', profileImage:profile.profileImageUrl||'', photoURL:profile.profileImageUrl||'', updatedAt:new Date().toISOString() };
+  const fullName = profile.fullName || profile.name || localStorage.getItem('userName') || localStorage.getItem('ltn_user_name') || '';
+  const email = profile.email || ltnGetCurrentEmail() || '';
+  const trade = profile.trade || localStorage.getItem('ltn_user_trade') || '';
+  const city = profile.city || localStorage.getItem('ltn_user_city') || '';
+  const state = profile.state || localStorage.getItem('ltn_user_state') || '';
+  const hours = Number(app.hours || localStorage.getItem('ltn_apprentice_hours') || 0);
+  return {
+    isApprentice: !!app.isApprentice, fullName, name: fullName, userName: fullName, displayName: fullName,
+    email, userEmail: email, phone: profile.phone || '', trade, userTrade: trade, experience: profile.experience || '',
+    city, state, location: [city,state].filter(Boolean).join(', '),
+    program: app.program || '', school: app.program || '', employer: app.employer || '', contractor: app.employer || '',
+    startDate: app.startDate || '', hours, completedHours: hours, currentHours: hours, apprenticeHours: hours,
+    bio: profile.bio || '', skills: profile.skills || '', certifications: profile.certifications || '', updatedAt: new Date().toISOString()
+  };
 }
 function ltnSaveProfileEverywhere(profile){
   const email = String(profile.email || ltnGetCurrentEmail() || '').trim().toLowerCase();
   if(!email) return;
-  const fullName = (profile.fullName || profile.name || profile.displayName || '').trim();
-  const app = profile.apprenticeship || {};
-  profile.email = email; profile.fullName = fullName; profile.name = fullName; profile.displayName = fullName;
-  profile.apprenticeship = { isApprentice:!!app.isApprentice, program:app.program||'', employer:app.employer||'', startDate:app.startDate||'', hours:Number(app.hours||0) };
+  profile.email = email;
   const apprenticeProfile = ltnBuildApprenticeProfile(profile);
-  [ltnProfileKey(email),'ltn_user','ltnUser','ltn_current_profile','ltnUserProfile','tradeWorkerProfile','userProfile','currentUser','loggedInUser','profile'].forEach(key => ltnWriteJSON(key, profile));
-  [ltnApprenticeKey(email),'ltn_apprentice_profile','ltnApprenticeProfile','apprenticeProfile','apprenticeshipProfile','currentApprentice','currentApprenticeProfile','apprenticeData','apprenticeshipData','apprenticeshipTrackerData','apprenticeshipDashboardData','ltn_apprenticeship_dashboard','ltnApprenticeshipData','trackMyProgressProfile','trackerProfile'].forEach(key => ltnWriteJSON(key, apprenticeProfile));
-  const singleFields = { userEmail:email, email:email, userName:fullName, name:fullName, fullName:fullName, displayName:fullName, profileName:fullName, currentUserName:fullName, ltn_user_name:fullName, ltn_full_name:fullName, tradeWorkerName:fullName, apprenticeName:fullName, apprenticeFullName:fullName, ltn_apprentice_name:fullName, ltnApprenticeName:fullName, trackerName:fullName, trackMyProgressName:fullName, trade:apprenticeProfile.trade, userTrade:apprenticeProfile.trade, apprenticeTrade:apprenticeProfile.trade, ltn_user_trade:apprenticeProfile.trade, ltn_apprentice_trade:apprenticeProfile.trade, trackerTrade:apprenticeProfile.trade, city:apprenticeProfile.city, state:apprenticeProfile.state, location:apprenticeProfile.location, ltn_user_city:apprenticeProfile.city, ltn_user_state:apprenticeProfile.state, apprenticeCity:apprenticeProfile.city, apprenticeState:apprenticeProfile.state, apprenticeLocation:apprenticeProfile.location, apprenticeProgram:apprenticeProfile.program, apprenticeshipProgram:apprenticeProfile.program, apprenticeSchool:apprenticeProfile.program, apprenticeEmployer:apprenticeProfile.employer, apprenticeContractor:apprenticeProfile.employer, apprenticeStartDate:apprenticeProfile.startDate, apprenticeshipStartDate:apprenticeProfile.startDate, ltn_is_apprentice:apprenticeProfile.isApprentice?'true':'false', isApprentice:apprenticeProfile.isApprentice?'true':'false', userType:apprenticeProfile.isApprentice?'apprentice':'trade_worker', role:apprenticeProfile.isApprentice?'Apprentice':'Trade Worker', accountType:apprenticeProfile.isApprentice?'apprenticeship':'trade_worker', ltn_apprentice_hours:apprenticeProfile.hours, apprenticeHours:apprenticeProfile.hours, completedHours:apprenticeProfile.hours, currentHours:apprenticeProfile.hours, totalHours:apprenticeProfile.hours, hoursCompleted:apprenticeProfile.hours, trackerHours:apprenticeProfile.hours };
-  Object.keys(singleFields).forEach(key => ltnSetBoth(key, singleFields[key]));
-  try{ window.dispatchEvent(new CustomEvent('ltnProfileUpdated',{detail:{profile,apprenticeProfile}})); window.dispatchEvent(new StorageEvent('storage',{key:'apprenticeProfile',newValue:JSON.stringify(apprenticeProfile)})); }catch(e){}
+
+  ltnWriteJSON(ltnProfileKey(email), profile);
+  ltnWriteJSON('ltn_user', profile);
+  ltnWriteJSON('ltn_current_profile', profile);
+  ltnWriteJSON('tradeWorkerProfile', profile);
+  ltnWriteJSON('currentUserProfile', profile);
+
+  localStorage.setItem('userEmail', email);
+  localStorage.setItem('ltn_user_email', email);
+  localStorage.setItem('userName', apprenticeProfile.fullName || '');
+  localStorage.setItem('ltn_user_name', apprenticeProfile.fullName || '');
+  localStorage.setItem('ltn_full_name', apprenticeProfile.fullName || '');
+  localStorage.setItem('fullName', apprenticeProfile.fullName || '');
+  localStorage.setItem('name', apprenticeProfile.fullName || '');
+  localStorage.setItem('ltn_user_trade', apprenticeProfile.trade || '');
+  localStorage.setItem('userTrade', apprenticeProfile.trade || '');
+  localStorage.setItem('trade', apprenticeProfile.trade || '');
+  localStorage.setItem('ltn_user_city', apprenticeProfile.city || '');
+  localStorage.setItem('ltn_user_state', apprenticeProfile.state || '');
+  localStorage.setItem('userCity', apprenticeProfile.city || '');
+  localStorage.setItem('userState', apprenticeProfile.state || '');
+
+  ltnWriteJSON(ltnApprenticeKey(email), apprenticeProfile);
+  ltnWriteJSON('ltn_apprentice_profile', apprenticeProfile);
+  ltnWriteJSON('apprenticeProfile', apprenticeProfile);
+  ltnWriteJSON('apprenticeshipProfile', apprenticeProfile);
+  ltnWriteJSON('currentApprentice', apprenticeProfile);
+  ltnWriteJSON('apprenticeData', apprenticeProfile);
+  ltnWriteJSON('ltn_apprentice_dashboard', apprenticeProfile);
+
+  localStorage.setItem('ltn_is_apprentice', apprenticeProfile.isApprentice ? 'true' : 'false');
+  localStorage.setItem('isApprentice', apprenticeProfile.isApprentice ? 'true' : 'false');
+  localStorage.setItem('apprenticeName', apprenticeProfile.fullName || '');
+  localStorage.setItem('apprenticeFullName', apprenticeProfile.fullName || '');
+  localStorage.setItem('tradeWorkerName', apprenticeProfile.fullName || '');
+  localStorage.setItem('apprenticeEmail', apprenticeProfile.email || '');
+  localStorage.setItem('apprenticeTrade', apprenticeProfile.trade || '');
+  localStorage.setItem('apprenticeProgram', apprenticeProfile.program || '');
+  localStorage.setItem('apprenticeSchool', apprenticeProfile.program || '');
+  localStorage.setItem('apprenticeEmployer', apprenticeProfile.employer || '');
+  localStorage.setItem('apprenticeStartDate', apprenticeProfile.startDate || '');
+  localStorage.setItem('apprenticeCity', apprenticeProfile.city || '');
+  localStorage.setItem('apprenticeState', apprenticeProfile.state || '');
+  localStorage.setItem('apprenticeLocation', apprenticeProfile.location || '');
+  localStorage.setItem('ltn_apprentice_hours', String(apprenticeProfile.hours || 0));
+  localStorage.setItem('apprenticeHours', String(apprenticeProfile.hours || 0));
+  localStorage.setItem('completedHours', String(apprenticeProfile.hours || 0));
+  localStorage.setItem('currentHours', String(apprenticeProfile.hours || 0));
 }
-window.prepareApprenticeTrackerFromDashboard = function(){ const profile = ltnReadCurrentProfile(); if(profile && profile.email){ ltnSaveProfileEverywhere(profile); } return true; };
+window.prepareApprenticeTrackerFromDashboard = function(){
+  let profile = ltnReadCurrentProfile();
+  const email = ltnGetCurrentEmail();
+  if(!profile || !profile.email){
+    profile = {
+      email: email || localStorage.getItem('userEmail') || '',
+      fullName: localStorage.getItem('userName') || localStorage.getItem('apprenticeName') || ((document.getElementById('display-name')||{}).innerText || ''),
+      trade: localStorage.getItem('userTrade') || localStorage.getItem('ltn_user_trade') || ((document.getElementById('display-trade')||{}).innerText || ''),
+      city: localStorage.getItem('ltn_user_city') || localStorage.getItem('userCity') || '',
+      state: localStorage.getItem('ltn_user_state') || localStorage.getItem('userState') || '',
+      apprenticeship: { isApprentice: true, program: localStorage.getItem('apprenticeProgram') || '', employer: localStorage.getItem('apprenticeEmployer') || '', startDate: localStorage.getItem('apprenticeStartDate') || '', hours: Number(localStorage.getItem('ltn_apprentice_hours') || localStorage.getItem('apprenticeHours') || 0) }
+    };
+  }
+  if(!profile.apprenticeship) profile.apprenticeship = {};
+  profile.apprenticeship.isApprentice = true;
+  ltnSaveProfileEverywhere(profile);
+  return true;
+};
+
 
 const ProfileManager = {
   currentImageUrl: '',
