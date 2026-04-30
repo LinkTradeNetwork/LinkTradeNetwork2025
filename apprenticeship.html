@@ -29,13 +29,17 @@
     .section-title{color:white;font-size:24px;font-weight:800;margin:28px 0 14px;text-shadow:0 2px 8px rgba(0,0,0,.15)}
     .button{background:#ea6a00;color:white;border:none;padding:12px 18px;border-radius:12px;cursor:pointer;font-weight:700;margin-top:14px}
     .button.secondary{background:#3d5a80}
+    .button.danger{background:#ef4444;padding:6px 10px;margin-top:0;border-radius:8px;font-size:12px}
     .metric-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:18px}
     .metric{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:16px}
     .metric strong{display:block;font-size:24px;color:#1e293b}
     .metric span{font-size:13px;color:#64748b;font-weight:700;text-transform:uppercase}
     .log-list{margin-top:14px;display:grid;gap:10px}
-    .log-item{background:#f8fafc;border:1px solid #e2e8f0;padding:12px 14px;border-radius:12px;display:flex;justify-content:space-between;gap:10px;font-size:14px}
+    .log-item{background:#f8fafc;border:1px solid #e2e8f0;padding:12px 14px;border-radius:12px;display:flex;justify-content:space-between;gap:10px;font-size:14px;align-items:center}
     .empty{color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;padding:14px;border-radius:12px;margin-top:14px;font-size:14px}
+    .item-main{display:flex;flex-direction:column;gap:4px;min-width:0}
+    .item-title{font-weight:800;color:#1e293b;word-break:break-word}
+    .item-meta{font-size:12px;color:#64748b}
 
     @media(max-width:750px){
       .card.big{grid-column:span 1}
@@ -83,18 +87,6 @@
     </div>
 
     <div class="card">
-      <div class="label">Program / School</div>
-      <div class="value" id="userProgram" style="font-size:24px">Not entered</div>
-      <div class="small">Apprenticeship program or school</div>
-    </div>
-
-    <div class="card">
-      <div class="label">Employer / Contractor</div>
-      <div class="value" id="userEmployer" style="font-size:24px">Not entered</div>
-      <div class="small" id="userLocation">Location not entered</div>
-    </div>
-
-    <div class="card">
       <div class="label">Current Level</div>
       <div class="value" id="currentLevel">New Apprentice</div>
       <div class="small">Based on hours logged</div>
@@ -138,22 +130,24 @@
   <div class="grid">
     <div class="card">
       <div class="label">Skills Completed</div>
-      <div class="value">0</div>
+      <div class="value" id="skillsCount">0</div>
       <div class="small">Start adding skills like terminations, conduit, testing, safety.</div>
-      <button class="button secondary">Add Skill</button>
+      <button class="button secondary" onclick="addSkill()">Add Skill</button>
+      <div id="skillsList" class="log-list"></div>
     </div>
 
     <div class="card">
       <div class="label">Certifications</div>
-      <div class="value">0</div>
+      <div class="value" id="certificationsCount">0</div>
       <div class="small">Upload OSHA, lift certs, manufacturer training, or licenses later.</div>
-      <button class="button secondary">Add Certification</button>
+      <button class="button secondary" onclick="addCertification()">Add Certification</button>
+      <div id="certificationsList" class="log-list"></div>
     </div>
 
     <div class="card">
       <div class="label">Trade Profile</div>
       <div class="value">In Progress</div>
-      <div class="small">This dashboard is for apprentice progress. Photos and videos will stay in the community feed.</div>
+      <div class="small" id="tradeProfileSummary">This dashboard is for apprentice progress. Photos and videos will stay in the community feed.</div>
     </div>
   </div>
 
@@ -168,52 +162,319 @@
 
 <script>
   const TARGET_HOURS = 8000;
-  function readJSON(key, fallback){ try{ const raw=localStorage.getItem(key); return raw ? (JSON.parse(raw)||fallback) : fallback; }catch(e){ return fallback; } }
-  function safeEmailKey(email){ return String(email||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'_'); }
-  function getCurrentEmail(){ let email=String(localStorage.getItem('userEmail')||localStorage.getItem('ltn_user_email')||'').trim().toLowerCase(); if(!email){ const u=readJSON('ltn_user',{}); if(u.email) email=String(u.email).trim().toLowerCase(); } if(!email){ const p=readJSON('ltn_current_profile',{}); if(p.email) email=String(p.email).trim().toLowerCase(); } return email; }
-  function firstValue(){ for(let i=0;i<arguments.length;i++){ const v=arguments[i]; if(v!==undefined && v!==null && String(v).trim()!=='') return v; } return ''; }
-  function getApprenticeProfile(){
-    const email=getCurrentEmail();
-    const emailKey=email ? 'ltn_apprentice_profile_'+safeEmailKey(email) : '';
-    const apprentice=Object.assign({}, readJSON('ltn_apprentice_dashboard',{}), readJSON('apprenticeData',{}), readJSON('currentApprentice',{}), readJSON('apprenticeshipProfile',{}), readJSON('apprenticeProfile',{}), readJSON('ltn_apprentice_profile',{}), emailKey?readJSON(emailKey,{}):{});
-    const profile=Object.assign({}, readJSON('tradeWorkerProfile',{}), readJSON('ltn_current_profile',{}), readJSON('ltn_user',{}));
-    const app=profile.apprenticeship||{};
-    const fullName=firstValue(apprentice.fullName, apprentice.name, apprentice.userName, profile.fullName, profile.name, localStorage.getItem('apprenticeFullName'), localStorage.getItem('apprenticeName'), localStorage.getItem('tradeWorkerName'), localStorage.getItem('userName'), localStorage.getItem('ltn_user_name'));
-    const trade=firstValue(apprentice.trade, apprentice.userTrade, profile.trade, localStorage.getItem('apprenticeTrade'), localStorage.getItem('userTrade'), localStorage.getItem('ltn_user_trade'), localStorage.getItem('trade'));
-    const program=firstValue(apprentice.program, apprentice.school, app.program, localStorage.getItem('apprenticeProgram'), localStorage.getItem('apprenticeSchool'));
-    const employer=firstValue(apprentice.employer, apprentice.contractor, app.employer, localStorage.getItem('apprenticeEmployer'));
-    const city=firstValue(apprentice.city, profile.city, localStorage.getItem('apprenticeCity'), localStorage.getItem('userCity'), localStorage.getItem('ltn_user_city'));
-    const state=firstValue(apprentice.state, profile.state, localStorage.getItem('apprenticeState'), localStorage.getItem('userState'), localStorage.getItem('ltn_user_state'));
-    const hours=Number(firstValue(apprentice.hours, apprentice.completedHours, apprentice.currentHours, app.hours, localStorage.getItem('ltn_apprentice_hours'), localStorage.getItem('apprenticeHours'), 0))||0;
-    return { fullName, email:firstValue(apprentice.email, profile.email, email, localStorage.getItem('userEmail')), trade, program, employer, city, state, location:[city,state].filter(Boolean).join(', '), hours };
+
+  function safeEmailKey(email){
+    return String(email || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
   }
-  let apprenticeProfile=getApprenticeProfile();
-  let guestHours=Number(apprenticeProfile.hours||localStorage.getItem('ltn_apprentice_hours')||0);
-  let hourLogs=readJSON('ltn_apprentice_logs',[]);
-  function saveApprenticeProfile(){ apprenticeProfile.hours=guestHours; localStorage.setItem('ltn_apprentice_hours',String(guestHours)); localStorage.setItem('apprenticeHours',String(guestHours)); localStorage.setItem('completedHours',String(guestHours)); localStorage.setItem('currentHours',String(guestHours)); ['ltn_apprentice_profile','apprenticeProfile','apprenticeshipProfile','currentApprentice','apprenticeData','ltn_apprentice_dashboard'].forEach(k=>localStorage.setItem(k,JSON.stringify(apprenticeProfile))); if(apprenticeProfile.email) localStorage.setItem('ltn_apprentice_profile_'+safeEmailKey(apprenticeProfile.email), JSON.stringify(apprenticeProfile)); }
-  function getLevel(hours){ if(hours>=8000) return 'Journeyman Ready'; if(hours>=6000) return 'Advanced Apprentice'; if(hours>=3000) return 'Apprentice 2'; if(hours>=1000) return 'Apprentice 1'; return 'New Apprentice'; }
-  function updateDashboard(){
-    apprenticeProfile=getApprenticeProfile(); guestHours=Number(firstValue(apprenticeProfile.hours, guestHours, 0))||0;
-    const percent=Math.min((guestHours/TARGET_HOURS)*100,100); const remaining=Math.max(TARGET_HOURS-guestHours,0);
-    const displayName=apprenticeProfile.fullName||'Trade Worker';
-    document.getElementById('welcome').innerText='Welcome, '+displayName;
-    document.getElementById('userName').innerText=displayName;
-    document.getElementById('userEmail').innerText=apprenticeProfile.email||'Guest User';
-    document.getElementById('userTrade').innerText=apprenticeProfile.trade||'Not selected';
-    if(document.getElementById('userProgram')) document.getElementById('userProgram').innerText=apprenticeProfile.program||'Not entered';
-    if(document.getElementById('userEmployer')) document.getElementById('userEmployer').innerText=apprenticeProfile.employer||'Not entered';
-    if(document.getElementById('userLocation')) document.getElementById('userLocation').innerText=apprenticeProfile.location||'Location not entered';
-    document.getElementById('userHours').innerText=guestHours;
-    document.getElementById('hoursBar').style.width=percent+'%';
-    document.getElementById('progressText').innerText=Math.round(percent)+'% toward industry benchmark (8000 hrs)';
-    document.getElementById('percentBox').innerText=Math.round(percent)+'%';
-    document.getElementById('remainingHours').innerText=remaining;
-    document.getElementById('currentLevel').innerText=getLevel(guestHours);
-    saveApprenticeProfile(); renderLogs();
+
+  function readJSON(key, fallback){
+    try { return JSON.parse(localStorage.getItem(key) || '') || fallback; }
+    catch(e){ return fallback; }
   }
-  function renderLogs(){ const logBox=document.getElementById('hoursLog'); document.getElementById('loggedCount').innerText=hourLogs.length; if(hourLogs.length===0){ logBox.innerHTML='<div class="empty">No hours logged yet. Hours are saved on this device.</div>'; return; } logBox.innerHTML=hourLogs.map(log=>`<div class="log-item"><span>${log.date}</span><strong>+${log.hours} hrs</strong></div>`).join(''); }
-  window.addHours=function(){ const input=prompt('Enter hours worked:'); if(!input) return; const hoursToAdd=Number(input); if(isNaN(hoursToAdd)||hoursToAdd<=0){ alert('Enter a valid number.'); return; } guestHours+=hoursToAdd; apprenticeProfile.hours=guestHours; hourLogs.unshift({hours:hoursToAdd,date:new Date().toLocaleDateString()}); localStorage.setItem('ltn_apprentice_logs',JSON.stringify(hourLogs)); saveApprenticeProfile(); updateDashboard(); };
-  window.resetHours=function(){ const confirmReset=confirm('Reset apprentice hours on this device?'); if(!confirmReset) return; guestHours=0; apprenticeProfile.hours=0; hourLogs=[]; localStorage.setItem('ltn_apprentice_hours','0'); localStorage.setItem('apprenticeHours','0'); localStorage.setItem('completedHours','0'); localStorage.setItem('currentHours','0'); localStorage.removeItem('ltn_apprentice_logs'); saveApprenticeProfile(); updateDashboard(); };
+
+  function writeJSON(key, value){
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function getCurrentEmail(){
+    return String(localStorage.getItem('userEmail') || '').trim().toLowerCase();
+  }
+
+  function profileKey(email){
+    return 'ltn_profile_' + safeEmailKey(email);
+  }
+
+  function apprenticeKey(email){
+    return 'ltn_apprentice_profile_' + safeEmailKey(email);
+  }
+
+  function getBestProfile(){
+    const email = getCurrentEmail();
+    const options = [];
+
+    if (email) {
+      options.push(readJSON(apprenticeKey(email), null));
+      options.push(readJSON(profileKey(email), null));
+    }
+
+    options.push(readJSON('ltn_apprentice_profile', null));
+    options.push(readJSON('ltn_current_apprentice_profile', null));
+    options.push(readJSON('ltn_current_profile', null));
+    options.push(readJSON('tradeWorkerProfile', null));
+    options.push(readJSON('ltn_user', null));
+
+    for (const item of options) {
+      if (item && (item.fullName || item.name || item.email || item.trade || item.hours || item.apprenticeship)) {
+        if (item.apprenticeship) {
+          const app = item.apprenticeship || {};
+          return {
+            fullName: item.fullName || item.name || '',
+            name: item.fullName || item.name || '',
+            email: item.email || email || '',
+            phone: item.phone || '',
+            trade: item.trade || '',
+            city: item.city || '',
+            state: item.state || '',
+            program: app.program || item.program || '',
+            employer: app.employer || item.employer || '',
+            startDate: app.startDate || item.startDate || '',
+            hours: Number(app.hours || item.hours || item.completedHours || item.currentHours || 0)
+          };
+        }
+        return {
+          fullName: item.fullName || item.name || '',
+          name: item.fullName || item.name || '',
+          email: item.email || email || '',
+          phone: item.phone || '',
+          trade: item.trade || '',
+          city: item.city || '',
+          state: item.state || '',
+          program: item.program || '',
+          employer: item.employer || '',
+          startDate: item.startDate || '',
+          hours: Number(item.hours || item.completedHours || item.currentHours || 0)
+        };
+      }
+    }
+
+    return {
+      fullName: localStorage.getItem('userName') || localStorage.getItem('ltn_user_name') || localStorage.getItem('ltn_full_name') || '',
+      name: localStorage.getItem('userName') || localStorage.getItem('ltn_user_name') || localStorage.getItem('ltn_full_name') || '',
+      email: email || '',
+      trade: localStorage.getItem('ltn_user_trade') || localStorage.getItem('userTrade') || '',
+      city: localStorage.getItem('ltn_user_city') || '',
+      state: localStorage.getItem('ltn_user_state') || '',
+      program: localStorage.getItem('ltn_apprentice_program') || '',
+      employer: localStorage.getItem('ltn_apprentice_employer') || '',
+      startDate: localStorage.getItem('ltn_apprentice_start_date') || '',
+      hours: Number(localStorage.getItem('ltn_apprentice_hours') || 0)
+    };
+  }
+
+  let apprenticeProfile = getBestProfile();
+  let guestHours = Number(apprenticeProfile.hours || localStorage.getItem('ltn_apprentice_hours') || 0);
+  let hourLogs = readJSON('ltn_apprentice_logs', []);
+  let skills = readJSON('ltn_apprentice_skills', []);
+  let certifications = readJSON('ltn_apprentice_certifications', []);
+
+  function saveApprenticeState(){
+    apprenticeProfile.hours = Number(guestHours || 0);
+    apprenticeProfile.completedHours = Number(guestHours || 0);
+    apprenticeProfile.currentHours = Number(guestHours || 0);
+    apprenticeProfile.skills = skills;
+    apprenticeProfile.certificationsList = certifications;
+    apprenticeProfile.updatedAt = new Date().toISOString();
+
+    localStorage.setItem('ltn_apprentice_hours', String(guestHours));
+    writeJSON('ltn_apprentice_logs', hourLogs);
+    writeJSON('ltn_apprentice_skills', skills);
+    writeJSON('ltn_apprentice_certifications', certifications);
+    writeJSON('ltn_apprentice_profile', apprenticeProfile);
+    writeJSON('ltn_current_apprentice_profile', apprenticeProfile);
+
+    const email = String(apprenticeProfile.email || getCurrentEmail() || '').trim().toLowerCase();
+    if (email) {
+      writeJSON(apprenticeKey(email), apprenticeProfile);
+    }
+  }
+
+  function escapeHTML(text){
+    return String(text || '').replace(/[&<>'"]/g, function(char){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[char];
+    });
+  }
+
+  function getLevel(hours) {
+    if (hours >= 8000) return 'Journeyman Ready';
+    if (hours >= 6000) return 'Advanced Apprentice';
+    if (hours >= 3000) return 'Apprentice 2';
+    if (hours >= 1000) return 'Apprentice 1';
+    return 'New Apprentice';
+  }
+
+  function updateDashboard() {
+    const name = apprenticeProfile.fullName || apprenticeProfile.name || 'Trade Worker';
+    const email = apprenticeProfile.email || getCurrentEmail() || 'Guest User';
+    const trade = apprenticeProfile.trade || 'Not selected';
+    const location = [apprenticeProfile.city, apprenticeProfile.state].filter(Boolean).join(', ');
+    const program = apprenticeProfile.program || '';
+    const employer = apprenticeProfile.employer || '';
+
+    const percent = Math.min((guestHours / TARGET_HOURS) * 100, 100);
+    const remaining = Math.max(TARGET_HOURS - guestHours, 0);
+
+    document.getElementById('welcome').innerText = 'Welcome, ' + name;
+    document.getElementById('userName').innerText = name;
+    document.getElementById('userEmail').innerText = email;
+    document.getElementById('userTrade').innerText = trade;
+    document.getElementById('userHours').innerText = guestHours;
+    document.getElementById('hoursBar').style.width = percent + '%';
+    document.getElementById('progressText').innerText = Math.round(percent) + '% toward industry benchmark (8000 hrs)';
+    document.getElementById('percentBox').innerText = Math.round(percent) + '%';
+    document.getElementById('remainingHours').innerText = remaining;
+    document.getElementById('currentLevel').innerText = getLevel(guestHours);
+
+    let summary = [];
+    if (location) summary.push(location);
+    if (program) summary.push('Program: ' + program);
+    if (employer) summary.push('Employer: ' + employer);
+    document.getElementById('tradeProfileSummary').innerText = summary.length ? summary.join(' • ') : 'This dashboard is for apprentice progress. Photos and videos will stay in the community feed.';
+
+    renderLogs();
+    renderSkills();
+    renderCertifications();
+    saveApprenticeState();
+  }
+
+  function renderLogs() {
+    const logBox = document.getElementById('hoursLog');
+    document.getElementById('loggedCount').innerText = hourLogs.length;
+
+    if (hourLogs.length === 0) {
+      logBox.innerHTML = '<div class="empty">No hours logged yet. Hours are saved on this device.</div>';
+      return;
+    }
+
+    logBox.innerHTML = hourLogs.map((log, index) => `
+      <div class="log-item">
+        <div class="item-main">
+          <span class="item-title">${escapeHTML(log.date)}</span>
+          <span class="item-meta">Hours worked</span>
+        </div>
+        <strong>+${escapeHTML(log.hours)} hrs</strong>
+        <button class="button danger" onclick="deleteHourLog(${index})">Delete</button>
+      </div>
+    `).join('');
+  }
+
+  function renderSkills(){
+    const box = document.getElementById('skillsList');
+    document.getElementById('skillsCount').innerText = skills.length;
+
+    if (skills.length === 0) {
+      box.innerHTML = '<div class="empty">No skills added yet.</div>';
+      return;
+    }
+
+    box.innerHTML = skills.map((skill, index) => `
+      <div class="log-item">
+        <div class="item-main">
+          <span class="item-title">${escapeHTML(skill.name)}</span>
+          <span class="item-meta">Added ${escapeHTML(skill.date)}</span>
+        </div>
+        <button class="button danger" onclick="deleteSkill(${index})">Delete</button>
+      </div>
+    `).join('');
+  }
+
+  function renderCertifications(){
+    const box = document.getElementById('certificationsList');
+    document.getElementById('certificationsCount').innerText = certifications.length;
+
+    if (certifications.length === 0) {
+      box.innerHTML = '<div class="empty">No certifications added yet.</div>';
+      return;
+    }
+
+    box.innerHTML = certifications.map((cert, index) => `
+      <div class="log-item">
+        <div class="item-main">
+          <span class="item-title">${escapeHTML(cert.name)}</span>
+          <span class="item-meta">Added ${escapeHTML(cert.date)}</span>
+        </div>
+        <button class="button danger" onclick="deleteCertification(${index})">Delete</button>
+      </div>
+    `).join('');
+  }
+
+  window.addHours = function () {
+    const input = prompt('Enter hours worked:');
+    if (!input) return;
+
+    const hoursToAdd = Number(input);
+
+    if (isNaN(hoursToAdd) || hoursToAdd <= 0) {
+      alert('Enter a valid number.');
+      return;
+    }
+
+    guestHours += hoursToAdd;
+
+    hourLogs.unshift({
+      hours: hoursToAdd,
+      date: new Date().toLocaleDateString()
+    });
+
+    updateDashboard();
+  };
+
+  window.deleteHourLog = function(index){
+    const log = hourLogs[index];
+    if (!log) return;
+    if (!confirm('Delete this hour entry?')) return;
+
+    guestHours = Math.max(0, guestHours - Number(log.hours || 0));
+    hourLogs.splice(index, 1);
+    updateDashboard();
+  };
+
+  window.resetHours = function () {
+    const confirmReset = confirm('Reset apprentice hours on this device?');
+    if (!confirmReset) return;
+
+    guestHours = 0;
+    hourLogs = [];
+
+    localStorage.removeItem('ltn_apprentice_hours');
+    localStorage.removeItem('ltn_apprentice_logs');
+
+    updateDashboard();
+  };
+
+  window.addSkill = function(){
+    const input = prompt('Enter completed skill:');
+    if (!input) return;
+
+    const name = input.trim();
+    if (!name) return;
+
+    skills.unshift({
+      name: name,
+      date: new Date().toLocaleDateString()
+    });
+
+    updateDashboard();
+  };
+
+  window.deleteSkill = function(index){
+    if (!skills[index]) return;
+    if (!confirm('Delete this skill?')) return;
+    skills.splice(index, 1);
+    updateDashboard();
+  };
+
+  window.addCertification = function(){
+    const input = prompt('Enter certification or license:');
+    if (!input) return;
+
+    const name = input.trim();
+    if (!name) return;
+
+    certifications.unshift({
+      name: name,
+      date: new Date().toLocaleDateString()
+    });
+
+    updateDashboard();
+  };
+
+  window.deleteCertification = function(index){
+    if (!certifications[index]) return;
+    if (!confirm('Delete this certification?')) return;
+    certifications.splice(index, 1);
+    updateDashboard();
+  };
+
   updateDashboard();
 </script>
 
