@@ -29,18 +29,36 @@
     .section-title{color:white;font-size:24px;font-weight:800;margin:28px 0 14px;text-shadow:0 2px 8px rgba(0,0,0,.15)}
     .button{background:#ea6a00;color:white;border:none;padding:12px 18px;border-radius:12px;cursor:pointer;font-weight:700;margin-top:14px}
     .button.secondary{background:#3d5a80}
-    .button.danger{background:#ef4444;padding:6px 10px;margin-top:0;border-radius:8px;font-size:12px}
+    .button.danger{background:#dc2626}
+    .button:hover{filter:brightness(.95);transform:translateY(-1px)}
     .metric-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:18px}
     .metric{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:16px}
     .metric strong{display:block;font-size:24px;color:#1e293b}
     .metric span{font-size:13px;color:#64748b;font-weight:700;text-transform:uppercase}
     .log-list{margin-top:14px;display:grid;gap:10px}
     .log-item{background:#f8fafc;border:1px solid #e2e8f0;padding:12px 14px;border-radius:12px;display:flex;justify-content:space-between;gap:10px;font-size:14px;align-items:center}
+    .log-main{display:flex;flex-direction:column;gap:3px}
     .empty{color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;padding:14px;border-radius:12px;margin-top:14px;font-size:14px}
-    .item-main{display:flex;flex-direction:column;gap:4px;min-width:0}
-    .item-title{font-weight:800;color:#1e293b;word-break:break-word}
-    .item-meta{font-size:12px;color:#64748b}
-
+    .list-box{margin-top:14px;display:grid;gap:10px}
+    .list-item{background:#f8fafc;border:1px solid #e2e8f0;padding:12px 14px;border-radius:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .list-item strong{display:block;font-size:15px}
+    .list-item span{display:block;color:#64748b;font-size:13px;margin-top:3px}
+    .delete-small{background:#ef4444;color:white;border:none;border-radius:8px;padding:7px 10px;cursor:pointer;font-weight:700}
+    .profile-details{margin-top:14px;display:grid;gap:8px}
+    .profile-detail{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;font-size:14px;color:#475569}
+    .profile-detail b{color:#1e293b}
+    .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:1000;align-items:center;justify-content:center;padding:18px}
+    .modal-backdrop.active{display:flex}
+    .modal{background:white;border-radius:18px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.30);overflow:hidden}
+    .modal-header{padding:18px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+    .modal-header h2{margin:0;font-size:20px}
+    .modal-close{background:none;border:none;font-size:28px;cursor:pointer;color:#64748b;line-height:1}
+    .modal-body{padding:20px}
+    .modal-footer{padding:16px 20px;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:10px}
+    .form-group{margin-bottom:14px}
+    .form-group label{display:block;margin-bottom:6px;font-weight:700;font-size:14px;color:#334155}
+    .form-control{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font-size:16px;font-family:inherit}
+    textarea.form-control{min-height:90px;resize:vertical}
     @media(max-width:750px){
       .card.big{grid-column:span 1}
       .topbar{padding:14px 16px;flex-wrap:wrap;gap:12px}
@@ -56,7 +74,6 @@
 
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
-
   <div class="top-actions">
     <button class="dashbtn" onclick="window.location.href='dashboard.html'">Dashboard</button>
     <button class="logout" onclick="window.location.href='dashboard.html'">Back</button>
@@ -122,6 +139,7 @@
       <div class="small">
         LTN uses 8000 hours as a simple industry benchmark, not a legal licensing requirement.
       </div>
+      <div class="profile-details" id="profileDetails"></div>
     </div>
   </div>
 
@@ -132,22 +150,22 @@
       <div class="label">Skills Completed</div>
       <div class="value" id="skillsCount">0</div>
       <div class="small">Start adding skills like terminations, conduit, testing, safety.</div>
-      <button class="button secondary" onclick="addSkill()">Add Skill</button>
-      <div id="skillsList" class="log-list"></div>
+      <button class="button secondary" onclick="openSkillModal()">Add Skill</button>
+      <div id="skillsList" class="list-box"></div>
     </div>
 
     <div class="card">
       <div class="label">Certifications</div>
-      <div class="value" id="certificationsCount">0</div>
+      <div class="value" id="certsCount">0</div>
       <div class="small">Upload OSHA, lift certs, manufacturer training, or licenses later.</div>
-      <button class="button secondary" onclick="addCertification()">Add Certification</button>
-      <div id="certificationsList" class="log-list"></div>
+      <button class="button secondary" onclick="openCertificationModal()">Add Certification</button>
+      <div id="certificationsList" class="list-box"></div>
     </div>
 
     <div class="card">
       <div class="label">Trade Profile</div>
-      <div class="value">In Progress</div>
-      <div class="small" id="tradeProfileSummary">This dashboard is for apprentice progress. Photos and videos will stay in the community feed.</div>
+      <div class="value" id="tradeProfileStatus">In Progress</div>
+      <div class="small">This dashboard is for apprentice progress. Photos and videos will stay in the community feed.</div>
     </div>
   </div>
 
@@ -160,241 +178,254 @@
 
 </div>
 
+<!-- Add Skill Modal -->
+<div class="modal-backdrop" id="skillModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add Skill Completed</h2>
+      <button class="modal-close" onclick="closeSkillModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Skill Name</label>
+        <input id="skillName" class="form-control" placeholder="Example: Cat6 terminations">
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="skillNotes" class="form-control" placeholder="Example: Completed 24 terminations and tested all cables."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="button secondary" onclick="closeSkillModal()">Cancel</button>
+      <button class="button" onclick="saveSkill()">Save Skill</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Certification Modal -->
+<div class="modal-backdrop" id="certModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add Certification</h2>
+      <button class="modal-close" onclick="closeCertificationModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Certification Name</label>
+        <input id="certName" class="form-control" placeholder="Example: OSHA 10">
+      </div>
+      <div class="form-group">
+        <label>Issued By</label>
+        <input id="certIssuer" class="form-control" placeholder="Example: OSHA, BICSI, manufacturer, school">
+      </div>
+      <div class="form-group">
+        <label>Date Earned</label>
+        <input id="certDate" type="date" class="form-control">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="button secondary" onclick="closeCertificationModal()">Cancel</button>
+      <button class="button" onclick="saveCertification()">Save Certification</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const TARGET_HOURS = 8000;
 
-  function safeEmailKey(email){
-    return String(email || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
-  }
+  let guestHours = Number(localStorage.getItem("ltn_apprentice_hours") || 0);
+  let hourLogs = safeJson(localStorage.getItem("ltn_apprentice_logs"), []);
+  let skills = safeJson(localStorage.getItem("ltn_apprentice_skills"), []);
+  let certifications = safeJson(localStorage.getItem("ltn_apprentice_certifications"), []);
 
-  function readJSON(key, fallback){
-    try { return JSON.parse(localStorage.getItem(key) || '') || fallback; }
-    catch(e){ return fallback; }
-  }
-
-  function writeJSON(key, value){
-    localStorage.setItem(key, JSON.stringify(value));
-  }
-
-  function getCurrentEmail(){
-    return String(localStorage.getItem('userEmail') || '').trim().toLowerCase();
-  }
-
-  function profileKey(email){
-    return 'ltn_profile_' + safeEmailKey(email);
-  }
-
-  function apprenticeKey(email){
-    return 'ltn_apprentice_profile_' + safeEmailKey(email);
-  }
-
-  function getBestProfile(){
-    const email = getCurrentEmail();
-    const options = [];
-
-    if (email) {
-      options.push(readJSON(apprenticeKey(email), null));
-      options.push(readJSON(profileKey(email), null));
-    }
-
-    options.push(readJSON('ltn_apprentice_profile', null));
-    options.push(readJSON('ltn_current_apprentice_profile', null));
-    options.push(readJSON('ltn_current_profile', null));
-    options.push(readJSON('tradeWorkerProfile', null));
-    options.push(readJSON('ltn_user', null));
-
-    for (const item of options) {
-      if (item && (item.fullName || item.name || item.email || item.trade || item.hours || item.apprenticeship)) {
-        if (item.apprenticeship) {
-          const app = item.apprenticeship || {};
-          return {
-            fullName: item.fullName || item.name || '',
-            name: item.fullName || item.name || '',
-            email: item.email || email || '',
-            phone: item.phone || '',
-            trade: item.trade || '',
-            city: item.city || '',
-            state: item.state || '',
-            program: app.program || item.program || '',
-            employer: app.employer || item.employer || '',
-            startDate: app.startDate || item.startDate || '',
-            hours: Number(app.hours || item.hours || item.completedHours || item.currentHours || 0)
-          };
-        }
-        return {
-          fullName: item.fullName || item.name || '',
-          name: item.fullName || item.name || '',
-          email: item.email || email || '',
-          phone: item.phone || '',
-          trade: item.trade || '',
-          city: item.city || '',
-          state: item.state || '',
-          program: item.program || '',
-          employer: item.employer || '',
-          startDate: item.startDate || '',
-          hours: Number(item.hours || item.completedHours || item.currentHours || 0)
-        };
-      }
-    }
-
-    return {
-      fullName: localStorage.getItem('userName') || localStorage.getItem('ltn_user_name') || localStorage.getItem('ltn_full_name') || '',
-      name: localStorage.getItem('userName') || localStorage.getItem('ltn_user_name') || localStorage.getItem('ltn_full_name') || '',
-      email: email || '',
-      trade: localStorage.getItem('ltn_user_trade') || localStorage.getItem('userTrade') || '',
-      city: localStorage.getItem('ltn_user_city') || '',
-      state: localStorage.getItem('ltn_user_state') || '',
-      program: localStorage.getItem('ltn_apprentice_program') || '',
-      employer: localStorage.getItem('ltn_apprentice_employer') || '',
-      startDate: localStorage.getItem('ltn_apprentice_start_date') || '',
-      hours: Number(localStorage.getItem('ltn_apprentice_hours') || 0)
-    };
-  }
-
-  let apprenticeProfile = getBestProfile();
-  let guestHours = Number(apprenticeProfile.hours || localStorage.getItem('ltn_apprentice_hours') || 0);
-  let hourLogs = readJSON('ltn_apprentice_logs', []);
-  let skills = readJSON('ltn_apprentice_skills', []);
-  let certifications = readJSON('ltn_apprentice_certifications', []);
-
-  function saveApprenticeState(){
-    apprenticeProfile.hours = Number(guestHours || 0);
-    apprenticeProfile.completedHours = Number(guestHours || 0);
-    apprenticeProfile.currentHours = Number(guestHours || 0);
-    apprenticeProfile.skills = skills;
-    apprenticeProfile.certificationsList = certifications;
-    apprenticeProfile.updatedAt = new Date().toISOString();
-
-    localStorage.setItem('ltn_apprentice_hours', String(guestHours));
-    writeJSON('ltn_apprentice_logs', hourLogs);
-    writeJSON('ltn_apprentice_skills', skills);
-    writeJSON('ltn_apprentice_certifications', certifications);
-    writeJSON('ltn_apprentice_profile', apprenticeProfile);
-    writeJSON('ltn_current_apprentice_profile', apprenticeProfile);
-
-    const email = String(apprenticeProfile.email || getCurrentEmail() || '').trim().toLowerCase();
-    if (email) {
-      writeJSON(apprenticeKey(email), apprenticeProfile);
+  function safeJson(value, fallback) {
+    try {
+      if (!value) return fallback;
+      const parsed = JSON.parse(value);
+      return parsed || fallback;
+    } catch (e) {
+      return fallback;
     }
   }
 
-  function escapeHTML(text){
-    return String(text || '').replace(/[&<>'"]/g, function(char){
-      return ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[char];
-    });
+  function firstValue(keys, fallback) {
+    for (const key of keys) {
+      const value = localStorage.getItem(key);
+      if (value && String(value).trim()) return String(value).trim();
+    }
+    return fallback || "";
+  }
+
+  function firstObject(keys) {
+    for (const key of keys) {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      try {
+        const obj = JSON.parse(raw);
+        if (obj && typeof obj === "object") return obj;
+      } catch (e) {}
+    }
+    return {};
+  }
+
+  function normalizeProfile(raw) {
+    raw = raw || {};
+    const apprenticeship = raw.apprenticeship || raw.apprentice || {};
+
+    const name = raw.fullName || raw.name || raw.displayName || apprenticeship.fullName || apprenticeship.name ||
+      firstValue(["ltn_apprentice_name", "apprenticeFullName", "tradeWorkerName", "profileName", "userName"], "Trade Worker");
+
+    const email = raw.email || apprenticeship.email ||
+      firstValue(["ltn_apprentice_email", "userEmail", "profileEmail"], "Guest User");
+
+    const trade = raw.trade || raw.specialty || apprenticeship.trade ||
+      firstValue(["ltn_apprentice_trade", "userTrade", "profileTrade"], "Not selected");
+
+    const city = raw.city || apprenticeship.city || firstValue(["ltn_apprentice_city", "profileCity"], "");
+    const state = raw.state || apprenticeship.state || firstValue(["ltn_apprentice_state", "profileState"], "");
+    const program = apprenticeship.program || raw.apprenticeProgram || raw.program || firstValue(["ltn_apprentice_program", "apprenticeProgram"], "");
+    const employer = apprenticeship.employer || raw.apprenticeEmployer || raw.employer || firstValue(["ltn_apprentice_employer", "apprenticeEmployer"], "");
+    const startDate = apprenticeship.startDate || raw.apprenticeStartDate || raw.startDate || firstValue(["ltn_apprentice_start_date", "apprenticeStartDate"], "");
+
+    const hours = Number(apprenticeship.hours || raw.apprenticeHours || raw.hours || localStorage.getItem("ltn_apprentice_hours") || 0);
+
+    return { name, email, trade, city, state, program, employer, startDate, hours };
+  }
+
+  function getProfile() {
+    const profile = firstObject([
+      "ltn_current_profile",
+      "ltnUserProfile",
+      "ltn_profile",
+      "ltn_profile_data",
+      "currentUserProfile",
+      "userProfile",
+      "apprenticeProfile",
+      "ltn_apprentice_profile",
+      "ltnApprenticeProfile"
+    ]);
+    return normalizeProfile(profile);
+  }
+
+  function syncProfileHours(profile) {
+    if (Number(profile.hours || 0) > guestHours) {
+      guestHours = Number(profile.hours || 0);
+      localStorage.setItem("ltn_apprentice_hours", String(guestHours));
+    }
   }
 
   function getLevel(hours) {
-    if (hours >= 8000) return 'Journeyman Ready';
-    if (hours >= 6000) return 'Advanced Apprentice';
-    if (hours >= 3000) return 'Apprentice 2';
-    if (hours >= 1000) return 'Apprentice 1';
-    return 'New Apprentice';
+    if (hours >= 8000) return "Journeyman Ready";
+    if (hours >= 6000) return "Advanced Apprentice";
+    if (hours >= 3000) return "Apprentice 2";
+    if (hours >= 1000) return "Apprentice 1";
+    return "New Apprentice";
   }
 
   function updateDashboard() {
-    const name = apprenticeProfile.fullName || apprenticeProfile.name || 'Trade Worker';
-    const email = apprenticeProfile.email || getCurrentEmail() || 'Guest User';
-    const trade = apprenticeProfile.trade || 'Not selected';
-    const location = [apprenticeProfile.city, apprenticeProfile.state].filter(Boolean).join(', ');
-    const program = apprenticeProfile.program || '';
-    const employer = apprenticeProfile.employer || '';
+    const profile = getProfile();
+    syncProfileHours(profile);
 
     const percent = Math.min((guestHours / TARGET_HOURS) * 100, 100);
     const remaining = Math.max(TARGET_HOURS - guestHours, 0);
 
-    document.getElementById('welcome').innerText = 'Welcome, ' + name;
-    document.getElementById('userName').innerText = name;
-    document.getElementById('userEmail').innerText = email;
-    document.getElementById('userTrade').innerText = trade;
-    document.getElementById('userHours').innerText = guestHours;
-    document.getElementById('hoursBar').style.width = percent + '%';
-    document.getElementById('progressText').innerText = Math.round(percent) + '% toward industry benchmark (8000 hrs)';
-    document.getElementById('percentBox').innerText = Math.round(percent) + '%';
-    document.getElementById('remainingHours').innerText = remaining;
-    document.getElementById('currentLevel').innerText = getLevel(guestHours);
+    document.getElementById("welcome").innerText = "Welcome, " + (profile.name || "Trade Worker");
+    document.getElementById("userName").innerText = profile.name || "Trade Worker";
+    document.getElementById("userEmail").innerText = profile.email || "Guest User";
+    document.getElementById("userTrade").innerText = profile.trade || "Not selected";
+    document.getElementById("userHours").innerText = guestHours;
+    document.getElementById("hoursBar").style.width = percent + "%";
+    document.getElementById("progressText").innerText = Math.round(percent) + "% toward industry benchmark (8000 hrs)";
+    document.getElementById("percentBox").innerText = Math.round(percent) + "%";
+    document.getElementById("remainingHours").innerText = remaining;
+    document.getElementById("currentLevel").innerText = getLevel(guestHours);
+    document.getElementById("skillsCount").innerText = skills.length;
+    document.getElementById("certsCount").innerText = certifications.length;
+    document.getElementById("tradeProfileStatus").innerText = profile.name && profile.trade !== "Not selected" ? "Active" : "In Progress";
 
-    let summary = [];
-    if (location) summary.push(location);
-    if (program) summary.push('Program: ' + program);
-    if (employer) summary.push('Employer: ' + employer);
-    document.getElementById('tradeProfileSummary').innerText = summary.length ? summary.join(' • ') : 'This dashboard is for apprentice progress. Photos and videos will stay in the community feed.';
-
+    renderProfileDetails(profile);
     renderLogs();
     renderSkills();
     renderCertifications();
-    saveApprenticeState();
+  }
+
+  function renderProfileDetails(profile) {
+    const box = document.getElementById("profileDetails");
+    const location = [profile.city, profile.state].filter(Boolean).join(", ");
+    const rows = [];
+
+    if (profile.program) rows.push(`<div class="profile-detail"><b>Program:</b> ${escapeHtml(profile.program)}</div>`);
+    if (profile.employer) rows.push(`<div class="profile-detail"><b>Employer:</b> ${escapeHtml(profile.employer)}</div>`);
+    if (profile.startDate) rows.push(`<div class="profile-detail"><b>Start Date:</b> ${escapeHtml(profile.startDate)}</div>`);
+    if (location) rows.push(`<div class="profile-detail"><b>Location:</b> ${escapeHtml(location)}</div>`);
+
+    box.innerHTML = rows.length ? rows.join("") : `<div class="profile-detail">Complete your apprentice information on the dashboard edit profile page.</div>`;
   }
 
   function renderLogs() {
-    const logBox = document.getElementById('hoursLog');
-    document.getElementById('loggedCount').innerText = hourLogs.length;
+    const logBox = document.getElementById("hoursLog");
+    document.getElementById("loggedCount").innerText = hourLogs.length;
 
     if (hourLogs.length === 0) {
-      logBox.innerHTML = '<div class="empty">No hours logged yet. Hours are saved on this device.</div>';
+      logBox.innerHTML = `<div class="empty">No hours logged yet. Hours are saved on this device.</div>`;
       return;
     }
 
     logBox.innerHTML = hourLogs.map((log, index) => `
       <div class="log-item">
-        <div class="item-main">
-          <span class="item-title">${escapeHTML(log.date)}</span>
-          <span class="item-meta">Hours worked</span>
+        <div class="log-main">
+          <strong>+${Number(log.hours || 0)} hrs</strong>
+          <span>${escapeHtml(log.date || "")}</span>
         </div>
-        <strong>+${escapeHTML(log.hours)} hrs</strong>
-        <button class="button danger" onclick="deleteHourLog(${index})">Delete</button>
+        <button class="delete-small" onclick="deleteHourLog(${index})">Delete</button>
       </div>
-    `).join('');
+    `).join("");
   }
 
-  function renderSkills(){
-    const box = document.getElementById('skillsList');
-    document.getElementById('skillsCount').innerText = skills.length;
-
-    if (skills.length === 0) {
-      box.innerHTML = '<div class="empty">No skills added yet.</div>';
+  function renderSkills() {
+    const box = document.getElementById("skillsList");
+    if (!skills.length) {
+      box.innerHTML = `<div class="empty">No skills added yet.</div>`;
       return;
     }
 
     box.innerHTML = skills.map((skill, index) => `
-      <div class="log-item">
-        <div class="item-main">
-          <span class="item-title">${escapeHTML(skill.name)}</span>
-          <span class="item-meta">Added ${escapeHTML(skill.date)}</span>
+      <div class="list-item">
+        <div>
+          <strong>${escapeHtml(skill.name)}</strong>
+          <span>${escapeHtml(skill.notes || "Added " + skill.date)}</span>
         </div>
-        <button class="button danger" onclick="deleteSkill(${index})">Delete</button>
+        <button class="delete-small" onclick="deleteSkill(${index})">Delete</button>
       </div>
-    `).join('');
+    `).join("");
   }
 
-  function renderCertifications(){
-    const box = document.getElementById('certificationsList');
-    document.getElementById('certificationsCount').innerText = certifications.length;
-
-    if (certifications.length === 0) {
-      box.innerHTML = '<div class="empty">No certifications added yet.</div>';
+  function renderCertifications() {
+    const box = document.getElementById("certificationsList");
+    if (!certifications.length) {
+      box.innerHTML = `<div class="empty">No certifications added yet.</div>`;
       return;
     }
 
     box.innerHTML = certifications.map((cert, index) => `
-      <div class="log-item">
-        <div class="item-main">
-          <span class="item-title">${escapeHTML(cert.name)}</span>
-          <span class="item-meta">Added ${escapeHTML(cert.date)}</span>
+      <div class="list-item">
+        <div>
+          <strong>${escapeHtml(cert.name)}</strong>
+          <span>${escapeHtml([cert.issuer, cert.date].filter(Boolean).join(" • ") || "Certification added")}</span>
         </div>
-        <button class="button danger" onclick="deleteCertification(${index})">Delete</button>
+        <button class="delete-small" onclick="deleteCertification(${index})">Delete</button>
       </div>
-    `).join('');
+    `).join("");
   }
 
   window.addHours = function () {
-    const input = prompt('Enter hours worked:');
+    const input = prompt("Enter hours worked:");
     if (!input) return;
 
     const hoursToAdd = Number(input);
 
     if (isNaN(hoursToAdd) || hoursToAdd <= 0) {
-      alert('Enter a valid number.');
+      alert("Enter a valid number.");
       return;
     }
 
@@ -405,75 +436,128 @@
       date: new Date().toLocaleDateString()
     });
 
-    updateDashboard();
-  };
-
-  window.deleteHourLog = function(index){
-    const log = hourLogs[index];
-    if (!log) return;
-    if (!confirm('Delete this hour entry?')) return;
-
-    guestHours = Math.max(0, guestHours - Number(log.hours || 0));
-    hourLogs.splice(index, 1);
+    localStorage.setItem("ltn_apprentice_hours", String(guestHours));
+    localStorage.setItem("ltn_apprentice_logs", JSON.stringify(hourLogs));
     updateDashboard();
   };
 
   window.resetHours = function () {
-    const confirmReset = confirm('Reset apprentice hours on this device?');
+    const confirmReset = confirm("Reset apprentice hours on this device?");
     if (!confirmReset) return;
 
     guestHours = 0;
     hourLogs = [];
 
-    localStorage.removeItem('ltn_apprentice_hours');
-    localStorage.removeItem('ltn_apprentice_logs');
-
+    localStorage.setItem("ltn_apprentice_hours", "0");
+    localStorage.setItem("ltn_apprentice_logs", JSON.stringify(hourLogs));
     updateDashboard();
   };
 
-  window.addSkill = function(){
-    const input = prompt('Enter completed skill:');
-    if (!input) return;
+  window.deleteHourLog = function(index) {
+    const log = hourLogs[index];
+    if (!log) return;
+    if (!confirm("Delete this hour log?")) return;
 
-    const name = input.trim();
-    if (!name) return;
+    guestHours = Math.max(0, guestHours - Number(log.hours || 0));
+    hourLogs.splice(index, 1);
+
+    localStorage.setItem("ltn_apprentice_hours", String(guestHours));
+    localStorage.setItem("ltn_apprentice_logs", JSON.stringify(hourLogs));
+    updateDashboard();
+  };
+
+  window.openSkillModal = function() {
+    document.getElementById("skillName").value = "";
+    document.getElementById("skillNotes").value = "";
+    document.getElementById("skillModal").classList.add("active");
+    setTimeout(() => document.getElementById("skillName").focus(), 50);
+  };
+
+  window.closeSkillModal = function() {
+    document.getElementById("skillModal").classList.remove("active");
+  };
+
+  window.saveSkill = function() {
+    const name = document.getElementById("skillName").value.trim();
+    const notes = document.getElementById("skillNotes").value.trim();
+
+    if (!name) {
+      alert("Please enter a skill name.");
+      return;
+    }
 
     skills.unshift({
-      name: name,
+      name,
+      notes,
       date: new Date().toLocaleDateString()
     });
 
+    localStorage.setItem("ltn_apprentice_skills", JSON.stringify(skills));
+    closeSkillModal();
     updateDashboard();
   };
 
-  window.deleteSkill = function(index){
-    if (!skills[index]) return;
-    if (!confirm('Delete this skill?')) return;
+  window.deleteSkill = function(index) {
+    if (!confirm("Delete this skill?")) return;
     skills.splice(index, 1);
+    localStorage.setItem("ltn_apprentice_skills", JSON.stringify(skills));
     updateDashboard();
   };
 
-  window.addCertification = function(){
-    const input = prompt('Enter certification or license:');
-    if (!input) return;
+  window.openCertificationModal = function() {
+    document.getElementById("certName").value = "";
+    document.getElementById("certIssuer").value = "";
+    document.getElementById("certDate").value = "";
+    document.getElementById("certModal").classList.add("active");
+    setTimeout(() => document.getElementById("certName").focus(), 50);
+  };
 
-    const name = input.trim();
-    if (!name) return;
+  window.closeCertificationModal = function() {
+    document.getElementById("certModal").classList.remove("active");
+  };
+
+  window.saveCertification = function() {
+    const name = document.getElementById("certName").value.trim();
+    const issuer = document.getElementById("certIssuer").value.trim();
+    const date = document.getElementById("certDate").value;
+
+    if (!name) {
+      alert("Please enter a certification name.");
+      return;
+    }
 
     certifications.unshift({
-      name: name,
-      date: new Date().toLocaleDateString()
+      name,
+      issuer,
+      date,
+      added: new Date().toLocaleDateString()
     });
 
+    localStorage.setItem("ltn_apprentice_certifications", JSON.stringify(certifications));
+    closeCertificationModal();
     updateDashboard();
   };
 
-  window.deleteCertification = function(index){
-    if (!certifications[index]) return;
-    if (!confirm('Delete this certification?')) return;
+  window.deleteCertification = function(index) {
+    if (!confirm("Delete this certification?")) return;
     certifications.splice(index, 1);
+    localStorage.setItem("ltn_apprentice_certifications", JSON.stringify(certifications));
     updateDashboard();
   };
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  document.addEventListener("click", function(e) {
+    if (e.target.id === "skillModal") closeSkillModal();
+    if (e.target.id === "certModal") closeCertificationModal();
+  });
 
   updateDashboard();
 </script>
