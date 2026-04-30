@@ -60,6 +60,24 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Poppins',system
   color:white;
 }
 
+
+/* ===== ACTIVE NAV STATE - ANY NAV BUTTON TURNS ORANGE WHEN CLICKED ===== */
+.nav a.active,
+.nav button.active,
+.nav .btn.active,
+.nav .nav-action.active{
+  background:var(--brand) !important;
+  color:white !important;
+  border-color:var(--brand) !important;
+}
+.nav a.active:hover,
+.nav button.active:hover,
+.nav .btn.active:hover,
+.nav .nav-action.active:hover{
+  background:var(--brand2) !important;
+  color:white !important;
+}
+
 /* ===== NOTIFICATION BADGE ===== */
 .notification-badge{position:absolute;top:-5px;right:-5px;background:#ef4444;color:white;border-radius:999px;padding:2px 6px;font-size:11px;font-weight:700;min-width:18px;text-align:center;line-height:1.4}
 
@@ -333,20 +351,20 @@ select.form-control{cursor:pointer}
     </div>
 
     <nav class="nav" id="main-nav">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="members.html">Members</a>
-      <a href="apprenticeship.html" onclick="prepareApprenticeTrackerFromDashboard()" class="btn nav-action">Apprenticeships</a>
-      <a href="#jobs">Jobs</a>
-      <a href="#" onclick="NetworkManager.openNetworkModal(); return false;" style="position:relative">
+      <a href="dashboard.html" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
+      <a href="members.html" data-nav="members" onclick="setActiveNav(this)">Members</a>
+      <a href="apprenticeship.html" data-nav="apprenticeships" onclick="setActiveNav(this); prepareApprenticeTrackerFromDashboard()" class="btn nav-action">Apprenticeships</a>
+      <a href="#jobs" data-nav="jobs" onclick="setActiveNav(this)">Jobs</a>
+      <a href="#" data-nav="network" onclick="setActiveNav(this); NetworkManager.openNetworkModal(); return false;" style="position:relative">
         Network
         <span id="network-badge" class="notification-badge" style="display:none">0</span>
       </a>
-      <a href="#" onclick="MessageManager.openMessagesModal(); return false;" style="position:relative">
+      <a href="#" data-nav="messages" onclick="setActiveNav(this); MessageManager.openMessagesModal(); return false;" style="position:relative">
         Messages
         <span id="messages-badge" class="notification-badge" style="display:none">0</span>
       </a>
-      <button class="btn nav-action" onclick="JobPostManager.openModal()">Post a Job</button>
-      <a href="index.html" class="btn btn-secondary">Logout</a>
+      <button class="btn nav-action" data-nav="post-job" onclick="setActiveNav(this); JobPostManager.openModal()">Post a Job</button>
+      <a href="index.html" data-nav="logout" onclick="setActiveNav(this)" class="btn btn-secondary">Logout</a>
     </nav>
   </div>
 </header>
@@ -3162,6 +3180,44 @@ document.addEventListener('DOMContentLoaded',function(){
   checkPendingConnections();
 });
 </script>
+
+<script>
+/* ===== TOP NAV CLICK ACTIVE STATE =====
+   Any nav item clicked turns orange. All others return to normal.
+   This is visual only and does not change your existing page functions. */
+function setActiveNav(el){
+  if(!el) return;
+  document.querySelectorAll('.nav a, .nav button').forEach(function(item){
+    item.classList.remove('active');
+  });
+  el.classList.add('active');
+  if(el.dataset && el.dataset.nav){
+    try{ localStorage.setItem('ltn_active_nav', el.dataset.nav); }catch(e){}
+  }
+}
+
+function restoreActiveNav(){
+  var saved = null;
+  try{ saved = localStorage.getItem('ltn_active_nav'); }catch(e){}
+  if(!saved){
+    var path = (window.location.pathname || '').toLowerCase();
+    if(path.indexOf('dashboard') !== -1) saved = 'dashboard';
+    if(path.indexOf('members') !== -1) saved = 'members';
+    if(path.indexOf('apprenticeship') !== -1) saved = 'apprenticeships';
+  }
+  if(saved){
+    var activeItem = document.querySelector('.nav [data-nav="' + saved + '"]');
+    if(activeItem){
+      document.querySelectorAll('.nav a, .nav button').forEach(function(item){
+        item.classList.remove('active');
+      });
+      activeItem.classList.add('active');
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', restoreActiveNav);
+</script>
+
 </body>
 </html>
-
