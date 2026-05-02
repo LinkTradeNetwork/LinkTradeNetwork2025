@@ -3092,7 +3092,7 @@ const MessageManager={
         rows.push(`<div class="message-item${unread>0?' unread':''}" onclick="MessageManager.openChat('${other.id}')"><div class="message-avatar">${other.profileImageUrl?`<img src="${other.profileImageUrl}" alt="${name}">`:initials}</div><div class="message-content"><div class="message-header"><div class="message-sender">${name}</div><div class="message-time">${timeStr}</div></div><div class="message-preview">${conv.lastMessage||'No messages yet'}</div></div></div>`);
       }
       list.innerHTML=rows.join(''); const badge=document.getElementById('messages-badge'); if(badge){ if(unreadTotal>0){ badge.textContent=unreadTotal; badge.style.display='block'; } else badge.style.display='none'; }
-    }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>Failed to load messages</h3></div>'; }
+    }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>No messages yet</h3></div>'; }
   },
   async startChat(userId){ NetworkManager.closeNetworkModal(); this.hideNewMessage(); document.getElementById('messages-modal').classList.add('active'); setTimeout(()=>this.openChat(userId),100); },
   async openChat(userId){
