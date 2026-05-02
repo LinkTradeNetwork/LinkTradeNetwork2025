@@ -2628,6 +2628,9 @@ const PostsFeed = {
   currentVideoObjectUrl: null,
   currentThumbnailData: null,
   unsubscribe: null,
+  likeListeners: {},
+  commentListeners: {},
+  commentCountListeners: {},
 
   async init() {
     if (!firebaseDb) {
@@ -2901,7 +2904,12 @@ const PostsFeed = {
       </div>`;
       return;
     }
-    container.innerHTML = posts.map(post => this.renderPost(this.normalizePost(post))).join('');
+    const normalized = posts.map(post => this.normalizePost(post));
+    container.innerHTML = normalized.map(post => this.renderPost(post)).join('');
+    normalized.forEach(post => {
+      this.listenLikes(post.postId);
+      this.listenCommentCount(post.postId);
+    });
     const loadMoreBtn = document.getElementById('load-more-posts');
     if (loadMoreBtn) loadMoreBtn.style.display = posts.length >= this.limit ? 'inline-block' : 'none';
   },
@@ -2946,9 +2954,7 @@ const PostsFeed = {
       ? `<img src="${this.safeText(post.profileImageUrl)}" alt="${this.safeText(post.fullName)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0">`
       : `<div style="width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0">${this.safeText(initials)}</div>`;
 
-    const likeBtn = post.hasLiked
-      ? `<button onclick="PostsFeed.unlike('${post.postId}', this)" style="background:var(--brand);color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px">❤️ ${post.likeCount} Liked</button>`
-      : `<button onclick="PostsFeed.like('${post.postId}', this)" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">🤍 ${post.likeCount} Like</button>`;
+    const likeBtn = `<button id="like-btn-${post.postId}" onclick="PostsFeed.toggleLike('${post.postId}', this)" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">🤍 Like</button><span id="like-count-${post.postId}" style="font-size:13px;color:var(--muted);align-self:center">0 Likes</span>`;
 
     let media = '';
     let mediaUrl = '';
@@ -2983,7 +2989,7 @@ const PostsFeed = {
       ${media}
       <div style="display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--line);align-items:center;flex-wrap:wrap">
         ${likeBtn}
-        <button onclick="PostsFeed.toggleComments('${post.postId}')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">💬 ${post.commentCount} Comment${post.commentCount !== 1 ? 's' : ''}</button>
+        <button id="comment-count-${post.postId}" onclick="PostsFeed.toggleComments('${post.postId}')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">💬 0 Comments</button>
         <button onclick="PostsFeed.sharePost('${post.postId}', '${shareAuthor}', '${sharePreview}')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted)">↗ Share</button>
         ${mediaDownloadBtn}
       </div>
@@ -2997,34 +3003,76 @@ const PostsFeed = {
     </div>`;
   },
 
-  async like(postId, btn) {
+  getCurrentLikeId() {
+    const authUser = firebaseAuth && firebaseAuth.currentUser;
+    if (authUser && authUser.uid) return authUser.uid;
+    return safeDocIdFromEmail(this.getCurrentEmail());
+  },
+
+  async toggleLike(postId, btn) {
     const email = this.getCurrentEmail();
     if (!email) { alert('Please sign in to like posts.'); return; }
+    const likeId = this.getCurrentLikeId();
+    if (!likeId) { alert('Please sign in to like posts.'); return; }
     if (btn) btn.disabled = true;
     try {
-      await firebaseDb.collection('posts').doc(postId).update({
-        likes: firebase.firestore.FieldValue.arrayUnion(email),
-        likeCount: firebase.firestore.FieldValue.increment(1)
-      });
+      const likeRef = firebaseDb.collection('posts').doc(postId).collection('likes').doc(likeId);
+      const snap = await likeRef.get();
+      if (snap.exists) {
+        await likeRef.delete();
+      } else {
+        await likeRef.set({
+          uid: likeId,
+          email,
+          createdAtMs: Date.now(),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
     } catch(e) {
       console.error(e);
-      alert('Failed to like post');
+      alert('Failed to update like');
     } finally { if (btn) btn.disabled = false; }
   },
 
-  async unlike(postId, btn) {
-    const email = this.getCurrentEmail();
-    if (!email) { alert('Please sign in to unlike posts.'); return; }
-    if (btn) btn.disabled = true;
-    try {
-      await firebaseDb.collection('posts').doc(postId).update({
-        likes: firebase.firestore.FieldValue.arrayRemove(email),
-        likeCount: firebase.firestore.FieldValue.increment(-1)
-      });
-    } catch(e) {
-      console.error(e);
-      alert('Failed to unlike post');
-    } finally { if (btn) btn.disabled = false; }
+  async like(postId, btn) { return this.toggleLike(postId, btn); },
+  async unlike(postId, btn) { return this.toggleLike(postId, btn); },
+
+  listenLikes(postId) {
+    if (!postId || this.likeListeners[postId]) return;
+    const likeId = this.getCurrentLikeId();
+    this.likeListeners[postId] = firebaseDb.collection('posts').doc(postId).collection('likes')
+      .onSnapshot((snap) => {
+        const countEl = document.getElementById(`like-count-${postId}`);
+        const btn = document.getElementById(`like-btn-${postId}`);
+        const count = snap.size;
+        let liked = false;
+        snap.forEach(d => { if (d.id === likeId) liked = true; });
+        if (countEl) countEl.textContent = `${count} Like${count === 1 ? '' : 's'}`;
+        if (btn) {
+          if (liked) {
+            btn.innerHTML = '❤️ Liked';
+            btn.style.background = 'var(--brand)';
+            btn.style.color = 'white';
+            btn.style.borderColor = 'var(--brand)';
+            btn.style.fontWeight = '600';
+          } else {
+            btn.innerHTML = '🤍 Like';
+            btn.style.background = 'var(--panel2)';
+            btn.style.color = 'var(--muted)';
+            btn.style.borderColor = 'var(--line)';
+            btn.style.fontWeight = '500';
+          }
+        }
+      }, (e) => console.error('Like listener error:', e));
+  },
+
+  listenCommentCount(postId) {
+    if (!postId || this.commentCountListeners[postId]) return;
+    this.commentCountListeners[postId] = firebaseDb.collection('posts').doc(postId).collection('comments')
+      .onSnapshot((snap) => {
+        const btn = document.getElementById(`comment-count-${postId}`);
+        if (btn) btn.innerHTML = `💬 ${snap.size} Comment${snap.size === 1 ? '' : 's'}`;
+      }, (e) => console.error('Comment count listener error:', e));
   },
 
   refreshSinglePost() {},
@@ -3051,33 +3099,37 @@ const PostsFeed = {
     if (!box) return;
     const open = box.style.display !== 'none';
     box.style.display = open ? 'none' : 'block';
-    if (!open) await this.loadComments(postId);
+    if (!open) this.listenComments(postId);
   },
 
-  async loadComments(postId) {
+  async loadComments(postId) { this.listenComments(postId); },
+
+  listenComments(postId) {
     const list = document.getElementById(`comments-list-${postId}`);
     if (!list) return;
+    if (this.commentListeners[postId]) return;
     list.innerHTML = '<div style="text-align:center;padding:10px;color:var(--muted);font-size:13px">Loading comments...</div>';
-    try {
-      const snap = await firebaseDb.collection('posts').doc(postId).collection('comments').orderBy('createdAtMs', 'asc').get();
-      if (snap.empty) {
-        list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">No comments yet.</div>';
-        return;
-      }
-      const rows = [];
-      snap.forEach(doc => {
-        const c = doc.data() || {};
-        const when = c.createdAtMs ? new Date(c.createdAtMs).toLocaleDateString() : '';
-        rows.push(`<div style="padding:8px 0;border-bottom:1px solid var(--line)">
-          <div style="font-size:13px;font-weight:700">${this.safeText(c.fullName || 'Member')} <span style="color:var(--muted);font-weight:400">${this.safeText(when)}</span></div>
-          <div style="font-size:13px;line-height:1.5">${this.safeHtml(c.commentText || '')}</div>
-        </div>`);
+    this.commentListeners[postId] = firebaseDb.collection('posts').doc(postId).collection('comments')
+      .orderBy('createdAtMs', 'asc')
+      .onSnapshot((snap) => {
+        if (snap.empty) {
+          list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">No comments yet.</div>';
+          return;
+        }
+        const rows = [];
+        snap.forEach(doc => {
+          const c = doc.data() || {};
+          const when = c.createdAtMs ? new Date(c.createdAtMs).toLocaleDateString() : '';
+          rows.push(`<div style="padding:8px 0;border-bottom:1px solid var(--line)">
+            <div style="font-size:13px;font-weight:700">${this.safeText(c.fullName || 'Member')} <span style="color:var(--muted);font-weight:400">${this.safeText(when)}</span></div>
+            <div style="font-size:13px;line-height:1.5">${this.safeHtml(c.commentText || c.text || '')}</div>
+          </div>`);
+        });
+        list.innerHTML = rows.join('');
+      }, (e) => {
+        console.error('Comment listener error:', e);
+        list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">Failed to load comments.</div>';
       });
-      list.innerHTML = rows.join('');
-    } catch(e) {
-      console.error(e);
-      list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">Failed to load comments.</div>';
-    }
   },
 
   async addComment(postId) {
@@ -3098,11 +3150,12 @@ const PostsFeed = {
         createdAtMs: Date.now(),
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
-      await firebaseDb.collection('posts').doc(postId).update({
-        commentCount: firebase.firestore.FieldValue.increment(1)
-      });
+      try {
+        await firebaseDb.collection('posts').doc(postId).update({
+          commentCount: firebase.firestore.FieldValue.increment(1)
+        });
+      } catch (_) {}
       input.value = '';
-      await this.loadComments(postId);
     } catch(e) {
       console.error(e);
       alert('Failed to add comment');
