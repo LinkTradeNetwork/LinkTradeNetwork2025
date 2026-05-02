@@ -986,6 +986,8 @@ async function saveProfileToFirestore(profile){
     skills: profile.skills || '',
     certifications: profile.certifications || '',
     profileImageUrl: profile.profileImageUrl || '',
+    uid: (firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid) ? firebaseAuth.currentUser.uid : (profile.uid || ''),
+    authUid: (firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid) ? firebaseAuth.currentUser.uid : (profile.authUid || profile.uid || ''),
     apprenticeship: profile.apprenticeship || {},
     hours: profile.apprenticeship && profile.apprenticeship.isApprentice ? Number(profile.apprenticeship.hours || 0) : Number(profile.hours || 0),
     profileImage: profile.profileImageUrl || '',
@@ -1134,10 +1136,34 @@ function firebasePersonCard(user, actionsHtml){
     </div>
   </div>`;
 }
+function getRealFirebaseUserId(user){
+  if(!user) return '';
+  return String(user.uid || user.authUid || user.userId || user.id || '').trim();
+}
+
 async function getUserById(userId){
   if(!userId || !firebaseDb) return null;
-  const snap = await firebaseDb.collection('users').doc(userId).get();
-  return snap.exists ? { id:snap.id, ...snap.data() } : null;
+
+  const requestedId = String(userId).trim();
+  const snap = await firebaseDb.collection('users').doc(requestedId).get();
+  if(snap.exists){
+    const data = snap.data() || {};
+    const realId = String(data.uid || data.authUid || requestedId).trim();
+    return { id: realId || requestedId, profileDocId: snap.id, uid: realId || requestedId, ...data };
+  }
+
+  // Fallback for older records: userId may be an email address instead of a document ID.
+  if(requestedId.includes('@')){
+    const emailSnap = await firebaseDb.collection('users').where('email','==',requestedId.toLowerCase()).limit(1).get();
+    if(!emailSnap.empty){
+      const d = emailSnap.docs[0];
+      const data = d.data() || {};
+      const realId = String(data.uid || data.authUid || d.id).trim();
+      return { id: realId, profileDocId: d.id, uid: realId, ...data };
+    }
+  }
+
+  return null;
 }
 
 /* ===== FIREBASE: CHECK PENDING CONNECTIONS ON PAGE LOAD ===== */
@@ -3022,7 +3048,7 @@ const NetworkManager={
       const cards=[];
       for(const id of unique){
         const u = await getUserById(id);
-        if(u) cards.push(firebasePersonCard(u, `<button class="btn btn-secondary" onclick="MessageManager.startChat('${u.id}')">Message</button><button class="btn btn-primary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
+        if(u) cards.push(firebasePersonCard(u, `<button class="btn btn-secondary" onclick="MessageManager.startChat('${getRealFirebaseUserId(u)}')">Message</button><button class="btn btn-primary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
       }
       list.innerHTML = cards.join('') || '<div class="empty-state"><h3>No connections found</h3></div>';
     }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>Failed to load connections</h3></div>'; }
@@ -3069,7 +3095,7 @@ const NetworkManager={
       users.forEach(d=>{
         if(d.id!==current.id){
           const u={id:d.id,...d.data()};
-          cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="NetworkManager.sendConnectionById('${u.id}')">Connect</button><button class="btn btn-secondary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
+          cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="NetworkManager.sendConnectionById('${getRealFirebaseUserId(u)}')">Connect</button><button class="btn btn-secondary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
         }
       });
       list.innerHTML = cards.join('') || '<div class="empty-state"><h3>No suggestions yet</h3></div>';
@@ -3088,7 +3114,7 @@ const NetworkManager={
         if(current && d.id===current.id) return;
         const u={id:d.id,...d.data()};
         const text = `${u.name||''} ${u.fullName||''} ${u.trade||''} ${u.city||''} ${u.state||''} ${u.bio||''}`.toLowerCase();
-        if(text.includes(q)) cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="NetworkManager.sendConnectionById('${u.id}')">Connect</button><button class="btn btn-secondary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
+        if(text.includes(q)) cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="NetworkManager.sendConnectionById('${getRealFirebaseUserId(u)}')">Connect</button><button class="btn btn-secondary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
       });
       results.innerHTML = cards.join('') || '<div class="empty-state"><h3>No members found</h3><p>Try a different search.</p></div>';
     }catch(e){ console.error(e); results.innerHTML='<div class="empty-state"><h3>Search failed</h3></div>'; }
@@ -3098,22 +3124,32 @@ const NetworkManager={
     const authUser = await waitForFirebaseAuthUser();
     const fromUserId = (authUser && authUser.uid) ? authUser.uid : (current && current.id ? current.id : '');
 
-    console.log('LTN connection sender:', { authUid: authUser ? authUser.uid : null, currentUserRecord: current, fromUserId: fromUserId, targetUserId: targetUserId });
+    let target = await getUserById(targetUserId);
+    let realTargetUserId = target ? getRealFirebaseUserId(target) : String(targetUserId || '').trim();
+
+    console.log('LTN connection sender:', {
+      authUid: authUser ? authUser.uid : null,
+      currentUserRecord: current,
+      fromUserId: fromUserId,
+      originalTargetUserId: targetUserId,
+      realTargetUserId: realTargetUserId,
+      targetUserRecord: target
+    });
 
     if(!fromUserId){ alert('User is still loading. Please refresh, sign in again, and try connecting once more.'); return; }
     if(!current){ alert('Save your profile first.'); return; }
-    if(fromUserId===targetUserId){ alert('You cannot connect with yourself.'); return; }
+    if(!realTargetUserId){ alert('Could not find this member's Firebase user ID. Have that member log in and save their profile once, then try again.'); return; }
+    if(fromUserId===realTargetUserId){ alert('You cannot connect with yourself.'); return; }
 
-    const connectionId = fromUserId + '_' + targetUserId;
-    const reverseId = targetUserId + '_' + fromUserId;
+    const connectionId = fromUserId + '_' + realTargetUserId;
+    const reverseId = realTargetUserId + '_' + fromUserId;
     const existing = await firebaseDb.collection('connections').doc(connectionId).get();
     const reverse = await firebaseDb.collection('connections').doc(reverseId).get();
     if(existing.exists || reverse.exists){ alert('Connection already exists or is pending.'); return; }
 
-    const target = await getUserById(targetUserId);
     await firebaseDb.collection('connections').doc(connectionId).set({
       fromUserId: fromUserId,
-      toUserId: targetUserId,
+      toUserId: realTargetUserId,
       fromEmail: current.email || (authUser && authUser.email) || getStoredUserEmail(),
       toEmail: target?.email || '',
       fromName: current.name || current.fullName || current.email || '',
@@ -3163,7 +3199,7 @@ const MessageManager={
         snap.forEach(d=>{
           if(current && d.id===current.id) return;
           const u={id:d.id,...d.data()}; const txt=`${u.name||''} ${u.fullName||''} ${u.trade||''} ${u.city||''} ${u.state||''}`.toLowerCase();
-          if(txt.includes(term)) cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="MessageManager.startChat('${u.id}')">Message</button>`));
+          if(txt.includes(term)) cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="MessageManager.startChat('${getRealFirebaseUserId(u)}')">Message</button>`));
         });
         results.innerHTML=cards.join('') || '<div style="text-align:center;padding:12px;color:var(--muted)">No members found</div>';
       },400);
