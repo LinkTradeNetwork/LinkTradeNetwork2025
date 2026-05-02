@@ -954,13 +954,32 @@ function safeDocIdFromEmail(email){
   return String(email || 'unknown-user').toLowerCase().replace(/[^a-z0-9_-]/g, '_');
 }
 
-async function saveProfileToFirestore(profile){
-  if(!firebaseDb || !profile || !profile.email) return;
+async function getFirebaseProfileDocId(email){
+  if(!firebaseDb) return null;
 
+  const authUser = await waitForFirebaseAuthUser();
+  if(authUser && authUser.uid) return authUser.uid;
+
+  const cleanEmail = String(email || getStoredUserEmail() || '').trim().toLowerCase();
+  if(cleanEmail){
+    try{
+      const existing = await firebaseDb.collection('users').where('email', '==', cleanEmail).limit(1).get();
+      if(!existing.empty) return existing.docs[0].id;
+    }catch(e){ console.warn('Could not find Firebase profile by email:', e); }
+    return safeDocIdFromEmail(cleanEmail);
+  }
+  return null;
+}
+
+async function saveProfileToFirestore(profile){
+  if(!firebaseDb || !profile || !profile.email) return false;
+
+  const authUser = await waitForFirebaseAuthUser();
+  const authUid = authUser && authUser.uid ? authUser.uid : (profile.uid || profile.authUid || '');
   const cleanProfile = {
     name: profile.fullName || profile.name || '',
     fullName: profile.fullName || profile.name || '',
-    email: profile.email || '',
+    email: String(profile.email || '').trim().toLowerCase(),
     phone: profile.phone || '',
     trade: profile.trade || '',
     experience: profile.experience || '',
@@ -969,35 +988,69 @@ async function saveProfileToFirestore(profile){
     bio: profile.bio || '',
     skills: profile.skills || '',
     certifications: profile.certifications || '',
-    profileImageUrl: profile.profileImageUrl || '',
-    uid: (firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid) ? firebaseAuth.currentUser.uid : (profile.uid || ''),
-    authUid: (firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid) ? firebaseAuth.currentUser.uid : (profile.authUid || profile.uid || ''),
+    profileImageUrl: profile.profileImageUrl || profile.profileImage || profile.photoURL || '',
+    profileImage: profile.profileImageUrl || profile.profileImage || profile.photoURL || '',
+    photoURL: profile.profileImageUrl || profile.profileImage || profile.photoURL || '',
+    uid: authUid,
+    authUid: authUid,
     apprenticeship: profile.apprenticeship || {},
     hours: profile.apprenticeship && profile.apprenticeship.isApprentice ? Number(profile.apprenticeship.hours || 0) : Number(profile.hours || 0),
-    profileImage: profile.profileImageUrl || '',
-    photoURL: profile.profileImageUrl || '',
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
 
   try{
-    let docId = null;
+    const docId = await getFirebaseProfileDocId(cleanProfile.email);
+    if(!docId) throw new Error('Missing Firebase profile document ID');
 
-    if(firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid){
-      docId = firebaseAuth.currentUser.uid;
-    }
-
-    if(!docId){
-      const existing = await firebaseDb.collection('users').where('email', '==', profile.email).limit(1).get();
-      if(!existing.empty){ docId = existing.docs[0].id; }
-    }
-
-    if(!docId){ docId = safeDocIdFromEmail(profile.email); }
-
-    await firebaseDb.collection('users').doc(docId).set(cleanProfile, { merge:true });
-    console.log('Profile synced to Firestore members page');
+    const ref = firebaseDb.collection('users').doc(docId);
+    const existing = await ref.get();
+    if(!existing.exists){ cleanProfile.createdAt = firebase.firestore.FieldValue.serverTimestamp(); }
+    await ref.set(cleanProfile, { merge:true });
+    console.log('Profile saved to Firebase users/' + docId);
+    return true;
   }catch(e){
-    console.error('Firestore profile sync failed:', e);
+    console.error('Firestore profile save failed:', e);
+    return false;
   }
+}
+
+async function loadProfileFromFirestore(email){
+  if(!firebaseDb) return null;
+  const cleanEmail = String(email || getStoredUserEmail() || '').trim().toLowerCase();
+
+  try{
+    const authUser = await waitForFirebaseAuthUser();
+
+    if(authUser && authUser.uid){
+      const uidDoc = await firebaseDb.collection('users').doc(authUser.uid).get();
+      if(uidDoc.exists){ return { id:authUser.uid, uid:authUser.uid, ...uidDoc.data() }; }
+    }
+
+    if(cleanEmail){
+      const emailSnap = await firebaseDb.collection('users').where('email', '==', cleanEmail).limit(1).get();
+      if(!emailSnap.empty){
+        const d = emailSnap.docs[0];
+        const data = d.data() || {};
+
+        if(authUser && authUser.uid && d.id !== authUser.uid){
+          await firebaseDb.collection('users').doc(authUser.uid).set({
+            ...data,
+            email: data.email || cleanEmail,
+            uid: authUser.uid,
+            authUid: authUser.uid,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge:true });
+          return { id:authUser.uid, uid:authUser.uid, ...data, email:data.email || cleanEmail };
+        }
+
+        return { id:d.id, uid:data.uid || d.id, ...data };
+      }
+    }
+  }catch(e){
+    console.warn('Firestore profile load failed:', e);
+  }
+
+  return null;
 }
 
 
@@ -1675,19 +1728,19 @@ const ProfileManager = {
     }
 
     try{
-      const data = await apiCall({action:'get-profile',email});
-      if(data && data.success && data.profile){
-        const backend = data.profile || {};
-        if(String(backend.email || email).toLowerCase() === email){
-          const local = ltnReadCurrentProfile();
-          const merged = {...backend, ...local};
-          if(local.apprenticeship) merged.apprenticeship = local.apprenticeship;
-          if(local.profileImageUrl) merged.profileImageUrl = local.profileImageUrl;
-          this.populateForm(merged);
-          this.currentImageUrl = merged.profileImageUrl || '';
+      const firebaseProfile = await loadProfileFromFirestore(email);
+      if(firebaseProfile && String(firebaseProfile.email || email).toLowerCase() === email){
+        const local = ltnReadCurrentProfile();
+        const merged = {...local, ...firebaseProfile};
+        if(firebaseProfile.apprenticeship) merged.apprenticeship = firebaseProfile.apprenticeship;
+        if(firebaseProfile.profileImageUrl || firebaseProfile.profileImage || firebaseProfile.photoURL){
+          merged.profileImageUrl = firebaseProfile.profileImageUrl || firebaseProfile.profileImage || firebaseProfile.photoURL;
         }
+        this.populateForm(merged);
+        this.currentImageUrl = merged.profileImageUrl || '';
+        ltnSaveProfileEverywhere(merged);
       }
-    }catch(e){}
+    }catch(e){ console.warn('Firebase profile open load failed:', e); }
 
     document.getElementById('profile-modal').classList.add('active');
   },
@@ -1769,15 +1822,12 @@ const ProfileManager = {
     this.displayProfile(profile);
     if(profile.profileImageUrl) this.displayProfileImage(profile.profileImageUrl); else this.displayPlaceholder();
 
-    // Backend save is best-effort. The page will still work even if Apps Script fails.
-    try{
-      let data = await apiCall({action:'save-profile', ...profile});
-      if(!data || data.success !== true){
-        data = await apiCall({action:'save-profile', profile});
-      }
-    }catch(e){ console.warn('Apps Script profile save failed, local save still works.', e); }
-
-    try{ await saveProfileToFirestore(profile); }catch(e){ console.warn('Firestore profile save failed, local save still works.', e); }
+    // Firebase is now the main profile database. Apps Script is no longer used for profile save.
+    const firebaseSaved = await saveProfileToFirestore(profile);
+    if(!firebaseSaved){
+      console.warn('Firebase profile save failed. Local profile was still saved so the dashboard will keep working.');
+      alert('Profile saved locally, but Firebase did not confirm the save. Please check your login/Firebase connection.');
+    }
 
     this.closeModal();
     this.checkAuthStatus();
@@ -1806,26 +1856,25 @@ const ProfileManager = {
     }
 
     try{
-      const data = await apiCall({action:'get-profile',email});
-      if(data && data.success && data.profile){
-        const backend = data.profile || {};
-        if(String(backend.email || email).toLowerCase() === email){
-          const local = ltnReadCurrentProfile();
-          const merged = {...backend, ...local};
-          if(local.apprenticeship) merged.apprenticeship = local.apprenticeship;
-          if(local.profileImageUrl) merged.profileImageUrl = local.profileImageUrl;
-
-          this.displayProfile(merged);
-          if(merged.profileImageUrl){
-            this.currentImageUrl=merged.profileImageUrl;
-            this.displayProfileImage(merged.profileImageUrl);
-          } else {
-            this.displayPlaceholder();
-          }
-          ltnSaveProfileEverywhere(merged);
+      const firebaseProfile = await loadProfileFromFirestore(email);
+      if(firebaseProfile && String(firebaseProfile.email || email).toLowerCase() === email){
+        const local = ltnReadCurrentProfile();
+        const merged = {...local, ...firebaseProfile};
+        if(firebaseProfile.apprenticeship) merged.apprenticeship = firebaseProfile.apprenticeship;
+        if(firebaseProfile.profileImageUrl || firebaseProfile.profileImage || firebaseProfile.photoURL){
+          merged.profileImageUrl = firebaseProfile.profileImageUrl || firebaseProfile.profileImage || firebaseProfile.photoURL;
         }
+
+        this.displayProfile(merged);
+        if(merged.profileImageUrl){
+          this.currentImageUrl=merged.profileImageUrl;
+          this.displayProfileImage(merged.profileImageUrl);
+        } else {
+          this.displayPlaceholder();
+        }
+        ltnSaveProfileEverywhere(merged);
       }
-    }catch(e){}
+    }catch(e){ console.warn('Firebase profile load failed:', e); }
   },
 
   loadDocuments(){ this.displayDocuments(); },
