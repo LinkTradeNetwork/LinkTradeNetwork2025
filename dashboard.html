@@ -2749,6 +2749,35 @@ const PostsFeed = {
     return await ref.getDownloadURL();
   },
 
+  async uploadVideoToCloudinary(file) {
+    const cloudName = CLOUDINARY_CLOUD_NAME || '';
+    const uploadPreset = CLOUDINARY_UPLOAD_PRESET || '';
+    if (!cloudName || !uploadPreset) {
+      alert('Cloudinary is not set up correctly. Check CLOUDINARY_CLOUD_NAME and CLOUDINARY_UPLOAD_PRESET near the top of dashboard.html.');
+      throw new Error('Cloudinary not configured');
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', uploadPreset);
+    formData.append('folder', 'linktradenetwork/videos');
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.secure_url) {
+      throw new Error(data.error && data.error.message ? data.error.message : 'Video upload failed');
+    }
+
+    return {
+      videoUrl: data.secure_url || '',
+      thumbnailUrl: data.secure_url ? data.secure_url.replace(/\.[^/.?]+($|\?)/, '.jpg$1') : ''
+    };
+  },
+
   async uploadFileToFirebase(file, path) {
     if (!firebaseStorage) throw new Error('Firebase Storage is not ready.');
     const ref = firebaseStorage.ref().child(path);
@@ -2803,10 +2832,9 @@ const PostsFeed = {
 
       if (this.currentVideoData) {
         mediaType = 'video';
-        videoUrl = await this.uploadFileToFirebase(this.currentVideoData, `${basePath}/video-${Date.now()}-${this.currentVideoData.name || 'post-video'}`);
-        if (this.currentThumbnailData) {
-          thumbnailUrl = await this.uploadDataUrlToFirebase(this.currentThumbnailData, `${basePath}/thumbnail.jpg`);
-        }
+        const cloudUpload = await this.uploadVideoToCloudinary(this.currentVideoData);
+        videoUrl = cloudUpload.videoUrl || '';
+        thumbnailUrl = this.currentThumbnailData || cloudUpload.thumbnailUrl || '';
       } else if (this.currentImageData) {
         mediaType = 'image';
         imageUrl = await this.uploadDataUrlToFirebase(this.currentImageData, `${basePath}/image.jpg`);
