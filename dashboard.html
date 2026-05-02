@@ -1680,13 +1680,33 @@ const ProfileManager = {
     if(!confirm('Delete your profile image?')) return;
 
     this.currentImageUrl = '';
-    const profile = ltnReadCurrentProfile();
-    if(profile && profile.email){
-      profile.profileImageUrl = '';
-      ltnSaveProfileEverywhere(profile);
-      this.displayProfile(profile);
-    }
+    const profile = ltnReadCurrentProfile() || {};
+    const email = ltnGetCurrentEmail();
+
+    profile.profileImageUrl = '';
+    profile.profileImage = '';
+    profile.photoURL = '';
+
+    ltnSaveProfileEverywhere(profile);
+    this.displayProfile(profile);
     this.displayPlaceholder();
+
+    try{
+      if(firebaseDb && email){
+        const docId = await getFirebaseProfileDocId(email);
+        if(docId){
+          await firebaseDb.collection('users').doc(docId).set({
+            profileImageUrl: '',
+            profileImage: '',
+            photoURL: '',
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge:true });
+        }
+      }
+    }catch(err){
+      console.warn('Could not delete Firebase profile image:', err);
+    }
+
     alert('Profile image deleted!');
   },
 
@@ -1708,27 +1728,76 @@ const ProfileManager = {
     if(!file.type.startsWith('image/')){ alert('Please select an image file'); return; }
     if(!ltnGetCurrentEmail()){ alert('Please sign in first'); return; }
 
-    const reader = new FileReader();
-    reader.onload=(e)=>{
-      const img = new Image();
-      img.onload=()=>{
-        const MAX=240;
-        let w=img.width, h=img.height;
-        if(w>h){ if(w>MAX){h=Math.round(h*MAX/w);w=MAX;} }
-        else { if(h>MAX){w=Math.round(w*MAX/h);h=MAX;} }
+    if(file.size > 3 * 1024 * 1024){
+      alert('Please choose a smaller image under 3 MB.');
+      return;
+    }
 
-        const canvas=document.createElement('canvas');
-        canvas.width=w; canvas.height=h;
-        canvas.getContext('2d').drawImage(img,0,0,w,h);
+    const saveBtn = document.getElementById('save-profile');
+    const originalSaveText = saveBtn ? saveBtn.textContent : '';
 
-        const compressed=canvas.toDataURL('image/jpeg',0.75);
-        this.currentImageUrl=compressed;
-        this.displayProfileImage(compressed);
-        alert('Image ready! Click Save Profile to keep it.');
+    try{
+      const compressed = await new Promise((resolve,reject)=>{
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload=(e)=>{
+          const img = new Image();
+          img.onerror = reject;
+          img.onload=()=>{
+            const MAX=320;
+            let w=img.width, h=img.height;
+            if(w>h){ if(w>MAX){h=Math.round(h*MAX/w);w=MAX;} }
+            else { if(h>MAX){w=Math.round(w*MAX/h);h=MAX;} }
+
+            const canvas=document.createElement('canvas');
+            canvas.width=w; canvas.height=h;
+            canvas.getContext('2d').drawImage(img,0,0,w,h);
+
+            resolve(canvas.toDataURL('image/jpeg',0.72));
+          };
+          img.src=e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      this.currentImageUrl=compressed;
+      this.displayProfileImage(compressed);
+
+      const current = ltnReadCurrentProfile() || {};
+      const email = ltnGetCurrentEmail();
+
+      const profile = {
+        ...current,
+        email,
+        profileImageUrl: compressed,
+        profileImage: compressed,
+        photoURL: compressed
       };
-      img.src=e.target.result;
-    };
-    reader.readAsDataURL(file);
+
+      ltnSaveProfileEverywhere(profile);
+
+      if(firebaseDb){
+        const docId = await getFirebaseProfileDocId(email);
+        if(docId){
+          await firebaseDb.collection('users').doc(docId).set({
+            profileImageUrl: compressed,
+            profileImage: compressed,
+            photoURL: compressed,
+            email: String(email || '').trim().toLowerCase(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge:true });
+        }
+      }
+
+      alert('Profile photo saved.');
+    }catch(e){
+      console.error('Profile image save failed:', e);
+      alert('Could not save profile photo. Please try a smaller image.');
+    }finally{
+      if(saveBtn) saveBtn.textContent = originalSaveText || 'Save Profile';
+      const imageInput = document.getElementById('profile-image-input');
+      if(imageInput) imageInput.value = '';
+    }
   },
 
   displayProfileImage(imageData){
