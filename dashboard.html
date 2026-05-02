@@ -3079,20 +3079,121 @@ const MessageManager={
   },
   conversationId(a,b){ return [a,b].sort().join('_'); },
   async loadConversations(){
-    const list=document.getElementById('messages-list'); list.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)">Loading messages...</div>';
-    const current=await this.ensureUser(); if(!current){ list.innerHTML='<div class="empty-state"><h3>No profile found</h3></div>'; return; }
+    const list=document.getElementById('messages-list');
+    list.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)">Loading messages...</div>';
+
+    const current=await this.ensureUser();
+    if(!current){
+      list.innerHTML='<div class="empty-state"><h3>No profile found</h3><p>Please save your profile first.</p></div>';
+      return;
+    }
+
     try{
-      const snap=await firebaseDb.collection('conversations').where('participants','array-contains',current.id).orderBy('updatedAt','desc').get();
-      if(snap.empty){ list.innerHTML=`<div class="empty-state" style="padding:60px 20px"><h3>No messages yet</h3><p>Click <b>+ New Message</b> to start a conversation.</p></div>`; const badge=document.getElementById('messages-badge'); if(badge) badge.style.display='none'; return; }
-      let unreadTotal=0; const rows=[];
-      for(const d of snap.docs){
-        const conv=d.data(); const otherId=(conv.participants||[]).find(id=>id!==current.id); const other=await getUserById(otherId); if(!other) continue;
-        const name=other.name||other.fullName||other.email||'Member'; const initials=firebaseInitials(name,other.email); const unread=(conv.unread&&conv.unread[current.id])||0; unreadTotal+=unread;
-        const timeStr = conv.updatedAt&&conv.updatedAt.toDate ? conv.updatedAt.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
-        rows.push(`<div class="message-item${unread>0?' unread':''}" onclick="MessageManager.openChat('${other.id}')"><div class="message-avatar">${other.profileImageUrl?`<img src="${other.profileImageUrl}" alt="${name}">`:initials}</div><div class="message-content"><div class="message-header"><div class="message-sender">${name}</div><div class="message-time">${timeStr}</div></div><div class="message-preview">${conv.lastMessage||'No messages yet'}</div></div></div>`);
+      // IMPORTANT:
+      // Do NOT use orderBy here. If a conversation is missing updatedAt or Firebase wants an index,
+      // the inbox can look empty even when the chat exists.
+      const snap=await firebaseDb.collection('conversations')
+        .where('participants','array-contains',current.id)
+        .get();
+
+      if(snap.empty){
+        list.innerHTML=`<div class="empty-state" style="padding:60px 20px"><h3>No messages yet</h3><p>Click <b>+ New Message</b> to start a conversation.</p></div>`;
+        const badge=document.getElementById('messages-badge');
+        if(badge) badge.style.display='none';
+        return;
       }
-      list.innerHTML=rows.join(''); const badge=document.getElementById('messages-badge'); if(badge){ if(unreadTotal>0){ badge.textContent=unreadTotal; badge.style.display='block'; } else badge.style.display='none'; }
-    }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>No messages yet</h3></div>'; }
+
+      let unreadTotal=0;
+      const conversations=[];
+
+      for(const d of snap.docs){
+        const conv=d.data() || {};
+        conv.id=d.id;
+
+        const otherId=(conv.participants||[]).find(id=>id!==current.id);
+        if(!otherId) continue;
+
+        const other=await getUserById(otherId);
+        if(!other) continue;
+
+        let preview=conv.lastMessage || '';
+        let sortDate=conv.updatedAt && conv.updatedAt.toDate ? conv.updatedAt.toDate() : new Date(0);
+
+        // Fallback: if old conversation docs do not have lastMessage/updatedAt,
+        // read the latest message from the subcollection.
+        if(!preview || sortDate.getTime()===0){
+          try{
+            const lastSnap=await firebaseDb.collection('conversations').doc(d.id)
+              .collection('messages')
+              .orderBy('createdAt','desc')
+              .limit(1)
+              .get();
+
+            if(!lastSnap.empty){
+              const last=lastSnap.docs[0].data() || {};
+              preview=last.messageText || last.text || preview || 'Message';
+              if(last.createdAt && last.createdAt.toDate) sortDate=last.createdAt.toDate();
+            }
+          }catch(lastErr){
+            console.warn('Could not read latest message for inbox preview:', lastErr);
+          }
+        }
+
+        const unread=(conv.unread&&conv.unread[current.id])||0;
+        unreadTotal+=Number(unread||0);
+
+        conversations.push({
+          id:d.id,
+          other,
+          otherId,
+          preview:preview || 'No messages yet',
+          unread:Number(unread||0),
+          sortDate
+        });
+      }
+
+      conversations.sort((a,b)=>b.sortDate-a.sortDate);
+
+      if(!conversations.length){
+        list.innerHTML=`<div class="empty-state" style="padding:60px 20px"><h3>No messages yet</h3><p>Click <b>+ New Message</b> to start a conversation.</p></div>`;
+        return;
+      }
+
+      const rows=conversations.map(item=>{
+        const other=item.other;
+        const name=other.name||other.fullName||other.email||'Member';
+        const initials=firebaseInitials(name,other.email);
+        const timeStr=item.sortDate && item.sortDate.getTime && item.sortDate.getTime()>0
+          ? item.sortDate.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+          : '';
+
+        return `<div class="message-item${item.unread>0?' unread':''}" onclick="MessageManager.openChat('${other.id}')">
+          <div class="message-avatar">${other.profileImageUrl?`<img src="${other.profileImageUrl}" alt="${name}">`:initials}</div>
+          <div class="message-content">
+            <div class="message-header">
+              <div class="message-sender">${name}</div>
+              <div class="message-time">${timeStr}</div>
+            </div>
+            <div class="message-preview">${item.preview}</div>
+          </div>
+        </div>`;
+      });
+
+      list.innerHTML=rows.join('');
+
+      const badge=document.getElementById('messages-badge');
+      if(badge){
+        if(unreadTotal>0){
+          badge.textContent=unreadTotal;
+          badge.style.display='block';
+        }else{
+          badge.style.display='none';
+        }
+      }
+    }catch(e){
+      console.error('Message inbox load error:', e);
+      list.innerHTML='<div class="empty-state"><h3>Unable to load message list</h3><p>Open a member from + New Message to continue the conversation.</p></div>';
+    }
   },
   async startChat(userId){ NetworkManager.closeNetworkModal(); this.hideNewMessage(); document.getElementById('messages-modal').classList.add('active'); setTimeout(()=>this.openChat(userId),100); },
   async openChat(userId){
