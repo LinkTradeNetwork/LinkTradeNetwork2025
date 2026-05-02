@@ -1311,7 +1311,7 @@ async function checkPendingConnections(){
   await startFirebaseAlertListeners();
 }
 
-/* ===== JOB POST MANAGER ===== */
+/* ===== JOB POST MANAGER — FIREBASE ===== */
 const JobPostManager = {
   openModal(){
     const email = localStorage.getItem('userEmail');
@@ -1322,22 +1322,65 @@ const JobPostManager = {
     document.getElementById('post-job-modal').classList.remove('active');
   },
   parseLocation(locStr){
-    const parts = locStr.split(',').map(s=>s.trim());
+    const parts = (locStr || '').split(',').map(s=>s.trim()).filter(Boolean);
     return { city: parts[0]||'', state: parts[1]||'' };
   },
+  normalizeTags(tags){
+    if(Array.isArray(tags)) return tags.filter(Boolean).map(t=>String(t).trim()).filter(Boolean);
+    return String(tags || '').split(',').map(t=>t.trim()).filter(Boolean);
+  },
+  async getPoster(){
+    const current = await getCurrentFirebaseUserRecord();
+    const email = localStorage.getItem('userEmail') || (current && current.email) || '';
+    return {
+      id: current && current.id ? current.id : '',
+      email,
+      name: (current && (current.fullName || current.name)) || localStorage.getItem('userName') || ''
+    };
+  },
+  async saveJobToFirebase(jobData){
+    if(!firebaseDb) throw new Error('Firebase is not ready. Please refresh and try again.');
+
+    const poster = await this.getPoster();
+    if(!poster.email) throw new Error('Please sign in first.');
+
+    const cleanJob = {
+      title: jobData.title || '',
+      company: jobData.company || '',
+      type: jobData.type || '',
+      city: jobData.city || '',
+      state: jobData.state || '',
+      pay: jobData.pay || '',
+      tradeTags: jobData.tradeTags || '',
+      tags: this.normalizeTags(jobData.tradeTags),
+      description: jobData.description || '',
+      link: jobData.link || '',
+      status: 'active',
+      source: 'firebase',
+      createdBy: poster.id,
+      createdByEmail: poster.email,
+      createdByName: poster.name,
+      postedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    const docRef = await firebaseDb.collection('jobs').add(cleanJob);
+    return docRef.id;
+  },
   async submitModalJob(){
-    const email = localStorage.getItem('userEmail');
-    if(!email){ alert('Please sign in first.'); return; }
     const title = document.getElementById('modal-job-title').value.trim();
     const loc   = document.getElementById('modal-job-location').value.trim();
+
     if(!title){ alert('Job title is required.'); return; }
     if(!loc)  { alert('Location is required.'); return; }
+
     const btn = document.getElementById('modal-post-job-btn');
     btn.disabled=true; btn.textContent='Posting...';
+
     try{
       const {city,state} = this.parseLocation(loc);
-      const data = await apiCall({
-        action:'post-job', email,
+
+      await this.saveJobToFirebase({
         title,
         company:     document.getElementById('modal-job-company').value.trim(),
         type:        document.getElementById('modal-job-type').value,
@@ -1347,22 +1390,27 @@ const JobPostManager = {
         description: document.getElementById('modal-job-desc').value.trim(),
         link:        document.getElementById('modal-job-link').value.trim()
       });
-      if(data.success){
-        alert('Job posted successfully!');
-        this.closeModal();
-        loadJobs();
-      } else {
-        alert('Error: '+(data.error||'Failed to post job'));
-      }
-    }catch(e){ alert('Failed to post job. Please try again.'); }
-    finally{ btn.disabled=false; btn.textContent='Post Job'; }
+
+      alert('Job posted successfully!');
+      this.closeModal();
+
+      ['modal-job-title','modal-job-company','modal-job-location','modal-job-pay','modal-job-tags','modal-job-desc','modal-job-link'].forEach(id=>{
+        const el=document.getElementById(id); if(el) el.value='';
+      });
+
+      loadJobs({trade:'', offset:0});
+    }catch(e){
+      console.error('Firebase job post error:', e);
+      alert(e.message || 'Failed to post job. Please try again.');
+    }finally{
+      btn.disabled=false; btn.textContent='Post Job';
+    }
   },
   async submitInlineJob(){
-    const email = localStorage.getItem('userEmail');
-    if(!email){ alert('Please sign in first to post a job.'); return; }
     const title = document.getElementById('inline-job-title').value.trim();
     const loc   = document.getElementById('inline-job-location').value.trim();
     const desc  = document.getElementById('inline-job-desc').value.trim();
+
     if(!title){ alert('Job title is required.'); return; }
     if(!loc)  { alert('Location is required.'); return; }
     if(!desc) { alert('Job description is required.'); return; }
@@ -1386,32 +1434,40 @@ const JobPostManager = {
 
     const btn = document.querySelector('[onclick="JobPostManager.submitInlineJob()"]');
     btn.disabled=true; btn.textContent='Posting...';
+
     try{
       const {city,state} = this.parseLocation(loc);
-      const data = await apiCall({
-        action:'post-job', email,
+
+      await this.saveJobToFirebase({
         title,
         company:     document.getElementById('inline-job-company').value.trim(),
         type:        document.getElementById('inline-job-type').value,
-        city, state, pay, tradeTags, description: desc,
+        city, state,
+        pay,
+        tradeTags,
+        description: desc,
         link:        document.getElementById('inline-job-link').value.trim()
       });
-      if(data.success){
-        alert('Job posted successfully!');
-        ['inline-job-title','inline-job-company','inline-job-location','inline-job-pay-min','inline-job-pay-max','inline-job-desc','inline-job-link'].forEach(id=>{
-          const el=document.getElementById(id); if(el) el.value='';
-        });
-        document.querySelectorAll('#inline-job-skills .fbtn').forEach(b=>b.classList.remove('active'));
-        document.querySelectorAll('#jobs-filter-bar .fbtn').forEach(x=>x.classList.remove('active'));
-        const allBtn = document.querySelector('#jobs-filter-bar .fbtn');
-        if(allBtn) allBtn.classList.add('active');
-        loadJobs({trade:'', offset:0});
-        window.scrollTo({top:0,behavior:'smooth'});
-      } else {
-        alert('Error: '+(data.error||'Failed to post job'));
-      }
-    }catch(e){ alert('Failed to post job. Please try again.'); }
-    finally{ btn.disabled=false; btn.textContent='Post Job'; }
+
+      alert('Job posted successfully!');
+
+      ['inline-job-title','inline-job-company','inline-job-location','inline-job-pay-min','inline-job-pay-max','inline-job-desc','inline-job-link'].forEach(id=>{
+        const el=document.getElementById(id); if(el) el.value='';
+      });
+
+      document.querySelectorAll('#inline-job-skills .fbtn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('#jobs-filter-bar .fbtn').forEach(x=>x.classList.remove('active'));
+      const allBtn = document.querySelector('#jobs-filter-bar .fbtn');
+      if(allBtn) allBtn.classList.add('active');
+
+      loadJobs({trade:'', offset:0});
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){
+      console.error('Firebase inline job post error:', e);
+      alert(e.message || 'Failed to post job. Please try again.');
+    }finally{
+      btn.disabled=false; btn.textContent='Post Job';
+    }
   }
 };
 
@@ -2386,12 +2442,67 @@ document.addEventListener('DOMContentLoaded',function(){
   window.loadJobs=async function(opts={}){
     window.JOBS_STATE={...window.JOBS_STATE,...opts};
     const{q,location,trade,limit,offset}=window.JOBS_STATE;
+
     try{
-      const data=await apiCall({action:'job-search',query:q,location,trade,limit,offset});
-      if(!data.success) throw new Error(data.error||'Job search failed');
-      window.JOBS_STATE.total=data.total||0;
-      renderJobs_(data.results||[]);
-    }catch(e){ console.error('job-search error:',e); renderJobs_([]); }
+      if(!firebaseDb) throw new Error('Firebase is not ready');
+
+      // Load Firebase jobs. We sort/filter in the browser so no composite Firebase index is required.
+      const snap = await firebaseDb.collection('jobs').get();
+
+      let jobs = [];
+      snap.forEach(doc=>{
+        const j = doc.data() || {};
+        if(j.status && String(j.status).toLowerCase() !== 'active') return;
+
+        let postedAt = '';
+        if(j.postedAt && j.postedAt.toDate) postedAt = j.postedAt.toDate().toISOString();
+        else if(j.createdAt && j.createdAt.toDate) postedAt = j.createdAt.toDate().toISOString();
+        else if(j.postedAt) postedAt = j.postedAt;
+
+        jobs.push({
+          id: doc.id,
+          title: j.title || '',
+          company: j.company || '',
+          type: j.type || '',
+          city: j.city || '',
+          state: j.state || '',
+          pay: j.pay || '',
+          tradeTags: Array.isArray(j.tags) ? j.tags.join(', ') : (j.tradeTags || ''),
+          description: j.description || '',
+          link: j.link || '',
+          postedAt,
+          _sortTime: postedAt ? new Date(postedAt).getTime() : 0
+        });
+      });
+
+      const qLower = String(q || '').trim().toLowerCase();
+      const locLower = String(location || '').trim().toLowerCase();
+      const tradeLower = String(trade || '').trim().toLowerCase();
+
+      if(qLower){
+        jobs = jobs.filter(j => [
+          j.title, j.company, j.type, j.city, j.state, j.pay, j.tradeTags, j.description
+        ].join(' ').toLowerCase().includes(qLower));
+      }
+
+      if(locLower){
+        jobs = jobs.filter(j => [j.city, j.state].join(' ').toLowerCase().includes(locLower));
+      }
+
+      if(tradeLower){
+        jobs = jobs.filter(j => String(j.tradeTags || '').toLowerCase().includes(tradeLower));
+      }
+
+      jobs.sort((a,b)=>b._sortTime-a._sortTime);
+
+      window.JOBS_STATE.total = jobs.length;
+      const paged = jobs.slice(offset, offset + limit);
+      renderJobs_(paged);
+    }catch(e){
+      console.error('Firebase job load error:',e);
+      window.JOBS_STATE.total=0;
+      renderJobs_([]);
+    }
   };
 
   function loadJobs(opts){ window.loadJobs(opts||{}); }
