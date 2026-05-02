@@ -2956,7 +2956,7 @@ const NetworkManager={
 
     if(!fromUserId){ alert('User is still loading. Please refresh, sign in again, and try connecting once more.'); return; }
     if(!current){ alert('Save your profile first.'); return; }
-    if(!realTargetUserId){ alert('Could not find this member's Firebase user ID. Have that member log in and save their profile once, then try again.'); return; }
+    if(!realTargetUserId){ alert("Could not find this member's Firebase user ID. Have that member log in and save their profile once, then try again."); return; }
     if(fromUserId===realTargetUserId){ alert('You cannot connect with yourself.'); return; }
 
     const connectionId = fromUserId + '_' + realTargetUserId;
