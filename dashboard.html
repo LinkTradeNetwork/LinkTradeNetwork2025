@@ -920,6 +920,7 @@ select.form-control{cursor:pointer}
 <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-storage-compat.js"></script>
 
 <script>
 /* ===== CONFIG ===== */
@@ -939,12 +940,14 @@ const firebaseConfig = {
 
 let firebaseDb = null;
 let firebaseAuth = null;
+let firebaseStorage = null;
 
 try{
   if(window.firebase){
     if(!firebase.apps.length){ firebase.initializeApp(firebaseConfig); }
     firebaseDb = firebase.firestore();
     firebaseAuth = firebase.auth();
+    firebaseStorage = firebase.storage();
   }
 }catch(e){
   console.log('Firebase sync setup skipped:', e);
@@ -2619,16 +2622,47 @@ function saveJob(jobTitle){
 
 /* ===== POSTS FEED ===== */
 const PostsFeed = {
-  offset: 0,
-  limit: 10,
-  total: 0,
+  limit: 25,
   currentImageData: null,
   currentVideoData: null,
   currentVideoObjectUrl: null,
   currentThumbnailData: null,
+  unsubscribe: null,
 
   async init() {
-    await this.loadPosts();
+    if (!firebaseDb) {
+      const container = document.getElementById('posts-container');
+      if (container) container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Firebase is not ready. Refresh and try again.</div>';
+      return;
+    }
+    this.listenForPosts();
+  },
+
+  safeText(value) {
+    return String(value || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  },
+
+  safeHtml(value) {
+    return this.safeText(value).replace(/\n/g, '<br>');
+  },
+
+  getCurrentEmail() {
+    return String(localStorage.getItem('userEmail') || '').trim().toLowerCase();
+  },
+
+  async getCurrentPoster() {
+    const email = this.getCurrentEmail();
+    let user = null;
+    try { user = await getCurrentFirebaseUserRecord(); } catch(e) {}
+    return {
+      uid: (user && (user.id || user.uid || user.authUid)) || (firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid) || safeDocIdFromEmail(email),
+      email,
+      fullName: (user && (user.fullName || user.name)) || localStorage.getItem('userName') || 'Member',
+      trade: (user && user.trade) || '',
+      city: (user && user.city) || '',
+      state: (user && user.state) || '',
+      profileImageUrl: (user && (user.profileImageUrl || user.profileImage || user.photoURL)) || ''
+    };
   },
 
   handleImageSelect(file) {
@@ -2640,7 +2674,7 @@ const PostsFeed = {
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        const MAX = 800;
+        const MAX = 1000;
         let w = img.width, h = img.height;
         if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
         else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
@@ -2648,7 +2682,7 @@ const PostsFeed = {
         canvas.width = w;
         canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        const compressed = canvas.toDataURL('image/jpeg', 0.78);
+        const compressed = canvas.toDataURL('image/jpeg', 0.82);
         this.currentImageData = compressed;
         document.getElementById('post-image-preview-img').src = compressed;
         document.getElementById('post-image-preview').style.display = 'block';
@@ -2662,7 +2696,7 @@ const PostsFeed = {
     if (!file) return;
     const allowed = ['video/mp4', 'video/quicktime', 'video/webm'];
     if (!allowed.includes(file.type)) { alert('Please select an MP4, MOV, or WEBM video.'); return; }
-    if (file.size > 10 * 1024 * 1024) { alert('Video too large — keep it under 10MB.'); return; }
+    if (file.size > 20 * 1024 * 1024) { alert('Video too large — keep it under 20MB.'); return; }
     this.removeImage();
 
     const objectUrl = URL.createObjectURL(file);
@@ -2674,7 +2708,6 @@ const PostsFeed = {
         alert('Video must be 10 seconds or less.');
         return;
       }
-
       this.currentVideoData = file;
       this.currentVideoObjectUrl = objectUrl;
       const preview = document.getElementById('post-video-preview-video');
@@ -2698,48 +2731,29 @@ const PostsFeed = {
         const height = video.videoHeight || 1280;
         const maxWidth = 720;
         let w = width, h = height;
-        if (w > maxWidth) {
-          h = Math.round(h * maxWidth / w);
-          w = maxWidth;
-        }
+        if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
         canvas.width = w;
         canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, w, h);
-        this.currentThumbnailData = canvas.toDataURL('image/jpeg', 0.7);
-      } catch (e) {
-        this.currentThumbnailData = '';
-      }
+        canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+        this.currentThumbnailData = canvas.toDataURL('image/jpeg', 0.72);
+      } catch (e) { this.currentThumbnailData = ''; }
       URL.revokeObjectURL(objectUrl);
     };
     video.src = objectUrl;
   },
 
-  async uploadVideoToCloudinary(file) {
-    const cloudName = CLOUDINARY_CLOUD_NAME || '';
-    const uploadPreset = CLOUDINARY_UPLOAD_PRESET || '';
-    if (!cloudName || !uploadPreset) {
-      alert('Cloudinary is not set up correctly in front.html. Check CLOUDINARY_CLOUD_NAME and CLOUDINARY_UPLOAD_PRESET.');
-      throw new Error('Cloudinary not configured');
-    }
+  async uploadDataUrlToFirebase(dataUrl, path) {
+    if (!firebaseStorage) throw new Error('Firebase Storage is not ready.');
+    const ref = firebaseStorage.ref().child(path);
+    await ref.putString(dataUrl, 'data_url');
+    return await ref.getDownloadURL();
+  },
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', uploadPreset);
-    formData.append('folder', 'linktradenetwork/videos');
-
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
-      method: 'POST',
-      body: formData
-    });
-
-    const data = await res.json();
-    if (!res.ok || !data.secure_url) throw new Error(data.error && data.error.message ? data.error.message : 'Video upload failed');
-
-    return {
-      videoUrl: data.secure_url || '',
-      thumbnailUrl: data.secure_url ? data.secure_url.replace(/\.[^/.?]+($|\?)/, '.jpg$1') : ''
-    };
+  async uploadFileToFirebase(file, path) {
+    if (!firebaseStorage) throw new Error('Firebase Storage is not ready.');
+    const ref = firebaseStorage.ref().child(path);
+    await ref.put(file, { contentType: file.type || 'application/octet-stream' });
+    return await ref.getDownloadURL();
   },
 
   removeImage() {
@@ -2758,112 +2772,152 @@ const PostsFeed = {
     const box = document.getElementById('post-video-preview');
     const video = document.getElementById('post-video-preview-video');
     const input = document.getElementById('post-video-input');
-    if (video) {
-      video.pause();
-      video.removeAttribute('src');
-      video.load();
-    }
-    if (this.currentVideoObjectUrl) {
-      URL.revokeObjectURL(this.currentVideoObjectUrl);
-      this.currentVideoObjectUrl = null;
-    }
+    if (video) { video.pause(); video.removeAttribute('src'); video.load(); }
+    if (this.currentVideoObjectUrl) { URL.revokeObjectURL(this.currentVideoObjectUrl); this.currentVideoObjectUrl = null; }
     if (box) box.style.display = 'none';
     if (input) input.value = '';
   },
 
   async createPost() {
-    const email = localStorage.getItem('userEmail');
+    const email = this.getCurrentEmail();
     if (!email) { alert('Please sign in to post.'); return; }
+    if (!firebaseDb || !firebaseStorage) { alert('Firebase is not ready. Refresh the page and try again.'); return; }
+
     const content = document.getElementById('post-content').value.trim();
     if (!content && !this.currentImageData && !this.currentVideoData) { alert('Please write something, add a photo, or add a video.'); return; }
     if (content.length > 1000) { alert('Post too long — max 1000 characters.'); return; }
 
     const btn = document.querySelector('[onclick="PostsFeed.createPost()"]');
-    btn.disabled = true;
-    btn.textContent = this.currentVideoData ? 'Uploading video...' : 'Posting...';
+    if (btn) { btn.disabled = true; btn.textContent = this.currentVideoData ? 'Uploading video...' : 'Posting...'; }
 
     try {
-      let payload = {
-        action: 'create-post',
-        email,
-        content,
-        mediaType: 'text',
-        imageUrl: '',
-        videoUrl: '',
-        thumbnailUrl: ''
-      };
+      const poster = await this.getCurrentPoster();
+      const postRef = firebaseDb.collection('posts').doc();
+      const postId = postRef.id;
+      const basePath = `posts/${postId}`;
+
+      let mediaType = 'text';
+      let imageUrl = '';
+      let videoUrl = '';
+      let thumbnailUrl = '';
 
       if (this.currentVideoData) {
-        const upload = await this.uploadVideoToCloudinary(this.currentVideoData);
-        payload.mediaType = 'video';
-        payload.videoUrl = upload.videoUrl || '';
-        payload.thumbnailUrl = this.currentThumbnailData || upload.thumbnailUrl || '';
+        mediaType = 'video';
+        videoUrl = await this.uploadFileToFirebase(this.currentVideoData, `${basePath}/video-${Date.now()}-${this.currentVideoData.name || 'post-video'}`);
+        if (this.currentThumbnailData) {
+          thumbnailUrl = await this.uploadDataUrlToFirebase(this.currentThumbnailData, `${basePath}/thumbnail.jpg`);
+        }
       } else if (this.currentImageData) {
-        payload.mediaType = 'image';
-        payload.imageUrl = this.currentImageData;
+        mediaType = 'image';
+        imageUrl = await this.uploadDataUrlToFirebase(this.currentImageData, `${basePath}/image.jpg`);
       }
 
-      const data = await apiCall(payload);
-      if (data.success) {
-        document.getElementById('post-content').value = '';
-        this.removeImage();
-        this.removeVideo();
-        this.offset = 0;
-        await this.loadPosts();
-      } else {
-        alert(data.error || 'Failed to post');
-      }
+      await postRef.set({
+        postId,
+        uid: poster.uid || '',
+        email: poster.email,
+        fullName: poster.fullName || 'Member',
+        trade: poster.trade || '',
+        city: poster.city || '',
+        state: poster.state || '',
+        profileImageUrl: poster.profileImageUrl || '',
+        content,
+        mediaType,
+        imageUrl,
+        videoUrl,
+        thumbnailUrl,
+        likes: [],
+        likeCount: 0,
+        commentCount: 0,
+        createdAtMs: Date.now(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      document.getElementById('post-content').value = '';
+      this.removeImage();
+      this.removeVideo();
     } catch (e) {
+      console.error('Firebase post error:', e);
       alert(e.message || 'Failed to post. Please try again.');
     } finally {
-      btn.disabled = false;
-      btn.textContent = 'Post';
+      if (btn) { btn.disabled = false; btn.textContent = 'Post'; }
     }
   },
 
-  async loadPosts(append = false) {
+  listenForPosts() {
     const container = document.getElementById('posts-container');
-    if (!append) {
-      this.offset = 0;
-      container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading posts...</div>';
-    }
-    const email = localStorage.getItem('userEmail') || '';
-    try {
-      const data = await apiCall({ action: 'get-posts', email, limit: this.limit, offset: this.offset });
-      if (data.success) {
-        this.total = data.total || 0;
-        if (!append) container.innerHTML = '';
-        if (data.posts && data.posts.length) {
-          data.posts.forEach(post => {
-            const el = document.createElement('div');
-            el.innerHTML = this.renderPost(post);
-            container.appendChild(el.firstChild);
-          });
-          this.offset += data.posts.length;
-        } else if (!append) {
-          container.innerHTML = `<div class="empty-state">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
-            </svg>
-            <h3>No posts yet</h3>
-            <p>Be the first to post in the community!</p>
-          </div>`;
-        }
-        const loadMoreBtn = document.getElementById('load-more-posts');
-        if (loadMoreBtn) loadMoreBtn.style.display = this.offset < this.total ? 'inline-block' : 'none';
-      }
-    } catch(e) {
-      if (!append) container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load posts</div>';
-    }
+    if (!container || !firebaseDb) return;
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading community posts...</div>';
+    if (this.unsubscribe) this.unsubscribe();
+
+    this.unsubscribe = firebaseDb.collection('posts')
+      .orderBy('createdAtMs', 'desc')
+      .limit(this.limit)
+      .onSnapshot((snapshot) => {
+        const posts = [];
+        snapshot.forEach(doc => posts.push({ id: doc.id, ...doc.data() }));
+        this.renderPosts(posts);
+      }, (err) => {
+        console.error('Firebase posts load error:', err);
+        container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load posts. Check Firebase rules.</div>';
+      });
   },
 
-  loadMore() { this.loadPosts(true); },
+  renderPosts(posts) {
+    const container = document.getElementById('posts-container');
+    if (!container) return;
+    if (!posts.length) {
+      container.innerHTML = `<div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
+        <h3>No posts yet</h3><p>Be the first to post in the community!</p>
+      </div>`;
+      return;
+    }
+    container.innerHTML = posts.map(post => this.renderPost(this.normalizePost(post))).join('');
+    const loadMoreBtn = document.getElementById('load-more-posts');
+    if (loadMoreBtn) loadMoreBtn.style.display = posts.length >= this.limit ? 'inline-block' : 'none';
+  },
+
+  loadPosts() { this.listenForPosts(); },
+
+  loadMore() {
+    this.limit += 25;
+    this.listenForPosts();
+  },
+
+  normalizePost(post) {
+    const email = this.getCurrentEmail();
+    const likes = Array.isArray(post.likes) ? post.likes : [];
+    return {
+      postId: post.postId || post.id,
+      email: String(post.email || '').toLowerCase(),
+      fullName: post.fullName || post.name || 'Member',
+      trade: post.trade || '',
+      city: post.city || '',
+      state: post.state || '',
+      profileImageUrl: post.profileImageUrl || post.photoURL || '',
+      content: post.content || '',
+      mediaType: post.mediaType || (post.videoUrl ? 'video' : (post.imageUrl ? 'image' : 'text')),
+      imageUrl: post.imageUrl || '',
+      videoUrl: post.videoUrl || '',
+      thumbnailUrl: post.thumbnailUrl || '',
+      likeCount: Number(post.likeCount || likes.length || 0),
+      commentCount: Number(post.commentCount || 0),
+      hasLiked: email ? likes.includes(email) : false,
+      isOwner: email && String(post.email || '').toLowerCase() === email,
+      postedAt: post.createdAt && post.createdAt.toDate ? post.createdAt.toDate() : (post.createdAtMs ? new Date(post.createdAtMs) : '')
+    };
+  },
 
   renderPost(post) {
     const initials = (post.fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     const loc = [post.city, post.state].filter(Boolean).join(', ');
     const when = post.postedAt ? new Date(post.postedAt).toLocaleDateString() : '';
-    const safeContent = (post.content || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+    const safeContent = this.safeHtml(post.content || '');
+    const avatar = post.profileImageUrl
+      ? `<img src="${this.safeText(post.profileImageUrl)}" alt="${this.safeText(post.fullName)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+      : `<div style="width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0">${this.safeText(initials)}</div>`;
+
     const likeBtn = post.hasLiked
       ? `<button onclick="PostsFeed.unlike('${post.postId}', this)" style="background:var(--brand);color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px">❤️ ${post.likeCount} Liked</button>`
       : `<button onclick="PostsFeed.like('${post.postId}', this)" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">🤍 ${post.likeCount} Like</button>`;
@@ -2871,27 +2925,29 @@ const PostsFeed = {
     let media = '';
     let mediaUrl = '';
     let mediaDownloadName = '';
-
     if (post.mediaType === 'video' && post.videoUrl) {
       mediaUrl = post.videoUrl;
       mediaDownloadName = `LTN-video-${post.postId || Date.now()}.mp4`;
-      media = `<div class="post-media"><video controls playsinline preload="metadata" poster="${post.thumbnailUrl || ''}"><source src="${post.videoUrl}" type="video/mp4">Your browser does not support video.</video></div>`;
+      media = `<div class="post-media"><video controls playsinline preload="metadata" poster="${this.safeText(post.thumbnailUrl || '')}"><source src="${this.safeText(post.videoUrl)}">Your browser does not support video.</video></div>`;
     } else if (post.imageUrl) {
       mediaUrl = post.imageUrl;
       mediaDownloadName = `LTN-photo-${post.postId || Date.now()}.jpg`;
-      media = `<div class="post-media"><img src="${post.imageUrl}" alt="Post image"></div>`;
+      media = `<div class="post-media"><img src="${this.safeText(post.imageUrl)}" alt="Post image"></div>`;
     }
 
     const mediaDownloadBtn = mediaUrl
-      ? `<a href="${mediaUrl}" download="${mediaDownloadName}" target="_blank" rel="noopener noreferrer" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:4px">⬇ Download</a>`
+      ? `<a href="${this.safeText(mediaUrl)}" download="${this.safeText(mediaDownloadName)}" target="_blank" rel="noopener noreferrer" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:4px">⬇ Download</a>`
       : '';
+
+    const shareAuthor = this.safeText(post.fullName || 'Member');
+    const sharePreview = this.safeText((post.content || '').substring(0, 50) + '...');
 
     return `<div class="post-card" id="post-${post.postId}" style="border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;background:var(--panel);transition:all .2s">
       <div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start">
-        <div style="width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0">${initials}</div>
+        ${avatar}
         <div style="flex:1">
-          <div style="font-weight:700;font-size:15px">${post.fullName || 'Member'}</div>
-          <div style="font-size:12px;color:var(--muted)">${post.trade || ''}${loc ? ' • ' + loc : ''}${when ? ' • ' + when : ''}</div>
+          <div style="font-weight:700;font-size:15px">${this.safeText(post.fullName || 'Member')}</div>
+          <div style="font-size:12px;color:var(--muted)">${this.safeText(post.trade || '')}${loc ? ' • ' + this.safeText(loc) : ''}${when ? ' • ' + this.safeText(when) : ''}</div>
         </div>
         ${post.isOwner ? `<button onclick="PostsFeed.deletePost('${post.postId}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px" title="Delete post">🗑</button>` : ''}
       </div>
@@ -2900,7 +2956,7 @@ const PostsFeed = {
       <div style="display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--line);align-items:center;flex-wrap:wrap">
         ${likeBtn}
         <button onclick="PostsFeed.toggleComments('${post.postId}')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:4px">💬 ${post.commentCount} Comment${post.commentCount !== 1 ? 's' : ''}</button>
-        <button onclick="PostsFeed.sharePost('${post.postId}', '${(post.fullName || '').replace(/'/g,"\'")}', '${(post.content || '').substring(0,50).replace(/'/g,"\'")}...')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted)">↗ Share</button>
+        <button onclick="PostsFeed.sharePost('${post.postId}', '${shareAuthor}', '${sharePreview}')" style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted)">↗ Share</button>
         ${mediaDownloadBtn}
       </div>
       <div id="comments-${post.postId}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
@@ -2914,70 +2970,50 @@ const PostsFeed = {
   },
 
   async like(postId, btn) {
-    const email = localStorage.getItem('userEmail');
+    const email = this.getCurrentEmail();
     if (!email) { alert('Please sign in to like posts.'); return; }
-    btn.disabled = true;
+    if (btn) btn.disabled = true;
     try {
-      const data = await apiCall({ action: 'like-post', email, postId });
-      if (data.success) {
-        await this.refreshSinglePost(postId);
-      } else {
-        alert(data.error || 'Failed to like post');
-      }
+      await firebaseDb.collection('posts').doc(postId).update({
+        likes: firebase.firestore.FieldValue.arrayUnion(email),
+        likeCount: firebase.firestore.FieldValue.increment(1)
+      });
     } catch(e) {
+      console.error(e);
       alert('Failed to like post');
-    } finally {
-      btn.disabled = false;
-    }
+    } finally { if (btn) btn.disabled = false; }
   },
 
   async unlike(postId, btn) {
-    const email = localStorage.getItem('userEmail');
+    const email = this.getCurrentEmail();
     if (!email) { alert('Please sign in to unlike posts.'); return; }
-    btn.disabled = true;
+    if (btn) btn.disabled = true;
     try {
-      const data = await apiCall({ action: 'unlike-post', email, postId });
-      if (data.success) {
-        await this.refreshSinglePost(postId);
-      } else {
-        alert(data.error || 'Failed to unlike post');
-      }
+      await firebaseDb.collection('posts').doc(postId).update({
+        likes: firebase.firestore.FieldValue.arrayRemove(email),
+        likeCount: firebase.firestore.FieldValue.increment(-1)
+      });
     } catch(e) {
+      console.error(e);
       alert('Failed to unlike post');
-    } finally {
-      btn.disabled = false;
-    }
+    } finally { if (btn) btn.disabled = false; }
   },
 
-  async refreshSinglePost(postId) {
-    const email = localStorage.getItem('userEmail') || '';
-    try {
-      const data = await apiCall({ action: 'get-posts', email, limit: Math.max(this.total || 20, 20), offset: 0 });
-      if (data.success && data.posts) {
-        const post = data.posts.find(p => p.postId === postId);
-        const existing = document.getElementById(`post-${postId}`);
-        if (post && existing) {
-          const wrapper = document.createElement('div');
-          wrapper.innerHTML = this.renderPost(post);
-          existing.replaceWith(wrapper.firstChild);
-        }
-      }
-    } catch(e) {}
-  },
+  refreshSinglePost() {},
 
   async deletePost(postId) {
-    const email = localStorage.getItem('userEmail');
+    const email = this.getCurrentEmail();
     if (!email) return;
     if (!confirm('Delete this post?')) return;
     try {
-      const data = await apiCall({ action: 'delete-post', email, postId });
-      if (data.success) {
-        const el = document.getElementById(`post-${postId}`);
-        if (el) el.remove();
-      } else {
-        alert(data.error || 'Failed to delete post');
-      }
+      const ref = firebaseDb.collection('posts').doc(postId);
+      const snap = await ref.get();
+      if (!snap.exists) return;
+      const post = snap.data() || {};
+      if (String(post.email || '').toLowerCase() !== email) { alert('You can only delete your own posts.'); return; }
+      await ref.delete();
     } catch(e) {
+      console.error(e);
       alert('Failed to delete post');
     }
   },
@@ -2995,44 +3031,52 @@ const PostsFeed = {
     if (!list) return;
     list.innerHTML = '<div style="text-align:center;padding:10px;color:var(--muted);font-size:13px">Loading comments...</div>';
     try {
-      const data = await apiCall({ action: 'get-comments', postId });
-      if (data.success) {
-        if (!data.comments || !data.comments.length) {
-          list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">No comments yet.</div>';
-          return;
-        }
-        list.innerHTML = data.comments.map(c => {
-          const when = c.postedAt ? new Date(c.postedAt).toLocaleDateString() : '';
-          return `<div style="padding:8px 0;border-bottom:1px solid var(--line)">
-            <div style="font-size:13px;font-weight:700">${c.fullName || 'Member'} <span style="color:var(--muted);font-weight:400">${when}</span></div>
-            <div style="font-size:13px;line-height:1.5">${(c.commentText || '').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-          </div>`;
-        }).join('');
-      } else {
-        list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">Failed to load comments.</div>';
+      const snap = await firebaseDb.collection('posts').doc(postId).collection('comments').orderBy('createdAtMs', 'asc').get();
+      if (snap.empty) {
+        list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">No comments yet.</div>';
+        return;
       }
+      const rows = [];
+      snap.forEach(doc => {
+        const c = doc.data() || {};
+        const when = c.createdAtMs ? new Date(c.createdAtMs).toLocaleDateString() : '';
+        rows.push(`<div style="padding:8px 0;border-bottom:1px solid var(--line)">
+          <div style="font-size:13px;font-weight:700">${this.safeText(c.fullName || 'Member')} <span style="color:var(--muted);font-weight:400">${this.safeText(when)}</span></div>
+          <div style="font-size:13px;line-height:1.5">${this.safeHtml(c.commentText || '')}</div>
+        </div>`);
+      });
+      list.innerHTML = rows.join('');
     } catch(e) {
+      console.error(e);
       list.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:13px">Failed to load comments.</div>';
     }
   },
 
   async addComment(postId) {
-    const email = localStorage.getItem('userEmail');
+    const email = this.getCurrentEmail();
     if (!email) { alert('Please sign in to comment.'); return; }
     const input = document.getElementById(`comment-input-${postId}`);
     if (!input) return;
     const commentText = input.value.trim();
     if (!commentText) return;
+    if (commentText.length > 500) { alert('Comment too long — max 500 characters.'); return; }
     try {
-      const data = await apiCall({ action: 'add-comment', email, postId, commentText });
-      if (data.success) {
-        input.value = '';
-        await this.loadComments(postId);
-        await this.refreshSinglePost(postId);
-      } else {
-        alert(data.error || 'Failed to add comment');
-      }
+      const poster = await this.getCurrentPoster();
+      await firebaseDb.collection('posts').doc(postId).collection('comments').add({
+        email,
+        uid: poster.uid || '',
+        fullName: poster.fullName || 'Member',
+        commentText,
+        createdAtMs: Date.now(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      await firebaseDb.collection('posts').doc(postId).update({
+        commentCount: firebase.firestore.FieldValue.increment(1)
+      });
+      input.value = '';
+      await this.loadComments(postId);
     } catch(e) {
+      console.error(e);
       alert('Failed to add comment');
     }
   },
@@ -3041,17 +3085,10 @@ const PostsFeed = {
     const shareUrl = `${window.location.origin}${window.location.pathname}#post-${postId}`;
     const text = `${author} on LinkTradeNetwork: ${preview}`;
     if (navigator.share) {
-      try {
-        await navigator.share({ title: 'LinkTradeNetwork Post', text, url: shareUrl });
-        return;
-      } catch(e) {}
+      try { await navigator.share({ title: 'LinkTradeNetwork Post', text, url: shareUrl }); return; } catch(e) {}
     }
-    try {
-      await navigator.clipboard.writeText(`${text} ${shareUrl}`);
-      alert('Post link copied!');
-    } catch(e) {
-      alert('Could not copy post link.');
-    }
+    try { await navigator.clipboard.writeText(`${text} ${shareUrl}`); alert('Post link copied!'); }
+    catch(e) { alert('Could not copy post link.'); }
   }
 };
 
