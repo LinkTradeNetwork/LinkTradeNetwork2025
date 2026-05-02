@@ -1051,11 +1051,67 @@ function getStoredUserEmail(){
   }
   return email;
 }
+function waitForFirebaseAuthUser(){
+  return new Promise((resolve) => {
+    if(!firebaseAuth){ resolve(null); return; }
+    const existingUser = firebaseAuth.currentUser;
+    if(existingUser){ resolve(existingUser); return; }
+    const unsubscribe = firebaseAuth.onAuthStateChanged((user) => {
+      unsubscribe();
+      resolve(user || null);
+    });
+    setTimeout(() => {
+      try{ unsubscribe(); }catch(e){}
+      resolve(firebaseAuth.currentUser || null);
+    }, 3000);
+  });
+}
+
 async function getCurrentFirebaseUserRecord(){
-  const email = getStoredUserEmail();
-  if(!email || !firebaseDb) return null;
-  const snap = await firebaseDb.collection('users').where('email','==',email).limit(1).get();
-  if(!snap.empty){ const d = snap.docs[0]; return { id:d.id, ...d.data() }; }
+  if(!firebaseDb) return null;
+
+  const authUser = await waitForFirebaseAuthUser();
+  const storedEmail = getStoredUserEmail();
+  const email = (authUser && authUser.email ? authUser.email : storedEmail || '').trim().toLowerCase();
+
+  // BEST FIX: always use the Firebase Authentication UID as the user ID.
+  // This prevents Firestore connection docs from saving fromUserId as null.
+  if(authUser && authUser.uid){
+    const uidDoc = await firebaseDb.collection('users').doc(authUser.uid).get();
+    if(uidDoc.exists){ return { id:authUser.uid, uid:authUser.uid, ...uidDoc.data() }; }
+
+    // If the profile was previously saved under an email-based document ID,
+    // find it, copy it to the real UID document, and use the UID from now on.
+    if(email){
+      const emailSnap = await firebaseDb.collection('users').where('email','==',email).limit(1).get();
+      if(!emailSnap.empty){
+        const d = emailSnap.docs[0];
+        const data = d.data() || {};
+        await firebaseDb.collection('users').doc(authUser.uid).set({
+          ...data,
+          email: data.email || email,
+          uid: authUser.uid,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge:true });
+        return { id:authUser.uid, uid:authUser.uid, ...data, email:data.email || email };
+      }
+    }
+
+    return {
+      id: authUser.uid,
+      uid: authUser.uid,
+      email: email || authUser.email || '',
+      name: authUser.displayName || localStorage.getItem('userName') || '',
+      fullName: authUser.displayName || localStorage.getItem('userName') || ''
+    };
+  }
+
+  // Fallback only for old sessions where Firebase Auth is not loaded yet.
+  if(email){
+    const snap = await firebaseDb.collection('users').where('email','==',email).limit(1).get();
+    if(!snap.empty){ const d = snap.docs[0]; return { id:d.id, uid:d.id, ...d.data() }; }
+  }
+
   return null;
 }
 function firebaseInitials(name,email){
@@ -3039,18 +3095,26 @@ const NetworkManager={
   },
   async sendConnectionById(targetUserId){
     const current = await this.ensureUser();
+    const authUser = await waitForFirebaseAuthUser();
+    const fromUserId = (authUser && authUser.uid) ? authUser.uid : (current && current.id ? current.id : '');
+
+    console.log('LTN connection sender:', { authUid: authUser ? authUser.uid : null, currentUserRecord: current, fromUserId: fromUserId, targetUserId: targetUserId });
+
+    if(!fromUserId){ alert('User is still loading. Please refresh, sign in again, and try connecting once more.'); return; }
     if(!current){ alert('Save your profile first.'); return; }
-    if(current.id===targetUserId){ alert('You cannot connect with yourself.'); return; }
-    const connectionId = current.id + '_' + targetUserId;
-    const reverseId = targetUserId + '_' + current.id;
+    if(fromUserId===targetUserId){ alert('You cannot connect with yourself.'); return; }
+
+    const connectionId = fromUserId + '_' + targetUserId;
+    const reverseId = targetUserId + '_' + fromUserId;
     const existing = await firebaseDb.collection('connections').doc(connectionId).get();
     const reverse = await firebaseDb.collection('connections').doc(reverseId).get();
     if(existing.exists || reverse.exists){ alert('Connection already exists or is pending.'); return; }
+
     const target = await getUserById(targetUserId);
     await firebaseDb.collection('connections').doc(connectionId).set({
-      fromUserId: current.id,
+      fromUserId: fromUserId,
       toUserId: targetUserId,
-      fromEmail: current.email || getStoredUserEmail(),
+      fromEmail: current.email || (authUser && authUser.email) || getStoredUserEmail(),
       toEmail: target?.email || '',
       fromName: current.name || current.fullName || current.email || '',
       toName: target?.name || target?.fullName || '',
