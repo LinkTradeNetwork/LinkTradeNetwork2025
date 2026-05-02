@@ -144,6 +144,12 @@ async function findCurrentUser(){
 }
 
 async function loadProfile(){
+  if(!profileUserId){
+    document.getElementById("name").innerText = "No profile selected";
+    setButton("No Profile",true);
+    return;
+  }
+
   const snap = await getDoc(doc(db,"users",profileUserId));
   if(!snap.exists()){
     document.getElementById("name").innerText = "Profile not found";
@@ -154,23 +160,30 @@ async function loadProfile(){
   const u = snap.data();
   profileUserData = u;
 
-  document.getElementById("name").innerText = u.name || "Trade Member";
+  document.getElementById("name").innerText = u.fullName || u.name || "Trade Member";
   document.getElementById("trade").innerText = u.trade || "";
   document.getElementById("location").innerText = (u.city||"") + " " + (u.state||"");
   document.getElementById("bio").innerText = u.bio || "No bio added yet.";
   document.getElementById("certs").innerText = u.certifications || "No certifications added yet.";
 
   const avatar = document.getElementById("avatar");
-  if(u.profileImageUrl){
-    avatar.innerHTML = `<img src="${u.profileImageUrl}">`;
+  const profilePhoto = u.profileImageUrl || u.profileImage || "";
+  const displayName = u.fullName || u.name || "LT";
+
+  if(profilePhoto){
+    avatar.innerHTML = `<img src="${profilePhoto}" alt="${displayName}">`;
   }else{
-    avatar.innerText = (u.name||"LT").substring(0,2).toUpperCase();
+    avatar.innerText = displayName.substring(0,2).toUpperCase();
   }
 
   const skillsBox = document.getElementById("skills");
   skillsBox.innerHTML="";
-  if(u.skills){
-    u.skills.split(",").forEach(s=>{
+  const skills = Array.isArray(u.skills)
+    ? u.skills
+    : String(u.skills || "").split(",").map(s => s.trim()).filter(Boolean);
+
+  if(skills.length){
+    skills.forEach(s=>{
       let el=document.createElement("div");
       el.className="tag";
       el.innerText=s.trim();
