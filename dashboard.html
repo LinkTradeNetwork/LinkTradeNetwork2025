@@ -619,22 +619,6 @@ select.form-control{cursor:pointer}
         <button class="btn-primary" style="width:100%" onclick="NetworkManager.openNetworkModal()">Join Network</button>
       </div>
     </section>
-
-    <!-- REFERRAL CARD -->
-    <section class="card" style="margin-top:20px">
-      <div class="hd">🔗 Refer & Earn $5</div>
-      <div class="bd small">
-        <p style="margin-bottom:12px">Share your referral code — earn <strong>$5</strong> for every new member who completes their profile! Cap: <strong>$50/month</strong>.</p>
-        <div style="background:var(--panel2);border:2px dashed var(--brand);border-radius:8px;padding:12px;text-align:center;margin-bottom:12px">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">YOUR REFERRAL CODE</div>
-          <div id="referral-code-display" style="font-size:22px;font-weight:800;color:var(--brand);letter-spacing:4px">Loading...</div>
-        </div>
-        <button class="btn-primary" style="width:100%;margin-bottom:8px;padding:10px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:14px" onclick="copyReferralCode()">📋 Copy Referral Code</button>
-        <button class="btn btn-secondary" style="width:100%;font-size:13px" onclick="shareReferralLink()">↗ Share on Social Media</button>
-        <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">Paid via PayPal on the last day of each month. Min $10 payout. Program may be modified or ended at any time.</p>
-      </div>
-    </section>
-
     <section class="card" style="margin-top:20px">
       <div class="hd">Get The LTN Mobile App</div>
       <div class="bd" style="padding:0">
@@ -2371,17 +2355,6 @@ document.addEventListener('DOMContentLoaded',function(){
 
   // FIX: Initialize posts feed, rewards and leaderboard
   PostsFeed.init();
-
-  // Load referral code if signed in
-  const _email = localStorage.getItem('userEmail');
-  if (_email) {
-    apiCall({ action: 'get-referral-code', email: _email }).then(function(data) {
-      if (data.success) {
-        const el = document.getElementById('referral-code-display');
-        if (el) el.textContent = data.referralCode;
-      }
-    }).catch(function(){});
-  }
 });
 
 /* ===== FIX: APPLY TO JOB - now tracks in Google Sheets ===== */
@@ -2608,7 +2581,6 @@ const PostsFeed = {
         this.removeVideo();
         this.offset = 0;
         await this.loadPosts();
-        await RewardsManager.load();
       } else {
         alert(data.error || 'Failed to post');
       }
@@ -2853,160 +2825,6 @@ const PostsFeed = {
     }
   }
 };
-
-/* ===== REWARDS MANAGER ===== */
-const RewardsManager = {
-  async load() {
-    const email = localStorage.getItem('userEmail');
-    if (!email) return;
-    try {
-      const data = await apiCall({ action: 'get-rewards', email });
-      if (data.success && data.rewards) this.render(data.rewards);
-      const refData = await apiCall({ action: 'get-referral-code', email });
-      if (refData.success) {
-        const el = document.getElementById('referral-code-display');
-        if (el) el.textContent = refData.referralCode;
-      }
-    } catch(e) { console.log('Rewards load skipped'); }
-  },
-
-  render(r) {
-    const badge = document.getElementById('rewards-level-badge');
-    if (badge) { badge.textContent = ''; badge.style.display = 'none'; }
-
-    const dashboard = document.getElementById('rewards-dashboard');
-    if (!dashboard) return;
-
-    const monthly   = Number(r.monthlyEarned   || 0);
-    const total     = Number(r.totalEarned     || 0);
-    const refs      = Number(r.monthlyReferrals || 0);
-    const totalRefs = Number(r.totalReferrals  || 0);
-    const cap       = Number(r.monthlyCap      || 50);
-    const pct       = Math.min(100, Math.round((monthly / cap) * 100));
-    const paypal    = String(r.paypalEmail     || '');
-    const status    = String(r.paymentStatus   || 'No earnings yet');
-
-    dashboard.innerHTML = `
-      <div style="text-align:center;margin-bottom:16px">
-        <div style="font-size:36px;font-weight:800;color:var(--brand)">$${monthly.toFixed(2)}</div>
-        <div style="font-size:12px;color:var(--muted)">This month's earnings</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Monthly cap: $${cap} • Paid via PayPal last day of month</div>
-      </div>
-      <div style="background:var(--panel2);border-radius:8px;padding:12px;margin-bottom:12px">
-        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
-          <span style="font-weight:600">Monthly Progress</span>
-          <span style="color:var(--muted)">${refs} / ${Math.round(cap/5)} referrals</span>
-        </div>
-        <div style="background:var(--line);border-radius:999px;height:10px;overflow:hidden">
-          <div style="background:var(--brand);height:100%;border-radius:999px;width:${pct}%;transition:width .5s"></div>
-        </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">${pct}% of monthly cap reached</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-        <div style="background:var(--panel2);border-radius:8px;padding:10px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:var(--accent)">${refs}</div>
-          <div style="font-size:11px;color:var(--muted)">Referrals This Month</div>
-        </div>
-        <div style="background:var(--panel2);border-radius:8px;padding:10px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:var(--accent)">$${total.toFixed(2)}</div>
-          <div style="font-size:11px;color:var(--muted)">All-Time Earned</div>
-        </div>
-      </div>
-      <div style="background:var(--panel2);border-radius:8px;padding:10px;margin-bottom:12px">
-        <div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600">Payment Status</div>
-        <div style="font-size:13px;color:${status==='Pending Payment'?'#10b981':status.startsWith('Paid')?'#3d5a80':'var(--muted)'};font-weight:600">${status}</div>
-        ${paypal ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">PayPal: ${paypal}</div>` : `<div style="font-size:11px;color:var(--brand);margin-top:6px;cursor:pointer;font-weight:600" onclick="RewardsManager.showPaypalForm()">⚠️ Add your PayPal email to get paid</div>`}
-      </div>
-      <div id="paypal-form-box" style="display:none;background:#fff9f0;border:1px solid var(--brand);border-radius:8px;padding:12px;margin-bottom:12px">
-        <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--brand)">Add PayPal Email</div>
-        <input type="email" id="paypal-email-input" class="form-control" placeholder="your@paypal.com" style="margin-bottom:8px;font-size:13px">
-        <button class="btn btn-primary" style="width:100%;padding:8px;font-size:13px" onclick="RewardsManager.savePaypal()">Save PayPal Email</button>
-      </div>
-      <div style="font-size:11px;color:var(--muted);line-height:1.6;padding:10px;background:var(--panel2);border-radius:8px">
-        <strong>How to earn:</strong> Refer a trade professional → they complete their profile → you earn <strong>$5</strong><br>
-        <span style="color:var(--brand);font-weight:600">Cap: $50/month • Min payout: $10 • Paid via PayPal</span>
-      </div>`;
-  },
-
-  showPaypalForm() {
-    const box = document.getElementById('paypal-form-box');
-    if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
-  },
-
-  async savePaypal() {
-    const email       = localStorage.getItem('userEmail');
-    const paypalEmail = document.getElementById('paypal-email-input').value.trim();
-    if (!email || !paypalEmail) { alert('Please enter your PayPal email.'); return; }
-    try {
-      const data = await apiCall({ action: 'save-payment-info', email, paypalEmail });
-      if (data.success) {
-        alert('PayPal email saved! You will receive payments on the last day of each month.');
-        document.getElementById('paypal-form-box').style.display = 'none';
-        await this.load();
-      } else { alert(data.error || 'Failed to save'); }
-    } catch(e) { alert('Failed to save PayPal email'); }
-  }
-};
-
-/* ===== LEADERBOARD ===== */
-async function loadLeaderboard() {
-  const container = document.getElementById('leaderboard-container');
-  try {
-    const data = await apiCall({ action: 'get-leaderboard' });
-    if (data.success && data.leaderboard && data.leaderboard.length) {
-      container.innerHTML = data.leaderboard.map((member, i) => {
-        const medal    = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
-        const initials = (member.fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">
-          <div style="font-size:18px;width:24px;text-align:center">${medal}</div>
-          <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;flex-shrink:0">${initials}</div>
-          <div style="flex:1;min-width:0">
-            <div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${member.fullName}</div>
-            <div style="font-size:11px;color:var(--muted)">${member.monthlyReferrals} referral${member.monthlyReferrals !== 1 ? 's' : ''} this month</div>
-          </div>
-          <div style="font-weight:700;color:var(--brand);font-size:14px">$${Number(member.monthlyEarned||0).toFixed(2)}</div>
-        </div>`;
-      }).join('') + `<div style="font-size:11px;color:var(--muted);margin-top:10px;padding:8px;background:var(--panel2);border-radius:6px;line-height:1.5">
-        $5 per referral who completes their profile • $50 cap/month<br>
-        <span style="color:var(--brand)">Paid via PayPal on the last day of each month</span>
-      </div>`;
-    } else {
-      container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">
-        No referrals yet this month.<br>Share your code and be first on the board!
-      </div>`;
-    }
-  } catch(e) { container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Failed to load leaderboard</div>'; }
-}
-
-/* ===== REFERRAL HELPERS ===== */
-function copyReferralCode() {
-  const code = document.getElementById('referral-code-display').textContent;
-  if (!code || code === 'Sign in' || code === 'Loading...') { alert('Please sign in first to get your referral code.'); return; }
-  const name = localStorage.getItem('userName') || localStorage.getItem('userEmail') || 'A trade professional';
-  const text =
-    `${name} invited you to join LinkTradeNetwork — the platform built for skilled trade professionals!\n\n` +
-    `Use referral code: ${code}\n\n` +
-    `Sign up free at: www.linktradenetwork.com\n\n` +
-    `LinkTradeNetwork connects electricians, plumbers, HVAC techs, low voltage specialists, and contractors with jobs and opportunities across the USA.`;
-  navigator.clipboard.writeText(text).then(() => alert('Referral message copied!\n\nPaste it in a text, email, or social media post.'));
-}
-
-function shareReferralLink() {
-  const code = document.getElementById('referral-code-display').textContent;
-  if (!code || code === 'Sign in' || code === 'Loading...') { alert('Please sign in first to get your referral code.'); return; }
-  const name = localStorage.getItem('userName') || localStorage.getItem('userEmail') || 'A trade professional';
-  const text =
-    `${name} invited you to join LinkTradeNetwork!\n\n` +
-    `The free platform built for skilled trade professionals — electricians, plumbers, HVAC, low voltage, contractors and more.\n\n` +
-    `Use referral code: ${code}\n` +
-    `Sign up at: www.linktradenetwork.com\n\n` +
-    `#trades #electrician #plumber #HVAC #lowvoltage #contractor #LTN`;
-  if (navigator.share) {
-    navigator.share({ title: 'Join LinkTradeNetwork', text, url: 'https://www.linktradenetwork.com' });
-  } else {
-    navigator.clipboard.writeText(text).then(() => alert('Share message copied! Paste it on LinkedIn, Facebook, TikTok, or anywhere.'));
-  }
-}
 
 /* ===== FIREBASE NETWORK MANAGER ===== */
 const NetworkManager={
