@@ -3092,7 +3092,7 @@ const MessageManager={
         rows.push(`<div class="message-item${unread>0?' unread':''}" onclick="MessageManager.openChat('${other.id}')"><div class="message-avatar">${other.profileImageUrl?`<img src="${other.profileImageUrl}" alt="${name}">`:initials}</div><div class="message-content"><div class="message-header"><div class="message-sender">${name}</div><div class="message-time">${timeStr}</div></div><div class="message-preview">${conv.lastMessage||'No messages yet'}</div></div></div>`);
       }
       list.innerHTML=rows.join(''); const badge=document.getElementById('messages-badge'); if(badge){ if(unreadTotal>0){ badge.textContent=unreadTotal; badge.style.display='block'; } else badge.style.display='none'; }
-    }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>No messages yet</h3></div>'; }
+    }catch(e){ console.error(e); list.innerHTML='<div class="empty-state"><h3>Failed to load messages</h3></div>'; }
   },
   async startChat(userId){ NetworkManager.closeNetworkModal(); this.hideNewMessage(); document.getElementById('messages-modal').classList.add('active'); setTimeout(()=>this.openChat(userId),100); },
   async openChat(userId){
@@ -3146,87 +3146,6 @@ document.addEventListener('DOMContentLoaded',function(){
 
   checkPendingConnections();
 });
-
-/* ===== LTN MESSAGE BADGE HARD FIX v3 =====
-   This forces the Messages badge to read unread counts from Firestore.
-   It does not change chat sending or profile logic. */
-(function(){
-  function getUidForBadge(){
-    try{
-      if(typeof firebaseAuth !== 'undefined' && firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid){
-        return firebaseAuth.currentUser.uid;
-      }
-      if(window.currentUser && window.currentUser.uid) return window.currentUser.uid;
-      if(typeof auth !== 'undefined' && auth && auth.currentUser && auth.currentUser.uid) return auth.currentUser.uid;
-      return localStorage.getItem('firebaseUid') || localStorage.getItem('userUid') || localStorage.getItem('uid') || null;
-    }catch(e){
-      return null;
-    }
-  }
-
-  function paintMessageBadge(count){
-    count = Number(count || 0);
-    currentAlertCounts.messages = count;
-
-    const badge = document.getElementById('messages-badge');
-    if(badge){
-      if(count > 0){
-        badge.textContent = count > 99 ? '99+' : String(count);
-        badge.style.display = 'block';
-        badge.style.visibility = 'visible';
-      }else{
-        badge.textContent = '0';
-        badge.style.display = 'none';
-      }
-    }
-
-    updateLiveAlertUI();
-  }
-
-  async function forceCheckUnreadMessages(){
-    try{
-      if(typeof firebaseDb === 'undefined' || !firebaseDb) return;
-
-      let current = null;
-      try{
-        current = await getCurrentFirebaseUserRecord();
-      }catch(e){}
-
-      const uid = (current && current.id) ? current.id : getUidForBadge();
-      if(!uid) return;
-
-      const snap = await firebaseDb.collection('conversations')
-        .where('participants','array-contains',uid)
-        .get();
-
-      let unreadTotal = 0;
-      snap.forEach(function(docSnap){
-        const data = docSnap.data() || {};
-        if(data.unread && data.unread[uid]){
-          unreadTotal += Number(data.unread[uid] || 0);
-        }
-      });
-
-      paintMessageBadge(unreadTotal);
-    }catch(e){
-      console.warn('Unread message badge check failed:', e);
-    }
-  }
-
-  function startHardBadgeLoop(){
-    forceCheckUnreadMessages();
-    if(window.__ltnHardMessageBadgeLoop) return;
-    window.__ltnHardMessageBadgeLoop = setInterval(forceCheckUnreadMessages, 4000);
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    setTimeout(startHardBadgeLoop, 1500);
-    setTimeout(startHardBadgeLoop, 4000);
-  });
-
-  window.forceCheckUnreadMessages = forceCheckUnreadMessages;
-})();
-
 </script>
 
 <script>
