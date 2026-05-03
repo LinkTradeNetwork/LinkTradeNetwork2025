@@ -483,14 +483,14 @@ button{
       <div id="passwordStep" style="display:none;margin-top:20px;padding-top:20px;border-top:2px solid var(--line)">
         <div style="text-align:center;margin-bottom:16px">
           <div style="font-size:28px;margin-bottom:8px">🔐</div>
-          <div style="font-weight:700;font-size:18px;color:var(--ink)">Create Your Password</div>
-          <div style="font-size:13px;color:var(--muted);margin-top:4px">You will use this to sign in next time</div>
+          <div style="font-weight:700;font-size:18px;color:var(--ink)">Create Your 6-Digit Password</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px">Use a 6-digit code you will remember for sign in</div>
         </div>
-        <label>Password</label>
-        <input id="newPassword" type="password" placeholder="Minimum 6 characters" autocomplete="new-password" />
-        <label>Confirm Password</label>
-        <input id="confirmPassword" type="password" placeholder="Repeat your password" autocomplete="new-password" />
-        <div style="font-size:12px;color:var(--muted);margin-top:8px">• At least 6 characters</div>
+        <label>6-Digit Password / Code</label>
+        <input id="newPassword" type="password" inputmode="numeric" maxlength="6" placeholder="Enter 6 digits" autocomplete="new-password" />
+        <label>Confirm 6-Digit Password / Code</label>
+        <input id="confirmPassword" type="password" inputmode="numeric" maxlength="6" placeholder="Repeat 6 digits" autocomplete="new-password" />
+        <div style="font-size:12px;color:var(--muted);margin-top:8px">• Must be exactly 6 numbers</div>
         <button id="setPasswordBtn">Save Password & Enter LTN</button>
         <div id="passwordMsg" class="msg"></div>
       </div>
@@ -499,8 +499,8 @@ button{
     <div id="signinStep" style="display:none;">
       <label>Email Address</label>
       <input id="signinEmail" type="email" placeholder="you@example.com" autocomplete="email" />
-      <label>Password</label>
-      <input id="signinPassword" type="password" placeholder="Your password" autocomplete="current-password" />
+      <label>6-Digit Password / Code</label>
+      <input id="signinPassword" type="password" placeholder="Your 6-digit password/code" autocomplete="current-password" />
       <button id="signinBtn">Sign In</button>
 
       <div style="text-align:center;margin-top:12px">
@@ -532,7 +532,7 @@ button{
           </div>
 
           <label>New Password</label>
-          <input id="resetNewPassword" type="password" placeholder="Min 8 characters with a number" />
+          <input id="resetNewPassword" type="password" inputmode="numeric" maxlength="6" placeholder="Enter 6 digits" />
           <label>Confirm New Password</label>
           <input id="resetConfirmPassword" type="password" placeholder="Repeat your password" />
           <button id="resetPasswordBtn">Reset Password</button>
@@ -590,7 +590,7 @@ function cleanFirebaseError(err) {
   if (code.includes('auth/user-not-found')) return 'No account found with that email.';
   if (code.includes('auth/email-already-in-use') || code.includes('already-exists')) return 'That email is already registered. Please sign in.';
   if (code.includes('auth/invalid-email')) return 'Please enter a valid email address.';
-  if (code.includes('auth/weak-password')) return 'Password is too weak.';
+  if (code.includes('auth/weak-password')) return 'Password must be exactly 6 digits.';
   if (code.includes('deadline-exceeded')) return 'Code expired. Please request a new code.';
   if (code.includes('permission-denied')) return 'Invalid code.';
   if (code.includes('not-found')) return 'No verification code found. Please request a new code.';
@@ -650,6 +650,16 @@ let currentFirstName = '';
 let currentLastName = '';
 let currentFullName = '';
 let codeVerified = false;
+
+// Keep password/code fields to numbers only and max 6 digits
+['newPassword', 'confirmPassword'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/\D/g, '').slice(0, 6);
+    });
+  }
+});
 
 function code() {
   return codeInputs.map(i => i.value).join('');
@@ -779,8 +789,8 @@ document.getElementById('setPasswordBtn').onclick = async () => {
     showMsg(msg, 'Passwords do not match', 'err');
     return;
   }
-  if (pw.length < 6) {
-    showMsg(msg, 'Password must be at least 6 characters', 'err');
+  if (!/^\d{6}$/.test(pw)) {
+    showMsg(msg, 'Password must be exactly 6 numbers', 'err');
     return;
   }
 
