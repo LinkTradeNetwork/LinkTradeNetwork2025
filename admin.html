@@ -6,175 +6,41 @@
   <title>LTN Admin Dashboard</title>
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      color: #222;
-    }
-
-    header {
-      background: #0b1f3a;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 30px auto;
-      padding: 20px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-    }
-
-    .card h2 {
-      margin: 0;
-      font-size: 28px;
-      color: #0b1f3a;
-    }
-
-    .card p {
-      margin: 5px 0 0;
-      color: #666;
-    }
-
-    .controls {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    input, select {
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 15px;
-    }
-
-    input {
-      flex: 1;
-      min-width: 250px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-    }
-
-    th {
-      background: #0b1f3a;
-      color: white;
-      padding: 14px;
-      text-align: left;
-      font-size: 14px;
-    }
-
-    td {
-      padding: 13px;
-      border-bottom: 1px solid #eee;
-      font-size: 14px;
-    }
-
-    tr:hover {
-      background: #f9fbff;
-    }
-
-    .badge {
-      padding: 6px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
-      display: inline-block;
-    }
-
-    .approved {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .pending {
-      background: #fff3cd;
-      color: #856404;
-    }
-
-    .suspended {
-      background: #f8d7da;
-      color: #721c24;
-    }
-
-    button {
-      padding: 8px 11px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      margin: 2px;
-    }
-
-    .approve-btn {
-      background: #28a745;
-      color: white;
-    }
-
-    .suspend-btn {
-      background: #ffc107;
-      color: #222;
-    }
-
-    .delete-btn {
-      background: #dc3545;
-      color: white;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 30px;
-      background: white;
-      border-radius: 10px;
-      color: #777;
-    }
-
-    .warning {
-      background: #fff3cd;
-      color: #856404;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-size: 14px;
-    }
-
-    @media(max-width: 800px) {
-      table {
-        font-size: 12px;
-      }
-
-      th, td {
-        padding: 9px;
-      }
-    }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f4f6f8; color: #222; }
+    header { background: #0b1f3a; color: white; padding: 22px; text-align: center; }
+    header h1 { margin: 0; font-size: 30px; }
+    .container { max-width: 1350px; margin: 30px auto; padding: 20px; }
+    .warning { background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+    .card h2 { margin: 0; font-size: 28px; color: #0b1f3a; }
+    .card p { margin: 5px 0 0; color: #666; font-size: 14px; }
+    .tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+    .tab-btn { background: white; color: #0b1f3a; border: 1px solid #d6dce5; padding: 12px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .tab-btn.active { background: #0b1f3a; color: white; }
+    .section { display: none; }
+    .section.active { display: block; }
+    .controls, .form-grid { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    input, select, textarea { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
+    input, select { min-width: 220px; }
+    textarea { width: 100%; min-height: 80px; }
+    .form-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); margin-bottom: 25px; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.08); margin-bottom: 25px; }
+    th { background: #0b1f3a; color: white; padding: 14px; text-align: left; font-size: 14px; }
+    td { padding: 13px; border-bottom: 1px solid #eee; font-size: 14px; vertical-align: top; }
+    .badge { padding: 6px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
+    .approved { background: #d4edda; color: #155724; }
+    .pending { background: #fff3cd; color: #856404; }
+    .suspended, .paused { background: #f8d7da; color: #721c24; }
+    button { padding: 9px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 2px; }
+    .approve-btn { background: #28a745; color: white; }
+    .suspend-btn { background: #ffc107; color: #222; }
+    .delete-btn { background: #dc3545; color: white; }
+    .small-btn { background: #0b1f3a; color: white; }
+    .empty { text-align: center; padding: 30px; color: #777; }
+    .media-link { color: #0b57d0; font-weight: bold; text-decoration: none; }
+    .thumb { max-width: 70px; max-height: 70px; border-radius: 6px; object-fit: cover; border: 1px solid #ddd; }
+    @media(max-width: 900px) { table { display: block; overflow-x: auto; white-space: nowrap; } }
   </style>
 </head>
 
@@ -182,76 +48,137 @@
 
 <header>
   <h1>LinkTradeNetwork Admin Dashboard</h1>
-  <p>Manage signups, roles, and user status</p>
+  <p>Users, messages, posts, media, and sponsorship management</p>
 </header>
 
 <div class="container">
 
   <div class="warning">
-    Admin note: This page manages Firestore user records. Deleting here removes the user document from Firestore, not the Firebase Authentication login account.
+    Admin note: deleting a user here removes the Firestore user document only. It does not delete the Firebase Authentication login account.
   </div>
 
   <div class="stats">
-    <div class="card">
-      <h2 id="totalUsers">0</h2>
-      <p>Total Users</p>
-    </div>
-
-    <div class="card">
-      <h2 id="apprentices">0</h2>
-      <p>Apprentices</p>
-    </div>
-
-    <div class="card">
-      <h2 id="contractors">0</h2>
-      <p>Trade Companies / Contractors</p>
-    </div>
-
-    <div class="card">
-      <h2 id="pendingUsers">0</h2>
-      <p>Pending Users</p>
-    </div>
+    <div class="card"><h2 id="totalUsers">0</h2><p>Total Users</p></div>
+    <div class="card"><h2 id="pendingUsers">0</h2><p>Pending Users</p></div>
+    <div class="card"><h2 id="totalMessages">0</h2><p>Messages / Conversations</p></div>
+    <div class="card"><h2 id="totalPosts">0</h2><p>Total Posts</p></div>
+    <div class="card"><h2 id="totalPhotos">0</h2><p>Photos</p></div>
+    <div class="card"><h2 id="totalVideos">0</h2><p>Videos</p></div>
+    <div class="card"><h2 id="totalSponsors">0</h2><p>Sponsorships</p></div>
   </div>
 
-  <div class="controls">
-    <input type="text" id="searchInput" placeholder="Search by name, email, trade, role..." />
-
-    <select id="roleFilter">
-      <option value="">All Roles</option>
-      <option value="apprentice">Apprentice</option>
-      <option value="contractor">Contractor</option>
-      <option value="company">Company</option>
-      <option value="trade worker">Trade Worker</option>
-    </select>
-
-    <select id="statusFilter">
-      <option value="">All Status</option>
-      <option value="pending">Pending</option>
-      <option value="approved">Approved</option>
-      <option value="suspended">Suspended</option>
-    </select>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('usersSection', this)">Users</button>
+    <button class="tab-btn" onclick="showTab('messagesSection', this)">Messages</button>
+    <button class="tab-btn" onclick="showTab('postsSection', this)">Posts / Media</button>
+    <button class="tab-btn" onclick="showTab('sponsorsSection', this)">Sponsorships</button>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Full Name</th>
-        <th>Email</th>
-        <th>Role</th>
-        <th>Trade</th>
-        <th>Company</th>
-        <th>Status</th>
-        <th>Date Joined</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
+  <section id="usersSection" class="section active">
+    <div class="controls">
+      <input type="text" id="userSearchInput" placeholder="Search by name, email, trade, role..." />
+      <select id="roleFilter">
+        <option value="">All Roles</option>
+        <option value="admin">Admin</option>
+        <option value="apprentice">Apprentice</option>
+        <option value="contractor">Contractor</option>
+        <option value="company">Company</option>
+        <option value="member">Member</option>
+        <option value="trade worker">Trade Worker</option>
+      </select>
+      <select id="statusFilter">
+        <option value="">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="approved">Approved</option>
+        <option value="suspended">Suspended</option>
+      </select>
+    </div>
 
-    <tbody id="usersTable">
-      <tr>
-        <td colspan="8">Loading users...</td>
-      </tr>
-    </tbody>
-  </table>
+    <table>
+      <thead>
+        <tr>
+          <th>Full Name</th><th>Email</th><th>Role</th><th>Trade</th><th>Company</th><th>Status</th><th>Date Joined</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="usersTable"><tr><td colspan="8">Loading users...</td></tr></tbody>
+    </table>
+  </section>
+
+  <section id="messagesSection" class="section">
+    <div class="controls">
+      <input type="text" id="messageSearchInput" placeholder="Search messages..." />
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Conversation ID</th><th>From</th><th>To</th><th>Last Message</th><th>Status</th><th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="messagesTable"><tr><td colspan="6">Loading messages...</td></tr></tbody>
+    </table>
+  </section>
+
+  <section id="postsSection" class="section">
+    <div class="controls">
+      <input type="text" id="postSearchInput" placeholder="Search posts, captions, users..." />
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Preview</th><th>User</th><th>Caption / Text</th><th>Media Type</th><th>Media Link</th><th>Date</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="postsTable"><tr><td colspan="7">Loading posts...</td></tr></tbody>
+    </table>
+  </section>
+
+  <section id="sponsorsSection" class="section">
+
+    <div class="form-box">
+      <h2>Add Sponsor</h2>
+
+      <div class="form-grid">
+        <input id="sponsorCompany" placeholder="Company Name" />
+        <input id="sponsorContact" placeholder="Contact Name" />
+        <input id="sponsorEmail" placeholder="Email Address" />
+        <input id="sponsorPhone" placeholder="Phone Number" />
+        <input id="sponsorWebsite" placeholder="Website" />
+
+        <select id="sponsorPackage">
+          <option value="Starter Sponsor">Starter Sponsor - $100/month</option>
+          <option value="Featured Sponsor">Featured Sponsor - $250/month</option>
+          <option value="Top Trade Partner">Top Trade Partner - $500/month</option>
+          <option value="Custom Sponsor">Custom Sponsor</option>
+        </select>
+
+        <input id="sponsorAmount" placeholder="Amount Example: $250/month" />
+
+        <select id="sponsorStatus">
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="paused">Paused</option>
+        </select>
+      </div>
+
+      <textarea id="sponsorNotes" placeholder="Notes about sponsor..."></textarea>
+
+      <br><br>
+      <button class="approve-btn" onclick="addSponsor()">Add Sponsor</button>
+      <button class="suspend-btn" onclick="clearSponsorForm()">Clear</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Company</th><th>Contact</th><th>Email</th><th>Phone</th><th>Package</th><th>Amount</th><th>Status</th><th>Website</th><th>Date</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="sponsorsTable"><tr><td colspan="10">Loading sponsorships...</td></tr></tbody>
+    </table>
+
+  </section>
 
 </div>
 
@@ -263,7 +190,9 @@
     onSnapshot,
     doc,
     updateDoc,
-    deleteDoc
+    deleteDoc,
+    addDoc,
+    serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -280,72 +209,73 @@
   const db = getFirestore(app);
 
   let allUsers = [];
+  let allConversations = [];
+  let allPosts = [];
+  let allSponsors = [];
 
   const usersTable = document.getElementById("usersTable");
-  const searchInput = document.getElementById("searchInput");
-  const roleFilter = document.getElementById("roleFilter");
-  const statusFilter = document.getElementById("statusFilter");
+  const messagesTable = document.getElementById("messagesTable");
+  const postsTable = document.getElementById("postsTable");
+  const sponsorsTable = document.getElementById("sponsorsTable");
 
-  onSnapshot(collection(db, "users"), (snapshot) => {
+  onSnapshot(collection(db, "users"), snapshot => {
     allUsers = [];
-
-    snapshot.forEach((docSnap) => {
-      allUsers.push({
-        id: docSnap.id,
-        ...docSnap.data()
-      });
-    });
-
+    snapshot.forEach(docSnap => allUsers.push({ id: docSnap.id, ...docSnap.data() }));
     renderUsers();
     updateStats();
   });
 
-  function renderUsers() {
-    const searchText = searchInput.value.toLowerCase();
-    const selectedRole = roleFilter.value.toLowerCase();
-    const selectedStatus = statusFilter.value.toLowerCase();
+  onSnapshot(collection(db, "conversations"), snapshot => {
+    allConversations = [];
+    snapshot.forEach(docSnap => allConversations.push({ id: docSnap.id, ...docSnap.data() }));
+    renderMessages();
+    updateStats();
+  });
 
-    const filteredUsers = allUsers.filter(user => {
-      const fullName = (user.fullName || user.name || "").toLowerCase();
-      const email = (user.email || "").toLowerCase();
+  onSnapshot(collection(db, "posts"), snapshot => {
+    allPosts = [];
+    snapshot.forEach(docSnap => allPosts.push({ id: docSnap.id, ...docSnap.data() }));
+    renderPosts();
+    updateStats();
+  });
+
+  onSnapshot(collection(db, "sponsorships"), snapshot => {
+    allSponsors = [];
+    snapshot.forEach(docSnap => allSponsors.push({ id: docSnap.id, ...docSnap.data() }));
+    renderSponsors();
+    updateStats();
+  });
+
+  function renderUsers() {
+    const search = document.getElementById("userSearchInput").value.toLowerCase();
+    const roleFilter = document.getElementById("roleFilter").value.toLowerCase();
+    const statusFilter = document.getElementById("statusFilter").value.toLowerCase();
+
+    const filtered = allUsers.filter(user => {
+      const text = `${user.fullName || ""} ${user.name || ""} ${user.email || ""} ${user.role || ""} ${user.trade || ""} ${user.company || ""}`.toLowerCase();
       const role = (user.role || "").toLowerCase();
-      const trade = (user.trade || "").toLowerCase();
-      const company = (user.company || user.companyName || "").toLowerCase();
       const status = (user.status || "pending").toLowerCase();
 
-      const matchesSearch =
-        fullName.includes(searchText) ||
-        email.includes(searchText) ||
-        role.includes(searchText) ||
-        trade.includes(searchText) ||
-        company.includes(searchText);
-
-      const matchesRole = !selectedRole || role === selectedRole;
-      const matchesStatus = !selectedStatus || status === selectedStatus;
-
-      return matchesSearch && matchesRole && matchesStatus;
+      return text.includes(search) &&
+        (!roleFilter || role === roleFilter) &&
+        (!statusFilter || status === statusFilter);
     });
 
-    if (filteredUsers.length === 0) {
-      usersTable.innerHTML = `
-        <tr>
-          <td colspan="8" class="empty">No users found</td>
-        </tr>
-      `;
+    if (!filtered.length) {
+      usersTable.innerHTML = `<tr><td colspan="8" class="empty">No users found</td></tr>`;
       return;
     }
 
-    usersTable.innerHTML = filteredUsers.map(user => {
+    usersTable.innerHTML = filtered.map(user => {
       const status = user.status || "pending";
-
       return `
         <tr>
-          <td>${user.fullName || user.name || "N/A"}</td>
-          <td>${user.email || "N/A"}</td>
-          <td>${user.role || "N/A"}</td>
-          <td>${user.trade || "N/A"}</td>
-          <td>${user.company || user.companyName || "N/A"}</td>
-          <td><span class="badge ${status}">${status}</span></td>
+          <td>${safe(user.fullName || user.name || user.displayName || "N/A")}</td>
+          <td>${safe(user.email || "N/A")}</td>
+          <td>${safe(user.role || "N/A")}</td>
+          <td>${safe(user.trade || "N/A")}</td>
+          <td>${safe(user.company || user.companyName || "N/A")}</td>
+          <td><span class="badge ${safe(status)}">${safe(status)}</span></td>
           <td>${formatDate(user.createdAt)}</td>
           <td>
             <button class="approve-btn" onclick="approveUser('${user.id}')">Approve</button>
@@ -357,61 +287,236 @@
     }).join("");
   }
 
-  function updateStats() {
-    document.getElementById("totalUsers").textContent = allUsers.length;
+  function renderMessages() {
+    const search = document.getElementById("messageSearchInput").value.toLowerCase();
 
-    document.getElementById("apprentices").textContent =
-      allUsers.filter(u => (u.role || "").toLowerCase() === "apprentice").length;
+    const filtered = allConversations.filter(item => {
+      const text = `${item.id || ""} ${item.fromUserId || ""} ${item.toUserId || ""} ${item.lastMessage || ""} ${item.message || ""} ${item.text || ""}`.toLowerCase();
+      return text.includes(search);
+    });
 
-    document.getElementById("contractors").textContent =
-      allUsers.filter(u => {
-        const role = (u.role || "").toLowerCase();
-        return role === "contractor" || role === "company";
-      }).length;
+    if (!filtered.length) {
+      messagesTable.innerHTML = `<tr><td colspan="6" class="empty">No conversations found</td></tr>`;
+      return;
+    }
 
-    document.getElementById("pendingUsers").textContent =
-      allUsers.filter(u => (u.status || "pending").toLowerCase() === "pending").length;
+    messagesTable.innerHTML = filtered.map(item => `
+      <tr>
+        <td>${safe(item.id)}</td>
+        <td>${safe(item.fromUserId || item.senderId || "N/A")}</td>
+        <td>${safe(item.toUserId || item.receiverId || "N/A")}</td>
+        <td>${safe(item.lastMessage || item.message || item.text || "N/A")}</td>
+        <td>${safe(item.status || "open")}</td>
+        <td>${formatDate(item.updatedAt || item.createdAt)}</td>
+      </tr>
+    `).join("");
   }
 
-  function formatDate(dateValue) {
-    if (!dateValue) return "N/A";
+  function renderPosts() {
+    const search = document.getElementById("postSearchInput").value.toLowerCase();
 
+    const filtered = allPosts.filter(post => {
+      const text = `${post.caption || ""} ${post.text || ""} ${post.content || ""} ${post.userName || ""} ${post.email || ""}`.toLowerCase();
+      return text.includes(search);
+    });
+
+    if (!filtered.length) {
+      postsTable.innerHTML = `<tr><td colspan="7" class="empty">No posts found</td></tr>`;
+      return;
+    }
+
+    postsTable.innerHTML = filtered.map(post => {
+      const mediaUrl = post.mediaUrl || post.imageUrl || post.photoUrl || post.videoUrl || "";
+      const mediaType = getMediaType(post, mediaUrl);
+
+      let preview = "N/A";
+      if (mediaType === "photo" && mediaUrl) preview = `<img class="thumb" src="${mediaUrl}" />`;
+      if (mediaType === "video") preview = "Video";
+
+      return `
+        <tr>
+          <td>${preview}</td>
+          <td>${safe(post.userName || post.fullName || post.email || post.userId || "N/A")}</td>
+          <td>${safe(post.caption || post.text || post.content || "N/A")}</td>
+          <td>${safe(mediaType)}</td>
+          <td>${mediaUrl ? `<a class="media-link" href="${mediaUrl}" target="_blank">Open Media</a>` : "N/A"}</td>
+          <td>${formatDate(post.createdAt)}</td>
+          <td><button class="delete-btn" onclick="deletePost('${post.id}')">Delete</button></td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function renderSponsors() {
+    if (!allSponsors.length) {
+      sponsorsTable.innerHTML = `<tr><td colspan="10" class="empty">No sponsorships yet</td></tr>`;
+      return;
+    }
+
+    sponsorsTable.innerHTML = allSponsors.map(sponsor => {
+      const status = sponsor.status || "pending";
+      return `
+        <tr>
+          <td>${safe(sponsor.companyName || "N/A")}</td>
+          <td>${safe(sponsor.contactName || "N/A")}</td>
+          <td>${safe(sponsor.email || "N/A")}</td>
+          <td>${safe(sponsor.phone || "N/A")}</td>
+          <td>${safe(sponsor.package || "N/A")}</td>
+          <td>${safe(sponsor.amount || "N/A")}</td>
+          <td><span class="badge ${safe(status)}">${safe(status)}</span></td>
+          <td>${sponsor.website ? `<a class="media-link" href="${safeUrl(sponsor.website)}" target="_blank">Visit</a>` : "N/A"}</td>
+          <td>${formatDate(sponsor.createdAt)}</td>
+          <td>
+            <button class="approve-btn" onclick="approveSponsor('${sponsor.id}')">Approve</button>
+            <button class="suspend-btn" onclick="pauseSponsor('${sponsor.id}')">Pause</button>
+            <button class="delete-btn" onclick="deleteSponsor('${sponsor.id}')">Delete</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function updateStats() {
+    document.getElementById("totalUsers").textContent = allUsers.length;
+    document.getElementById("pendingUsers").textContent = allUsers.filter(u => (u.status || "pending") === "pending").length;
+    document.getElementById("totalMessages").textContent = allConversations.length;
+    document.getElementById("totalPosts").textContent = allPosts.length;
+    document.getElementById("totalPhotos").textContent = allPosts.filter(p => getMediaType(p, p.mediaUrl || p.imageUrl || p.photoUrl || "") === "photo").length;
+    document.getElementById("totalVideos").textContent = allPosts.filter(p => getMediaType(p, p.mediaUrl || p.videoUrl || "") === "video").length;
+    document.getElementById("totalSponsors").textContent = allSponsors.length;
+  }
+
+  function getMediaType(post, url) {
+    const type = (post.mediaType || post.type || "").toLowerCase();
+    const lowerUrl = (url || "").toLowerCase();
+
+    if (type.includes("video") || lowerUrl.includes(".mp4") || lowerUrl.includes(".mov") || lowerUrl.includes(".webm")) return "video";
+    if (type.includes("photo") || type.includes("image") || lowerUrl.includes(".jpg") || lowerUrl.includes(".jpeg") || lowerUrl.includes(".png") || lowerUrl.includes(".webp")) return "photo";
+    return url ? "media" : "text";
+  }
+
+  function formatDate(value) {
+    if (!value) return "N/A";
     try {
-      if (dateValue.seconds) {
-        return new Date(dateValue.seconds * 1000).toLocaleDateString();
-      }
-
-      return new Date(dateValue).toLocaleDateString();
+      if (value.seconds) return new Date(value.seconds * 1000).toLocaleDateString();
+      return new Date(value).toLocaleDateString();
     } catch {
       return "N/A";
     }
   }
 
-  window.approveUser = async function(userId) {
-    await updateDoc(doc(db, "users", userId), {
-      status: "approved"
+  function safe(value) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function safeUrl(url) {
+    if (!url) return "#";
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      return "https://" + url;
+    }
+    return url;
+  }
+
+  window.showTab = function(sectionId, button) {
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById(sectionId).classList.add("active");
+    button.classList.add("active");
+  };
+
+  window.addSponsor = async function() {
+    const companyName = document.getElementById("sponsorCompany").value.trim();
+    const contactName = document.getElementById("sponsorContact").value.trim();
+    const email = document.getElementById("sponsorEmail").value.trim();
+    const phone = document.getElementById("sponsorPhone").value.trim();
+    const website = document.getElementById("sponsorWebsite").value.trim();
+    const sponsorPackage = document.getElementById("sponsorPackage").value;
+    const amount = document.getElementById("sponsorAmount").value.trim();
+    const status = document.getElementById("sponsorStatus").value;
+    const notes = document.getElementById("sponsorNotes").value.trim();
+
+    if (!companyName) {
+      alert("Please enter company name.");
+      return;
+    }
+
+    await addDoc(collection(db, "sponsorships"), {
+      companyName,
+      contactName,
+      email,
+      phone,
+      website,
+      package: sponsorPackage,
+      amount,
+      status,
+      notes,
+      createdAt: serverTimestamp()
     });
+
+    alert("Sponsor added successfully.");
+    clearSponsorForm();
+  };
+
+  window.clearSponsorForm = function() {
+    document.getElementById("sponsorCompany").value = "";
+    document.getElementById("sponsorContact").value = "";
+    document.getElementById("sponsorEmail").value = "";
+    document.getElementById("sponsorPhone").value = "";
+    document.getElementById("sponsorWebsite").value = "";
+    document.getElementById("sponsorPackage").value = "Starter Sponsor";
+    document.getElementById("sponsorAmount").value = "";
+    document.getElementById("sponsorStatus").value = "pending";
+    document.getElementById("sponsorNotes").value = "";
+  };
+
+  window.approveUser = async userId => {
+    await updateDoc(doc(db, "users", userId), { status: "approved" });
     alert("User approved");
   };
 
-  window.suspendUser = async function(userId) {
-    await updateDoc(doc(db, "users", userId), {
-      status: "suspended"
-    });
+  window.suspendUser = async userId => {
+    await updateDoc(doc(db, "users", userId), { status: "suspended" });
     alert("User suspended");
   };
 
-  window.deleteUserDoc = async function(userId) {
-    const confirmDelete = confirm("Are you sure you want to delete this user record from Firestore?");
-    if (!confirmDelete) return;
-
+  window.deleteUserDoc = async userId => {
+    if (!confirm("Delete this user record from Firestore?")) return;
     await deleteDoc(doc(db, "users", userId));
     alert("User document deleted");
   };
 
-  searchInput.addEventListener("input", renderUsers);
-  roleFilter.addEventListener("change", renderUsers);
-  statusFilter.addEventListener("change", renderUsers);
+  window.deletePost = async postId => {
+    if (!confirm("Delete this post?")) return;
+    await deleteDoc(doc(db, "posts", postId));
+    alert("Post deleted");
+  };
+
+  window.approveSponsor = async sponsorId => {
+    await updateDoc(doc(db, "sponsorships", sponsorId), { status: "approved" });
+    alert("Sponsor approved");
+  };
+
+  window.pauseSponsor = async sponsorId => {
+    await updateDoc(doc(db, "sponsorships", sponsorId), { status: "paused" });
+    alert("Sponsor paused");
+  };
+
+  window.deleteSponsor = async sponsorId => {
+    if (!confirm("Delete this sponsorship?")) return;
+    await deleteDoc(doc(db, "sponsorships", sponsorId));
+    alert("Sponsorship deleted");
+  };
+
+  document.getElementById("userSearchInput").addEventListener("input", renderUsers);
+  document.getElementById("messageSearchInput").addEventListener("input", renderMessages);
+  document.getElementById("postSearchInput").addEventListener("input", renderPosts);
+  document.getElementById("roleFilter").addEventListener("change", renderUsers);
+  document.getElementById("statusFilter").addEventListener("change", renderUsers);
 </script>
 
 </body>
