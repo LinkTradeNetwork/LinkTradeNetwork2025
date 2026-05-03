@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LTN Admin Dashboard</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    header {
+      background: #0b1f3a;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 28px;
+      color: #0b1f3a;
+    }
+
+    .card p {
+      margin: 5px 0 0;
+      color: #666;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    input, select {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    input {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+
+    th {
+      background: #0b1f3a;
+      color: white;
+      padding: 14px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    td {
+      padding: 13px;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+
+    tr:hover {
+      background: #f9fbff;
+    }
+
+    .badge {
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      display: inline-block;
+    }
+
+    .approved {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .suspended {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    button {
+      padding: 8px 11px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 2px;
+    }
+
+    .approve-btn {
+      background: #28a745;
+      color: white;
+    }
+
+    .suspend-btn {
+      background: #ffc107;
+      color: #222;
+    }
+
+    .delete-btn {
+      background: #dc3545;
+      color: white;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 30px;
+      background: white;
+      border-radius: 10px;
+      color: #777;
+    }
+
+    .warning {
+      background: #fff3cd;
+      color: #856404;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    @media(max-width: 800px) {
+      table {
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 9px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>LinkTradeNetwork Admin Dashboard</h1>
+  <p>Manage signups, roles, and user status</p>
+</header>
+
+<div class="container">
+
+  <div class="warning">
+    Admin note: This page manages Firestore user records. Deleting here removes the user document from Firestore, not the Firebase Authentication login account.
+  </div>
+
+  <div class="stats">
+    <div class="card">
+      <h2 id="totalUsers">0</h2>
+      <p>Total Users</p>
+    </div>
+
+    <div class="card">
+      <h2 id="apprentices">0</h2>
+      <p>Apprentices</p>
+    </div>
+
+    <div class="card">
+      <h2 id="contractors">0</h2>
+      <p>Trade Companies / Contractors</p>
+    </div>
+
+    <div class="card">
+      <h2 id="pendingUsers">0</h2>
+      <p>Pending Users</p>
+    </div>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Search by name, email, trade, role..." />
+
+    <select id="roleFilter">
+      <option value="">All Roles</option>
+      <option value="apprentice">Apprentice</option>
+      <option value="contractor">Contractor</option>
+      <option value="company">Company</option>
+      <option value="trade worker">Trade Worker</option>
+    </select>
+
+    <select id="statusFilter">
+      <option value="">All Status</option>
+      <option value="pending">Pending</option>
+      <option value="approved">Approved</option>
+      <option value="suspended">Suspended</option>
+    </select>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Full Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Trade</th>
+        <th>Company</th>
+        <th>Status</th>
+        <th>Date Joined</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody id="usersTable">
+      <tr>
+        <td colspan="8">Loading users...</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    onSnapshot,
+    doc,
+    updateDoc,
+    deleteDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
+    authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
+    projectId: "linktradenetwork-2dcd1",
+    storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
+    messagingSenderId: "219091766597",
+    appId: "1:219091766597:web:9878c199ba17e0ed89c22c",
+    measurementId: "G-ZMGLCPHRS6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let allUsers = [];
+
+  const usersTable = document.getElementById("usersTable");
+  const searchInput = document.getElementById("searchInput");
+  const roleFilter = document.getElementById("roleFilter");
+  const statusFilter = document.getElementById("statusFilter");
+
+  onSnapshot(collection(db, "users"), (snapshot) => {
+    allUsers = [];
+
+    snapshot.forEach((docSnap) => {
+      allUsers.push({
+        id: docSnap.id,
+        ...docSnap.data()
+      });
+    });
+
+    renderUsers();
+    updateStats();
+  });
+
+  function renderUsers() {
+    const searchText = searchInput.value.toLowerCase();
+    const selectedRole = roleFilter.value.toLowerCase();
+    const selectedStatus = statusFilter.value.toLowerCase();
+
+    const filteredUsers = allUsers.filter(user => {
+      const fullName = (user.fullName || user.name || "").toLowerCase();
+      const email = (user.email || "").toLowerCase();
+      const role = (user.role || "").toLowerCase();
+      const trade = (user.trade || "").toLowerCase();
+      const company = (user.company || user.companyName || "").toLowerCase();
+      const status = (user.status || "pending").toLowerCase();
+
+      const matchesSearch =
+        fullName.includes(searchText) ||
+        email.includes(searchText) ||
+        role.includes(searchText) ||
+        trade.includes(searchText) ||
+        company.includes(searchText);
+
+      const matchesRole = !selectedRole || role === selectedRole;
+      const matchesStatus = !selectedStatus || status === selectedStatus;
+
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+
+    if (filteredUsers.length === 0) {
+      usersTable.innerHTML = `
+        <tr>
+          <td colspan="8" class="empty">No users found</td>
+        </tr>
+      `;
+      return;
+    }
+
+    usersTable.innerHTML = filteredUsers.map(user => {
+      const status = user.status || "pending";
+
+      return `
+        <tr>
+          <td>${user.fullName || user.name || "N/A"}</td>
+          <td>${user.email || "N/A"}</td>
+          <td>${user.role || "N/A"}</td>
+          <td>${user.trade || "N/A"}</td>
+          <td>${user.company || user.companyName || "N/A"}</td>
+          <td><span class="badge ${status}">${status}</span></td>
+          <td>${formatDate(user.createdAt)}</td>
+          <td>
+            <button class="approve-btn" onclick="approveUser('${user.id}')">Approve</button>
+            <button class="suspend-btn" onclick="suspendUser('${user.id}')">Suspend</button>
+            <button class="delete-btn" onclick="deleteUserDoc('${user.id}')">Delete</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function updateStats() {
+    document.getElementById("totalUsers").textContent = allUsers.length;
+
+    document.getElementById("apprentices").textContent =
+      allUsers.filter(u => (u.role || "").toLowerCase() === "apprentice").length;
+
+    document.getElementById("contractors").textContent =
+      allUsers.filter(u => {
+        const role = (u.role || "").toLowerCase();
+        return role === "contractor" || role === "company";
+      }).length;
+
+    document.getElementById("pendingUsers").textContent =
+      allUsers.filter(u => (u.status || "pending").toLowerCase() === "pending").length;
+  }
+
+  function formatDate(dateValue) {
+    if (!dateValue) return "N/A";
+
+    try {
+      if (dateValue.seconds) {
+        return new Date(dateValue.seconds * 1000).toLocaleDateString();
+      }
+
+      return new Date(dateValue).toLocaleDateString();
+    } catch {
+      return "N/A";
+    }
+  }
+
+  window.approveUser = async function(userId) {
+    await updateDoc(doc(db, "users", userId), {
+      status: "approved"
+    });
+    alert("User approved");
+  };
+
+  window.suspendUser = async function(userId) {
+    await updateDoc(doc(db, "users", userId), {
+      status: "suspended"
+    });
+    alert("User suspended");
+  };
+
+  window.deleteUserDoc = async function(userId) {
+    const confirmDelete = confirm("Are you sure you want to delete this user record from Firestore?");
+    if (!confirmDelete) return;
+
+    await deleteDoc(doc(db, "users", userId));
+    alert("User document deleted");
+  };
+
+  searchInput.addEventListener("input", renderUsers);
+  roleFilter.addEventListener("change", renderUsers);
+  statusFilter.addEventListener("change", renderUsers);
+</script>
+
+</body>
+</html>
