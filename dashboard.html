@@ -856,22 +856,29 @@ select.form-control{cursor:pointer}
       <button class="modal-close" onclick="SponsorManager.closeInquiryModal()">&times;</button>
     </div>
     <div class="modal-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px">
-        <div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;background:var(--panel2)">
-          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Basic</div>
-          <div style="font-size:20px;font-weight:700;color:var(--accent)">$49</div>
+      <style>
+        .sponsor-plan-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px}
+        .sponsor-plan-option{border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;background:var(--panel2);cursor:pointer;transition:all .2s;user-select:none}
+        .sponsor-plan-option:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08);border-color:var(--brand)}
+        .sponsor-plan-option.selected{border:2px solid var(--brand);background:rgba(234,106,0,.06);box-shadow:0 0 0 3px rgba(234,106,0,.10)}
+        .sponsor-plan-option.selected .plan-name,.sponsor-plan-option.selected .plan-price{color:var(--brand)!important}
+      </style>
+      <div class="sponsor-plan-grid">
+        <div class="sponsor-plan-option" onclick="SponsorManager.selectPlan('Basic — $49/mo', '$49/month', this)">
+          <div class="plan-name" style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Basic</div>
+          <div class="plan-price" style="font-size:20px;font-weight:700;color:var(--accent)">$49</div>
           <div style="font-size:11px;color:var(--muted)">/month</div>
           <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">Logo + link<br>Standard slot</div>
         </div>
-        <div style="border:2px solid var(--brand);border-radius:8px;padding:12px;text-align:center;background:rgba(234,106,0,.04)">
-          <div style="font-size:11px;font-weight:600;color:var(--brand);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Featured ⭐</div>
-          <div style="font-size:20px;font-weight:700;color:var(--brand)">$99</div>
+        <div class="sponsor-plan-option selected" onclick="SponsorManager.selectPlan('Featured — $99/mo', '$99/month', this)">
+          <div class="plan-name" style="font-size:11px;font-weight:600;color:var(--brand);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Featured ⭐</div>
+          <div class="plan-price" style="font-size:20px;font-weight:700;color:var(--brand)">$99</div>
           <div style="font-size:11px;color:var(--muted)">/month</div>
           <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">Top slot<br>Highlighted card</div>
         </div>
-        <div style="border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;background:var(--panel2)">
-          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Premium</div>
-          <div style="font-size:20px;font-weight:700;color:var(--accent)">$199</div>
+        <div class="sponsor-plan-option" onclick="SponsorManager.selectPlan('Premium — $199/mo', '$199/month', this)">
+          <div class="plan-name" style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Premium</div>
+          <div class="plan-price" style="font-size:20px;font-weight:700;color:var(--accent)">$199</div>
           <div style="font-size:11px;color:var(--muted)">/month</div>
           <div style="font-size:11px;margin-top:8px;color:var(--ink);line-height:1.4">All pages<br>+ AI mentions</div>
         </div>
@@ -2225,45 +2232,93 @@ document.querySelectorAll('.nav a,.nav button').forEach(item=>{
   });
 });
 
-/* ===== SPONSOR MANAGER ===== */
+/* ===== SPONSOR MANAGER — FIREBASE ===== */
 const SponsorManager = {
+  selectedPlan: 'Featured — $99/mo',
+  selectedAmount: '$99/month',
+
   openInquiryModal() {
-    document.getElementById('sponsor-form').reset();
+    const form = document.getElementById('sponsor-form');
+    if(form) form.reset();
+    this.selectedPlan = 'Featured — $99/mo';
+    this.selectedAmount = '$99/month';
+    document.querySelectorAll('.sponsor-plan-option').forEach(card => card.classList.remove('selected'));
+    const featured = document.querySelectorAll('.sponsor-plan-option')[1];
+    if(featured) featured.classList.add('selected');
+    const slot = document.getElementById('sp-slot');
+    if(slot) slot.value = 'Featured — $99/mo';
     document.getElementById('sponsor-inquiry-modal').classList.add('active');
   },
+
   closeInquiryModal() {
     document.getElementById('sponsor-inquiry-modal').classList.remove('active');
   },
+
+  selectPlan(planName, amount, element) {
+    this.selectedPlan = planName;
+    this.selectedAmount = amount;
+    document.querySelectorAll('.sponsor-plan-option').forEach(card => card.classList.remove('selected'));
+    if(element) element.classList.add('selected');
+    const slot = document.getElementById('sp-slot');
+    if(slot) slot.value = planName;
+  },
+
   async submitInquiry() {
     const businessName   = document.getElementById('sp-business').value.trim();
     const contactName    = document.getElementById('sp-contact').value.trim();
     const email          = document.getElementById('sp-email').value.trim();
     const phone          = document.getElementById('sp-phone').value.trim();
     const industry       = document.getElementById('sp-industry').value;
-    const slotPreference = document.getElementById('sp-slot').value;
+    const slotPreference = document.getElementById('sp-slot').value || this.selectedPlan || 'Featured — $99/mo';
     const message        = document.getElementById('sp-message').value.trim();
+
     if (!businessName) { alert('Please enter your business name.'); return; }
     if (!contactName)  { alert('Please enter your name.'); return; }
     if (!email)        { alert('Please enter your email address.'); return; }
+    if (!firebaseDb)   { alert('Firebase is not ready. Refresh the page and try again.'); return; }
+
     const btn = document.getElementById('sponsor-submit-btn');
-    btn.disabled = true; btn.textContent = 'Sending...';
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
     try {
-      const data = await apiCall({ action:'sponsor-inquiry', businessName, contactName, email, phone, industry, slotPreference, message });
-      if (data.success) {
-        this.closeInquiryModal();
-        alert('Thank you, ' + contactName + '! We received your inquiry and will be in touch within 1–2 business days.');
-      } else {
-        alert('Something went wrong: ' + (data.error || 'Please try again.'));
-      }
+      await firebaseDb.collection('sponsorships').add({
+        companyName: businessName,
+        contactName,
+        email: email.toLowerCase(),
+        phone,
+        industry,
+        package: slotPreference,
+        amount: this.amountFromPlan(slotPreference),
+        notes: message,
+        status: 'pending',
+        source: 'dashboard-sponsor-form',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      this.closeInquiryModal();
+      alert('Thank you, ' + contactName + '! Your sponsor inquiry was saved. We will reach out within 1–2 business days.');
+      loadSponsors();
     } catch(e) {
-      alert('Failed to send. Please try again or email us at Team@linktradenetwork.com');
+      console.error('Sponsor inquiry Firebase save failed:', e);
+      alert('Failed to save sponsor inquiry. Please try again or email Team@LinkTradeNetwork.com');
     } finally {
-      btn.disabled = false; btn.textContent = 'Send Inquiry';
+      btn.disabled = false;
+      btn.textContent = 'Send Inquiry';
     }
+  },
+
+  amountFromPlan(plan) {
+    const p = String(plan || '').toLowerCase();
+    if(p.includes('$49') || p.includes('basic')) return '$49/month';
+    if(p.includes('$199') || p.includes('premium')) return '$199/month';
+    if(p.includes('$99') || p.includes('featured')) return '$99/month';
+    return '';
   }
 };
 
-/* ===== FIX: SPONSOR DISPLAY - handles missing logos gracefully ===== */
+/* ===== FIREBASE SPONSOR DISPLAY ===== */
 function renderEmptySponsors_() {
   return Array(4).fill(0).map(() => `
     <div class="sponsor-card" onclick="SponsorManager.openInquiryModal()" style="cursor:pointer;border:2px dashed var(--line)">
@@ -2278,33 +2333,42 @@ function renderEmptySponsors_() {
 
 async function loadSponsors(){
   const container=document.getElementById('sponsors-container');
+  if(!container) return;
+
   try{
-    const data=await apiCall({action:'get-sponsors'});
-    if(!data.success||!data.sponsors||!data.sponsors.length){
+    if(!firebaseDb) throw new Error('Firebase not ready');
+
+    const snap = await firebaseDb.collection('sponsorships')
+      .where('status','==','approved')
+      .limit(6)
+      .get();
+
+    if(snap.empty){
       container.innerHTML=renderEmptySponsors_();
       return;
     }
-    container.innerHTML=data.sponsors.map((sponsor,i)=>{
-      // FIX: treat any sponsor without a real logo URL as a placeholder
-      const hasLogo = sponsor.logoUrl && sponsor.logoUrl.trim() !== '' && !sponsor.logoUrl.includes('logo.png');
-      const isPlaceholder = sponsor.name==='Your Company Here' || (!hasLogo && sponsor.link&&sponsor.link.startsWith('mailto:'));
-      if(isPlaceholder){
-        return `<div class="sponsor-card" onclick="SponsorManager.openInquiryModal()" style="cursor:pointer;border:2px dashed var(--line)">
-          <div style="width:100%;padding:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px">
-            <svg style="width:28px;height:28px;opacity:.3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            <div style="font-weight:700;font-size:14px;color:var(--accent)">Your Company Here</div>
-            <div style="font-size:11px;color:var(--muted);text-align:center">Click to advertise to<br>trade professionals</div>
-            <div style="font-size:11px;font-weight:600;color:var(--brand);margin-top:4px">From $49/mo →</div>
-          </div>
-        </div>`;
-      }
+
+    const sponsors=[];
+    snap.forEach(docSnap => sponsors.push({ id:docSnap.id, ...docSnap.data() }));
+
+    container.innerHTML=sponsors.map((sponsor,i)=>{
+      const name = sponsor.companyName || sponsor.company || sponsor.name || 'Sponsor';
+      const description = sponsor.description || sponsor.notes || sponsor.industry || sponsor.package || 'Proud sponsor of LinkTradeNetwork';
+      const link = sponsor.website || sponsor.link || '#';
+      const logoUrl = sponsor.logoUrl || sponsor.logo || '';
+      const hasLogo = logoUrl && String(logoUrl).trim() !== '';
       const featured=i===0;
-      return `<a href="${sponsor.link}" target="_blank" rel="noopener noreferrer" class="sponsor-card${featured?' sponsor-featured':''}">
-        ${hasLogo?`<img src="${sponsor.logoUrl}" alt="${sponsor.name}" class="sponsor-logo" onerror="this.style.display='none'">`:`<div class="sponsor-placeholder">${sponsor.name}</div>`}
-        <p class="sponsor-description">${sponsor.description}</p>
+      const safeLink = link && link !== '#' ? (String(link).startsWith('http') ? link : 'https://' + link) : '#';
+
+      return `<a href="${safeLink}" ${safeLink==='#'?'':'target="_blank" rel="noopener noreferrer"'} class="sponsor-card${featured?' sponsor-featured':''}">
+        ${hasLogo?`<img src="${logoUrl}" alt="${name}" class="sponsor-logo" onerror="this.style.display='none'">`:`<div class="sponsor-placeholder">${name}</div>`}
+        <p class="sponsor-description">${description}</p>
       </a>`;
     }).join('');
-  }catch(e){ container.innerHTML=renderEmptySponsors_(); }
+  }catch(e){
+    console.warn('Could not load Firebase sponsors:', e);
+    container.innerHTML=renderEmptySponsors_();
+  }
 }
 
 /* ===== FILTER BUTTONS ===== */
