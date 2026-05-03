@@ -24,8 +24,8 @@
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
     .card{background:white;border-radius:18px;padding:22px;box-shadow:0 8px 25px rgba(0,0,0,.08);border:1px solid #e2e8f0}
 
-    .avatar{width:70px;height:70px;border-radius:50%;background:#3d5a80;color:white;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;margin-bottom:14px;overflow:hidden}
-    .avatar img{width:100%;height:100%;object-fit:cover}
+    .avatar{width:78px;height:78px;border-radius:50%;background:#3d5a80;color:white;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;margin-bottom:14px;overflow:hidden}
+    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
 
     .name{font-size:22px;font-weight:800;margin-bottom:5px}
     .trade{color:#ea6a00;font-weight:800;margin-bottom:6px}
@@ -92,9 +92,41 @@
     window.location.href = "index.html";
   };
 
+  function safe(value){
+    return String(value || "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
   function getInitials(name){
     if(!name) return "LT";
-    return name.split(" ").map(w => w[0]).join("").substring(0,2).toUpperCase();
+    return name
+      .split(" ")
+      .filter(Boolean)
+      .map(w => w[0])
+      .join("")
+      .substring(0,2)
+      .toUpperCase();
+  }
+
+  function getProfilePhoto(member){
+    return (
+      member.profileImageUrl ||
+      member.profileImage ||
+      member.photoURL ||
+      member.photoUrl ||
+      member.profilePhoto ||
+      member.profilePhotoUrl ||
+      member.avatarUrl ||
+      member.avatar ||
+      member.imageUrl ||
+      member.image ||
+      member.picture ||
+      ""
+    );
   }
 
   function renderMembers(list){
@@ -107,32 +139,31 @@
     }
 
     list.forEach(member => {
-      const name = member.name || member.fullName || "Trade Member";
-      const trade = member.trade || "Trade Not Selected";
+      const name = member.fullName || member.name || member.displayName || "Trade Member";
+      const trade = member.trade || member.specialty || "Trade Not Selected";
       const city = member.city || "";
       const state = member.state || "";
       const location = city || state ? `${city}${city && state ? ", " : ""}${state}` : "";
       const bio = member.bio || "";
-
-      const photo =
-        member.profileImageUrl ||
-        member.profileImage ||
-        member.photoURL ||
-        "";
+      const photo = getProfilePhoto(member);
 
       const card = document.createElement("div");
       card.className = "card";
 
       card.innerHTML = `
         <div class="avatar">
-          ${photo ? `<img src="${photo}" alt="${name}">` : getInitials(name)}
+          ${
+            photo
+              ? `<img src="${safe(photo)}" alt="${safe(name)}" onerror="this.remove(); this.parentElement.innerText='${getInitials(name)}';">`
+              : getInitials(name)
+          }
         </div>
 
-        <div class="name">${name}</div>
-        <div class="trade">${trade}</div>
+        <div class="name">${safe(name)}</div>
+        <div class="trade">${safe(trade)}</div>
 
-        ${location ? `<div class="location">${location}</div>` : ""}
-        ${bio ? `<div class="bio">${bio}</div>` : ""}
+        ${location ? `<div class="location">${safe(location)}</div>` : ""}
+        ${bio ? `<div class="bio">${safe(bio)}</div>` : ""}
 
         <button class="btn" onclick="window.location.href='profile.html?id=${member.id}'">
           View Profile
@@ -168,7 +199,9 @@
       const text = `
         ${member.name || ""}
         ${member.fullName || ""}
+        ${member.displayName || ""}
         ${member.trade || ""}
+        ${member.specialty || ""}
         ${member.city || ""}
         ${member.state || ""}
         ${member.bio || ""}
