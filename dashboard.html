@@ -78,6 +78,25 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Poppins',system
   color:white !important;
 }
 
+
+/* ===== LTN VERIFIED CHECK ===== */
+.ltn-verified-check{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:18px;
+  height:18px;
+  margin-left:6px;
+  border-radius:50%;
+  background:var(--brand);
+  color:white;
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+  vertical-align:middle;
+  box-shadow:0 1px 4px rgba(0,0,0,.18);
+}
+
 /* ===== NOTIFICATION BADGE ===== */
 .notification-badge{position:absolute;top:-5px;right:-5px;background:#ef4444;color:white;border-radius:999px;padding:2px 6px;font-size:11px;font-weight:700;min-width:18px;text-align:center;line-height:1.4}
 
@@ -987,6 +1006,7 @@ async function saveProfileToFirestore(profile){
     profileImageUrl: profile.profileImageUrl || profile.profileImage || profile.photoURL || '',
     profileImage: profile.profileImageUrl || profile.profileImage || profile.photoURL || '',
     photoURL: profile.profileImageUrl || profile.profileImage || profile.photoURL || '',
+    ltnVerified: profile.ltnVerified === true,
     uid: authUid,
     authUid: authUid,
     apprenticeship: profile.apprenticeship || {},
@@ -1016,31 +1036,52 @@ async function loadProfileFromFirestore(email){
 
   try{
     const authUser = await waitForFirebaseAuthUser();
+    let uidData = null;
+    let emailData = null;
+    let emailDocId = '';
 
+    // Load the Firebase Auth UID document if it exists.
     if(authUser && authUser.uid){
       const uidDoc = await firebaseDb.collection('users').doc(authUser.uid).get();
-      if(uidDoc.exists){ return { id:authUser.uid, uid:authUser.uid, ...uidDoc.data() }; }
+      if(uidDoc.exists){ uidData = { id:authUser.uid, uid:authUser.uid, ...uidDoc.data() }; }
     }
 
+    // Also load by email every time. This is important because admin verification
+    // may be added to the email-based document instead of the Auth UID document.
     if(cleanEmail){
       const emailSnap = await firebaseDb.collection('users').where('email', '==', cleanEmail).limit(1).get();
       if(!emailSnap.empty){
         const d = emailSnap.docs[0];
+        emailDocId = d.id;
         const data = d.data() || {};
-
-        if(authUser && authUser.uid && d.id !== authUser.uid){
-          await firebaseDb.collection('users').doc(authUser.uid).set({
-            ...data,
-            email: data.email || cleanEmail,
-            uid: authUser.uid,
-            authUid: authUser.uid,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge:true });
-          return { id:authUser.uid, uid:authUser.uid, ...data, email:data.email || cleanEmail };
-        }
-
-        return { id:d.id, uid:data.uid || d.id, ...data };
+        emailData = { id:d.id, uid:data.uid || d.id, ...data };
       }
+    }
+
+    if(uidData || emailData){
+      const merged = {
+        ...(emailData || {}),
+        ...(uidData || {})
+      };
+
+      // Preserve manual LTN verification if it exists on either document.
+      merged.ltnVerified = !!((uidData && uidData.ltnVerified === true) || (emailData && emailData.ltnVerified === true));
+      merged.email = String(merged.email || cleanEmail || (authUser && authUser.email) || '').trim().toLowerCase();
+
+      // Copy the verified flag/profile fields to the Auth UID doc so future loads work.
+      if(authUser && authUser.uid){
+        await firebaseDb.collection('users').doc(authUser.uid).set({
+          ...merged,
+          uid: authUser.uid,
+          authUid: authUser.uid,
+          email: merged.email,
+          ltnVerified: merged.ltnVerified,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge:true });
+        return { ...merged, id:authUser.uid, uid:authUser.uid, authUid:authUser.uid };
+      }
+
+      return merged;
     }
   }catch(e){
     console.warn('Firestore profile load failed:', e);
@@ -1922,6 +1963,7 @@ const ProfileManager = {
       skills:         (document.getElementById('input-skills')||{}).value ? document.getElementById('input-skills').value.trim() : '',
       certifications: (document.getElementById('input-certifications')||{}).value ? document.getElementById('input-certifications').value.trim() : '',
       profileImageUrl: this.currentImageUrl || current.profileImageUrl || '',
+      ltnVerified: current.ltnVerified === true,
       apprenticeship: {
         isApprentice: !!(document.getElementById('input-is-apprentice') && document.getElementById('input-is-apprentice').checked),
         program:      (document.getElementById('input-apprentice-program')||{}).value ? document.getElementById('input-apprentice-program').value.trim() : '',
@@ -2005,8 +2047,14 @@ const ProfileManager = {
     const displayName = document.getElementById('display-name');
     const displayTrade = document.getElementById('display-trade');
     const displayLocation = document.getElementById('display-location');
+    const safeText = value => String(value || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 
-    if(displayName) displayName.textContent = p.fullName || p.name || 'Your Name';
+    const name = p.fullName || p.name || 'Your Name';
+    const verified = p.ltnVerified === true;
+
+    if(displayName){
+      displayName.innerHTML = `${safeText(name)}${verified ? ' <span class="ltn-verified-check" title="LTN Verified">✓</span>' : ''}`;
+    }
     if(displayTrade) displayTrade.textContent = p.trade ? (p.experience ? `${p.trade} • ${p.experience} years` : p.trade) : 'Your Trade';
     if(displayLocation) displayLocation.textContent = (p.city&&p.state) ? `${p.city}, ${p.state}` : 'Your Location';
   }
