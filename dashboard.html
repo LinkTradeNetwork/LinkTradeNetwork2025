@@ -353,7 +353,7 @@ select.form-control{cursor:pointer}
     <nav class="nav" id="main-nav">
       <a href="dashboard.html" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
       <a href="members.html" data-nav="members" onclick="setActiveNav(this)">Members</a>
-      <a href="apprenticeship.html" data-nav="apprenticeships" onclick="setActiveNav(this); prepareApprenticeTrackerFromDashboard()" class="btn nav-action">Apprenticeships</a>
+      <a href="find-apprenticeships.html" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
       <a href="#jobs" data-nav="jobs" onclick="setActiveNav(this)">Jobs</a>
       <a href="#" data-nav="network" onclick="setActiveNav(this); NetworkManager.openNetworkModal(); return false;" style="position:relative">
         Network
@@ -2339,29 +2339,36 @@ async function loadSponsors(){
     if(!firebaseDb) throw new Error('Firebase not ready');
 
     const snap = await firebaseDb.collection('sponsorships')
-      .where('status','==','approved')
-      .limit(6)
+      .limit(25)
       .get();
 
-    if(snap.empty){
+    const sponsors=[];
+    snap.forEach(docSnap => {
+      const data = { id:docSnap.id, ...docSnap.data() };
+      const status = String(data.status || '').toLowerCase().trim();
+      if(status === 'approved' || status === 'active') sponsors.push(data);
+    });
+
+    if(!sponsors.length){
       container.innerHTML=renderEmptySponsors_();
       return;
     }
 
-    const sponsors=[];
-    snap.forEach(docSnap => sponsors.push({ id:docSnap.id, ...docSnap.data() }));
-
-    container.innerHTML=sponsors.map((sponsor,i)=>{
+    container.innerHTML=sponsors.slice(0,6).map((sponsor,i)=>{
       const name = sponsor.companyName || sponsor.company || sponsor.name || 'Sponsor';
       const description = sponsor.description || sponsor.notes || sponsor.industry || sponsor.package || 'Proud sponsor of LinkTradeNetwork';
-      const link = sponsor.website || sponsor.link || '#';
+      const link = sponsor.website || sponsor.link || '';
       const logoUrl = sponsor.logoUrl || sponsor.logo || '';
       const hasLogo = logoUrl && String(logoUrl).trim() !== '';
       const featured=i===0;
-      const safeLink = link && link !== '#' ? (String(link).startsWith('http') ? link : 'https://' + link) : '#';
+      const safeLink = link ? (String(link).startsWith('http') ? link : 'https://' + link) : '';
+      const clickAttrs = safeLink
+        ? `href="${safeLink}" target="_blank" rel="noopener noreferrer"`
+        : `href="#" onclick="SponsorManager.openInquiryModal(); return false;"`;
 
-      return `<a href="${safeLink}" ${safeLink==='#'?'':'target="_blank" rel="noopener noreferrer"'} class="sponsor-card${featured?' sponsor-featured':''}">
+      return `<a ${clickAttrs} class="sponsor-card${featured?' sponsor-featured':''}" title="${name}">
         ${hasLogo?`<img src="${logoUrl}" alt="${name}" class="sponsor-logo" onerror="this.style.display='none'">`:`<div class="sponsor-placeholder">${name}</div>`}
+        <div style="font-weight:700;font-size:14px;margin-bottom:5px;color:inherit">${name}</div>
         <p class="sponsor-description">${description}</p>
       </a>`;
     }).join('');
