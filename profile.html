@@ -28,6 +28,13 @@ body{margin:0;font-family:Arial;background:#f0f4f8;color:#293241}
 .btn-secondary{background:#3d5a80;color:white}
 .btn-disabled{background:#94a3b8;color:white;cursor:not-allowed}
 .status{text-align:center;margin-top:12px;color:#64748b;font-size:14px}
+
+/* NEW */
+.verify{
+  color:orange;
+  margin-left:6px;
+  font-size:18px;
+}
 </style>
 </head>
 
@@ -46,7 +53,9 @@ body{margin:0;font-family:Arial;background:#f0f4f8;color:#293241}
 
     <div class="header">
       <div id="avatar" class="avatar">LT</div>
+
       <div id="name" class="name"></div>
+
       <div id="trade" class="trade"></div>
       <div id="location" class="location"></div>
     </div>
@@ -160,7 +169,12 @@ async function loadProfile(){
   const u = snap.data();
   profileUserData = u;
 
-  document.getElementById("name").innerText = u.fullName || u.name || "Trade Member";
+  const nameEl = document.getElementById("name");
+
+  nameEl.innerHTML =
+    (u.fullName || u.name || "Trade Member") +
+    (u.ltnVerified ? `<span class="verify">✔</span>` : "");
+
   document.getElementById("trade").innerText = u.trade || "";
   document.getElementById("location").innerText = (u.city||"") + " " + (u.state||"");
   document.getElementById("bio").innerText = u.bio || "No bio added yet.";
