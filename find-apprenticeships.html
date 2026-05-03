@@ -137,6 +137,7 @@ button,.btn{
   font-weight:800;
   cursor:pointer;
   text-decoration:none;
+  display:inline-block;
 }
 
 button:hover,.btn:hover{
@@ -186,9 +187,48 @@ button:hover,.btn:hover{
   box-shadow:0 4px 15px rgba(0,0,0,.05);
 }
 
+.job-top{
+  display:flex;
+  gap:15px;
+  align-items:flex-start;
+}
+
+.avatar{
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  background:var(--accent);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  font-weight:800;
+  overflow:hidden;
+  flex-shrink:0;
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.job-main{
+  flex:1;
+  min-width:0;
+}
+
 .job-card h3{
   margin:0 0 8px;
   font-size:22px;
+}
+
+.company{
+  font-weight:800;
+  color:var(--accent);
+  margin-bottom:5px;
 }
 
 .meta{
@@ -241,6 +281,7 @@ button:hover,.btn:hover{
 @media(max-width:700px){
   .hero h1{font-size:28px}
   .topbar{align-items:flex-start}
+  .job-top{flex-direction:column}
 }
 </style>
 </head>
@@ -252,6 +293,7 @@ button:hover,.btn:hover{
 
   <nav class="nav">
     <a href="dashboard.html">Dashboard</a>
+    <a href="members.html">Members</a>
     <a href="apprenticeship.html">Track Progress</a>
     <a href="find-apprenticeships.html" class="active">Find Apprenticeships</a>
   </nav>
@@ -277,6 +319,8 @@ button:hover,.btn:hover{
           <option value="Physical Security">Physical Security</option>
           <option value="General Contractor">General Contractor</option>
           <option value="Sprinkler">Sprinkler</option>
+          <option value="Carpentry">Carpentry</option>
+          <option value="Welding">Welding</option>
         </select>
       </div>
 
@@ -300,20 +344,44 @@ button:hover,.btn:hover{
 
   <div class="results-header">
     <h2>Apprenticeship Opportunities</h2>
-    <div class="count" id="result-count">0 found</div>
+    <div class="count" id="result-count">Loading...</div>
   </div>
 
-  <section id="results" class="list"></section>
+  <section id="results" class="list">
+    <div class="empty">Loading apprenticeship opportunities...</div>
+  </section>
 
   <section class="note">
-    <strong>Note:</strong> This page is built to pull apprenticeship-friendly listings from your existing job list. Right now it includes starter sample listings so the page works immediately. Once your Firebase job collection is connected, this page can automatically show live jobs marked as apprentice, helper, entry level, or no experience.
+    <strong>Note:</strong> This page now pulls live jobs and member/company profile pictures from Firebase when available. If no live apprenticeship jobs are found, it shows starter sample listings.
   </section>
 
 </main>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
+  authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
+  projectId: "linktradenetwork-2dcd1",
+  storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
+  messagingSenderId: "219091766597",
+  appId: "1:219091766597:web:9878c199ba17e0ed89c22c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const SAMPLE_JOBS = [
   {
+    id:"sample-1",
     title:"Low Voltage Apprentice / Helper",
     company:"LTN Partner Contractor",
     trade:"Low Voltage",
@@ -321,9 +389,11 @@ const SAMPLE_JOBS = [
     pay:"$18-$24/hr",
     type:"Apprenticeship",
     tags:["Apprentice","Helper","Entry Level","Low Voltage"],
-    description:"Assist with pulling cable, labeling, basic terminations, camera installs, and jobsite support. Great role for someone starting in the trade."
+    description:"Assist with pulling cable, labeling, basic terminations, camera installs, and jobsite support. Great role for someone starting in the trade.",
+    isSample:true
   },
   {
+    id:"sample-2",
     title:"Electrical Apprentice",
     company:"Metro Electrical Services",
     trade:"Electrical",
@@ -331,9 +401,11 @@ const SAMPLE_JOBS = [
     pay:"$20-$28/hr",
     type:"Apprenticeship",
     tags:["Apprentice","Electrical","Training"],
-    description:"Entry-level electrical apprentice role assisting journeymen with conduit, wiring, material handling, and basic installation work."
+    description:"Entry-level electrical apprentice role assisting journeymen with conduit, wiring, material handling, and basic installation work.",
+    isSample:true
   },
   {
+    id:"sample-3",
     title:"HVAC Helper",
     company:"Comfort Mechanical",
     trade:"HVAC",
@@ -341,9 +413,11 @@ const SAMPLE_JOBS = [
     pay:"$17-$23/hr",
     type:"Entry Level",
     tags:["Helper","HVAC","No Experience"],
-    description:"Support HVAC technicians with installs, service preparation, equipment movement, and learning basic HVAC field tasks."
+    description:"Support HVAC technicians with installs, service preparation, equipment movement, and learning basic HVAC field tasks.",
+    isSample:true
   },
   {
+    id:"sample-4",
     title:"Security Installer Trainee",
     company:"Physical Security Contractor",
     trade:"Physical Security",
@@ -351,11 +425,151 @@ const SAMPLE_JOBS = [
     pay:"$18-$25/hr",
     type:"Entry Level",
     tags:["Trainee","Cameras","Access Control","No Experience"],
-    description:"Learn camera, access control, intercom, and intrusion installation. Good fit for low voltage or security beginners."
+    description:"Learn camera, access control, intercom, and intrusion installation. Good fit for low voltage or security beginners.",
+    isSample:true
   }
 ];
 
-let allJobs = [...SAMPLE_JOBS];
+let allJobs = [];
+let usersMap = {};
+
+function escapeHtml(value){
+  return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function getInitials(name){
+  if(!name) return "LT";
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .map(w => w[0])
+    .join("")
+    .substring(0,2)
+    .toUpperCase();
+}
+
+function getProfilePhoto(userOrJob){
+  return (
+    userOrJob.profileImageUrl ||
+    userOrJob.profileImage ||
+    userOrJob.photoURL ||
+    userOrJob.photoUrl ||
+    userOrJob.profilePhoto ||
+    userOrJob.profilePhotoUrl ||
+    userOrJob.avatarUrl ||
+    userOrJob.avatar ||
+    userOrJob.imageUrl ||
+    userOrJob.image ||
+    userOrJob.picture ||
+    userOrJob.logoUrl ||
+    ""
+  );
+}
+
+function normalizeJob(docId, job){
+  const posterId =
+    job.userId ||
+    job.posterId ||
+    job.createdBy ||
+    job.authorId ||
+    job.companyUserId ||
+    "";
+
+  const poster = posterId && usersMap[posterId] ? usersMap[posterId] : {};
+
+  const company =
+    job.company ||
+    job.companyName ||
+    poster.company ||
+    poster.companyName ||
+    poster.fullName ||
+    poster.name ||
+    "Company TBD";
+
+  const posterName =
+    poster.fullName ||
+    poster.name ||
+    poster.displayName ||
+    company;
+
+  const city = job.city || "";
+  const state = job.state || "";
+
+  const location =
+    job.location ||
+    (city || state ? `${city}${city && state ? ", " : ""}${state}` : "");
+
+  const pay =
+    job.pay ||
+    job.payRange ||
+    job.salary ||
+    job.rate ||
+    buildPay(job);
+
+  const title =
+    job.title ||
+    job.jobTitle ||
+    "Apprenticeship Opportunity";
+
+  const trade =
+    job.trade ||
+    job.category ||
+    job.skill ||
+    job.tradeType ||
+    "";
+
+  const description =
+    job.description ||
+    job.desc ||
+    job.details ||
+    "";
+
+  const rawTags =
+    job.tags ||
+    job.skills ||
+    job.requiredSkills ||
+    [];
+
+  const tags = Array.isArray(rawTags)
+    ? rawTags
+    : String(rawTags || "").split(",").map(s => s.trim()).filter(Boolean);
+
+  const photo =
+    getProfilePhoto(job) ||
+    getProfilePhoto(poster);
+
+  return {
+    id: docId,
+    title,
+    company,
+    posterName,
+    posterId,
+    trade,
+    location,
+    pay,
+    type: job.type || job.jobType || "",
+    tags,
+    description,
+    photo,
+    original: job,
+    isSample:false
+  };
+}
+
+function buildPay(job){
+  const min = job.payMin || job.minPay || "";
+  const max = job.payMax || job.maxPay || "";
+  const period = job.payPeriod || job.period || "hourly";
+
+  if(min && max) return `$${min}-$${max}/${period}`;
+  if(min) return `$${min}+/${period}`;
+  return "Pay TBD";
+}
 
 function isApprenticeshipFriendly(job){
   const text = [
@@ -363,6 +577,8 @@ function isApprenticeshipFriendly(job){
     job.type,
     job.trade,
     job.description,
+    job.company,
+    job.location,
     ...(job.tags || [])
   ].join(" ").toLowerCase();
 
@@ -375,7 +591,9 @@ function isApprenticeshipFriendly(job){
     "trainee",
     "no experience",
     "beginner",
-    "trade school"
+    "trade school",
+    "assistant",
+    "junior"
   ];
 
   return keywords.some(k => text.includes(k));
@@ -395,27 +613,44 @@ function renderJobs(jobs){
     return;
   }
 
-  results.innerHTML = jobs.map(job => `
-    <div class="job-card">
-      <h3>${escapeHtml(job.title)}</h3>
-      <div class="meta">
-        ${escapeHtml(job.company || "Company TBD")} • 
-        ${escapeHtml(job.location || "Location TBD")} • 
-        ${escapeHtml(job.pay || "Pay TBD")}
-      </div>
+  results.innerHTML = jobs.map(job => {
+    const profileLink = job.posterId ? `profile.html?id=${encodeURIComponent(job.posterId)}` : "members.html";
+    const photoHtml = job.photo
+      ? `<img src="${escapeHtml(job.photo)}" alt="${escapeHtml(job.company)}" onerror="this.remove();this.parentElement.innerText='${getInitials(job.company)}';">`
+      : getInitials(job.company);
 
-      <div class="tags">
-        ${(job.tags || []).map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}
-      </div>
+    return `
+      <div class="job-card">
+        <div class="job-top">
+          <div class="avatar">${photoHtml}</div>
 
-      <p class="desc">${escapeHtml(job.description || "Details coming soon.")}</p>
+          <div class="job-main">
+            <h3>${escapeHtml(job.title)}</h3>
 
-      <div class="actions">
-        <button onclick="alert('Apply feature coming next. This will connect to profile/applications.')">Apply / Interested</button>
-        <a class="btn btn-secondary" href="apprenticeship.html">Track My Progress</a>
+            <div class="company">${escapeHtml(job.company)}</div>
+
+            <div class="meta">
+              ${escapeHtml(job.trade || "Trade TBD")} •
+              ${escapeHtml(job.location || "Location TBD")} •
+              ${escapeHtml(job.pay || "Pay TBD")}
+            </div>
+
+            <div class="tags">
+              ${(job.tags || []).map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}
+            </div>
+
+            <p class="desc">${escapeHtml(job.description || "Details coming soon.")}</p>
+
+            <div class="actions">
+              <button onclick="markInterested('${escapeHtml(job.id)}')">Apply / Interested</button>
+              <a class="btn btn-secondary" href="${profileLink}">View Profile</a>
+              <a class="btn btn-secondary" href="apprenticeship.html">Track My Progress</a>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 }
 
 function applyFilters(){
@@ -438,6 +673,7 @@ function applyFilters(){
       const text = [
         job.title,
         job.company,
+        job.posterName,
         job.trade,
         job.location,
         job.type,
@@ -452,23 +688,89 @@ function applyFilters(){
   renderJobs(filtered);
 }
 
-function resetFilters(){
+window.applyFilters = applyFilters;
+
+window.resetFilters = function(){
   document.getElementById("trade-filter").value = "All";
   document.getElementById("location-filter").value = "";
   document.getElementById("keyword-filter").value = "";
   applyFilters();
+};
+
+window.markInterested = async function(jobId){
+  const job = allJobs.find(j => j.id === jobId);
+
+  if(!job){
+    alert("Job not found.");
+    return;
+  }
+
+  if(job.isSample){
+    alert("This is a sample listing. Live applications will work on Firebase jobs.");
+    return;
+  }
+
+  let email = localStorage.getItem("userEmail") || "";
+
+  try{
+    const stored = JSON.parse(localStorage.getItem("ltn_user") || "{}");
+    if(!email && stored.email) email = stored.email;
+  }catch(e){}
+
+  await addDoc(collection(db, "applications"), {
+    jobId: job.id,
+    jobTitle: job.title,
+    company: job.company,
+    applicantEmail: email || "unknown",
+    status: "interested",
+    createdAt: serverTimestamp()
+  });
+
+  alert("Interest sent. This will show in Firebase applications.");
+};
+
+async function loadUsers(){
+  usersMap = {};
+
+  const usersSnap = await getDocs(collection(db, "users"));
+
+  usersSnap.forEach(docSnap => {
+    usersMap[docSnap.id] = {
+      id: docSnap.id,
+      ...docSnap.data()
+    };
+  });
 }
 
-function escapeHtml(value){
-  return String(value || "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+async function loadJobs(){
+  try{
+    await loadUsers();
+
+    const jobsSnap = await getDocs(collection(db, "jobs"));
+    const liveJobs = [];
+
+    jobsSnap.forEach(docSnap => {
+      liveJobs.push(normalizeJob(docSnap.id, docSnap.data()));
+    });
+
+    const apprenticeJobs = liveJobs.filter(isApprenticeshipFriendly);
+
+    if(apprenticeJobs.length){
+      allJobs = liveJobs;
+    }else{
+      allJobs = SAMPLE_JOBS;
+    }
+
+    applyFilters();
+
+  }catch(error){
+    console.error("Error loading Firebase jobs:", error);
+    allJobs = SAMPLE_JOBS;
+    applyFilters();
+  }
 }
 
-document.addEventListener("DOMContentLoaded", applyFilters);
+document.addEventListener("DOMContentLoaded", loadJobs);
 </script>
 
 </body>
