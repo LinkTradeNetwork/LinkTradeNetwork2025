@@ -12,10 +12,10 @@
 
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <meta name="description" content="LinkTradeNetwork — Build your trade career, track your apprenticeship, prove your skills, and connect with contractors hiring skilled trade workers."/>
-  <meta property="og:title" content="LinkTradeNetwork — Build Your Trade Career"/>
-  <meta property="og:description" content="Track your hours, skills, certifications, and completed work so contractors can see what you have accomplished."/>
-  <title>LinkTradeNetwork — Build Your Trade Career</title>
+  <meta name="description" content="LinkTradeNetwork — Built for trade workers on the rise. Build your profile, earn your Orange Check, track progress, and connect with contractors."/>
+  <meta property="og:title" content="LinkTradeNetwork — Built for Trade Workers on the Rise"/>
+  <meta property="og:description" content="Trade schools can have students build profiles, track progress, earn the Orange Check, and showcase real trade experience."/>
+  <title>LinkTradeNetwork — Built for Trade Workers on the Rise</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
@@ -30,16 +30,16 @@
       --light:#f5f7fa;
       --muted:#64748b;
       --white:#ffffff;
-      --signin1:#ffa366;
-      --signin2:#ff8c3a;
-      --signin3:#ff7e2e;
+      --signin1:#ffb36b;
+      --signin2:#f5861f;
+      --signin3:#d96a00;
       --panel:rgba(255,255,255,0.10);
       --panel-border:rgba(255,255,255,0.16);
       --panel-strong:rgba(255,255,255,0.14);
     }
     html{scroll-behavior:smooth}
     body{
-      background:linear-gradient(135deg,var(--signin1) 0%,var(--signin2) 50%,var(--signin3) 100%);
+      background:linear-gradient(135deg,var(--signin1) 0%,var(--signin2) 48%,var(--signin3) 100%);
       color:var(--white);
       font-family:'Barlow',sans-serif;
       font-size:16px;
@@ -56,8 +56,8 @@
       justify-content:flex-start;
       overflow:hidden;
       background:
-        radial-gradient(circle at center, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 42%),
-        linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(0,0,0,0.05) 100%);
+        radial-gradient(circle at 25% 35%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 38%),
+        linear-gradient(135deg, #ffb36b 0%, #f5861f 48%, #d96a00 100%);
     }
     .hero::before{
       content:"";
@@ -100,15 +100,15 @@
       text-decoration:none;
     }
     .nav-badge{
-      width:84px;
-      height:84px;
+      width:96px;
+      height:96px;
       background:#d86b00;
       border-radius:22px;
       display:grid;
       place-items:center;
       font-family:'Barlow Condensed',sans-serif;
       font-weight:900;
-      font-size:34px;
+      font-size:44px;
       color:white;
       box-shadow:0 8px 24px rgba(0,0,0,0.18);
       letter-spacing:.5px;
@@ -142,13 +142,112 @@
       width:100%;
       max-width:1200px;
       margin:0 auto;
-      padding:60px 32px 80px;
+      padding:70px 32px 90px;
+      display:grid;
+      grid-template-columns:0.9fr 1.25fr;
+      gap:56px;
+      align-items:center;
+      flex:1;
+    }
+    .hero-brand-card{
       display:flex;
       flex-direction:column;
-      align-items:center;
-      text-align:center;
-      flex:1;
+      align-items:flex-start;
       justify-content:center;
+      text-align:left;
+      animation:fadeUp 0.6s ease both;
+    }
+    .hero-hardhat{
+      width:190px;
+      height:126px;
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:28px;
+      background:linear-gradient(135deg,#ffd84d 0%,#ffbf00 58%,#e6a900 100%);
+      border-radius:95px 95px 34px 34px;
+      box-shadow:0 20px 42px rgba(0,0,0,0.18);
+      border:3px solid rgba(255,255,255,0.35);
+      overflow:visible;
+    }
+    .hero-hardhat span{
+      position:relative;
+      z-index:3;
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:42px;
+      font-weight:900;
+      color:#ffffff;
+      background:#d86b00;
+      padding:6px 18px;
+      border-radius:12px;
+      letter-spacing:.5px;
+      box-shadow:0 5px 12px rgba(0,0,0,0.18);
+    }
+    .hero-hardhat::before{
+      content:"";
+      position:absolute;
+      top:18px;
+      left:50%;
+      transform:translateX(-50%);
+      width:34px;
+      height:82px;
+      border-radius:20px;
+      background:rgba(255,255,255,0.26);
+      box-shadow:
+        -58px 18px 0 -8px rgba(255,255,255,0.18),
+        58px 18px 0 -8px rgba(255,255,255,0.18);
+      z-index:1;
+    }
+    .hero-hardhat::after{
+      content:"";
+      position:absolute;
+      left:-18px;
+      right:-18px;
+      bottom:-13px;
+      height:26px;
+      background:linear-gradient(135deg,#ffcc22,#d99a00);
+      border-radius:999px;
+      box-shadow:0 10px 18px rgba(0,0,0,0.18);
+      z-index:2;
+    }
+    .hero-brand-line{
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:42px;
+      font-weight:900;
+      line-height:1;
+      text-transform:uppercase;
+      color:white;
+      text-shadow:0 3px 14px rgba(0,0,0,0.10);
+      max-width:380px;
+    }
+    .hero-copy{
+      text-align:left;
+    }
+    .orange-check-line{
+      display:inline-flex;
+      align-items:center;
+      gap:12px;
+      margin:22px 0 8px;
+      font-weight:800;
+      font-size:21px;
+      color:white;
+      animation:fadeUp 0.6s 0.18s ease both;
+    }
+    .orange-check-icon{
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      background:#d86b00;
+      color:white;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:20px;
+      font-weight:900;
+      box-shadow:0 6px 16px rgba(0,0,0,0.20);
+      border:2px solid rgba(255,255,255,0.72);
+      flex-shrink:0;
     }
     .hero-eyebrow{
       display:inline-flex;
@@ -172,11 +271,11 @@
     .hero-h1{
       font-family:'Barlow Condensed',sans-serif;
       font-weight:900;
-      font-size:clamp(52px,8vw,96px);
-      line-height:0.95;
+      font-size:clamp(44px,6vw,78px);
+      line-height:0.98;
       letter-spacing:-1px;
       text-transform:uppercase;
-      margin-bottom:8px;
+      margin-bottom:12px;
       animation:fadeUp 0.6s 0.1s ease both;
       text-shadow:0 3px 14px rgba(0,0,0,0.12);
     }
@@ -194,7 +293,7 @@
       display:flex;
       gap:16px;
       flex-wrap:wrap;
-      justify-content:center;
+      justify-content:flex-start;
       animation:fadeUp 0.6s 0.3s ease both;
     }
     .btn-primary{
@@ -693,7 +792,12 @@
       .nav-name{
         font-size:24px;
       }
-      .hero-content{padding:40px 20px 60px}
+      .hero-content{padding:40px 20px 60px;grid-template-columns:1fr;gap:34px;text-align:center}
+      .hero-brand-card,.hero-copy{align-items:center;text-align:center}
+      .hero-brand-line{max-width:100%;font-size:34px}
+      .hero-hardhat{width:145px;height:98px;margin-left:auto;margin-right:auto}
+      .hero-hardhat span{font-size:30px;padding:5px 14px}
+      .hero-btns{justify-content:center}
       .hero-btns{flex-direction:column;align-items:center}
       .btn-primary,.btn-secondary{width:100%;max-width:320px;justify-content:center}
       .ltn-ai-row{flex-direction:column}
@@ -739,50 +843,40 @@
         <div class="nav-badge">LTN</div>
         <span class="nav-name">LinkTradeNetwork</span>
       </a>
-      <a href="front.html" class="nav-cta">Join Free →</a>
+      <a href="front.html" class="nav-cta">Sign In Here →</a>
     </nav>
 
     <div class="hero-content">
-      <div class="hero-eyebrow">
-        <div class="dot"></div>
-        New Apprenticeship Guide
+      <div class="hero-brand-card">
+        <div class="hero-hardhat" aria-label="LTN hard hat logo">
+          <span>LTN</span>
+        </div>
+        <div class="hero-brand-line">Built for Trade Workers on the Rise</div>
       </div>
 
-      <h1 class="hero-h1">Start Your Trade Career.<br><span>Build Your Apprenticeship. Prove What You Can Do.</span></h1>
-
-      <p style="margin-top:10px;font-weight:700;font-size:20px;color:white">
-        No experience? Start here.
-      </p>
-
-      <p class="hero-sub">
-        Find apprenticeships, track your hours, show your skills, upload proof of your work, and get seen by contractors who can see exactly what you have accomplished.
-      </p>
-
-      <div class="hero-btns">
-        <a href="front.html" class="btn-primary">🔧 Start Your Apprenticeship</a>
-        <a href="front.html" class="btn-secondary">🔎 Find Apprenticeships</a>
-        <a href="front.html" class="btn-secondary">See How It Works ↓</a>
-      </div>
-
-      <div class="ltn-ai-agent">
-        <div class="ltn-ai-title">🤖 LTN AI Agent</div>
-        <div class="ltn-ai-sub">Ask about trades, apprenticeship paths, tools, skills, or how to get started.</div>
-
-        <div class="ltn-ai-row">
-          <input class="ltn-ai-input" type="text" placeholder="Example: How do I become an electrician?" disabled>
-          <button class="ltn-ai-button" disabled>Ask AI</button>
+      <div class="hero-copy">
+        <div class="hero-eyebrow">
+          <div class="dot"></div>
+          Trade Profiles • Apprenticeship Progress • Real Work Proof
         </div>
 
-        <div class="ltn-ai-note">Sign up to use the AI Agent</div>
-      </div>
+        <h1 class="hero-h1">LinkTradeNetwork</h1>
 
-      <div class="hero-trades">
-        <div class="trade-pill"><span>⚡</span> Electrical</div>
-        <div class="trade-pill"><span>❄️</span> HVAC</div>
-        <div class="trade-pill"><span>🔧</span> Plumbing</div>
-        <div class="trade-pill"><span>📡</span> Low Voltage</div>
-        <div class="trade-pill"><span>🔒</span> Physical Security</div>
-        <div class="trade-pill"><span>🏗️</span> General Contractor</div>
+        <div class="orange-check-line">
+          <span class="orange-check-icon">✓</span>
+          <span>Earn your Orange Check by completing your profile.</span>
+        </div>
+
+        <p class="hero-sub">
+          Trade schools — have your students build their profiles and track real progress.
+          Apprentices can showcase skills, document experience, and get discovered by contractors looking for the next generation.
+        </p>
+
+        <div class="hero-btns">
+          <a href="front.html" class="btn-primary">🔧 Start Your Apprenticeship</a>
+          <a href="front.html" class="btn-secondary">🔎 Find Apprenticeships</a>
+          <a href="front.html" class="btn-secondary">Sign In Here →</a>
+        </div>
       </div>
     </div>
   </section>
