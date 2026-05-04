@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
   <title>LTN Admin Dashboard</title>
 
   <style>
@@ -37,24 +38,42 @@
     .suspend-btn { background: #ffc107; color: #222; }
     .delete-btn { background: #dc3545; color: white; }
     .small-btn { background: #0b1f3a; color: white; }
+    .logout-btn { background: #dc3545; color: white; }
     .empty { text-align: center; padding: 30px; color: #777; }
     .media-link { color: #0b57d0; font-weight: bold; text-decoration: none; }
     .thumb { max-width: 70px; max-height: 70px; border-radius: 6px; object-fit: cover; border: 1px solid #ddd; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; }
+    #adminApp { display: none; }
+    #accessScreen { padding: 45px; text-align: center; }
     @media(max-width: 900px) { table { display: block; overflow-x: auto; white-space: nowrap; } }
   </style>
 </head>
 
 <body>
 
+<div id="accessScreen">
+  <h2>Checking admin access...</h2>
+  <p>Please wait.</p>
+</div>
+
+<div id="adminApp">
+
 <header>
-  <h1>LinkTradeNetwork Admin Dashboard</h1>
-  <p>Users, messages, posts, media, and sponsorship management</p>
+  <div class="topbar">
+    <div>
+      <h1>LinkTradeNetwork Admin Dashboard</h1>
+      <p>Users, messages, posts, media, and sponsorship management</p>
+      <p id="signedInAs" style="font-size:13px; opacity:.85;"></p>
+    </div>
+    <button class="logout-btn" onclick="logoutAdmin()">Logout</button>
+  </div>
 </header>
 
 <div class="container">
 
   <div class="warning">
-    Admin note: deleting a user here removes the Firestore user document only. It does not delete the Firebase Authentication login account.
+    Secure admin page: only approved admin emails can view this dashboard.
+    Deleting a user here removes the Firestore user document only. It does not delete the Firebase Authentication login account.
   </div>
 
   <div class="stats">
@@ -181,14 +200,21 @@
   </section>
 
 </div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import {
     getFirestore,
     collection,
     onSnapshot,
     doc,
+    getDoc,
     updateDoc,
     deleteDoc,
     addDoc,
@@ -206,45 +232,122 @@
   };
 
   const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
   const db = getFirestore(app);
+
+  const ADMIN_EMAILS = [
+    "team@linktradenetwork.com",
+    "Team@linktradenetwork.com",
+    "Team@Linktradenetwork.com"
+  ].map(email => email.toLowerCase());
 
   let allUsers = [];
   let allConversations = [];
   let allPosts = [];
   let allSponsors = [];
+  let listenersStarted = false;
+
+  const accessScreen = document.getElementById("accessScreen");
+  const adminApp = document.getElementById("adminApp");
 
   const usersTable = document.getElementById("usersTable");
   const messagesTable = document.getElementById("messagesTable");
   const postsTable = document.getElementById("postsTable");
   const sponsorsTable = document.getElementById("sponsorsTable");
 
-  onSnapshot(collection(db, "users"), snapshot => {
-    allUsers = [];
-    snapshot.forEach(docSnap => allUsers.push({ id: docSnap.id, ...docSnap.data() }));
-    renderUsers();
-    updateStats();
+  onAuthStateChanged(auth, async user => {
+    if (!user) {
+      accessScreen.innerHTML = `
+        <h2>Admin Login Required</h2>
+        <p>You must be signed in first.</p>
+        <button class="small-btn" onclick="window.location.href='front.html'">Go To Login</button>
+      `;
+      return;
+    }
+
+    const email = (user.email || "").trim().toLowerCase();
+    let allowedByEmail = ADMIN_EMAILS.includes(email);
+    let allowedByUserDoc = false;
+
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        const role = String(userData.role || "").toLowerCase();
+        const status = String(userData.status || "").toLowerCase();
+        const admin = userData.admin === true || userData.isAdmin === true;
+
+        if (role === "admin" || status === "admin" || admin) {
+          allowedByUserDoc = true;
+        }
+      }
+    } catch (error) {
+      console.error("Admin user document check failed:", error);
+    }
+
+    if (!allowedByEmail && !allowedByUserDoc) {
+      accessScreen.innerHTML = `
+        <h2>Access Denied</h2>
+        <p>Signed in as: <strong>${safe(email || "Unknown")}</strong></p>
+        <p>This email is not approved for the LTN Admin Dashboard.</p>
+        <button class="small-btn" onclick="window.location.href='dashboard.html'">Back To Dashboard</button>
+      `;
+      return;
+    }
+
+    document.getElementById("signedInAs").textContent = "Signed in as: " + email;
+    accessScreen.style.display = "none";
+    adminApp.style.display = "block";
+
+    if (!listenersStarted) {
+      listenersStarted = true;
+      startAdminDashboard();
+    }
   });
 
-  onSnapshot(collection(db, "conversations"), snapshot => {
-    allConversations = [];
-    snapshot.forEach(docSnap => allConversations.push({ id: docSnap.id, ...docSnap.data() }));
-    renderMessages();
-    updateStats();
-  });
+  function startAdminDashboard() {
+    onSnapshot(collection(db, "users"), snapshot => {
+      allUsers = [];
+      snapshot.forEach(docSnap => allUsers.push({ id: docSnap.id, ...docSnap.data() }));
+      renderUsers();
+      updateStats();
+    }, error => {
+      usersTable.innerHTML = `<tr><td colspan="8" class="empty">Permission error loading users. Check Firestore rules.</td></tr>`;
+      console.error(error);
+    });
 
-  onSnapshot(collection(db, "posts"), snapshot => {
-    allPosts = [];
-    snapshot.forEach(docSnap => allPosts.push({ id: docSnap.id, ...docSnap.data() }));
-    renderPosts();
-    updateStats();
-  });
+    onSnapshot(collection(db, "conversations"), snapshot => {
+      allConversations = [];
+      snapshot.forEach(docSnap => allConversations.push({ id: docSnap.id, ...docSnap.data() }));
+      renderMessages();
+      updateStats();
+    }, error => {
+      messagesTable.innerHTML = `<tr><td colspan="6" class="empty">Permission error loading messages. Check Firestore rules.</td></tr>`;
+      console.error(error);
+    });
 
-  onSnapshot(collection(db, "sponsorships"), snapshot => {
-    allSponsors = [];
-    snapshot.forEach(docSnap => allSponsors.push({ id: docSnap.id, ...docSnap.data() }));
-    renderSponsors();
-    updateStats();
-  });
+    onSnapshot(collection(db, "posts"), snapshot => {
+      allPosts = [];
+      snapshot.forEach(docSnap => allPosts.push({ id: docSnap.id, ...docSnap.data() }));
+      renderPosts();
+      updateStats();
+    }, error => {
+      postsTable.innerHTML = `<tr><td colspan="7" class="empty">Permission error loading posts. Check Firestore rules.</td></tr>`;
+      console.error(error);
+    });
+
+    onSnapshot(collection(db, "sponsorships"), snapshot => {
+      allSponsors = [];
+      snapshot.forEach(docSnap => allSponsors.push({ id: docSnap.id, ...docSnap.data() }));
+      renderSponsors();
+      updateStats();
+    }, error => {
+      sponsorsTable.innerHTML = `<tr><td colspan="10" class="empty">Permission error loading sponsorships. Check Firestore rules.</td></tr>`;
+      console.error(error);
+    });
+  }
 
   function renderUsers() {
     const search = document.getElementById("userSearchInput").value.toLowerCase();
@@ -330,7 +433,7 @@
       const mediaType = getMediaType(post, mediaUrl);
 
       let preview = "N/A";
-      if (mediaType === "photo" && mediaUrl) preview = `<img class="thumb" src="${mediaUrl}" />`;
+      if (mediaType === "photo" && mediaUrl) preview = `<img class="thumb" src="${safeUrl(mediaUrl)}" />`;
       if (mediaType === "video") preview = "Video";
 
       return `
@@ -339,7 +442,7 @@
           <td>${safe(post.userName || post.fullName || post.email || post.userId || "N/A")}</td>
           <td>${safe(post.caption || post.text || post.content || "N/A")}</td>
           <td>${safe(mediaType)}</td>
-          <td>${mediaUrl ? `<a class="media-link" href="${mediaUrl}" target="_blank">Open Media</a>` : "N/A"}</td>
+          <td>${mediaUrl ? `<a class="media-link" href="${safeUrl(mediaUrl)}" target="_blank">Open Media</a>` : "N/A"}</td>
           <td>${formatDate(post.createdAt)}</td>
           <td><button class="delete-btn" onclick="deletePost('${post.id}')">Delete</button></td>
         </tr>
@@ -406,7 +509,7 @@
   }
 
   function safe(value) {
-    return String(value)
+    return String(value ?? "")
       .replaceAll("&", "&amp;")
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;")
@@ -416,10 +519,11 @@
 
   function safeUrl(url) {
     if (!url) return "#";
-    if (!url.startsWith("http://") && !url.startsWith("https://")) {
-      return "https://" + url;
+    const cleaned = String(url).trim();
+    if (!cleaned.startsWith("http://") && !cleaned.startsWith("https://")) {
+      return "https://" + cleaned;
     }
-    return url;
+    return cleaned;
   }
 
   window.showTab = function(sectionId, button) {
@@ -427,6 +531,11 @@
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
     document.getElementById(sectionId).classList.add("active");
     button.classList.add("active");
+  };
+
+  window.logoutAdmin = async function() {
+    await signOut(auth);
+    window.location.href = "front.html";
   };
 
   window.addSponsor = async function() {
