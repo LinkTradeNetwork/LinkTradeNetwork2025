@@ -394,10 +394,6 @@ button{
     0%,100%{transform:scale(1)}
     50%{transform:scale(1.05)}
   }
-  @keyframes pulse{
-    0%,100%{box-shadow:0 0 0 3px rgba(34,197,94,0.3)}
-    50%{box-shadow:0 0 0 6px rgba(34,197,94,0.1)}
-  }
   #doneStep.show{
     animation:successPulse 0.5s ease-in-out;
   }
@@ -417,20 +413,6 @@ button{
     <span class="trade-badge">Low Voltage</span>
     <span class="trade-badge">Physical Security</span>
     <span class="trade-badge">General Contractor</span>
-  </div>
-
-  <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.35);border-radius:14px;padding:12px 20px;margin-bottom:16px;max-width:480px;width:100%;animation:fadeIn 0.8s ease-out 0.15s both">
-    <div style="display:flex;align-items:center;gap:6px">
-      <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,0.3);animation:pulse 2s infinite"></div>
-      <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.9)">LIVE</span>
-    </div>
-    <div style="flex:1;text-align:center">
-      <span style="font-size:15px;font-weight:700;color:white">
-        <span id="member-count" style="font-size:22px;font-weight:800;color:white">...</span>
-        trade professionals have joined LTN
-      </span>
-    </div>
-    <div style="font-size:20px">🔧</div>
   </div>
 
   <div class="tabs">
@@ -570,7 +552,6 @@ const functions = getFunctions(app, "us-central1");
 const requestVerificationCode = httpsCallable(functions, "requestVerificationCode");
 const verifySignupCode = httpsCallable(functions, "verifySignupCode");
 const createVerifiedUser = httpsCallable(functions, "createVerifiedUser");
-const getMemberCountFn = httpsCallable(functions, "getMemberCount");
 
 const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
@@ -651,7 +632,6 @@ let currentLastName = '';
 let currentFullName = '';
 let codeVerified = false;
 
-// Keep password/code fields to numbers only and max 6 digits
 ['newPassword', 'confirmPassword'].forEach(id => {
   const el = document.getElementById(id);
   if (el) {
@@ -959,39 +939,6 @@ lastNameInput.addEventListener('keypress', e => { if (e.key === 'Enter') emailIn
 emailInput.addEventListener('keypress', e => { if (e.key === 'Enter') joinBtn.click(); });
 signinEmail.addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('signinPassword').focus(); });
 document.getElementById('signinPassword').addEventListener('keypress', e => { if (e.key === 'Enter') signinBtn.click(); });
-
-(function() {
-  function animateCount(el, target) {
-    const duration = 1200;
-    const start = performance.now();
-    const from = 0;
-
-    function step(now) {
-      const progress = Math.min((now - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - progress, 3);
-      el.textContent = Math.floor(from + (target - from) * ease).toLocaleString();
-      if (progress < 1) requestAnimationFrame(step);
-      else el.textContent = target.toLocaleString();
-    }
-
-    requestAnimationFrame(step);
-  }
-
-  async function fetchMemberCount() {
-    const el = document.getElementById('member-count');
-    if (!el) return;
-
-    try {
-      const result = await getMemberCountFn();
-      const count = Number(result.data && result.data.count || 0);
-      animateCount(el, count);
-    } catch (e) {
-      el.textContent = '—';
-    }
-  }
-
-  fetchMemberCount();
-})();
 </script>
 </body>
 </html>
