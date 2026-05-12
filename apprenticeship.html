@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-role-school-verification-20260512 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-login-gate-role-school-verification-20260512-v2 -->
 
   <style>
     *{box-sizing:border-box}
@@ -292,11 +292,31 @@
 
 <body>
 
+<script>
+  // LTN ACCESS GATE - prevents direct access to apprenticeship.html without a saved LTN profile/login session.
+  (function () {
+    const hasProfile =
+      localStorage.getItem("ltn_current_profile") ||
+      localStorage.getItem("ltnUserProfile") ||
+      localStorage.getItem("ltn_profile") ||
+      localStorage.getItem("currentUserProfile") ||
+      localStorage.getItem("userProfile") ||
+      localStorage.getItem("userEmail") ||
+      localStorage.getItem("profileEmail") ||
+      localStorage.getItem("ltn_apprentice_email");
+
+    if (!hasProfile) {
+      window.location.replace("front.html?v=20260512accessgate");
+    }
+  })();
+</script>
+
+
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512'">Dashboard</button>
-    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512accessgate'">Dashboard</button>
+    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512accessgate'">Back</button>
   </div>
 </div>
 
