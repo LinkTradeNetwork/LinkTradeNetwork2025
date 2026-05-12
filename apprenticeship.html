@@ -5,18 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-accomplishments-20260512-v6 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-ui-ux-member-preview-20260512-v7 -->
 
   <style>
-    *{
-      box-sizing:border-box;
-      -webkit-text-size-adjust:100%;
-    }
-
-    html,body{
-      overflow-x:hidden;
-    }
-
+    *{box-sizing:border-box;-webkit-text-size-adjust:100%}
+    html,body{overflow-x:hidden}
     body{
       margin:0;
       font-family:Arial,sans-serif;
@@ -24,511 +17,148 @@
       min-height:100vh;
       color:#1e293b;
     }
-
     .topbar{
-      background:#3d5a80;
-      color:white;
-      padding:16px 24px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      box-shadow:0 6px 20px rgba(0,0,0,.18);
-      gap:12px;
+      background:#3d5a80;color:white;padding:16px 24px;
+      display:flex;justify-content:space-between;align-items:center;
+      box-shadow:0 6px 20px rgba(0,0,0,.18);gap:12px;
     }
-
-    .logo{
-      font-size:22px;
-      font-weight:800;
-      word-break:break-word;
+    .logo{font-size:22px;font-weight:800}
+    .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .logout,.dashbtn,.button{
+      background:#ea6a00;color:white;border:none;padding:10px 18px;
+      border-radius:10px;cursor:pointer;font-weight:700;text-decoration:none;
+      white-space:nowrap;transition:.2s ease;font-family:inherit;
     }
-
-    .top-actions{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-
-    .logout,
-    .dashbtn{
-      background:#ea6a00;
-      color:white;
-      border:none;
-      padding:10px 18px;
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:700;
-      text-decoration:none;
-      white-space:nowrap;
-      transition:.2s ease;
-    }
-
-    .dashbtn{
-      background:#ffffff;
-      color:#3d5a80;
-    }
-
-    .logout:hover,
-    .dashbtn:hover,
-    .button:hover{
-      filter:brightness(.95);
-      transform:translateY(-1px);
-    }
-
-    .wrap{
-      max-width:1150px;
-      margin:0 auto;
-      padding:32px 20px;
-    }
-
-    .hero,
-    .card{
-      background:white;
-      border-radius:24px;
-      box-shadow:0 15px 40px rgba(0,0,0,.18);
-    }
-
+    .dashbtn{background:white;color:#3d5a80}
+    .button.secondary{background:#3d5a80}
+    .button.soft{background:#f1f5f9;color:#334155;border:1px solid #cbd5e1}
+    .button.danger{background:#dc2626}
+    .logout:hover,.dashbtn:hover,.button:hover{filter:brightness(.95);transform:translateY(-1px)}
+    .wrap{max-width:1150px;margin:0 auto;padding:32px 20px}
+    .hero,.card{background:white;border-radius:24px;box-shadow:0 15px 40px rgba(0,0,0,.18)}
     .hero{
-      padding:32px;
-      margin-bottom:22px;
-      display:flex;
-      justify-content:space-between;
-      gap:24px;
-      align-items:center;
-      flex-wrap:wrap;
+      padding:32px;margin-bottom:22px;display:flex;
+      justify-content:space-between;gap:24px;align-items:center;flex-wrap:wrap;
     }
-
-    h1{
-      margin:0;
-      font-size:34px;
-      line-height:1.1;
-      overflow-wrap:anywhere;
-    }
-
-    .sub,
-    .small{
-      color:#64748b;
-    }
-
-    .sub{
-      margin-top:8px;
-      font-size:16px;
-      line-height:1.5;
-    }
-
+    h1{margin:0;font-size:34px;line-height:1.1;overflow-wrap:anywhere}
+    .sub,.small{color:#64748b}
+    .sub{margin-top:8px;font-size:16px;line-height:1.5}
     .hero-badge{
-      background:#fff4e8;
-      color:#c35700;
-      border:1px solid #ffd3aa;
-      padding:12px 16px;
-      border-radius:14px;
-      font-weight:800;
-      text-align:center;
-      overflow-wrap:anywhere;
+      background:#fff4e8;color:#c35700;border:1px solid #ffd3aa;
+      padding:12px 16px;border-radius:14px;font-weight:800;text-align:center;
     }
-
     .verified-badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      background:#fff4e8;
-      color:#c35700;
-      border:1px solid #ffd3aa;
-      padding:8px 12px;
-      border-radius:999px;
-      font-weight:800;
-      font-size:13px;
-      margin-top:10px;
-      flex-wrap:wrap;
+      display:inline-flex;align-items:center;gap:8px;background:#fff4e8;
+      color:#c35700;border:1px solid #ffd3aa;padding:8px 12px;
+      border-radius:999px;font-weight:800;font-size:13px;margin-top:10px;flex-wrap:wrap;
     }
-
     .orange-check{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:20px;
-      height:20px;
-      border-radius:50%;
-      background:#ea6a00;
-      color:white;
-      font-weight:900;
-      font-size:13px;
-      line-height:1;
-      box-shadow:0 4px 10px rgba(234,106,0,.25);
-      flex-shrink:0;
+      display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+      border-radius:50%;background:#ea6a00;color:white;font-weight:900;font-size:13px;line-height:1;
+      box-shadow:0 4px 10px rgba(234,106,0,.25);flex-shrink:0;
     }
-
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-      gap:20px;
-    }
-
-    .card{
-      padding:24px;
-      overflow:hidden;
-    }
-
-    .card.big{
-      grid-column:span 2;
-    }
-
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+    .card{padding:24px;overflow:hidden}
+    .card.big{grid-column:span 2}
     .label{
-      color:#64748b;
-      font-size:13px;
-      font-weight:700;
-      text-transform:uppercase;
-      letter-spacing:.5px;
-      overflow-wrap:anywhere;
+      color:#64748b;font-size:13px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.5px;overflow-wrap:anywhere;
     }
-
     .value{
-      font-size:30px;
-      font-weight:800;
-      margin-top:8px;
-      line-height:1.1;
-      overflow-wrap:anywhere;
-      word-break:break-word;
+      font-size:30px;font-weight:800;margin-top:8px;line-height:1.1;
+      overflow-wrap:anywhere;word-break:break-word;
     }
-
-    .value.small-value{
-      font-size:22px;
-      line-height:1.25;
-    }
-
-    .progress-bar{
-      height:16px;
-      background:#e2e8f0;
-      border-radius:99px;
-      overflow:hidden;
-      margin-top:16px;
-    }
-
-    .progress-fill{
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg,#ea6a00,#ff9a3c);
-      border-radius:99px;
-      transition:width .4s ease;
-    }
-
-    #progressText{
-      overflow-wrap:anywhere;
-      word-break:break-word;
-      line-height:1.5;
-      margin-top:10px;
-    }
-
+    .value.small-value{font-size:22px;line-height:1.25}
     .section-title{
-      color:white;
-      font-size:24px;
-      font-weight:800;
-      margin:28px 0 14px;
-      text-shadow:0 2px 8px rgba(0,0,0,.15);
-      overflow-wrap:anywhere;
+      color:white;font-size:24px;font-weight:800;margin:28px 0 14px;
+      text-shadow:0 2px 8px rgba(0,0,0,.15);overflow-wrap:anywhere;
     }
-
-    .button{
-      background:#ea6a00;
-      color:white;
-      border:none;
-      padding:12px 18px;
-      border-radius:12px;
-      cursor:pointer;
-      font-weight:700;
-      margin-top:14px;
-      white-space:nowrap;
-      transition:.2s ease;
-      font-family:inherit;
+    .progress-bar{height:16px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-top:16px}
+    .progress-fill{
+      height:100%;width:0%;background:linear-gradient(90deg,#ea6a00,#ff9a3c);
+      border-radius:99px;transition:width .4s ease;
     }
-
-    .button.secondary{
-      background:#3d5a80;
-    }
-
-    .button.danger{
-      background:#dc2626;
-    }
-
     .metric-row{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-      gap:14px;
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+      gap:14px;margin-top:18px;
+    }
+    .metric{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:16px}
+    .metric strong{display:block;font-size:24px;color:#1e293b}
+    .metric span{font-size:13px;color:#64748b;font-weight:700;text-transform:uppercase}
+    .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:14px}
+    .form-control{
+      width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px;
+      font-size:16px;font-family:inherit;min-width:0;
+    }
+    .save-status{margin-top:12px;font-size:13px;font-weight:800;color:#3d5a80}
+    .accomplishment-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-top:18px}
+    .accomplishment-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:18px}
+    .accomplishment-card strong{display:block;font-size:26px;color:#1e293b;margin-bottom:5px}
+    .accomplishment-card span{color:#64748b;font-size:13px;font-weight:800;text-transform:uppercase}
+    .badge-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;background:#fff4e8;color:#c35700;
+      border:1px solid #ffd3aa;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:800;
+      max-width:100%;word-break:break-word;
+    }
+    .list-box{margin-top:14px;display:grid;gap:10px}
+    .list-item{
+      background:#f8fafc;border:1px solid #e2e8f0;padding:12px 14px;border-radius:12px;
+      display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;
+    }
+    .list-item strong{display:block;font-size:15px;word-break:break-word}
+    .list-item span{display:block;color:#64748b;font-size:13px;margin-top:3px;line-height:1.4}
+    .delete-small{
+      background:#ef4444;color:white;border:none;border-radius:8px;padding:7px 10px;
+      cursor:pointer;font-weight:700;white-space:nowrap;flex-shrink:0;
+    }
+    .profile-details{margin-top:14px;display:grid;gap:8px}
+    .profile-detail{
+      background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;
+      font-size:14px;color:#475569;word-break:break-word;line-height:1.5;
+    }
+    .profile-detail b{color:#1e293b}
+    .empty{
+      color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;padding:14px;
+      border-radius:12px;margin-top:14px;font-size:14px;line-height:1.5;
+    }
+    .preview-card{
+      background:linear-gradient(135deg,#f8fafc,#ffffff);
+      border:2px solid #ffd3aa;
+      border-radius:20px;
+      padding:20px;
       margin-top:18px;
     }
-
-    .metric{
-      background:#f8fafc;
-      border:1px solid #e2e8f0;
-      border-radius:16px;
-      padding:16px;
-      overflow:hidden;
+    .preview-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .preview-avatar{
+      width:62px;height:62px;border-radius:50%;background:#3d5a80;color:white;
+      display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;
     }
-
-    .metric strong{
-      display:block;
-      font-size:24px;
-      color:#1e293b;
-      overflow-wrap:anywhere;
+    .preview-name{font-size:22px;font-weight:900;color:#1e293b}
+    .preview-trade{font-weight:800;color:#ea6a00;margin-top:3px}
+    .preview-note{
+      background:#fff4e8;border:1px solid #ffd3aa;color:#9a4a00;
+      border-radius:14px;padding:12px;margin-top:14px;font-size:14px;line-height:1.45;
     }
-
-    .metric span{
-      font-size:13px;
-      color:#64748b;
-      font-weight:700;
-      text-transform:uppercase;
-      overflow-wrap:anywhere;
-    }
-
-    .accomplishment-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:16px;
-    }
-
-    .accomplishment-card{
-      background:#f8fafc;
-      border:1px solid #e2e8f0;
+    .danger-zone{
+      background:#fff1f2;
+      border:1px solid #fecdd3;
       border-radius:18px;
       padding:18px;
+      margin-top:18px;
     }
-
-    .accomplishment-card strong{
-      display:block;
-      font-size:26px;
-      color:#1e293b;
-      margin-bottom:5px;
-    }
-
-    .accomplishment-card span{
-      color:#64748b;
-      font-size:13px;
-      font-weight:800;
-      text-transform:uppercase;
-    }
-
-    .badge-list{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:14px;
-    }
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      background:#fff4e8;
-      color:#c35700;
-      border:1px solid #ffd3aa;
-      border-radius:999px;
-      padding:7px 11px;
-      font-size:13px;
-      font-weight:800;
-      max-width:100%;
-      word-break:break-word;
-    }
-
-    .list-box{
-      margin-top:14px;
-      display:grid;
-      gap:10px;
-    }
-
-    .list-item{
-      background:#f8fafc;
-      border:1px solid #e2e8f0;
-      padding:12px 14px;
-      border-radius:12px;
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .list-item strong{
-      display:block;
-      font-size:15px;
-      overflow-wrap:anywhere;
-      word-break:break-word;
-    }
-
-    .list-item span{
-      display:block;
-      color:#64748b;
-      font-size:13px;
-      margin-top:3px;
-      overflow-wrap:anywhere;
-      word-break:break-word;
-      line-height:1.4;
-    }
-
-    .delete-small{
-      background:#ef4444;
-      color:white;
-      border:none;
-      border-radius:8px;
-      padding:7px 10px;
-      cursor:pointer;
-      font-weight:700;
-      white-space:nowrap;
-      flex-shrink:0;
-    }
-
-    .profile-details{
-      margin-top:14px;
-      display:grid;
-      gap:8px;
-    }
-
-    .profile-detail{
-      background:#f8fafc;
-      border:1px solid #e2e8f0;
-      border-radius:12px;
-      padding:10px 12px;
-      font-size:14px;
-      color:#475569;
-      overflow-wrap:anywhere;
-      word-break:break-word;
-      line-height:1.5;
-    }
-
-    .profile-detail b{
-      color:#1e293b;
-    }
-
-    .empty{
-      color:#64748b;
-      background:#f8fafc;
-      border:1px dashed #cbd5e1;
-      padding:14px;
-      border-radius:12px;
-      margin-top:14px;
-      font-size:14px;
-      line-height:1.5;
-      overflow-wrap:anywhere;
-    }
-
-    .form-row{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-      gap:12px;
-      margin-top:14px;
-    }
-
-    .form-control{
-      width:100%;
-      border:1px solid #cbd5e1;
-      border-radius:10px;
-      padding:12px;
-      font-size:16px;
-      font-family:inherit;
-      min-width:0;
-    }
-
-    textarea.form-control{
-      min-height:90px;
-      resize:vertical;
-    }
-
-    .save-status{
-      margin-top:12px;
-      font-size:13px;
-      font-weight:800;
-      color:#3d5a80;
-    }
-
-    @media(max-width:1150px){
-      .grid{
-        grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-      }
-    }
-
-    @media(max-width:900px){
-      .hero{
-        flex-direction:column;
-        align-items:flex-start;
-      }
-
-      .card.big{
-        grid-column:span 1;
-      }
-    }
-
+    .danger-zone .label{color:#be123c}
+    @media(max-width:900px){.hero{flex-direction:column;align-items:flex-start}.card.big{grid-column:span 1}}
     @media(max-width:750px){
-      .topbar{
-        padding:14px 16px;
-        flex-direction:column;
-        align-items:flex-start;
-      }
-
-      .top-actions{
-        width:100%;
-      }
-
-      .logo{
-        font-size:18px;
-      }
-
-      .wrap{
-        padding:20px 14px;
-      }
-
-      .hero{
-        padding:24px;
-      }
-
-      h1{
-        font-size:28px;
-      }
-
-      .grid{
-        grid-template-columns:1fr;
-      }
-
-      .metric-row{
-        grid-template-columns:1fr;
-      }
-
-      .button{
-        width:100%;
-      }
-
-      .list-item{
-        flex-direction:column;
-        align-items:flex-start;
-      }
-
-      .delete-small{
-        width:100%;
-      }
+      .topbar{padding:14px 16px;flex-direction:column;align-items:flex-start}
+      .top-actions{width:100%}.logo{font-size:18px}.wrap{padding:20px 14px}
+      .hero{padding:24px}h1{font-size:28px}.grid{grid-template-columns:1fr}
+      .metric-row{grid-template-columns:1fr}.button{width:100%}.list-item{flex-direction:column}
+      .delete-small{width:100%}
     }
-
     @media(max-width:480px){
-      .hero{
-        padding:20px;
-      }
-
-      .card{
-        padding:18px;
-      }
-
-      h1{
-        font-size:24px;
-      }
-
-      .value{
-        font-size:26px;
-      }
-
-      .value.small-value{
-        font-size:20px;
-      }
-
-      .section-title{
-        font-size:22px;
-      }
+      .hero{padding:20px}.card{padding:18px}h1{font-size:24px}
+      .value{font-size:26px}.value.small-value{font-size:20px}.section-title{font-size:22px}
     }
   </style>
 </head>
@@ -549,26 +179,17 @@
       localStorage.getItem("ltn_apprentice_email");
 
     if (!hasProfile) {
-      window.location.replace("front.html?v=20260512apprenticeshipgate6");
+      window.location.replace("front.html?v=20260512apprenticeshipgate7");
     }
   })();
 </script>
 
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
-
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512apprentice6'">
-      Dashboard
-    </button>
-
-    <button class="dashbtn" onclick="window.location.href='members.html?v=20260512apprentice6'">
-      Members
-    </button>
-
-    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512apprentice6'">
-      Back
-    </button>
+    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512apprentice7'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='members.html?v=20260512apprentice7'">Members</button>
+    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512apprentice7'">Back</button>
   </div>
 </div>
 
@@ -577,100 +198,41 @@
   <div class="hero">
     <div>
       <h1 id="welcome">Welcome, Trade Worker</h1>
-
       <div class="sub">
-        Track your apprenticeship, hours, skills, certifications, projects,
-        jobsite proof, and progress companies can see in the members section.
+        Track your hours, skills, certifications, projects, and jobsite proof.
+        Your accomplishment snapshot can appear in the Members section.
       </div>
-
       <div id="verificationBadge" class="verified-badge" style="display:none">
         <span class="orange-check">✓</span>
-        <span id="verificationText">Verified LTN Profile</span>
+        <span>Verified LTN Profile</span>
       </div>
     </div>
-
-    <div class="hero-badge" id="heroRoleBadge">
-      Apprentice Progress Profile
-    </div>
+    <div class="hero-badge" id="heroRoleBadge">Apprenticeship Progress Profile</div>
   </div>
 
   <div class="grid">
-
-    <div class="card">
-      <div class="label">Name</div>
-      <div class="value" id="userName">Trade Worker</div>
-      <div class="small" id="userEmail">Guest User</div>
-    </div>
-
-    <div class="card">
-      <div class="label">Role</div>
-      <div class="value small-value" id="userRole">Apprentice</div>
-      <div class="small">LTN profile type</div>
-    </div>
-
-    <div class="card">
-      <div class="label">Trade</div>
-      <div class="value small-value" id="userTrade">Not selected</div>
-      <div class="small">Your selected trade path</div>
-    </div>
-
-    <div class="card">
-      <div class="label">Trade School / Training Center</div>
-      <div class="value small-value" id="userTradeSchool">Not added</div>
-      <div class="small">School connected to your progress profile</div>
-    </div>
-
-    <div class="card">
-      <div class="label">Current Level</div>
-      <div class="value small-value" id="currentLevel">New Apprentice</div>
-      <div class="small">Based on hours logged</div>
-    </div>
-
-    <div class="card">
-      <div class="label">Location</div>
-      <div class="value small-value" id="userLocation">Not added</div>
-      <div class="small">Country, city, and state/region</div>
-    </div>
-
+    <div class="card"><div class="label">Name</div><div class="value" id="userName">Trade Worker</div><div class="small" id="userEmail">Guest User</div></div>
+    <div class="card"><div class="label">Role</div><div class="value small-value" id="userRole">Apprentice</div><div class="small">LTN profile type</div></div>
+    <div class="card"><div class="label">Trade</div><div class="value small-value" id="userTrade">Not selected</div><div class="small">Selected trade path</div></div>
+    <div class="card"><div class="label">Trade School / Training Center</div><div class="value small-value" id="userTradeSchool">Not added</div><div class="small">Connected to your progress profile</div></div>
+    <div class="card"><div class="label">Current Level</div><div class="value small-value" id="currentLevel">New Apprentice</div><div class="small">Based on hours logged</div></div>
+    <div class="card"><div class="label">Location</div><div class="value small-value" id="userLocation">Not added</div><div class="small">City, state, and country</div></div>
   </div>
 
-  <div class="section-title">Hours Progress</div>
+  <div class="section-title">Progress Dashboard</div>
 
   <div class="grid">
-
     <div class="card big">
-
-      <div class="label">Industry Benchmark</div>
-
-      <div class="value">
-        <span id="userHours">0</span> / 8000 Hours
-      </div>
-
-      <div class="progress-bar">
-        <div class="progress-fill" id="hoursBar"></div>
-      </div>
-
-      <div class="small" id="progressText">
-        0% toward industry benchmark
-      </div>
+      <div class="label">Hours Completed</div>
+      <div class="value"><span id="userHours">0</span> / 8000 Hours</div>
+      <div class="progress-bar"><div class="progress-fill" id="hoursBar"></div></div>
+      <div class="small" id="progressText">0% toward industry benchmark</div>
 
       <div class="metric-row">
-
-        <div class="metric">
-          <strong id="percentBox">0%</strong>
-          <span>Progress</span>
-        </div>
-
-        <div class="metric">
-          <strong id="remainingHours">8000</strong>
-          <span>Hours Remaining</span>
-        </div>
-
-        <div class="metric">
-          <strong id="loggedCount">0</strong>
-          <span>Hour Logs</span>
-        </div>
-
+        <div class="metric"><strong id="percentBox">0%</strong><span>Progress</span></div>
+        <div class="metric"><strong id="remainingHours">8000</strong><span>Hours Remaining</span></div>
+        <div class="metric"><strong id="loggedCount">0</strong><span>Hour Logs</span></div>
+        <div class="metric"><strong id="lastUpdated">Not updated</strong><span>Last Updated</span></div>
       </div>
 
       <div class="form-row">
@@ -678,94 +240,79 @@
         <input id="hoursNoteInput" class="form-control" type="text" placeholder="What did you work on?">
       </div>
 
-      <button class="button" onclick="addHours()">
-        + Add Hours Worked
-      </button>
-
-      <button class="button secondary" onclick="resetHours()">
-        Reset Hours
-      </button>
-
+      <button class="button" onclick="addHours()">+ Add Hours Worked</button>
       <div id="saveStatus" class="save-status"></div>
-
     </div>
 
     <div class="card">
-
-      <div class="label">Why 8000 Hours?</div>
-
-      <div class="value" style="font-size:22px">
-        Industry Accepted Benchmark
-      </div>
-
+      <div class="label">Industry Benchmark</div>
+      <div class="value small-value">8000 Hour Progress Track</div>
       <div class="small">
-        LTN uses 8000 hours as a simple industry benchmark,
-        not a legal licensing requirement.
+        LTN uses 8000 hours as a simple industry benchmark, not a legal licensing requirement.
       </div>
-
       <div class="profile-details" id="profileDetails"></div>
-
     </div>
-
   </div>
 
-  <div class="section-title">Accomplishment Dashboard</div>
+  <div class="section-title">What Members Can See</div>
 
   <div class="card">
-
-    <div class="label">What Companies Can See</div>
-
-    <div class="value" style="font-size:24px">
-      Your Trade Worker Snapshot
-    </div>
-
+    <div class="label">Public Member Preview</div>
+    <div class="value small-value">Accomplishment Snapshot</div>
     <div class="small">
-      These numbers help members, contractors, instructors, and companies understand your real progress.
+      This preview shows how your apprenticeship progress can appear inside the LTN Members section.
     </div>
 
-    <div class="accomplishment-grid" style="margin-top:18px">
-
-      <div class="accomplishment-card">
-        <strong id="certCount">0</strong>
-        <span>Certifications Earned</span>
+    <div class="preview-card">
+      <div class="preview-top">
+        <div class="preview-avatar" id="previewInitials">LT</div>
+        <div>
+          <div class="preview-name" id="previewName">Trade Worker</div>
+          <div class="preview-trade" id="previewTrade">Trade Not Selected</div>
+          <div class="small" id="previewLocation">Location not added</div>
+        </div>
       </div>
 
-      <div class="accomplishment-card">
-        <strong id="skillCount">0</strong>
-        <span>Skills Learned</span>
+      <div class="metric-row">
+        <div class="metric"><strong id="previewHours">0</strong><span>Hours</span></div>
+        <div class="metric"><strong id="previewCerts">0</strong><span>Certifications</span></div>
+        <div class="metric"><strong id="previewSkills">0</strong><span>Skills</span></div>
+        <div class="metric"><strong id="previewProof">0</strong><span>Jobsite Proof</span></div>
       </div>
 
-      <div class="accomplishment-card">
-        <strong id="projectCount">0</strong>
-        <span>Projects Completed</span>
-      </div>
+      <div class="badge-list" id="previewBadges"></div>
 
-      <div class="accomplishment-card">
-        <strong id="photoCount">0</strong>
-        <span>Jobsite Proof Uploads</span>
+      <div class="preview-note">
+        Members, instructors, contractors, and employers can quickly see your real trade progress instead of only reading a resume.
       </div>
+    </div>
+  </div>
 
+  <div class="section-title">Accomplishments</div>
+
+  <div class="card">
+    <div class="label">Trade Worker Scoreboard</div>
+    <div class="value small-value">Build Proof of Progress</div>
+
+    <div class="accomplishment-grid">
+      <div class="accomplishment-card"><strong id="certCount">0</strong><span>Certifications Earned</span></div>
+      <div class="accomplishment-card"><strong id="skillCount">0</strong><span>Skills Learned</span></div>
+      <div class="accomplishment-card"><strong id="projectCount">0</strong><span>Projects Completed</span></div>
+      <div class="accomplishment-card"><strong id="photoCount">0</strong><span>Jobsite Proof Count</span></div>
     </div>
 
     <div class="badge-list" id="badgeList"></div>
-
   </div>
 
-  <div class="section-title">Add Certifications, Skills, and Jobsite Proof</div>
+  <div class="section-title">Add Proof</div>
 
   <div class="grid">
-
     <div class="card">
       <div class="label">Certification</div>
       <div class="value small-value">Add Certification</div>
       <div class="small">Example: OSHA 10, OSHA 30, CPR, Forklift, NCCER</div>
-
       <input id="certInput" class="form-control" style="margin-top:14px" type="text" placeholder="Certification name">
-
-      <button class="button" onclick="addCertification()">
-        + Add Certification
-      </button>
-
+      <button class="button" onclick="addCertification()">+ Add Certification</button>
       <div id="certList" class="list-box"></div>
     </div>
 
@@ -773,13 +320,8 @@
       <div class="label">Skill</div>
       <div class="value small-value">Add Skill Learned</div>
       <div class="small">Example: conduit bending, pipe fitting, wiring, blueprint reading</div>
-
       <input id="skillInput" class="form-control" style="margin-top:14px" type="text" placeholder="Skill learned">
-
-      <button class="button" onclick="addSkill()">
-        + Add Skill
-      </button>
-
+      <button class="button" onclick="addSkill()">+ Add Skill</button>
       <div id="skillList" class="list-box"></div>
     </div>
 
@@ -787,30 +329,19 @@
       <div class="label">Project</div>
       <div class="value small-value">Add Project Completed</div>
       <div class="small">Example: commercial rough-in, panel install, HVAC changeout</div>
-
       <input id="projectInput" class="form-control" style="margin-top:14px" type="text" placeholder="Project completed">
-
-      <button class="button" onclick="addProject()">
-        + Add Project
-      </button>
-
+      <button class="button" onclick="addProject()">+ Add Project</button>
       <div id="projectList" class="list-box"></div>
     </div>
 
     <div class="card">
-      <div class="label">Jobsite Proof</div>
+      <div class="label">Jobsite Proof Count</div>
       <div class="value small-value">Track Work Photos / Videos</div>
-      <div class="small">Use this to count uploaded jobsite proof shown on your member profile.</div>
-
-      <button class="button" onclick="addJobsiteProof()">
-        + Add Jobsite Proof
-      </button>
-
-      <button class="button secondary" onclick="resetJobsiteProof()">
-        Reset Jobsite Proof
-      </button>
+      <div class="small">
+        This counts jobsite proof items. It does not upload actual files yet.
+      </div>
+      <button class="button" onclick="addJobsiteProof()">+ Add Jobsite Proof Count</button>
     </div>
-
   </div>
 
   <div class="section-title">Hour Log</div>
@@ -820,12 +351,25 @@
     <div id="hourLogList" class="list-box"></div>
   </div>
 
+  <div class="section-title">Settings</div>
+
+  <div class="card">
+    <div class="danger-zone">
+      <div class="label">Reset Options</div>
+      <div class="small">
+        Use these only if you need to clear progress. You will be asked to confirm first.
+      </div>
+      <button class="button soft" onclick="resetHours()">Reset Hours</button>
+      <button class="button soft" onclick="resetJobsiteProof()">Reset Jobsite Proof Count</button>
+    </div>
+  </div>
+
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
@@ -839,19 +383,19 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
-
   const BENCHMARK_HOURS = 8000;
 
   let currentUserId = null;
   let profile = {};
   let state = {
-    hoursCompleted: 0,
-    hourLogs: [],
-    certifications: [],
-    skillsLearned: [],
-    projects: [],
-    jobsiteUploads: 0,
-    badgesEarned: []
+    hoursCompleted:0,
+    hourLogs:[],
+    certifications:[],
+    skillsLearned:[],
+    projects:[],
+    jobsiteUploads:0,
+    badgesEarned:[],
+    updatedAt:""
   };
 
   function safe(value){
@@ -864,504 +408,386 @@
   }
 
   function getStoredProfile(){
-    const keys = [
-      "ltn_current_profile",
-      "ltnUserProfile",
-      "ltn_profile",
-      "currentUserProfile",
-      "userProfile",
-      "ltn_user"
-    ];
-
+    const keys=["ltn_current_profile","ltnUserProfile","ltn_profile","currentUserProfile","userProfile","ltn_user"];
     for(const key of keys){
-      const raw = localStorage.getItem(key);
+      const raw=localStorage.getItem(key);
       if(!raw) continue;
-
       try{
-        const parsed = JSON.parse(raw);
-        if(parsed && typeof parsed === "object"){
-          return parsed;
-        }
+        const parsed=JSON.parse(raw);
+        if(parsed && typeof parsed==="object") return parsed;
       }catch(e){}
     }
-
     return {
-      name: localStorage.getItem("userName") || "",
-      email: localStorage.getItem("userEmail") || localStorage.getItem("profileEmail") || localStorage.getItem("ltn_apprentice_email") || ""
+      name:localStorage.getItem("userName") || "",
+      email:localStorage.getItem("userEmail") || localStorage.getItem("profileEmail") || localStorage.getItem("ltn_apprentice_email") || ""
     };
   }
 
-  function getProfileName(data){
-    return data.fullName || data.name || data.displayName || data.userName || "Trade Worker";
-  }
-
-  function getProfileEmail(data){
-    return data.email || data.userEmail || data.profileEmail || localStorage.getItem("userEmail") || "Guest User";
-  }
-
-  function getProfileRole(data){
-    return data.role || data.profileType || "Apprentice";
-  }
-
-  function getProfileTrade(data){
-    return data.trade || data.specialty || data.tradePath || "Not selected";
-  }
-
-  function getTradeSchool(data){
-    return data.tradeSchool || data.school || data.trainingCenter || data.instructorSchool || "Not added";
-  }
-
+  function getProfileName(data){return data.fullName || data.name || data.displayName || data.userName || "Trade Worker"}
+  function getProfileEmail(data){return data.email || data.userEmail || data.profileEmail || localStorage.getItem("userEmail") || "Guest User"}
+  function getProfileRole(data){return data.role || data.profileType || "Apprentice"}
+  function getProfileTrade(data){return data.trade || data.specialty || data.tradePath || "Not selected"}
+  function getTradeSchool(data){return data.tradeSchool || data.school || data.trainingCenter || data.instructorSchool || "Not added"}
   function getLocation(data){
-    const city = data.city || "";
-    const stateValue = data.state || "";
-    const country = data.country || "";
-
-    const location =
-      city || stateValue || country
-        ? `${city}${city && stateValue ? ", " : ""}${stateValue}${(city || stateValue) && country ? ", " : ""}${country}`
-        : "";
-
+    const city=data.city || "";
+    const stateValue=data.state || "";
+    const country=data.country || "";
+    const location=city || stateValue || country
+      ? `${city}${city && stateValue ? ", " : ""}${stateValue}${(city || stateValue) && country ? ", " : ""}${country}`
+      : "";
     return location || "Not added";
   }
-
   function isVerified(data){
-    return (
-      data.ltnVerified === true ||
-      data.ltnVerified === "true" ||
-      data.verified === true ||
-      data.verified === "true" ||
-      data.orangeVerified === true ||
-      data.orangeVerified === "true"
-    );
+    return data.ltnVerified===true || data.ltnVerified==="true" || data.verified===true || data.verified==="true" || data.orangeVerified===true || data.orangeVerified==="true";
   }
-
+  function getInitials(name){
+    return String(name || "LT").split(" ").filter(Boolean).map(w=>w[0]).join("").substring(0,2).toUpperCase() || "LT";
+  }
   function getLevel(hours){
-    if(hours >= 8000) return "Journey-Level Ready";
-    if(hours >= 6000) return "Advanced Apprentice";
-    if(hours >= 4000) return "Level 4 Apprentice";
-    if(hours >= 2000) return "Level 3 Apprentice";
-    if(hours >= 1000) return "Level 2 Apprentice";
-    if(hours > 0) return "Level 1 Apprentice";
+    if(hours>=8000) return "Journey-Level Ready";
+    if(hours>=6000) return "Advanced Apprentice";
+    if(hours>=4000) return "Level 4 Apprentice";
+    if(hours>=2000) return "Level 3 Apprentice";
+    if(hours>=1000) return "Level 2 Apprentice";
+    if(hours>0) return "Level 1 Apprentice";
     return "New Apprentice";
   }
-
   function buildBadges(){
-    const badges = [];
-
-    if(state.hoursCompleted >= 1000) badges.push("1,000 Hour Club");
-    if(state.hoursCompleted >= 2000) badges.push("2,000 Hour Club");
-    if(state.hoursCompleted >= 4000) badges.push("4,000 Hour Club");
-    if(state.hoursCompleted >= 8000) badges.push("8,000 Hour Club");
-    if(state.certifications.length > 0) badges.push("Certification Uploaded");
-    if(state.skillsLearned.length > 0) badges.push("Skills Added");
-    if(state.projects.length > 0) badges.push("Project Proof Added");
-    if(state.jobsiteUploads > 0) badges.push("Jobsite Proof Added");
-
-    state.badgesEarned = badges;
+    const badges=[];
+    if(state.hoursCompleted>=1000) badges.push("1,000 Hour Club");
+    if(state.hoursCompleted>=2000) badges.push("2,000 Hour Club");
+    if(state.hoursCompleted>=4000) badges.push("4,000 Hour Club");
+    if(state.hoursCompleted>=8000) badges.push("8,000 Hour Club");
+    if(state.certifications.length>0) badges.push("Certification Uploaded");
+    if(state.skillsLearned.length>0) badges.push("Skills Added");
+    if(state.projects.length>0) badges.push("Project Proof Added");
+    if(state.jobsiteUploads>0) badges.push("Jobsite Proof Added");
+    state.badgesEarned=badges;
   }
-
   function loadLocalProgress(){
-    const raw = localStorage.getItem("ltn_apprenticeship_progress_v6");
-
+    const raw=localStorage.getItem("ltn_apprenticeship_progress_v7");
     if(raw){
       try{
-        const saved = JSON.parse(raw);
-
-        state = {
-          hoursCompleted: Number(saved.hoursCompleted || 0),
-          hourLogs: Array.isArray(saved.hourLogs) ? saved.hourLogs : [],
-          certifications: Array.isArray(saved.certifications) ? saved.certifications : [],
-          skillsLearned: Array.isArray(saved.skillsLearned) ? saved.skillsLearned : [],
-          projects: Array.isArray(saved.projects) ? saved.projects : [],
-          jobsiteUploads: Number(saved.jobsiteUploads || 0),
-          badgesEarned: Array.isArray(saved.badgesEarned) ? saved.badgesEarned : []
+        const saved=JSON.parse(raw);
+        state={
+          hoursCompleted:Number(saved.hoursCompleted || 0),
+          hourLogs:Array.isArray(saved.hourLogs) ? saved.hourLogs : [],
+          certifications:Array.isArray(saved.certifications) ? saved.certifications : [],
+          skillsLearned:Array.isArray(saved.skillsLearned) ? saved.skillsLearned : [],
+          projects:Array.isArray(saved.projects) ? saved.projects : [],
+          jobsiteUploads:Number(saved.jobsiteUploads || 0),
+          badgesEarned:Array.isArray(saved.badgesEarned) ? saved.badgesEarned : [],
+          updatedAt:saved.updatedAt || ""
         };
       }catch(e){}
     }
-
     buildBadges();
   }
-
   function saveLocalProgress(){
-    localStorage.setItem("ltn_apprenticeship_progress_v6", JSON.stringify(state));
+    localStorage.setItem("ltn_apprenticeship_progress_v7", JSON.stringify(state));
   }
-
   async function saveToFirebase(){
     buildBadges();
+    state.updatedAt=new Date().toLocaleDateString();
     saveLocalProgress();
 
-    const progressPercent = Math.min(100, Math.round((state.hoursCompleted / BENCHMARK_HOURS) * 100));
-    const currentLevel = getLevel(state.hoursCompleted);
+    const progressPercent=Math.min(100,Math.round((state.hoursCompleted / BENCHMARK_HOURS) * 100));
+    const currentLevel=getLevel(state.hoursCompleted);
 
-    const payload = {
-      hoursCompleted: state.hoursCompleted,
-      totalHours: state.hoursCompleted,
-      apprenticeshipHours: state.hoursCompleted,
-      progressPercent: progressPercent,
-      apprenticeLevel: currentLevel,
-      currentLevel: currentLevel,
-      certifications: state.certifications,
-      skillsLearned: state.skillsLearned,
-      skills: state.skillsLearned,
-      projectsCompleted: state.projects.length,
-      projects: state.projects,
-      jobsiteUploads: state.jobsiteUploads,
-      verifiedPhotos: state.jobsiteUploads,
-      badgesEarned: state.badgesEarned,
-      badges: state.badgesEarned,
-      apprenticeshipProgress: {
-        hoursCompleted: state.hoursCompleted,
-        totalHours: state.hoursCompleted,
-        progressPercent: progressPercent,
-        apprenticeLevel: currentLevel,
-        currentLevel: currentLevel,
-        certifications: state.certifications,
-        skillsLearned: state.skillsLearned,
-        projectsCompleted: state.projects.length,
-        projects: state.projects,
-        jobsiteUploads: state.jobsiteUploads,
-        verifiedPhotos: state.jobsiteUploads,
-        badgesEarned: state.badgesEarned,
-        updatedAt: new Date().toISOString()
+    const payload={
+      hoursCompleted:state.hoursCompleted,
+      totalHours:state.hoursCompleted,
+      apprenticeshipHours:state.hoursCompleted,
+      progressPercent:progressPercent,
+      apprenticeLevel:currentLevel,
+      currentLevel:currentLevel,
+      certifications:state.certifications,
+      skillsLearned:state.skillsLearned,
+      skills:state.skillsLearned,
+      projectsCompleted:state.projects.length,
+      projects:state.projects,
+      jobsiteUploads:state.jobsiteUploads,
+      verifiedPhotos:state.jobsiteUploads,
+      badgesEarned:state.badgesEarned,
+      badges:state.badgesEarned,
+      apprenticeshipProgress:{
+        hoursCompleted:state.hoursCompleted,
+        totalHours:state.hoursCompleted,
+        progressPercent:progressPercent,
+        apprenticeLevel:currentLevel,
+        currentLevel:currentLevel,
+        certifications:state.certifications,
+        skillsLearned:state.skillsLearned,
+        projectsCompleted:state.projects.length,
+        projects:state.projects,
+        jobsiteUploads:state.jobsiteUploads,
+        verifiedPhotos:state.jobsiteUploads,
+        badgesEarned:state.badgesEarned,
+        updatedAt:new Date().toISOString()
       }
     };
 
-    document.getElementById("saveStatus").textContent = "Saving progress...";
+    document.getElementById("saveStatus").textContent="Saving progress...";
 
     try{
       if(currentUserId){
-        await setDoc(doc(db, "users", currentUserId), payload, { merge:true });
-        document.getElementById("saveStatus").textContent = "Saved. Members section can show this accomplishment snapshot.";
+        await setDoc(doc(db,"users",currentUserId),payload,{merge:true});
+        document.getElementById("saveStatus").textContent="Saved. Your accomplishment snapshot can now appear in the Members section.";
       }else{
-        document.getElementById("saveStatus").textContent = "Saved on this device. Sign in with Firebase Auth to publish to members.";
+        document.getElementById("saveStatus").textContent="Saved on this device. Sign in to publish this to Members.";
       }
     }catch(error){
       console.error(error);
-      document.getElementById("saveStatus").textContent = "Saved on this device. Firebase save did not complete.";
+      document.getElementById("saveStatus").textContent="Saved on this device. Online save did not complete.";
     }
   }
-
   function renderProfile(){
-    document.getElementById("welcome").textContent = `Welcome, ${getProfileName(profile)}`;
-    document.getElementById("userName").textContent = getProfileName(profile);
-    document.getElementById("userEmail").textContent = getProfileEmail(profile);
-    document.getElementById("userRole").textContent = getProfileRole(profile);
-    document.getElementById("userTrade").textContent = getProfileTrade(profile);
-    document.getElementById("userTradeSchool").textContent = getTradeSchool(profile);
-    document.getElementById("userLocation").textContent = getLocation(profile);
-    document.getElementById("heroRoleBadge").textContent = `${getProfileRole(profile)} Progress Profile`;
+    const name=getProfileName(profile);
+    const trade=getProfileTrade(profile);
+    const location=getLocation(profile);
 
-    if(isVerified(profile)){
-      document.getElementById("verificationBadge").style.display = "inline-flex";
-    }
+    document.getElementById("welcome").textContent=`Welcome, ${name}`;
+    document.getElementById("userName").textContent=name;
+    document.getElementById("userEmail").textContent=getProfileEmail(profile);
+    document.getElementById("userRole").textContent=getProfileRole(profile);
+    document.getElementById("userTrade").textContent=trade;
+    document.getElementById("userTradeSchool").textContent=getTradeSchool(profile);
+    document.getElementById("userLocation").textContent=location;
+    document.getElementById("heroRoleBadge").textContent=`${getProfileRole(profile)} Progress Profile`;
+    document.getElementById("previewInitials").textContent=getInitials(name);
+    document.getElementById("previewName").textContent=name;
+    document.getElementById("previewTrade").textContent=trade;
+    document.getElementById("previewLocation").textContent=location;
 
-    document.getElementById("profileDetails").innerHTML = `
-      <div class="profile-detail"><b>Trade:</b> ${safe(getProfileTrade(profile))}</div>
+    if(isVerified(profile)) document.getElementById("verificationBadge").style.display="inline-flex";
+
+    document.getElementById("profileDetails").innerHTML=`
+      <div class="profile-detail"><b>Trade:</b> ${safe(trade)}</div>
       <div class="profile-detail"><b>School / Training Center:</b> ${safe(getTradeSchool(profile))}</div>
-      <div class="profile-detail"><b>Location:</b> ${safe(getLocation(profile))}</div>
-      <div class="profile-detail"><b>Member Visibility:</b> Accomplishments save to your member snapshot when Firebase user access is available.</div>
+      <div class="profile-detail"><b>Location:</b> ${safe(location)}</div>
+      <div class="profile-detail"><b>Members Visibility:</b> Your progress can show in Members after it saves to your profile.</div>
     `;
   }
-
   function renderProgress(){
     buildBadges();
 
-    const hours = state.hoursCompleted;
-    const percent = Math.min(100, Math.round((hours / BENCHMARK_HOURS) * 100));
-    const remaining = Math.max(0, BENCHMARK_HOURS - hours);
-    const level = getLevel(hours);
+    const hours=state.hoursCompleted;
+    const percent=Math.min(100,Math.round((hours / BENCHMARK_HOURS) * 100));
+    const remaining=Math.max(0,BENCHMARK_HOURS-hours);
+    const level=getLevel(hours);
 
-    document.getElementById("userHours").textContent = hours.toLocaleString();
-    document.getElementById("hoursBar").style.width = `${percent}%`;
-    document.getElementById("progressText").textContent = `${percent}% toward industry benchmark`;
-    document.getElementById("percentBox").textContent = `${percent}%`;
-    document.getElementById("remainingHours").textContent = remaining.toLocaleString();
-    document.getElementById("loggedCount").textContent = state.hourLogs.length;
-    document.getElementById("currentLevel").textContent = level;
+    document.getElementById("userHours").textContent=hours.toLocaleString();
+    document.getElementById("hoursBar").style.width=`${percent}%`;
+    document.getElementById("progressText").textContent=`${percent}% toward industry benchmark`;
+    document.getElementById("percentBox").textContent=`${percent}%`;
+    document.getElementById("remainingHours").textContent=remaining.toLocaleString();
+    document.getElementById("loggedCount").textContent=state.hourLogs.length;
+    document.getElementById("currentLevel").textContent=level;
+    document.getElementById("lastUpdated").textContent=state.updatedAt || "Not updated";
 
-    document.getElementById("certCount").textContent = state.certifications.length;
-    document.getElementById("skillCount").textContent = state.skillsLearned.length;
-    document.getElementById("projectCount").textContent = state.projects.length;
-    document.getElementById("photoCount").textContent = state.jobsiteUploads;
+    document.getElementById("certCount").textContent=state.certifications.length;
+    document.getElementById("skillCount").textContent=state.skillsLearned.length;
+    document.getElementById("projectCount").textContent=state.projects.length;
+    document.getElementById("photoCount").textContent=state.jobsiteUploads;
 
-    const badgeList = document.getElementById("badgeList");
+    document.getElementById("previewHours").textContent=hours.toLocaleString();
+    document.getElementById("previewCerts").textContent=state.certifications.length;
+    document.getElementById("previewSkills").textContent=state.skillsLearned.length;
+    document.getElementById("previewProof").textContent=state.jobsiteUploads;
 
-    if(state.badgesEarned.length === 0){
-      badgeList.innerHTML = `<div class="empty">No badges earned yet. Add hours, certifications, skills, projects, or jobsite proof to build your accomplishment profile.</div>`;
-    }else{
-      badgeList.innerHTML = state.badgesEarned.map(badge => `
-        <span class="badge"><span class="orange-check">✓</span>${safe(badge)}</span>
-      `).join("");
-    }
+    const badgeHtml=state.badgesEarned.length
+      ? state.badgesEarned.map(b=>`<span class="badge"><span class="orange-check">✓</span>${safe(b)}</span>`).join("")
+      : `<div class="empty">No badges yet. Add progress to earn accomplishment badges.</div>`;
+
+    document.getElementById("badgeList").innerHTML=badgeHtml;
+    document.getElementById("previewBadges").innerHTML=badgeHtml;
 
     renderHourLog();
     renderCerts();
     renderSkills();
     renderProjects();
   }
-
   function renderHourLog(){
-    const box = document.getElementById("hourLogList");
-
-    if(state.hourLogs.length === 0){
-      box.innerHTML = `<div class="empty">No hours logged yet.</div>`;
+    const box=document.getElementById("hourLogList");
+    if(state.hourLogs.length===0){
+      box.innerHTML=`<div class="empty">No hours logged yet.</div>`;
       return;
     }
-
-    box.innerHTML = state.hourLogs.slice().reverse().map((log, reverseIndex) => {
-      const realIndex = state.hourLogs.length - 1 - reverseIndex;
-
+    box.innerHTML=state.hourLogs.slice().reverse().map((log,reverseIndex)=>{
+      const realIndex=state.hourLogs.length-1-reverseIndex;
       return `
         <div class="list-item">
-          <div>
-            <strong>${safe(Number(log.hours || 0).toLocaleString())} hours</strong>
-            <span>${safe(log.note || "Hours worked")} • ${safe(log.date || "")}</span>
-          </div>
+          <div><strong>${safe(Number(log.hours || 0).toLocaleString())} hours</strong><span>${safe(log.note || "Hours worked")} • ${safe(log.date || "")}</span></div>
           <button class="delete-small" onclick="deleteHourLog(${realIndex})">Delete</button>
-        </div>
-      `;
+        </div>`;
     }).join("");
   }
-
   function renderCerts(){
-    const box = document.getElementById("certList");
-
-    if(state.certifications.length === 0){
-      box.innerHTML = `<div class="empty">No certifications added yet.</div>`;
-      return;
-    }
-
-    box.innerHTML = state.certifications.map((item,index) => `
-      <div class="list-item">
-        <div>
-          <strong>${safe(item)}</strong>
-          <span>Certification earned</span>
-        </div>
-        <button class="delete-small" onclick="deleteCertification(${index})">Delete</button>
-      </div>
-    `).join("");
+    const box=document.getElementById("certList");
+    box.innerHTML=state.certifications.length ? state.certifications.map((item,index)=>`
+      <div class="list-item"><div><strong>${safe(item)}</strong><span>Certification earned</span></div><button class="delete-small" onclick="deleteCertification(${index})">Delete</button></div>
+    `).join("") : `<div class="empty">No certifications added yet.</div>`;
   }
-
   function renderSkills(){
-    const box = document.getElementById("skillList");
-
-    if(state.skillsLearned.length === 0){
-      box.innerHTML = `<div class="empty">No skills added yet.</div>`;
-      return;
-    }
-
-    box.innerHTML = state.skillsLearned.map((item,index) => `
-      <div class="list-item">
-        <div>
-          <strong>${safe(item)}</strong>
-          <span>Skill learned</span>
-        </div>
-        <button class="delete-small" onclick="deleteSkill(${index})">Delete</button>
-      </div>
-    `).join("");
+    const box=document.getElementById("skillList");
+    box.innerHTML=state.skillsLearned.length ? state.skillsLearned.map((item,index)=>`
+      <div class="list-item"><div><strong>${safe(item)}</strong><span>Skill learned</span></div><button class="delete-small" onclick="deleteSkill(${index})">Delete</button></div>
+    `).join("") : `<div class="empty">No skills added yet.</div>`;
   }
-
   function renderProjects(){
-    const box = document.getElementById("projectList");
-
-    if(state.projects.length === 0){
-      box.innerHTML = `<div class="empty">No projects added yet.</div>`;
-      return;
-    }
-
-    box.innerHTML = state.projects.map((item,index) => `
-      <div class="list-item">
-        <div>
-          <strong>${safe(item)}</strong>
-          <span>Project completed</span>
-        </div>
-        <button class="delete-small" onclick="deleteProject(${index})">Delete</button>
-      </div>
-    `).join("");
+    const box=document.getElementById("projectList");
+    box.innerHTML=state.projects.length ? state.projects.map((item,index)=>`
+      <div class="list-item"><div><strong>${safe(item)}</strong><span>Project completed</span></div><button class="delete-small" onclick="deleteProject(${index})">Delete</button></div>
+    `).join("") : `<div class="empty">No projects added yet.</div>`;
   }
 
-  window.addHours = async function(){
-    const input = document.getElementById("hoursInput");
-    const noteInput = document.getElementById("hoursNoteInput");
+  window.addHours=async function(){
+    const input=document.getElementById("hoursInput");
+    const noteInput=document.getElementById("hoursNoteInput");
+    const hours=Number(input.value || 0);
+    const note=noteInput.value.trim();
 
-    const hours = Number(input.value || 0);
-    const note = noteInput.value.trim();
+    if(!hours || hours<=0){alert("Please enter hours worked.");return;}
 
-    if(!hours || hours <= 0){
-      alert("Please enter hours worked.");
-      return;
-    }
-
-    state.hoursCompleted += hours;
-
-    state.hourLogs.push({
-      hours: hours,
-      note: note || "Hours worked",
-      date: new Date().toLocaleDateString()
-    });
-
-    input.value = "";
-    noteInput.value = "";
-
+    state.hoursCompleted+=hours;
+    state.hourLogs.push({hours:hours,note:note || "Hours worked",date:new Date().toLocaleDateString()});
+    input.value="";
+    noteInput.value="";
     renderProgress();
     await saveToFirebase();
+    renderProgress();
   };
 
-  window.resetHours = async function(){
+  window.resetHours=async function(){
     if(!confirm("Reset all hours and hour logs?")) return;
-
-    state.hoursCompleted = 0;
-    state.hourLogs = [];
-
+    state.hoursCompleted=0;
+    state.hourLogs=[];
     renderProgress();
     await saveToFirebase();
+    renderProgress();
   };
 
-  window.deleteHourLog = async function(index){
-    const log = state.hourLogs[index];
+  window.deleteHourLog=async function(index){
+    const log=state.hourLogs[index];
     if(!log) return;
-
-    state.hoursCompleted = Math.max(0, state.hoursCompleted - Number(log.hours || 0));
+    state.hoursCompleted=Math.max(0,state.hoursCompleted-Number(log.hours || 0));
     state.hourLogs.splice(index,1);
-
     renderProgress();
     await saveToFirebase();
+    renderProgress();
   };
 
-  window.addCertification = async function(){
-    const input = document.getElementById("certInput");
-    const value = input.value.trim();
-
-    if(!value){
-      alert("Please enter a certification.");
-      return;
-    }
-
-    if(!state.certifications.includes(value)){
-      state.certifications.push(value);
-    }
-
-    input.value = "";
+  window.addCertification=async function(){
+    const input=document.getElementById("certInput");
+    const value=input.value.trim();
+    if(!value){alert("Please enter a certification.");return;}
+    if(!state.certifications.includes(value)) state.certifications.push(value);
+    input.value="";
     renderProgress();
     await saveToFirebase();
+    renderProgress();
   };
 
-  window.deleteCertification = async function(index){
+  window.deleteCertification=async function(index){
     state.certifications.splice(index,1);
     renderProgress();
     await saveToFirebase();
+    renderProgress();
   };
 
-  window.addSkill = async function(){
-    const input = document.getElementById("skillInput");
-    const value = input.value.trim();
-
-    if(!value){
-      alert("Please enter a skill.");
-      return;
-    }
-
-    if(!state.skillsLearned.includes(value)){
-      state.skillsLearned.push(value);
-    }
-
-    input.value = "";
+  window.addSkill=async function(){
+    const input=document.getElementById("skillInput");
+    const value=input.value.trim();
+    if(!value){alert("Please enter a skill.");return;}
+    if(!state.skillsLearned.includes(value)) state.skillsLearned.push(value);
+    input.value="";
     renderProgress();
     await saveToFirebase();
+    renderProgress();
   };
 
-  window.deleteSkill = async function(index){
+  window.deleteSkill=async function(index){
     state.skillsLearned.splice(index,1);
     renderProgress();
     await saveToFirebase();
+    renderProgress();
   };
 
-  window.addProject = async function(){
-    const input = document.getElementById("projectInput");
-    const value = input.value.trim();
-
-    if(!value){
-      alert("Please enter a project.");
-      return;
-    }
-
-    if(!state.projects.includes(value)){
-      state.projects.push(value);
-    }
-
-    input.value = "";
+  window.addProject=async function(){
+    const input=document.getElementById("projectInput");
+    const value=input.value.trim();
+    if(!value){alert("Please enter a project.");return;}
+    if(!state.projects.includes(value)) state.projects.push(value);
+    input.value="";
     renderProgress();
     await saveToFirebase();
+    renderProgress();
   };
 
-  window.deleteProject = async function(index){
+  window.deleteProject=async function(index){
     state.projects.splice(index,1);
     renderProgress();
     await saveToFirebase();
+    renderProgress();
   };
 
-  window.addJobsiteProof = async function(){
-    state.jobsiteUploads += 1;
+  window.addJobsiteProof=async function(){
+    state.jobsiteUploads+=1;
     renderProgress();
     await saveToFirebase();
+    renderProgress();
   };
 
-  window.resetJobsiteProof = async function(){
+  window.resetJobsiteProof=async function(){
     if(!confirm("Reset jobsite proof count?")) return;
-
-    state.jobsiteUploads = 0;
+    state.jobsiteUploads=0;
     renderProgress();
     await saveToFirebase();
+    renderProgress();
   };
 
   async function loadFirebaseProfile(uid){
     try{
-      const ref = doc(db, "users", uid);
-      const snap = await getDoc(ref);
-
+      const ref=doc(db,"users",uid);
+      const snap=await getDoc(ref);
       if(snap.exists()){
-        const firebaseProfile = snap.data();
-        profile = { ...profile, ...firebaseProfile };
-
-        const p = firebaseProfile.apprenticeshipProgress || {};
-
-        state.hoursCompleted = Number(firebaseProfile.hoursCompleted ?? firebaseProfile.totalHours ?? p.hoursCompleted ?? state.hoursCompleted ?? 0) || 0;
-        state.hourLogs = Array.isArray(p.hourLogs) ? p.hourLogs : state.hourLogs;
-        state.certifications = Array.isArray(firebaseProfile.certifications) ? firebaseProfile.certifications : Array.isArray(p.certifications) ? p.certifications : state.certifications;
-        state.skillsLearned = Array.isArray(firebaseProfile.skillsLearned) ? firebaseProfile.skillsLearned : Array.isArray(firebaseProfile.skills) ? firebaseProfile.skills : Array.isArray(p.skillsLearned) ? p.skillsLearned : state.skillsLearned;
-        state.projects = Array.isArray(firebaseProfile.projects) ? firebaseProfile.projects : Array.isArray(p.projects) ? p.projects : state.projects;
-        state.jobsiteUploads = Number(firebaseProfile.jobsiteUploads ?? firebaseProfile.verifiedPhotos ?? p.jobsiteUploads ?? p.verifiedPhotos ?? state.jobsiteUploads ?? 0) || 0;
-        state.badgesEarned = Array.isArray(firebaseProfile.badgesEarned) ? firebaseProfile.badgesEarned : Array.isArray(p.badgesEarned) ? p.badgesEarned : state.badgesEarned;
+        const firebaseProfile=snap.data();
+        profile={...profile,...firebaseProfile};
+        const p=firebaseProfile.apprenticeshipProgress || {};
+        state.hoursCompleted=Number(firebaseProfile.hoursCompleted ?? firebaseProfile.totalHours ?? p.hoursCompleted ?? state.hoursCompleted ?? 0) || 0;
+        state.hourLogs=Array.isArray(p.hourLogs) ? p.hourLogs : state.hourLogs;
+        state.certifications=Array.isArray(firebaseProfile.certifications) ? firebaseProfile.certifications : Array.isArray(p.certifications) ? p.certifications : state.certifications;
+        state.skillsLearned=Array.isArray(firebaseProfile.skillsLearned) ? firebaseProfile.skillsLearned : Array.isArray(firebaseProfile.skills) ? firebaseProfile.skills : Array.isArray(p.skillsLearned) ? p.skillsLearned : state.skillsLearned;
+        state.projects=Array.isArray(firebaseProfile.projects) ? firebaseProfile.projects : Array.isArray(p.projects) ? p.projects : state.projects;
+        state.jobsiteUploads=Number(firebaseProfile.jobsiteUploads ?? firebaseProfile.verifiedPhotos ?? p.jobsiteUploads ?? p.verifiedPhotos ?? state.jobsiteUploads ?? 0) || 0;
+        state.badgesEarned=Array.isArray(firebaseProfile.badgesEarned) ? firebaseProfile.badgesEarned : Array.isArray(p.badgesEarned) ? p.badgesEarned : state.badgesEarned;
+        state.updatedAt=state.updatedAt || firebaseProfile.updatedAt || "";
       }
-    }catch(error){
-      console.error(error);
-    }
+    }catch(error){console.error(error);}
   }
 
   async function init(){
-    profile = getStoredProfile();
+    profile=getStoredProfile();
     loadLocalProgress();
     renderProfile();
     renderProgress();
 
     onAuthStateChanged(auth, async function(user){
       if(user){
-        currentUserId = user.uid;
-
-        profile.email = profile.email || user.email;
-        profile.name = profile.name || user.displayName;
-
+        currentUserId=user.uid;
+        profile.email=profile.email || user.email;
+        profile.name=profile.name || user.displayName;
         await loadFirebaseProfile(user.uid);
         renderProfile();
         renderProgress();
         await saveToFirebase();
+        renderProgress();
       }
     });
   }
 
   init();
-
-  console.log("LTN Apprenticeship Accomplishments Dashboard Loaded v6");
+  console.log("LTN Apprenticeship UI UX Member Preview Loaded v7");
 </script>
 
 </body>
