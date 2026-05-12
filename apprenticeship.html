@@ -1,63 +1,283 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>LTN Apprenticeship Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-role-school-verification-20260512 -->
 
   <style>
     *{box-sizing:border-box}
-    body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#ffa366,#ff8c3a,#ff7e2e);min-height:100vh;color:#1e293b}
-    .topbar{background:#3d5a80;color:white;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:linear-gradient(135deg,#ffa366,#ff8c3a,#ff7e2e);
+      min-height:100vh;
+      color:#1e293b
+    }
+    .topbar{
+      background:#3d5a80;
+      color:white;
+      padding:16px 24px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      box-shadow:0 6px 20px rgba(0,0,0,.18)
+    }
     .logo{font-size:22px;font-weight:800}
     .top-actions{display:flex;gap:10px;align-items:center}
-    .logout,.dashbtn{background:#ea6a00;color:white;border:none;padding:10px 18px;border-radius:10px;cursor:pointer;font-weight:700;text-decoration:none}
+    .logout,.dashbtn{
+      background:#ea6a00;
+      color:white;
+      border:none;
+      padding:10px 18px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:700;
+      text-decoration:none
+    }
     .dashbtn{background:#ffffff;color:#3d5a80}
     .wrap{max-width:1150px;margin:0 auto;padding:32px 20px}
-    .hero,.card{background:white;border-radius:24px;box-shadow:0 15px 40px rgba(0,0,0,.18)}
-    .hero{padding:32px;margin-bottom:22px;display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap}
+    .hero,.card{
+      background:white;
+      border-radius:24px;
+      box-shadow:0 15px 40px rgba(0,0,0,.18)
+    }
+    .hero{
+      padding:32px;
+      margin-bottom:22px;
+      display:flex;
+      justify-content:space-between;
+      gap:20px;
+      align-items:center;
+      flex-wrap:wrap
+    }
     h1{margin:0;font-size:34px}
     .sub,.small{color:#64748b}
     .sub{margin-top:8px;font-size:16px}
-    .hero-badge{background:#fff4e8;color:#c35700;border:1px solid #ffd3aa;padding:12px 16px;border-radius:14px;font-weight:800;text-align:center}
+    .hero-badge{
+      background:#fff4e8;
+      color:#c35700;
+      border:1px solid #ffd3aa;
+      padding:12px 16px;
+      border-radius:14px;
+      font-weight:800;
+      text-align:center
+    }
+    .verified-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:#fff4e8;
+      color:#c35700;
+      border:1px solid #ffd3aa;
+      padding:8px 12px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:13px;
+      margin-top:10px
+    }
+    .orange-check{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      background:#ea6a00;
+      color:white;
+      font-weight:900;
+      font-size:13px;
+      line-height:1;
+      box-shadow:0 4px 10px rgba(234,106,0,.25)
+    }
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
     .card{padding:24px}
     .card.big{grid-column:span 2}
-    .label{color:#64748b;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-    .value{font-size:30px;font-weight:800;margin-top:8px;line-height:1.1}
-    .progress-bar{height:16px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-top:16px}
-    .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#ea6a00,#ff9a3c);border-radius:99px;transition:width .4s ease}
-    .section-title{color:white;font-size:24px;font-weight:800;margin:28px 0 14px;text-shadow:0 2px 8px rgba(0,0,0,.15)}
-    .button{background:#ea6a00;color:white;border:none;padding:12px 18px;border-radius:12px;cursor:pointer;font-weight:700;margin-top:14px}
+    .label{
+      color:#64748b;
+      font-size:13px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.5px
+    }
+    .value{
+      font-size:30px;
+      font-weight:800;
+      margin-top:8px;
+      line-height:1.1
+    }
+    .value.small-value{
+      font-size:22px;
+      line-height:1.25
+    }
+    .progress-bar{
+      height:16px;
+      background:#e2e8f0;
+      border-radius:99px;
+      overflow:hidden;
+      margin-top:16px
+    }
+    .progress-fill{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,#ea6a00,#ff9a3c);
+      border-radius:99px;
+      transition:width .4s ease
+    }
+    .section-title{
+      color:white;
+      font-size:24px;
+      font-weight:800;
+      margin:28px 0 14px;
+      text-shadow:0 2px 8px rgba(0,0,0,.15)
+    }
+    .button{
+      background:#ea6a00;
+      color:white;
+      border:none;
+      padding:12px 18px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700;
+      margin-top:14px
+    }
     .button.secondary{background:#3d5a80}
     .button.danger{background:#dc2626}
     .button:hover{filter:brightness(.95);transform:translateY(-1px)}
-    .metric-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:18px}
-    .metric{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:16px}
+    .metric-row{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      gap:14px;
+      margin-top:18px
+    }
+    .metric{
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:16px;
+      padding:16px
+    }
     .metric strong{display:block;font-size:24px;color:#1e293b}
-    .metric span{font-size:13px;color:#64748b;font-weight:700;text-transform:uppercase}
+    .metric span{
+      font-size:13px;
+      color:#64748b;
+      font-weight:700;
+      text-transform:uppercase
+    }
     .log-list{margin-top:14px;display:grid;gap:10px}
-    .log-item{background:#f8fafc;border:1px solid #e2e8f0;padding:12px 14px;border-radius:12px;display:flex;justify-content:space-between;gap:10px;font-size:14px;align-items:center}
+    .log-item{
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      padding:12px 14px;
+      border-radius:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-size:14px;
+      align-items:center
+    }
     .log-main{display:flex;flex-direction:column;gap:3px}
-    .empty{color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;padding:14px;border-radius:12px;margin-top:14px;font-size:14px}
+    .empty{
+      color:#64748b;
+      background:#f8fafc;
+      border:1px dashed #cbd5e1;
+      padding:14px;
+      border-radius:12px;
+      margin-top:14px;
+      font-size:14px
+    }
     .list-box{margin-top:14px;display:grid;gap:10px}
-    .list-item{background:#f8fafc;border:1px solid #e2e8f0;padding:12px 14px;border-radius:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .list-item{
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      padding:12px 14px;
+      border-radius:12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px
+    }
     .list-item strong{display:block;font-size:15px}
     .list-item span{display:block;color:#64748b;font-size:13px;margin-top:3px}
-    .delete-small{background:#ef4444;color:white;border:none;border-radius:8px;padding:7px 10px;cursor:pointer;font-weight:700}
+    .delete-small{
+      background:#ef4444;
+      color:white;
+      border:none;
+      border-radius:8px;
+      padding:7px 10px;
+      cursor:pointer;
+      font-weight:700
+    }
     .profile-details{margin-top:14px;display:grid;gap:8px}
-    .profile-detail{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;font-size:14px;color:#475569}
+    .profile-detail{
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:14px;
+      color:#475569
+    }
     .profile-detail b{color:#1e293b}
-    .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:1000;align-items:center;justify-content:center;padding:18px}
+    .modal-backdrop{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.55);
+      z-index:1000;
+      align-items:center;
+      justify-content:center;
+      padding:18px
+    }
     .modal-backdrop.active{display:flex}
-    .modal{background:white;border-radius:18px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.30);overflow:hidden}
-    .modal-header{padding:18px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+    .modal{
+      background:white;
+      border-radius:18px;
+      max-width:520px;
+      width:100%;
+      box-shadow:0 20px 60px rgba(0,0,0,.30);
+      overflow:hidden
+    }
+    .modal-header{
+      padding:18px 20px;
+      border-bottom:1px solid #e2e8f0;
+      display:flex;
+      justify-content:space-between;
+      align-items:center
+    }
     .modal-header h2{margin:0;font-size:20px}
-    .modal-close{background:none;border:none;font-size:28px;cursor:pointer;color:#64748b;line-height:1}
+    .modal-close{
+      background:none;
+      border:none;
+      font-size:28px;
+      cursor:pointer;
+      color:#64748b;
+      line-height:1
+    }
     .modal-body{padding:20px}
-    .modal-footer{padding:16px 20px;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:10px}
+    .modal-footer{
+      padding:16px 20px;
+      border-top:1px solid #e2e8f0;
+      display:flex;
+      justify-content:flex-end;
+      gap:10px
+    }
     .form-group{margin-bottom:14px}
-    .form-group label{display:block;margin-bottom:6px;font-weight:700;font-size:14px;color:#334155}
-    .form-control{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font-size:16px;font-family:inherit}
+    .form-group label{
+      display:block;
+      margin-bottom:6px;
+      font-weight:700;
+      font-size:14px;
+      color:#334155
+    }
+    .form-control{
+      width:100%;
+      border:1px solid #cbd5e1;
+      border-radius:10px;
+      padding:12px;
+      font-size:16px;
+      font-family:inherit
+    }
     textarea.form-control{min-height:90px;resize:vertical}
     @media(max-width:750px){
       .card.big{grid-column:span 1}
@@ -75,8 +295,8 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='dashboard.html'">Dashboard</button>
-    <button class="logout" onclick="window.location.href='dashboard.html'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512'">Dashboard</button>
+    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512'">Back</button>
   </div>
 </div>
 
@@ -85,9 +305,13 @@
   <div class="hero">
     <div>
       <h1 id="welcome">Welcome, Trade Worker</h1>
-      <div class="sub">Track your apprenticeship, hours, skills, certifications, and progress.</div>
+      <div class="sub">Track your apprenticeship, hours, skills, certifications, school, instructor, and progress.</div>
+      <div id="verificationBadge" class="verified-badge" style="display:none">
+        <span class="orange-check">✓</span>
+        <span id="verificationText">Verified LTN Profile</span>
+      </div>
     </div>
-    <div class="hero-badge">Apprentice Progress Profile</div>
+    <div class="hero-badge" id="heroRoleBadge">Apprentice Progress Profile</div>
   </div>
 
   <div class="grid">
@@ -98,15 +322,33 @@
     </div>
 
     <div class="card">
+      <div class="label">Role</div>
+      <div class="value small-value" id="userRole">Apprentice</div>
+      <div class="small">LTN profile type</div>
+    </div>
+
+    <div class="card">
       <div class="label">Trade</div>
-      <div class="value" id="userTrade">Not selected</div>
+      <div class="value small-value" id="userTrade">Not selected</div>
       <div class="small">Your selected trade path</div>
     </div>
 
     <div class="card">
+      <div class="label">Trade School / Training Center</div>
+      <div class="value small-value" id="userTradeSchool">Not added</div>
+      <div class="small">School connected to your progress profile</div>
+    </div>
+
+    <div class="card">
       <div class="label">Current Level</div>
-      <div class="value" id="currentLevel">New Apprentice</div>
+      <div class="value small-value" id="currentLevel">New Apprentice</div>
       <div class="small">Based on hours logged</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Location</div>
+      <div class="value small-value" id="userLocation">Not added</div>
+      <div class="small">Country, city, and state/region</div>
     </div>
   </div>
 
@@ -143,6 +385,28 @@
     </div>
   </div>
 
+  <div class="section-title">School / Instructor / Employer</div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="label">Instructor / Teacher</div>
+      <div class="value small-value" id="instructorName">Not assigned</div>
+      <div class="small" id="instructorMeta">Instructor details from your LTN profile</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Employer / Contractor</div>
+      <div class="value small-value" id="employerName">Not added</div>
+      <div class="small">Employer connected to your apprentice progress</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Verification Status</div>
+      <div class="value small-value" id="verificationStatus">Not verified</div>
+      <div class="small">Orange check means the profile was verified or approved</div>
+    </div>
+  </div>
+
   <div class="section-title">Apprentice Progress</div>
 
   <div class="grid">
@@ -164,7 +428,7 @@
 
     <div class="card">
       <div class="label">Trade Profile</div>
-      <div class="value" id="tradeProfileStatus">In Progress</div>
+      <div class="value small-value" id="tradeProfileStatus">In Progress</div>
       <div class="small">This dashboard is for apprentice progress. Photos and videos will stay in the community feed.</div>
     </div>
   </div>
@@ -268,6 +532,21 @@
     return {};
   }
 
+  function normalizeRole(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "Apprentice";
+
+    const lower = raw.toLowerCase();
+
+    if (lower.includes("teacher") || lower.includes("instructor")) return "Instructor / Teacher";
+    if (lower.includes("employer") || lower.includes("contractor")) return "Employer / Contractor";
+    if (lower.includes("school") || lower.includes("training")) return "Trade School / Training Center";
+    if (lower.includes("worker") || lower.includes("journey")) return "Skilled Trade Worker";
+    if (lower.includes("apprentice") || lower.includes("student")) return "Apprentice";
+
+    return raw;
+  }
+
   function normalizeProfile(raw) {
     raw = raw || {};
     const apprenticeship = raw.apprenticeship || raw.apprentice || {};
@@ -278,18 +557,85 @@
     const email = raw.email || apprenticeship.email ||
       firstValue(["ltn_apprentice_email", "userEmail", "profileEmail"], "Guest User");
 
-    const trade = raw.trade || raw.specialty || apprenticeship.trade ||
+    const trade = raw.trade || raw.specialty || raw.tradeSpecialty || apprenticeship.trade ||
       firstValue(["ltn_apprentice_trade", "userTrade", "profileTrade"], "Not selected");
 
-    const city = raw.city || apprenticeship.city || firstValue(["ltn_apprentice_city", "profileCity"], "");
-    const state = raw.state || apprenticeship.state || firstValue(["ltn_apprentice_state", "profileState"], "");
-    const program = apprenticeship.program || raw.apprenticeProgram || raw.program || firstValue(["ltn_apprentice_program", "apprenticeProgram"], "");
-    const employer = apprenticeship.employer || raw.apprenticeEmployer || raw.employer || firstValue(["ltn_apprentice_employer", "apprenticeEmployer"], "");
-    const startDate = apprenticeship.startDate || raw.apprenticeStartDate || raw.startDate || firstValue(["ltn_apprentice_start_date", "apprenticeStartDate"], "");
+    const role = normalizeRole(
+      raw.role || raw.profileType || raw.userRole || raw.accountType || apprenticeship.role ||
+      firstValue(["ltn_user_role", "ltn_profile_role", "profileRole", "userRole"], "Apprentice")
+    );
+
+    const country = raw.country || raw.profileCountry || apprenticeship.country ||
+      firstValue(["ltn_apprentice_country", "profileCountry", "userCountry"], "");
+
+    const city = raw.city || raw.profileCity || apprenticeship.city ||
+      firstValue(["ltn_apprentice_city", "profileCity", "userCity"], "");
+
+    const state = raw.state || raw.region || raw.profileState || apprenticeship.state || apprenticeship.region ||
+      firstValue(["ltn_apprentice_state", "profileState", "userState", "userRegion"], "");
+
+    const tradeSchool = raw.tradeSchool || raw.schoolName || raw.trainingCenter || raw.trainingCentre || raw.school ||
+      raw.institution || apprenticeship.tradeSchool || apprenticeship.schoolName || apprenticeship.program ||
+      firstValue([
+        "ltn_trade_school",
+        "ltn_school_name",
+        "tradeSchoolName",
+        "schoolName",
+        "trainingCenter",
+        "trainingCentre",
+        "ltn_apprentice_program",
+        "apprenticeProgram"
+      ], "");
+
+    const program = apprenticeship.program || raw.apprenticeProgram || raw.program || raw.trainingProgram ||
+      firstValue(["ltn_apprentice_program", "apprenticeProgram", "trainingProgram"], "");
+
+    const employer = apprenticeship.employer || raw.apprenticeEmployer || raw.employer || raw.company || raw.contractor ||
+      firstValue(["ltn_apprentice_employer", "apprenticeEmployer", "profileEmployer", "userEmployer"], "");
+
+    const startDate = apprenticeship.startDate || raw.apprenticeStartDate || raw.startDate ||
+      firstValue(["ltn_apprentice_start_date", "apprenticeStartDate"], "");
+
+    const instructorName = raw.instructorName || raw.teacherName || raw.instructor || apprenticeship.instructorName ||
+      firstValue(["ltn_instructor_name", "instructorName", "teacherName"], "");
+
+    const instructorSchool = raw.instructorSchool || raw.schoolOrTrainingCenter || raw.schoolTrainingCenter ||
+      firstValue(["ltn_instructor_school", "instructorSchool", "schoolOrTrainingCenter"], "");
+
+    const coursesTaught = raw.coursesTaught || raw.tradesTaught || raw.instructorTrades ||
+      firstValue(["ltn_courses_taught", "coursesTaught", "tradesTaught"], "");
+
+    const verified =
+      raw.verified === true ||
+      raw.isVerified === true ||
+      raw.orangeVerified === true ||
+      raw.ltnVerified === true ||
+      String(raw.verified || raw.isVerified || raw.orangeVerified || raw.ltnVerified || firstValue(["ltn_verified", "profileVerified"], "")).toLowerCase() === "true";
+
+    const verificationType = raw.verificationType || raw.verifiedBy || raw.approvalStatus ||
+      firstValue(["ltn_verification_type", "verifiedBy", "approvalStatus"], "");
 
     const hours = Number(apprenticeship.hours || raw.apprenticeHours || raw.hours || localStorage.getItem("ltn_apprentice_hours") || 0);
 
-    return { name, email, trade, city, state, program, employer, startDate, hours };
+    return {
+      name,
+      email,
+      trade,
+      role,
+      country,
+      city,
+      state,
+      tradeSchool,
+      program,
+      employer,
+      startDate,
+      instructorName,
+      instructorSchool,
+      coursesTaught,
+      verified,
+      verificationType,
+      hours
+    };
   }
 
   function getProfile() {
@@ -302,8 +648,10 @@
       "userProfile",
       "apprenticeProfile",
       "ltn_apprentice_profile",
-      "ltnApprenticeProfile"
+      "ltnApprenticeProfile",
+      "currentProfile"
     ]);
+
     return normalizeProfile(profile);
   }
 
@@ -322,17 +670,28 @@
     return "New Apprentice";
   }
 
+  function buildLocation(profile) {
+    return [profile.city, profile.state, profile.country].filter(Boolean).join(", ");
+  }
+
   function updateDashboard() {
     const profile = getProfile();
     syncProfileHours(profile);
 
     const percent = Math.min((guestHours / TARGET_HOURS) * 100, 100);
     const remaining = Math.max(TARGET_HOURS - guestHours, 0);
+    const location = buildLocation(profile);
 
     document.getElementById("welcome").innerText = "Welcome, " + (profile.name || "Trade Worker");
     document.getElementById("userName").innerText = profile.name || "Trade Worker";
     document.getElementById("userEmail").innerText = profile.email || "Guest User";
+    document.getElementById("userRole").innerText = profile.role || "Apprentice";
     document.getElementById("userTrade").innerText = profile.trade || "Not selected";
+    document.getElementById("userTradeSchool").innerText = profile.tradeSchool || profile.program || "Not added";
+    document.getElementById("userLocation").innerText = location || "Not added";
+
+    document.getElementById("heroRoleBadge").innerText = profile.role ? profile.role + " Progress Profile" : "Apprentice Progress Profile";
+
     document.getElementById("userHours").innerText = guestHours;
     document.getElementById("hoursBar").style.width = percent + "%";
     document.getElementById("progressText").innerText = Math.round(percent) + "% toward industry benchmark (8000 hrs)";
@@ -341,7 +700,25 @@
     document.getElementById("currentLevel").innerText = getLevel(guestHours);
     document.getElementById("skillsCount").innerText = skills.length;
     document.getElementById("certsCount").innerText = certifications.length;
-    document.getElementById("tradeProfileStatus").innerText = profile.name && profile.trade !== "Not selected" ? "Active" : "In Progress";
+    document.getElementById("tradeProfileStatus").innerText =
+      profile.name && profile.trade !== "Not selected" ? "Active" : "In Progress";
+
+    document.getElementById("instructorName").innerText = profile.instructorName || "Not assigned";
+    document.getElementById("instructorMeta").innerText =
+      [profile.instructorSchool, profile.coursesTaught].filter(Boolean).join(" • ") || "Instructor details from your LTN profile";
+
+    document.getElementById("employerName").innerText = profile.employer || "Not added";
+
+    if (profile.verified) {
+      document.getElementById("verificationBadge").style.display = "inline-flex";
+      document.getElementById("verificationText").innerText = profile.verificationType
+        ? "Verified LTN Profile • " + profile.verificationType
+        : "Verified LTN Profile";
+      document.getElementById("verificationStatus").innerText = "Orange Verified ✓";
+    } else {
+      document.getElementById("verificationBadge").style.display = "none";
+      document.getElementById("verificationStatus").innerText = "Not verified";
+    }
 
     renderProfileDetails(profile);
     renderLogs();
@@ -351,15 +728,21 @@
 
   function renderProfileDetails(profile) {
     const box = document.getElementById("profileDetails");
-    const location = [profile.city, profile.state].filter(Boolean).join(", ");
+    const location = buildLocation(profile);
     const rows = [];
 
+    if (profile.tradeSchool) rows.push(`<div class="profile-detail"><b>Trade School / Training Center:</b> ${escapeHtml(profile.tradeSchool)}</div>`);
     if (profile.program) rows.push(`<div class="profile-detail"><b>Program:</b> ${escapeHtml(profile.program)}</div>`);
-    if (profile.employer) rows.push(`<div class="profile-detail"><b>Employer:</b> ${escapeHtml(profile.employer)}</div>`);
+    if (profile.role) rows.push(`<div class="profile-detail"><b>Role:</b> ${escapeHtml(profile.role)}</div>`);
+    if (profile.instructorName) rows.push(`<div class="profile-detail"><b>Instructor / Teacher:</b> ${escapeHtml(profile.instructorName)}</div>`);
+    if (profile.employer) rows.push(`<div class="profile-detail"><b>Employer / Contractor:</b> ${escapeHtml(profile.employer)}</div>`);
     if (profile.startDate) rows.push(`<div class="profile-detail"><b>Start Date:</b> ${escapeHtml(profile.startDate)}</div>`);
     if (location) rows.push(`<div class="profile-detail"><b>Location:</b> ${escapeHtml(location)}</div>`);
+    rows.push(`<div class="profile-detail"><b>Verification:</b> ${profile.verified ? "Orange Verified ✓" : "Not verified"}</div>`);
 
-    box.innerHTML = rows.length ? rows.join("") : `<div class="profile-detail">Complete your apprentice information on the dashboard edit profile page.</div>`;
+    box.innerHTML = rows.length
+      ? rows.join("")
+      : `<div class="profile-detail">Complete your apprentice information on the dashboard edit profile page.</div>`;
   }
 
   function renderLogs() {
