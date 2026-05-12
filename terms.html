@@ -1,58 +1,195 @@
-<!-- KEEP EVERYTHING ABOVE SECTION 9 THE SAME -->
+/* ============================= */
+/* LinkTradeNetwork Terms Style  */
+/* ============================= */
 
-<section class="terms-section">
+body {
+  margin: 0;
+  padding: 0;
+  background: #f4f6f9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #1f2937;
+}
 
-  <div class="page-header">
-    <h1>LinkTradeNetwork</h1>
-    <p>Terms & Conditions</p>
-  </div>
+/* Top Header */
+.page-header {
+  background: #f4eadb;
+  border-bottom: 4px solid #f59e0b;
+  padding: 22px 40px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
 
-  <div class="terms-card">
+/* LTN Logo Box */
+.logo-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ff9900, #e67e00);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 28px;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
 
-    <h2>10. Acceptable Use & Content Policy</h2>
+/* Header Text */
+.header-text h1 {
+  margin: 0;
+  font-size: 52px;
+  line-height: 1;
+  color: #111827;
+  font-weight: 900;
+  letter-spacing: -1px;
+}
 
-    <p>LinkTradeNetwork is a professional technology platform built for skilled trade professionals, apprentices, instructors, contractors, and employers. By using this platform, you agree to maintain professional and respectful conduct at all times.</p>
+.header-text p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
 
-    <h3>10.1 Prohibited Content</h3>
-    <p>The following content and behavior are strictly prohibited on LinkTradeNetwork:</p>
+/* Orange Banner */
+.banner-strip {
+  height: 130px;
+  background: linear-gradient(
+    90deg,
+    #f7d3a7 0%,
+    #f5b868 45%,
+    #f59e0b 100%
+  );
+}
 
-    <ul>
-      <li>Any form of nudity, sexually explicit material, or adult content</li>
-      <li>Vulgar, obscene, hateful, or offensive language</li>
-      <li>Harassment, intimidation, threats, or abusive conduct toward other users</li>
-      <li>Discriminatory content based on race, religion, gender, nationality, disability, or protected status</li>
-      <li>False, misleading, deceptive, or fraudulent information</li>
-      <li>Spam, scams, phishing attempts, or unauthorized advertising</li>
-      <li>Impersonation of another individual, company, or organization</li>
-      <li>Content that violates applicable laws or regulations</li>
-    </ul>
+/* Main Terms Container */
+.terms-wrapper {
+  max-width: 1150px;
+  margin: -60px auto 60px;
+  padding: 0 20px;
+  position: relative;
+  z-index: 2;
+}
 
-    <h3>10.2 Professional Conduct</h3>
+/* White Card */
+.terms-card {
+  background: white;
+  border-radius: 22px;
+  padding: 50px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+  border: 1px solid #e5e7eb;
+}
 
-    <p>Users are expected to represent themselves honestly and professionally. All interactions, profile information, posts, comments, images, and uploaded content must reflect behavior appropriate for a professional skilled trades environment.</p>
+/* Main Title */
+.terms-title {
+  text-align: center;
+  margin-bottom: 40px;
+}
 
-    <h3>10.3 Enforcement</h3>
+.terms-title h2 {
+  font-size: 42px;
+  color: #111827;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
 
-    <p>LinkTradeNetwork reserves the right to review, remove, restrict, suspend, or permanently terminate any account or content that violates these Terms & Conditions or negatively impacts the integrity, safety, or professional nature of the platform.</p>
+.terms-title p {
+  color: #6b7280;
+  font-size: 17px;
+}
 
-    <p>Serious violations may result in immediate account termination without prior notice.</p>
+/* Section Headings */
+.terms-card h2 {
+  color: #111827;
+  font-size: 30px;
+  margin-top: 40px;
+  margin-bottom: 18px;
+  border-left: 6px solid #f59e0b;
+  padding-left: 15px;
+}
 
-    <h3>10.4 Reporting Violations</h3>
+.terms-card h3 {
+  color: #f59e0b;
+  font-size: 22px;
+  margin-top: 30px;
+  margin-bottom: 12px;
+  font-weight: 800;
+}
 
-    <p>If you encounter content or behavior that violates these standards, please report it immediately to our team. LinkTradeNetwork reserves the right to investigate reported violations and take appropriate action at its sole discretion.</p>
+/* Paragraphs */
+.terms-card p {
+  font-size: 17px;
+  line-height: 1.8;
+  color: #374151;
+}
 
-    <hr class="divider">
+/* Lists */
+.terms-card ul {
+  padding-left: 28px;
+  margin-top: 18px;
+}
 
-    <h2>11. Contact</h2>
+.terms-card li {
+  margin-bottom: 12px;
+  line-height: 1.7;
+  font-size: 16px;
+  color: #374151;
+}
 
-    <p>For questions regarding these Terms & Conditions, please contact us:</p>
+/* Divider */
+.divider {
+  margin: 45px 0;
+  border: none;
+  border-top: 1px solid #e5e7eb;
+}
 
-    <p>
-      <strong>Email:</strong> Team@linktradenetwork.com<br>
-      <strong>Website:</strong> www.linktradenetwork.com<br>
-      <strong>Company:</strong> LinkTradeNetwork
-    </p>
+/* Contact Box */
+.contact-box {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 16px;
+  padding: 25px;
+  margin-top: 25px;
+}
 
-  </div>
+.contact-box strong {
+  color: #111827;
+}
 
-</section>
+/* Mobile */
+@media (max-width: 768px) {
+
+  .page-header {
+    padding: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-text h1 {
+    font-size: 38px;
+  }
+
+  .banner-strip {
+    height: 90px;
+  }
+
+  .terms-wrapper {
+    margin-top: -40px;
+  }
+
+  .terms-card {
+    padding: 28px;
+  }
+
+  .terms-title h2 {
+    font-size: 32px;
+  }
+
+  .terms-card h2 {
+    font-size: 24px;
+  }
+}
