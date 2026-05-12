@@ -1,195 +1,322 @@
-/* ============================= */
-/* LinkTradeNetwork Terms Style  */
-/* ============================= */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkTradeNetwork - Terms & Conditions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body {
-  margin: 0;
-  padding: 0;
-  background: #f4f6f9;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #1f2937;
-}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
 
-/* Top Header */
-.page-header {
-  background: #f4eadb;
-  border-bottom: 4px solid #f59e0b;
-  padding: 22px 40px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
+        .page-header {
+            background: linear-gradient(135deg, #e8944a 0%, #d97e35 100%);
+            color: white;
+            padding: 32px 16px;
+            margin-bottom: 0;
+        }
 
-/* LTN Logo Box */
-.logo-box {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #ff9900, #e67e00);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 28px;
-  font-weight: 800;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
 
-/* Header Text */
-.header-text h1 {
-  margin: 0;
-  font-size: 52px;
-  line-height: 1;
-  color: #111827;
-  font-weight: 900;
-  letter-spacing: -1px;
-}
+        .logo-badge {
+            background: rgba(255, 255, 255, 0.95);
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: #d97e35;
+            flex-shrink: 0;
+        }
 
-.header-text p {
-  margin: 6px 0 0;
-  color: #64748b;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
+        .header-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+        }
 
-/* Orange Banner */
-.banner-strip {
-  height: 130px;
-  background: linear-gradient(
-    90deg,
-    #f7d3a7 0%,
-    #f5b868 45%,
-    #f59e0b 100%
-  );
-}
+        .page-header p {
+            font-size: 15px;
+            font-weight: 400;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
 
-/* Main Terms Container */
-.terms-wrapper {
-  max-width: 1150px;
-  margin: -60px auto 60px;
-  padding: 0 20px;
-  position: relative;
-  z-index: 2;
-}
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
 
-/* White Card */
-.terms-card {
-  background: white;
-  border-radius: 22px;
-  padding: 50px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
-  border: 1px solid #e5e7eb;
-}
+        .terms-card {
+            background: white;
+            padding: 24px 20px;
+            margin-bottom: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
 
-/* Main Title */
-.terms-title {
-  text-align: center;
-  margin-bottom: 40px;
-}
+        .terms-card h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #d97e35;
+            margin-bottom: 16px;
+            margin-top: 0;
+        }
 
-.terms-title h2 {
-  font-size: 42px;
-  color: #111827;
-  margin-bottom: 10px;
-  font-weight: 800;
-}
+        .terms-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
 
-.terms-title p {
-  color: #6b7280;
-  font-size: 17px;
-}
+        .terms-card p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 12px;
+            line-height: 1.8;
+        }
 
-/* Section Headings */
-.terms-card h2 {
-  color: #111827;
-  font-size: 30px;
-  margin-top: 40px;
-  margin-bottom: 18px;
-  border-left: 6px solid #f59e0b;
-  padding-left: 15px;
-}
+        .terms-card ul {
+            list-style: none;
+            margin-left: 0;
+            margin-bottom: 16px;
+            padding-left: 0;
+        }
 
-.terms-card h3 {
-  color: #f59e0b;
-  font-size: 22px;
-  margin-top: 30px;
-  margin-bottom: 12px;
-  font-weight: 800;
-}
+        .terms-card li {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+            padding-left: 24px;
+            position: relative;
+            line-height: 1.8;
+        }
 
-/* Paragraphs */
-.terms-card p {
-  font-size: 17px;
-  line-height: 1.8;
-  color: #374151;
-}
+        .terms-card li:before {
+            content: "•";
+            position: absolute;
+            left: 8px;
+            color: #e8944a;
+            font-weight: bold;
+            font-size: 18px;
+        }
 
-/* Lists */
-.terms-card ul {
-  padding-left: 28px;
-  margin-top: 18px;
-}
+        .divider {
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 32px 0;
+        }
 
-.terms-card li {
-  margin-bottom: 12px;
-  line-height: 1.7;
-  font-size: 16px;
-  color: #374151;
-}
+        .contact-info {
+            background: #fff3e6;
+            border-left: 4px solid #e8944a;
+            padding: 16px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
 
-/* Divider */
-.divider {
-  margin: 45px 0;
-  border: none;
-  border-top: 1px solid #e5e7eb;
-}
+        .contact-info p {
+            margin-bottom: 8px;
+        }
 
-/* Contact Box */
-.contact-box {
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  border-radius: 16px;
-  padding: 25px;
-  margin-top: 25px;
-}
+        .contact-info p:last-child {
+            margin-bottom: 0;
+        }
 
-.contact-box strong {
-  color: #111827;
-}
+        .contact-info strong {
+            color: #d97e35;
+            font-weight: 600;
+        }
 
-/* Mobile */
-@media (max-width: 768px) {
+        .contact-info a {
+            color: #d97e35;
+            text-decoration: none;
+            word-break: break-word;
+        }
 
-  .page-header {
-    padding: 20px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
 
-  .header-text h1 {
-    font-size: 38px;
-  }
+        .footer-spacing {
+            height: 24px;
+        }
 
-  .banner-strip {
-    height: 90px;
-  }
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .page-header {
+                padding: 32px 16px;
+            }
 
-  .terms-wrapper {
-    margin-top: -40px;
-  }
+            .page-header h1 {
+                font-size: 24px;
+            }
 
-  .terms-card {
-    padding: 28px;
-  }
+            .page-header p {
+                font-size: 15px;
+            }
 
-  .terms-title h2 {
-    font-size: 32px;
-  }
+            .terms-card {
+                padding: 18px 16px;
+                margin-bottom: 16px;
+                border-radius: 6px;
+            }
 
-  .terms-card h2 {
-    font-size: 24px;
-  }
-}
+            .terms-card h2 {
+                font-size: 20px;
+                margin-bottom: 14px;
+            }
+
+            .terms-card h3 {
+                font-size: 15px;
+                margin-top: 16px;
+                margin-bottom: 10px;
+            }
+
+            .terms-card p {
+                font-size: 13px;
+                margin-bottom: 10px;
+            }
+
+            .terms-card li {
+                font-size: 13px;
+                margin-bottom: 8px;
+            }
+
+            .divider {
+                margin: 24px 0;
+            }
+
+            .contact-info {
+                padding: 14px 12px;
+                font-size: 13px;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a1a1a;
+                color: #e0e0e0;
+            }
+
+            .terms-card {
+                background: #2a2a2a;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            }
+
+            .terms-card h2 {
+                color: #f5a86a;
+            }
+
+            .terms-card h3 {
+                color: #e0e0e0;
+            }
+
+            .terms-card p {
+                color: #b0b0b0;
+            }
+
+            .terms-card li {
+                color: #b0b0b0;
+            }
+
+            .divider {
+                border-top-color: #444;
+            }
+
+            .contact-info {
+                background: #2d1f0f;
+                border-left-color: #f5a86a;
+                color: #b0b0b0;
+            }
+
+            .contact-info strong {
+                color: #f5a86a;
+            }
+
+            .contact-info a {
+                color: #f5a86a;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <div class="header-content">
+            <div class="logo-badge">LTN</div>
+            <div class="header-text">
+                <h1>LinkTradeNetwork</h1>
+            </div>
+        </div>
+        <p>Terms & Conditions</p>
+    </div>
+
+    <div class="container">
+        <div class="terms-card">
+            <h2>10. Acceptable Use & Content Policy</h2>
+            <p>LinkTradeNetwork is a professional technology platform built for skilled trade professionals, apprentices, instructors, contractors, and employers. By using this platform, you agree to maintain professional and respectful conduct at all times.</p>
+
+            <h3>10.1 Prohibited Content</h3>
+            <p>The following content and behavior are strictly prohibited on LinkTradeNetwork:</p>
+            <ul>
+                <li>Any form of nudity, sexually explicit material, or adult content</li>
+                <li>Vulgar, obscene, hateful, or offensive language</li>
+                <li>Harassment, intimidation, threats, or abusive conduct toward other users</li>
+                <li>Discriminatory content based on race, religion, gender, nationality, disability, or protected status</li>
+                <li>False, misleading, deceptive, or fraudulent information</li>
+                <li>Spam, scams, phishing attempts, or unauthorized advertising</li>
+                <li>Impersonation of another individual, company, or organization</li>
+                <li>Content that violates applicable laws or regulations</li>
+            </ul>
+
+            <h3>10.2 Professional Conduct</h3>
+            <p>Users are expected to represent themselves honestly and professionally. All interactions, profile information, posts, comments, images, and uploaded content must reflect behavior appropriate for a professional skilled trades environment.</p>
+
+            <h3>10.3 Enforcement</h3>
+            <p>LinkTradeNetwork reserves the right to review, remove, restrict, suspend, or permanently terminate any account or content that violates these Terms & Conditions or negatively impacts the integrity, safety, or professional nature of the platform.</p>
+            <p>Serious violations may result in immediate account termination without prior notice.</p>
+
+            <h3>10.4 Reporting Violations</h3>
+            <p>If you encounter content or behavior that violates these standards, please report it immediately to our team. LinkTradeNetwork reserves the right to investigate reported violations and take appropriate action at its sole discretion.</p>
+
+            <hr class="divider">
+
+            <h2>11. Contact</h2>
+            <p>For questions regarding these Terms & Conditions, please contact us:</p>
+            <div class="contact-info">
+                <p><strong>Email:</strong> <a href="mailto:Team@linktradenetwork.com">Team@linktradenetwork.com</a></p>
+                <p><strong>Website:</strong> <a href="https://www.linktradenetwork.com" target="_blank">www.linktradenetwork.com</a></p>
+                <p><strong>Company:</strong> LinkTradeNetwork</p>
+            </div>
+        </div>
+
+        <div class="footer-spacing"></div>
+    </div>
+</body>
+</html>
