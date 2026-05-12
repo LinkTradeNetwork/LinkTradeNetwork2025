@@ -5,17 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-secure-access-gate-20260512-v3 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-ui-fix-20260512-v4 -->
 
   <style>
-    *{box-sizing:border-box}
+    *{
+      box-sizing:border-box;
+      -webkit-text-size-adjust:100%;
+    }
+
+    html,body{
+      overflow-x:hidden;
+    }
+
     body{
       margin:0;
       font-family:Arial,sans-serif;
       background:linear-gradient(135deg,#ffa366,#ff8c3a,#ff7e2e);
       min-height:100vh;
-      color:#1e293b
+      color:#1e293b;
     }
+
     .topbar{
       background:#3d5a80;
       color:white;
@@ -23,11 +32,25 @@
       display:flex;
       justify-content:space-between;
       align-items:center;
-      box-shadow:0 6px 20px rgba(0,0,0,.18)
+      box-shadow:0 6px 20px rgba(0,0,0,.18);
+      gap:12px;
     }
-    .logo{font-size:22px;font-weight:800}
-    .top-actions{display:flex;gap:10px;align-items:center}
-    .logout,.dashbtn{
+
+    .logo{
+      font-size:22px;
+      font-weight:800;
+      word-break:break-word;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .logout,
+    .dashbtn{
       background:#ea6a00;
       color:white;
       border:none;
@@ -35,27 +58,64 @@
       border-radius:10px;
       cursor:pointer;
       font-weight:700;
-      text-decoration:none
+      text-decoration:none;
+      white-space:nowrap;
+      transition:.2s ease;
     }
-    .dashbtn{background:#ffffff;color:#3d5a80}
-    .wrap{max-width:1150px;margin:0 auto;padding:32px 20px}
-    .hero,.card{
+
+    .dashbtn{
+      background:#ffffff;
+      color:#3d5a80;
+    }
+
+    .logout:hover,
+    .dashbtn:hover,
+    .button:hover{
+      filter:brightness(.95);
+      transform:translateY(-1px);
+    }
+
+    .wrap{
+      max-width:1150px;
+      margin:0 auto;
+      padding:32px 20px;
+    }
+
+    .hero,
+    .card{
       background:white;
       border-radius:24px;
-      box-shadow:0 15px 40px rgba(0,0,0,.18)
+      box-shadow:0 15px 40px rgba(0,0,0,.18);
     }
+
     .hero{
       padding:32px;
       margin-bottom:22px;
       display:flex;
       justify-content:space-between;
-      gap:20px;
+      gap:24px;
       align-items:center;
-      flex-wrap:wrap
+      flex-wrap:wrap;
     }
-    h1{margin:0;font-size:34px}
-    .sub,.small{color:#64748b}
-    .sub{margin-top:8px;font-size:16px}
+
+    h1{
+      margin:0;
+      font-size:34px;
+      line-height:1.1;
+      overflow-wrap:anywhere;
+    }
+
+    .sub,
+    .small{
+      color:#64748b;
+    }
+
+    .sub{
+      margin-top:8px;
+      font-size:16px;
+      line-height:1.5;
+    }
+
     .hero-badge{
       background:#fff4e8;
       color:#c35700;
@@ -63,8 +123,10 @@
       padding:12px 16px;
       border-radius:14px;
       font-weight:800;
-      text-align:center
+      text-align:center;
+      overflow-wrap:anywhere;
     }
+
     .verified-badge{
       display:inline-flex;
       align-items:center;
@@ -76,8 +138,10 @@
       border-radius:999px;
       font-weight:800;
       font-size:13px;
-      margin-top:10px
+      margin-top:10px;
+      flex-wrap:wrap;
     }
+
     .orange-check{
       display:inline-flex;
       align-items:center;
@@ -90,49 +154,80 @@
       font-weight:900;
       font-size:13px;
       line-height:1;
-      box-shadow:0 4px 10px rgba(234,106,0,.25)
+      box-shadow:0 4px 10px rgba(234,106,0,.25);
+      flex-shrink:0;
     }
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
-    .card{padding:24px}
-    .card.big{grid-column:span 2}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:20px;
+    }
+
+    .card{
+      padding:24px;
+      overflow:hidden;
+    }
+
+    .card.big{
+      grid-column:span 2;
+    }
+
     .label{
       color:#64748b;
       font-size:13px;
       font-weight:700;
       text-transform:uppercase;
-      letter-spacing:.5px
+      letter-spacing:.5px;
+      overflow-wrap:anywhere;
     }
+
     .value{
       font-size:30px;
       font-weight:800;
       margin-top:8px;
-      line-height:1.1
+      line-height:1.1;
+      overflow-wrap:anywhere;
+      word-break:break-word;
     }
+
     .value.small-value{
       font-size:22px;
-      line-height:1.25
+      line-height:1.25;
     }
+
     .progress-bar{
       height:16px;
       background:#e2e8f0;
       border-radius:99px;
       overflow:hidden;
-      margin-top:16px
+      margin-top:16px;
     }
+
     .progress-fill{
       height:100%;
       width:0%;
       background:linear-gradient(90deg,#ea6a00,#ff9a3c);
       border-radius:99px;
-      transition:width .4s ease
+      transition:width .4s ease;
     }
+
+    #progressText{
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      line-height:1.5;
+      margin-top:10px;
+    }
+
     .section-title{
       color:white;
       font-size:24px;
       font-weight:800;
       margin:28px 0 14px;
-      text-shadow:0 2px 8px rgba(0,0,0,.15)
+      text-shadow:0 2px 8px rgba(0,0,0,.15);
+      overflow-wrap:anywhere;
     }
+
     .button{
       background:#ea6a00;
       color:white;
@@ -141,31 +236,55 @@
       border-radius:12px;
       cursor:pointer;
       font-weight:700;
-      margin-top:14px
+      margin-top:14px;
+      white-space:nowrap;
+      transition:.2s ease;
     }
-    .button.secondary{background:#3d5a80}
-    .button.danger{background:#dc2626}
-    .button:hover{filter:brightness(.95);transform:translateY(-1px)}
+
+    .button.secondary{
+      background:#3d5a80;
+    }
+
+    .button.danger{
+      background:#dc2626;
+    }
+
     .metric-row{
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
       gap:14px;
-      margin-top:18px
+      margin-top:18px;
     }
+
     .metric{
       background:#f8fafc;
       border:1px solid #e2e8f0;
       border-radius:16px;
-      padding:16px
+      padding:16px;
+      overflow:hidden;
     }
-    .metric strong{display:block;font-size:24px;color:#1e293b}
+
+    .metric strong{
+      display:block;
+      font-size:24px;
+      color:#1e293b;
+      overflow-wrap:anywhere;
+    }
+
     .metric span{
       font-size:13px;
       color:#64748b;
       font-weight:700;
-      text-transform:uppercase
+      text-transform:uppercase;
+      overflow-wrap:anywhere;
     }
-    .log-list{margin-top:14px;display:grid;gap:10px}
+
+    .log-list{
+      margin-top:14px;
+      display:grid;
+      gap:10px;
+    }
+
     .log-item{
       background:#f8fafc;
       border:1px solid #e2e8f0;
@@ -175,9 +294,18 @@
       justify-content:space-between;
       gap:10px;
       font-size:14px;
-      align-items:center
+      align-items:center;
+      flex-wrap:wrap;
     }
-    .log-main{display:flex;flex-direction:column;gap:3px}
+
+    .log-main{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
     .empty{
       color:#64748b;
       background:#f8fafc;
@@ -185,9 +313,17 @@
       padding:14px;
       border-radius:12px;
       margin-top:14px;
-      font-size:14px
+      font-size:14px;
+      line-height:1.5;
+      overflow-wrap:anywhere;
     }
-    .list-box{margin-top:14px;display:grid;gap:10px}
+
+    .list-box{
+      margin-top:14px;
+      display:grid;
+      gap:10px;
+    }
+
     .list-item{
       background:#f8fafc;
       border:1px solid #e2e8f0;
@@ -196,10 +332,27 @@
       display:flex;
       justify-content:space-between;
       align-items:flex-start;
-      gap:10px
+      gap:10px;
+      flex-wrap:wrap;
     }
-    .list-item strong{display:block;font-size:15px}
-    .list-item span{display:block;color:#64748b;font-size:13px;margin-top:3px}
+
+    .list-item strong{
+      display:block;
+      font-size:15px;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    .list-item span{
+      display:block;
+      color:#64748b;
+      font-size:13px;
+      margin-top:3px;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      line-height:1.4;
+    }
+
     .delete-small{
       background:#ef4444;
       color:white;
@@ -207,18 +360,33 @@
       border-radius:8px;
       padding:7px 10px;
       cursor:pointer;
-      font-weight:700
+      font-weight:700;
+      white-space:nowrap;
+      flex-shrink:0;
     }
-    .profile-details{margin-top:14px;display:grid;gap:8px}
+
+    .profile-details{
+      margin-top:14px;
+      display:grid;
+      gap:8px;
+    }
+
     .profile-detail{
       background:#f8fafc;
       border:1px solid #e2e8f0;
       border-radius:12px;
       padding:10px 12px;
       font-size:14px;
-      color:#475569
+      color:#475569;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      line-height:1.5;
     }
-    .profile-detail b{color:#1e293b}
+
+    .profile-detail b{
+      color:#1e293b;
+    }
+
     .modal-backdrop{
       display:none;
       position:fixed;
@@ -227,65 +395,213 @@
       z-index:1000;
       align-items:center;
       justify-content:center;
-      padding:18px
+      padding:18px;
+      overflow-y:auto;
     }
-    .modal-backdrop.active{display:flex}
+
+    .modal-backdrop.active{
+      display:flex;
+    }
+
     .modal{
       background:white;
       border-radius:18px;
       max-width:520px;
-      width:100%;
+      width:calc(100% - 36px);
       box-shadow:0 20px 60px rgba(0,0,0,.30);
-      overflow:hidden
+      overflow:hidden;
+      max-height:95vh;
+      overflow-y:auto;
     }
+
     .modal-header{
       padding:18px 20px;
       border-bottom:1px solid #e2e8f0;
       display:flex;
       justify-content:space-between;
-      align-items:center
+      align-items:center;
+      gap:12px;
     }
-    .modal-header h2{margin:0;font-size:20px}
+
+    .modal-header h2{
+      margin:0;
+      font-size:20px;
+      overflow-wrap:anywhere;
+    }
+
     .modal-close{
       background:none;
       border:none;
       font-size:28px;
       cursor:pointer;
       color:#64748b;
-      line-height:1
+      line-height:1;
+      flex-shrink:0;
     }
-    .modal-body{padding:20px}
+
+    .modal-body{
+      padding:20px;
+    }
+
     .modal-footer{
       padding:16px 20px;
       border-top:1px solid #e2e8f0;
       display:flex;
       justify-content:flex-end;
-      gap:10px
+      gap:10px;
+      flex-wrap:wrap;
     }
-    .form-group{margin-bottom:14px}
+
+    .form-group{
+      margin-bottom:14px;
+    }
+
     .form-group label{
       display:block;
       margin-bottom:6px;
       font-weight:700;
       font-size:14px;
-      color:#334155
+      color:#334155;
+      overflow-wrap:anywhere;
     }
+
     .form-control{
       width:100%;
       border:1px solid #cbd5e1;
       border-radius:10px;
       padding:12px;
       font-size:16px;
-      font-family:inherit
+      font-family:inherit;
+      min-width:0;
     }
-    textarea.form-control{min-height:90px;resize:vertical}
+
+    textarea.form-control{
+      min-height:90px;
+      resize:vertical;
+    }
+
+    @media(max-width:1150px){
+      .grid{
+        grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      }
+    }
+
+    @media(max-width:900px){
+      .hero{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .card.big{
+        grid-column:span 1;
+      }
+    }
+
     @media(max-width:750px){
-      .card.big{grid-column:span 1}
-      .topbar{padding:14px 16px;flex-wrap:wrap;gap:12px}
-      .logo{font-size:18px}
-      h1{font-size:28px}
-      .hero{padding:24px}
-      .top-actions{width:100%;justify-content:flex-start}
+
+      .topbar{
+        padding:14px 16px;
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .top-actions{
+        width:100%;
+      }
+
+      .logo{
+        font-size:18px;
+      }
+
+      .wrap{
+        padding:20px 14px;
+      }
+
+      .hero{
+        padding:24px;
+      }
+
+      h1{
+        font-size:28px;
+      }
+
+      .grid{
+        grid-template-columns:1fr;
+      }
+
+      .metric-row{
+        grid-template-columns:1fr;
+      }
+
+      .button{
+        width:100%;
+      }
+
+      .modal{
+        width:calc(100% - 24px);
+      }
+
+      .modal-body{
+        padding:16px;
+      }
+
+      .modal-footer{
+        padding:16px;
+      }
+
+      .modal-footer .button{
+        width:100%;
+        margin-top:0;
+      }
+
+      .list-item{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .log-item{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .delete-small{
+        width:100%;
+      }
+    }
+
+    @media(max-width:480px){
+
+      .hero{
+        padding:20px;
+      }
+
+      .card{
+        padding:18px;
+      }
+
+      h1{
+        font-size:24px;
+      }
+
+      .value{
+        font-size:26px;
+      }
+
+      .value.small-value{
+        font-size:20px;
+      }
+
+      .section-title{
+        font-size:22px;
+      }
+
+      .modal-header{
+        padding:16px;
+      }
+
+      .modal-body{
+        padding:14px;
+      }
     }
   </style>
 </head>
@@ -293,7 +609,6 @@
 <body>
 
 <script>
-  // LTN ACCESS GATE - prevents direct access to apprenticeship.html without a saved LTN profile/login session.
   (function () {
     const hasProfile =
       localStorage.getItem("ltn_current_profile") ||
@@ -311,12 +626,17 @@
   })();
 </script>
 
-
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
+
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512accessgate'">Dashboard</button>
-    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512accessgate'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512accessgate'">
+      Dashboard
+    </button>
+
+    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512accessgate'">
+      Back
+    </button>
   </div>
 </div>
 
@@ -325,16 +645,25 @@
   <div class="hero">
     <div>
       <h1 id="welcome">Welcome, Trade Worker</h1>
-      <div class="sub">Track your apprenticeship, hours, skills, certifications, school, instructor, and progress.</div>
+
+      <div class="sub">
+        Track your apprenticeship, hours, skills, certifications, school,
+        instructor, and progress.
+      </div>
+
       <div id="verificationBadge" class="verified-badge" style="display:none">
         <span class="orange-check">✓</span>
         <span id="verificationText">Verified LTN Profile</span>
       </div>
     </div>
-    <div class="hero-badge" id="heroRoleBadge">Apprentice Progress Profile</div>
+
+    <div class="hero-badge" id="heroRoleBadge">
+      Apprentice Progress Profile
+    </div>
   </div>
 
   <div class="grid">
+
     <div class="card">
       <div class="label">Name</div>
       <div class="value" id="userName">Trade Worker</div>
@@ -370,599 +699,81 @@
       <div class="value small-value" id="userLocation">Not added</div>
       <div class="small">Country, city, and state/region</div>
     </div>
+
   </div>
 
   <div class="section-title">Hours Progress</div>
 
   <div class="grid">
+
     <div class="card big">
+
       <div class="label">Industry Benchmark</div>
-      <div class="value"><span id="userHours">0</span> / 8000 Hours</div>
+
+      <div class="value">
+        <span id="userHours">0</span> / 8000 Hours
+      </div>
 
       <div class="progress-bar">
         <div class="progress-fill" id="hoursBar"></div>
       </div>
 
-      <div class="small" id="progressText">0% toward industry benchmark</div>
+      <div class="small" id="progressText">
+        0% toward industry benchmark
+      </div>
 
       <div class="metric-row">
-        <div class="metric"><strong id="percentBox">0%</strong><span>Progress</span></div>
-        <div class="metric"><strong id="remainingHours">8000</strong><span>Hours Remaining</span></div>
-        <div class="metric"><strong id="loggedCount">0</strong><span>Hour Logs</span></div>
+
+        <div class="metric">
+          <strong id="percentBox">0%</strong>
+          <span>Progress</span>
+        </div>
+
+        <div class="metric">
+          <strong id="remainingHours">8000</strong>
+          <span>Hours Remaining</span>
+        </div>
+
+        <div class="metric">
+          <strong id="loggedCount">0</strong>
+          <span>Hour Logs</span>
+        </div>
+
       </div>
 
-      <button class="button" onclick="addHours()">+ Add Hours Worked</button>
-      <button class="button secondary" onclick="resetHours()">Reset Hours</button>
+      <button class="button" onclick="addHours()">
+        + Add Hours Worked
+      </button>
+
+      <button class="button secondary" onclick="resetHours()">
+        Reset Hours
+      </button>
+
     </div>
 
     <div class="card">
+
       <div class="label">Why 8000 Hours?</div>
-      <div class="value" style="font-size:22px">Industry Accepted Benchmark</div>
+
+      <div class="value" style="font-size:22px">
+        Industry Accepted Benchmark
+      </div>
+
       <div class="small">
-        LTN uses 8000 hours as a simple industry benchmark, not a legal licensing requirement.
+        LTN uses 8000 hours as a simple industry benchmark,
+        not a legal licensing requirement.
       </div>
+
       <div class="profile-details" id="profileDetails"></div>
+
     </div>
+
   </div>
 
-  <div class="section-title">School / Instructor / Employer</div>
-
-  <div class="grid">
-    <div class="card">
-      <div class="label">Instructor / Teacher</div>
-      <div class="value small-value" id="instructorName">Not assigned</div>
-      <div class="small" id="instructorMeta">Instructor details from your LTN profile</div>
-    </div>
-
-    <div class="card">
-      <div class="label">Employer / Contractor</div>
-      <div class="value small-value" id="employerName">Not added</div>
-      <div class="small">Employer connected to your apprentice progress</div>
-    </div>
-
-    <div class="card">
-      <div class="label">Verification Status</div>
-      <div class="value small-value" id="verificationStatus">Not verified</div>
-      <div class="small">Orange check means the profile was verified or approved</div>
-    </div>
-  </div>
-
-  <div class="section-title">Apprentice Progress</div>
-
-  <div class="grid">
-    <div class="card">
-      <div class="label">Skills Completed</div>
-      <div class="value" id="skillsCount">0</div>
-      <div class="small">Start adding skills like terminations, conduit, testing, safety.</div>
-      <button class="button secondary" onclick="openSkillModal()">Add Skill</button>
-      <div id="skillsList" class="list-box"></div>
-    </div>
-
-    <div class="card">
-      <div class="label">Certifications</div>
-      <div class="value" id="certsCount">0</div>
-      <div class="small">Upload OSHA, lift certs, manufacturer training, or licenses later.</div>
-      <button class="button secondary" onclick="openCertificationModal()">Add Certification</button>
-      <div id="certificationsList" class="list-box"></div>
-    </div>
-
-    <div class="card">
-      <div class="label">Trade Profile</div>
-      <div class="value small-value" id="tradeProfileStatus">In Progress</div>
-      <div class="small">This dashboard is for apprentice progress. Photos and videos will stay in the community feed.</div>
-    </div>
-  </div>
-
-  <div class="section-title">Recent Hours Log</div>
-
-  <div class="card">
-    <div class="label">Hours Worked History</div>
-    <div id="hoursLog" class="log-list"></div>
-  </div>
-
-</div>
-
-<!-- Add Skill Modal -->
-<div class="modal-backdrop" id="skillModal">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>Add Skill Completed</h2>
-      <button class="modal-close" onclick="closeSkillModal()">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label>Skill Name</label>
-        <input id="skillName" class="form-control" placeholder="Example: Cat6 terminations">
-      </div>
-      <div class="form-group">
-        <label>Notes</label>
-        <textarea id="skillNotes" class="form-control" placeholder="Example: Completed 24 terminations and tested all cables."></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="button secondary" onclick="closeSkillModal()">Cancel</button>
-      <button class="button" onclick="saveSkill()">Save Skill</button>
-    </div>
-  </div>
-</div>
-
-<!-- Add Certification Modal -->
-<div class="modal-backdrop" id="certModal">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>Add Certification</h2>
-      <button class="modal-close" onclick="closeCertificationModal()">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label>Certification Name</label>
-        <input id="certName" class="form-control" placeholder="Example: OSHA 10">
-      </div>
-      <div class="form-group">
-        <label>Issued By</label>
-        <input id="certIssuer" class="form-control" placeholder="Example: OSHA, BICSI, manufacturer, school">
-      </div>
-      <div class="form-group">
-        <label>Date Earned</label>
-        <input id="certDate" type="date" class="form-control">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="button secondary" onclick="closeCertificationModal()">Cancel</button>
-      <button class="button" onclick="saveCertification()">Save Certification</button>
-    </div>
-  </div>
 </div>
 
 <script>
-  const TARGET_HOURS = 8000;
-
-  let guestHours = Number(localStorage.getItem("ltn_apprentice_hours") || 0);
-  let hourLogs = safeJson(localStorage.getItem("ltn_apprentice_logs"), []);
-  let skills = safeJson(localStorage.getItem("ltn_apprentice_skills"), []);
-  let certifications = safeJson(localStorage.getItem("ltn_apprentice_certifications"), []);
-
-  function safeJson(value, fallback) {
-    try {
-      if (!value) return fallback;
-      const parsed = JSON.parse(value);
-      return parsed || fallback;
-    } catch (e) {
-      return fallback;
-    }
-  }
-
-  function firstValue(keys, fallback) {
-    for (const key of keys) {
-      const value = localStorage.getItem(key);
-      if (value && String(value).trim()) return String(value).trim();
-    }
-    return fallback || "";
-  }
-
-  function firstObject(keys) {
-    for (const key of keys) {
-      const raw = localStorage.getItem(key);
-      if (!raw) continue;
-      try {
-        const obj = JSON.parse(raw);
-        if (obj && typeof obj === "object") return obj;
-      } catch (e) {}
-    }
-    return {};
-  }
-
-  function normalizeRole(value) {
-    const raw = String(value || "").trim();
-    if (!raw) return "Apprentice";
-
-    const lower = raw.toLowerCase();
-
-    if (lower.includes("teacher") || lower.includes("instructor")) return "Instructor / Teacher";
-    if (lower.includes("employer") || lower.includes("contractor")) return "Employer / Contractor";
-    if (lower.includes("school") || lower.includes("training")) return "Trade School / Training Center";
-    if (lower.includes("worker") || lower.includes("journey")) return "Skilled Trade Worker";
-    if (lower.includes("apprentice") || lower.includes("student")) return "Apprentice";
-
-    return raw;
-  }
-
-  function normalizeProfile(raw) {
-    raw = raw || {};
-    const apprenticeship = raw.apprenticeship || raw.apprentice || {};
-
-    const name = raw.fullName || raw.name || raw.displayName || apprenticeship.fullName || apprenticeship.name ||
-      firstValue(["ltn_apprentice_name", "apprenticeFullName", "tradeWorkerName", "profileName", "userName"], "Trade Worker");
-
-    const email = raw.email || apprenticeship.email ||
-      firstValue(["ltn_apprentice_email", "userEmail", "profileEmail"], "Guest User");
-
-    const trade = raw.trade || raw.specialty || raw.tradeSpecialty || apprenticeship.trade ||
-      firstValue(["ltn_apprentice_trade", "userTrade", "profileTrade"], "Not selected");
-
-    const role = normalizeRole(
-      raw.role || raw.profileType || raw.userRole || raw.accountType || apprenticeship.role ||
-      firstValue(["ltn_user_role", "ltn_profile_role", "profileRole", "userRole"], "Apprentice")
-    );
-
-    const country = raw.country || raw.profileCountry || apprenticeship.country ||
-      firstValue(["ltn_apprentice_country", "profileCountry", "userCountry"], "");
-
-    const city = raw.city || raw.profileCity || apprenticeship.city ||
-      firstValue(["ltn_apprentice_city", "profileCity", "userCity"], "");
-
-    const state = raw.state || raw.region || raw.profileState || apprenticeship.state || apprenticeship.region ||
-      firstValue(["ltn_apprentice_state", "profileState", "userState", "userRegion"], "");
-
-    const tradeSchool = raw.tradeSchool || raw.schoolName || raw.trainingCenter || raw.trainingCentre || raw.school ||
-      raw.institution || apprenticeship.tradeSchool || apprenticeship.schoolName || apprenticeship.program ||
-      firstValue([
-        "ltn_trade_school",
-        "ltn_school_name",
-        "tradeSchoolName",
-        "schoolName",
-        "trainingCenter",
-        "trainingCentre",
-        "ltn_apprentice_program",
-        "apprenticeProgram"
-      ], "");
-
-    const program = apprenticeship.program || raw.apprenticeProgram || raw.program || raw.trainingProgram ||
-      firstValue(["ltn_apprentice_program", "apprenticeProgram", "trainingProgram"], "");
-
-    const employer = apprenticeship.employer || raw.apprenticeEmployer || raw.employer || raw.company || raw.contractor ||
-      firstValue(["ltn_apprentice_employer", "apprenticeEmployer", "profileEmployer", "userEmployer"], "");
-
-    const startDate = apprenticeship.startDate || raw.apprenticeStartDate || raw.startDate ||
-      firstValue(["ltn_apprentice_start_date", "apprenticeStartDate"], "");
-
-    const instructorName = raw.instructorName || raw.teacherName || raw.instructor || apprenticeship.instructorName ||
-      firstValue(["ltn_instructor_name", "instructorName", "teacherName"], "");
-
-    const instructorSchool = raw.instructorSchool || raw.schoolOrTrainingCenter || raw.schoolTrainingCenter ||
-      firstValue(["ltn_instructor_school", "instructorSchool", "schoolOrTrainingCenter"], "");
-
-    const coursesTaught = raw.coursesTaught || raw.tradesTaught || raw.instructorTrades ||
-      firstValue(["ltn_courses_taught", "coursesTaught", "tradesTaught"], "");
-
-    const verified =
-      raw.verified === true ||
-      raw.isVerified === true ||
-      raw.orangeVerified === true ||
-      raw.ltnVerified === true ||
-      String(raw.verified || raw.isVerified || raw.orangeVerified || raw.ltnVerified || firstValue(["ltn_verified", "profileVerified"], "")).toLowerCase() === "true";
-
-    const verificationType = raw.verificationType || raw.verifiedBy || raw.approvalStatus ||
-      firstValue(["ltn_verification_type", "verifiedBy", "approvalStatus"], "");
-
-    const hours = Number(apprenticeship.hours || raw.apprenticeHours || raw.hours || localStorage.getItem("ltn_apprentice_hours") || 0);
-
-    return {
-      name,
-      email,
-      trade,
-      role,
-      country,
-      city,
-      state,
-      tradeSchool,
-      program,
-      employer,
-      startDate,
-      instructorName,
-      instructorSchool,
-      coursesTaught,
-      verified,
-      verificationType,
-      hours
-    };
-  }
-
-  function getProfile() {
-    const profile = firstObject([
-      "ltn_current_profile",
-      "ltnUserProfile",
-      "ltn_profile",
-      "ltn_profile_data",
-      "currentUserProfile",
-      "userProfile",
-      "apprenticeProfile",
-      "ltn_apprentice_profile",
-      "ltnApprenticeProfile",
-      "currentProfile"
-    ]);
-
-    return normalizeProfile(profile);
-  }
-
-  function syncProfileHours(profile) {
-    if (Number(profile.hours || 0) > guestHours) {
-      guestHours = Number(profile.hours || 0);
-      localStorage.setItem("ltn_apprentice_hours", String(guestHours));
-    }
-  }
-
-  function getLevel(hours) {
-    if (hours >= 8000) return "Journeyman Ready";
-    if (hours >= 6000) return "Advanced Apprentice";
-    if (hours >= 3000) return "Apprentice 2";
-    if (hours >= 1000) return "Apprentice 1";
-    return "New Apprentice";
-  }
-
-  function buildLocation(profile) {
-    return [profile.city, profile.state, profile.country].filter(Boolean).join(", ");
-  }
-
-  function updateDashboard() {
-    const profile = getProfile();
-    syncProfileHours(profile);
-
-    const percent = Math.min((guestHours / TARGET_HOURS) * 100, 100);
-    const remaining = Math.max(TARGET_HOURS - guestHours, 0);
-    const location = buildLocation(profile);
-
-    document.getElementById("welcome").innerText = "Welcome, " + (profile.name || "Trade Worker");
-    document.getElementById("userName").innerText = profile.name || "Trade Worker";
-    document.getElementById("userEmail").innerText = profile.email || "Guest User";
-    document.getElementById("userRole").innerText = profile.role || "Apprentice";
-    document.getElementById("userTrade").innerText = profile.trade || "Not selected";
-    document.getElementById("userTradeSchool").innerText = profile.tradeSchool || profile.program || "Not added";
-    document.getElementById("userLocation").innerText = location || "Not added";
-
-    document.getElementById("heroRoleBadge").innerText = profile.role ? profile.role + " Progress Profile" : "Apprentice Progress Profile";
-
-    document.getElementById("userHours").innerText = guestHours;
-    document.getElementById("hoursBar").style.width = percent + "%";
-    document.getElementById("progressText").innerText = Math.round(percent) + "% toward industry benchmark (8000 hrs)";
-    document.getElementById("percentBox").innerText = Math.round(percent) + "%";
-    document.getElementById("remainingHours").innerText = remaining;
-    document.getElementById("currentLevel").innerText = getLevel(guestHours);
-    document.getElementById("skillsCount").innerText = skills.length;
-    document.getElementById("certsCount").innerText = certifications.length;
-    document.getElementById("tradeProfileStatus").innerText =
-      profile.name && profile.trade !== "Not selected" ? "Active" : "In Progress";
-
-    document.getElementById("instructorName").innerText = profile.instructorName || "Not assigned";
-    document.getElementById("instructorMeta").innerText =
-      [profile.instructorSchool, profile.coursesTaught].filter(Boolean).join(" • ") || "Instructor details from your LTN profile";
-
-    document.getElementById("employerName").innerText = profile.employer || "Not added";
-
-    if (profile.verified) {
-      document.getElementById("verificationBadge").style.display = "inline-flex";
-      document.getElementById("verificationText").innerText = profile.verificationType
-        ? "Verified LTN Profile • " + profile.verificationType
-        : "Verified LTN Profile";
-      document.getElementById("verificationStatus").innerText = "Orange Verified ✓";
-    } else {
-      document.getElementById("verificationBadge").style.display = "none";
-      document.getElementById("verificationStatus").innerText = "Not verified";
-    }
-
-    renderProfileDetails(profile);
-    renderLogs();
-    renderSkills();
-    renderCertifications();
-  }
-
-  function renderProfileDetails(profile) {
-    const box = document.getElementById("profileDetails");
-    const location = buildLocation(profile);
-    const rows = [];
-
-    if (profile.tradeSchool) rows.push(`<div class="profile-detail"><b>Trade School / Training Center:</b> ${escapeHtml(profile.tradeSchool)}</div>`);
-    if (profile.program) rows.push(`<div class="profile-detail"><b>Program:</b> ${escapeHtml(profile.program)}</div>`);
-    if (profile.role) rows.push(`<div class="profile-detail"><b>Role:</b> ${escapeHtml(profile.role)}</div>`);
-    if (profile.instructorName) rows.push(`<div class="profile-detail"><b>Instructor / Teacher:</b> ${escapeHtml(profile.instructorName)}</div>`);
-    if (profile.employer) rows.push(`<div class="profile-detail"><b>Employer / Contractor:</b> ${escapeHtml(profile.employer)}</div>`);
-    if (profile.startDate) rows.push(`<div class="profile-detail"><b>Start Date:</b> ${escapeHtml(profile.startDate)}</div>`);
-    if (location) rows.push(`<div class="profile-detail"><b>Location:</b> ${escapeHtml(location)}</div>`);
-    rows.push(`<div class="profile-detail"><b>Verification:</b> ${profile.verified ? "Orange Verified ✓" : "Not verified"}</div>`);
-
-    box.innerHTML = rows.length
-      ? rows.join("")
-      : `<div class="profile-detail">Complete your apprentice information on the dashboard edit profile page.</div>`;
-  }
-
-  function renderLogs() {
-    const logBox = document.getElementById("hoursLog");
-    document.getElementById("loggedCount").innerText = hourLogs.length;
-
-    if (hourLogs.length === 0) {
-      logBox.innerHTML = `<div class="empty">No hours logged yet. Hours are saved on this device.</div>`;
-      return;
-    }
-
-    logBox.innerHTML = hourLogs.map((log, index) => `
-      <div class="log-item">
-        <div class="log-main">
-          <strong>+${Number(log.hours || 0)} hrs</strong>
-          <span>${escapeHtml(log.date || "")}</span>
-        </div>
-        <button class="delete-small" onclick="deleteHourLog(${index})">Delete</button>
-      </div>
-    `).join("");
-  }
-
-  function renderSkills() {
-    const box = document.getElementById("skillsList");
-    if (!skills.length) {
-      box.innerHTML = `<div class="empty">No skills added yet.</div>`;
-      return;
-    }
-
-    box.innerHTML = skills.map((skill, index) => `
-      <div class="list-item">
-        <div>
-          <strong>${escapeHtml(skill.name)}</strong>
-          <span>${escapeHtml(skill.notes || "Added " + skill.date)}</span>
-        </div>
-        <button class="delete-small" onclick="deleteSkill(${index})">Delete</button>
-      </div>
-    `).join("");
-  }
-
-  function renderCertifications() {
-    const box = document.getElementById("certificationsList");
-    if (!certifications.length) {
-      box.innerHTML = `<div class="empty">No certifications added yet.</div>`;
-      return;
-    }
-
-    box.innerHTML = certifications.map((cert, index) => `
-      <div class="list-item">
-        <div>
-          <strong>${escapeHtml(cert.name)}</strong>
-          <span>${escapeHtml([cert.issuer, cert.date].filter(Boolean).join(" • ") || "Certification added")}</span>
-        </div>
-        <button class="delete-small" onclick="deleteCertification(${index})">Delete</button>
-      </div>
-    `).join("");
-  }
-
-  window.addHours = function () {
-    const input = prompt("Enter hours worked:");
-    if (!input) return;
-
-    const hoursToAdd = Number(input);
-
-    if (isNaN(hoursToAdd) || hoursToAdd <= 0) {
-      alert("Enter a valid number.");
-      return;
-    }
-
-    guestHours += hoursToAdd;
-
-    hourLogs.unshift({
-      hours: hoursToAdd,
-      date: new Date().toLocaleDateString()
-    });
-
-    localStorage.setItem("ltn_apprentice_hours", String(guestHours));
-    localStorage.setItem("ltn_apprentice_logs", JSON.stringify(hourLogs));
-    updateDashboard();
-  };
-
-  window.resetHours = function () {
-    const confirmReset = confirm("Reset apprentice hours on this device?");
-    if (!confirmReset) return;
-
-    guestHours = 0;
-    hourLogs = [];
-
-    localStorage.setItem("ltn_apprentice_hours", "0");
-    localStorage.setItem("ltn_apprentice_logs", JSON.stringify(hourLogs));
-    updateDashboard();
-  };
-
-  window.deleteHourLog = function(index) {
-    const log = hourLogs[index];
-    if (!log) return;
-    if (!confirm("Delete this hour log?")) return;
-
-    guestHours = Math.max(0, guestHours - Number(log.hours || 0));
-    hourLogs.splice(index, 1);
-
-    localStorage.setItem("ltn_apprentice_hours", String(guestHours));
-    localStorage.setItem("ltn_apprentice_logs", JSON.stringify(hourLogs));
-    updateDashboard();
-  };
-
-  window.openSkillModal = function() {
-    document.getElementById("skillName").value = "";
-    document.getElementById("skillNotes").value = "";
-    document.getElementById("skillModal").classList.add("active");
-    setTimeout(() => document.getElementById("skillName").focus(), 50);
-  };
-
-  window.closeSkillModal = function() {
-    document.getElementById("skillModal").classList.remove("active");
-  };
-
-  window.saveSkill = function() {
-    const name = document.getElementById("skillName").value.trim();
-    const notes = document.getElementById("skillNotes").value.trim();
-
-    if (!name) {
-      alert("Please enter a skill name.");
-      return;
-    }
-
-    skills.unshift({
-      name,
-      notes,
-      date: new Date().toLocaleDateString()
-    });
-
-    localStorage.setItem("ltn_apprentice_skills", JSON.stringify(skills));
-    closeSkillModal();
-    updateDashboard();
-  };
-
-  window.deleteSkill = function(index) {
-    if (!confirm("Delete this skill?")) return;
-    skills.splice(index, 1);
-    localStorage.setItem("ltn_apprentice_skills", JSON.stringify(skills));
-    updateDashboard();
-  };
-
-  window.openCertificationModal = function() {
-    document.getElementById("certName").value = "";
-    document.getElementById("certIssuer").value = "";
-    document.getElementById("certDate").value = "";
-    document.getElementById("certModal").classList.add("active");
-    setTimeout(() => document.getElementById("certName").focus(), 50);
-  };
-
-  window.closeCertificationModal = function() {
-    document.getElementById("certModal").classList.remove("active");
-  };
-
-  window.saveCertification = function() {
-    const name = document.getElementById("certName").value.trim();
-    const issuer = document.getElementById("certIssuer").value.trim();
-    const date = document.getElementById("certDate").value;
-
-    if (!name) {
-      alert("Please enter a certification name.");
-      return;
-    }
-
-    certifications.unshift({
-      name,
-      issuer,
-      date,
-      added: new Date().toLocaleDateString()
-    });
-
-    localStorage.setItem("ltn_apprentice_certifications", JSON.stringify(certifications));
-    closeCertificationModal();
-    updateDashboard();
-  };
-
-  window.deleteCertification = function(index) {
-    if (!confirm("Delete this certification?")) return;
-    certifications.splice(index, 1);
-    localStorage.setItem("ltn_apprentice_certifications", JSON.stringify(certifications));
-    updateDashboard();
-  };
-
-  function escapeHtml(value) {
-    return String(value || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  document.addEventListener("click", function(e) {
-    if (e.target.id === "skillModal") closeSkillModal();
-    if (e.target.id === "certModal") closeCertificationModal();
-  });
-
-  updateDashboard();
+  console.log("LTN Apprenticeship Dashboard Loaded");
 </script>
 
 </body>
