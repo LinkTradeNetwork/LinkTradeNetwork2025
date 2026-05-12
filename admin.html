@@ -7,53 +7,775 @@
   <title>LTN Admin Dashboard</title>
 
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; background: #f4f6f8; color: #222; }
-    header { background: #0b1f3a; color: white; padding: 22px; text-align: center; }
-    header h1 { margin: 0; font-size: 30px; }
-    .container { max-width: 1350px; margin: 30px auto; padding: 20px; }
-    .warning { background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
-    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
-    .card h2 { margin: 0; font-size: 28px; color: #0b1f3a; }
-    .card p { margin: 5px 0 0; color: #666; font-size: 14px; }
-    .tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-    .tab-btn { background: white; color: #0b1f3a; border: 1px solid #d6dce5; padding: 12px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-    .tab-btn.active { background: #0b1f3a; color: white; }
-    .section { display: none; }
-    .section.active { display: block; }
-    .controls, .form-grid { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-    input, select, textarea { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
-    input, select { min-width: 220px; }
-    textarea { width: 100%; min-height: 80px; }
-    .form-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); margin-bottom: 25px; }
-    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.08); margin-bottom: 25px; }
-    th { background: #0b1f3a; color: white; padding: 14px; text-align: left; font-size: 14px; }
-    td { padding: 13px; border-bottom: 1px solid #eee; font-size: 14px; vertical-align: top; }
-    .badge { padding: 6px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
-    .approved { background: #d4edda; color: #155724; }
-    .pending { background: #fff3cd; color: #856404; }
-    .suspended, .paused { background: #f8d7da; color: #721c24; }
-    button { padding: 9px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 2px; }
-    .approve-btn { background: #28a745; color: white; }
-    .suspend-btn { background: #ffc107; color: #222; }
-    .delete-btn { background: #dc3545; color: white; }
-    .small-btn { background: #0b1f3a; color: white; }
-    .logout-btn { background: #dc3545; color: white; }
-    .empty { text-align: center; padding: 30px; color: #777; }
-    .media-link { color: #0b57d0; font-weight: bold; text-decoration: none; }
-    .thumb { max-width: 70px; max-height: 70px; border-radius: 6px; object-fit: cover; border: 1px solid #ddd; }
-    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; }
-    #adminApp { display: none; }
-    #accessScreen { padding: 45px; text-align: center; }
-    @media(max-width: 900px) { table { display: block; overflow-x: auto; white-space: nowrap; } }
+    :root {
+      --primary: #0b1f3a;
+      --primary-light: #1a3a5c;
+      --accent: #ea6a00;
+      --accent-light: #ff9a2f;
+      --success: #28a745;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --bg: #0f1419;
+      --surface: #1a1f27;
+      --surface-light: #252d38;
+      --border: #3a4452;
+      --text: #e0e6ed;
+      --text-muted: #a0aab8;
+      --shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+      --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .topbar {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0;
+      background: linear-gradient(135deg, #fff 0%, var(--accent-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    #signedInAs {
+      font-size: 12px !important;
+      opacity: 0.8;
+    }
+
+    .logout-btn {
+      background: var(--danger);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    #accessScreen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--surface) 100%);
+      text-align: center;
+      padding: 20px;
+    }
+
+    #accessScreen h2 {
+      font-size: 32px;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+
+    #accessScreen p {
+      color: var(--text-muted);
+      font-size: 16px;
+      margin-bottom: 24px;
+    }
+
+    #accessScreen button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    #accessScreen button:hover {
+      background: var(--accent-light);
+      transform: translateY(-2px);
+    }
+
+    #adminApp {
+      display: none;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    /* ===== ALERT/WARNING ===== */
+    .warning {
+      background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
+      border: 1px solid rgba(255, 193, 7, 0.3);
+      color: #fdd835;
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin-bottom: 25px;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    /* ===== STATS GRID ===== */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 22px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card h2 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent-light);
+      margin: 0 0 6px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    /* ===== TABS ===== */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 25px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      padding: 12px 18px;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      background: rgba(234, 106, 0, 0.1);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    /* ===== SECTIONS ===== */
+    .section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== CONTROLS & FILTERS ===== */
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .controls > div {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    input, select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      transition: all 0.3s ease;
+      min-width: 140px;
+    }
+
+    input::placeholder {
+      color: var(--text-muted);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(234, 106, 0, 0.1);
+    }
+
+    select option {
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    /* ===== TABLE ===== */
+    .table-wrapper {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead {
+      background: var(--surface-light);
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--text-muted);
+      padding: 14px;
+      text-align: left;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 11px;
+    }
+
+    td {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    tbody tr:hover {
+      background: rgba(234, 106, 0, 0.05);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ===== BADGES ===== */
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge.approved {
+      background: rgba(40, 167, 69, 0.15);
+      color: #2ecc71;
+    }
+
+    .badge.pending {
+      background: rgba(255, 193, 7, 0.15);
+      color: #fdd835;
+    }
+
+    .badge.suspended {
+      background: rgba(220, 53, 69, 0.15);
+      color: #ff6b6b;
+    }
+
+    .badge.paused {
+      background: rgba(220, 53, 69, 0.15);
+      color: #ff6b6b;
+    }
+
+    /* ===== BUTTONS ===== */
+    button {
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      padding: 8px 12px;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .approve-btn {
+      background: rgba(40, 167, 69, 0.15);
+      color: #2ecc71;
+    }
+
+    .approve-btn:hover {
+      background: #28a745;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .suspend-btn {
+      background: rgba(255, 193, 7, 0.15);
+      color: #fdd835;
+    }
+
+    .suspend-btn:hover {
+      background: #ffc107;
+      color: #222;
+      transform: translateY(-2px);
+    }
+
+    .delete-btn {
+      background: rgba(220, 53, 69, 0.15);
+      color: #ff6b6b;
+    }
+
+    .delete-btn:hover {
+      background: #dc3545;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .small-btn {
+      background: var(--accent);
+      color: white;
+    }
+
+    .small-btn:hover {
+      background: var(--accent-light);
+      transform: translateY(-2px);
+    }
+
+    /* ===== FORM ===== */
+    .form-box {
+      background: var(--surface);
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 25px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .form-box h2 {
+      margin: 0 0 20px;
+      font-size: 20px;
+      color: var(--text);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    textarea {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      width: 100%;
+      min-height: 100px;
+      resize: vertical;
+      transition: all 0.3s ease;
+      margin-bottom: 15px;
+    }
+
+    textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(234, 106, 0, 0.1);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    /* ===== MEDIA PREVIEW ===== */
+    .thumb {
+      max-width: 60px;
+      max-height: 60px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+    }
+
+    .media-link {
+      color: var(--accent-light);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .media-link:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    /* ===== PAGINATION ===== */
+    .pagination {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pagination button {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .pagination button.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .pagination button:hover:not(.disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .pagination button.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination span {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .container {
+        padding: 20px 16px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .card h2 {
+        font-size: 24px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .logout-btn {
+        align-self: flex-end;
+        width: 100%;
+        max-width: 150px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 18px 16px;
+      }
+
+      header h1 {
+        font-size: 22px;
+      }
+
+      header p {
+        font-size: 12px;
+      }
+
+      .container {
+        padding: 16px 12px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      .card h2 {
+        font-size: 20px;
+      }
+
+      .tabs {
+        gap: 6px;
+        margin-bottom: 20px;
+      }
+
+      .tab-btn {
+        padding: 10px 14px;
+        font-size: 12px;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .controls > div {
+        width: 100%;
+      }
+
+      input, select {
+        width: 100%;
+        min-width: unset;
+      }
+
+      .table-wrapper {
+        overflow-x: auto;
+      }
+
+      table {
+        font-size: 12px;
+        min-width: 600px;
+      }
+
+      th, td {
+        padding: 10px;
+      }
+
+      .thumb {
+        max-width: 50px;
+        max-height: 50px;
+      }
+
+      button {
+        font-size: 11px;
+        padding: 6px 10px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-box {
+        padding: 18px;
+      }
+
+      .logout-btn {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding: 16px 12px;
+      }
+
+      header h1 {
+        font-size: 18px;
+      }
+
+      .container {
+        padding: 12px 10px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .card h2 {
+        font-size: 18px;
+      }
+
+      .tabs {
+        flex-direction: column;
+      }
+
+      .tab-btn {
+        padding: 10px 12px;
+        width: 100%;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .tab-btn.active {
+        border-radius: 8px;
+      }
+
+      .tab-btn.active::after {
+        display: none;
+      }
+
+      th, td {
+        padding: 8px;
+        font-size: 11px;
+      }
+
+      button {
+        font-size: 10px;
+        padding: 6px 8px;
+      }
+
+      .warning {
+        padding: 12px 14px;
+        font-size: 12px;
+      }
+
+      .pagination {
+        gap: 6px;
+      }
+
+      .pagination button {
+        padding: 6px 10px;
+        font-size: 11px;
+      }
+    }
   </style>
 </head>
 
 <body>
 
 <div id="accessScreen">
-  <h2>Checking admin access...</h2>
-  <p>Please wait.</p>
+  <div>
+    <h2>Checking admin access...</h2>
+    <p>Please wait.</p>
+  </div>
 </div>
 
 <div id="adminApp">
@@ -61,9 +783,9 @@
 <header>
   <div class="topbar">
     <div>
-      <h1>LinkTradeNetwork Admin Dashboard</h1>
-      <p>Users, messages, posts, media, and sponsorship management</p>
-      <p id="signedInAs" style="font-size:13px; opacity:.85;"></p>
+      <h1>LinkTradeNetwork Admin</h1>
+      <p>Users, messages, posts, media & sponsorship management</p>
+      <p id="signedInAs"></p>
     </div>
     <button class="logout-btn" onclick="logoutAdmin()">Logout</button>
   </div>
@@ -72,130 +794,181 @@
 <div class="container">
 
   <div class="warning">
-    Secure admin page: only approved admin emails can view this dashboard.
-    Deleting a user here removes the Firestore user document only. It does not delete the Firebase Authentication login account.
+    ⚠️ Secure admin page: only approved admin emails can view this dashboard. Deleting a user removes the Firestore document only—it does not delete the Firebase Authentication login.
   </div>
 
+  <!-- Stats Grid -->
   <div class="stats">
     <div class="card"><h2 id="totalUsers">0</h2><p>Total Users</p></div>
     <div class="card"><h2 id="pendingUsers">0</h2><p>Pending Users</p></div>
-    <div class="card"><h2 id="totalMessages">0</h2><p>Messages / Conversations</p></div>
-    <div class="card"><h2 id="totalPosts">0</h2><p>Total Posts</p></div>
+    <div class="card"><h2 id="totalMessages">0</h2><p>Conversations</p></div>
+    <div class="card"><h2 id="totalPosts">0</h2><p>Posts</p></div>
     <div class="card"><h2 id="totalPhotos">0</h2><p>Photos</p></div>
     <div class="card"><h2 id="totalVideos">0</h2><p>Videos</p></div>
     <div class="card"><h2 id="totalSponsors">0</h2><p>Sponsorships</p></div>
   </div>
 
+  <!-- Tabs -->
   <div class="tabs">
     <button class="tab-btn active" onclick="showTab('usersSection', this)">Users</button>
     <button class="tab-btn" onclick="showTab('messagesSection', this)">Messages</button>
-    <button class="tab-btn" onclick="showTab('postsSection', this)">Posts / Media</button>
+    <button class="tab-btn" onclick="showTab('postsSection', this)">Posts & Media</button>
     <button class="tab-btn" onclick="showTab('sponsorsSection', this)">Sponsorships</button>
   </div>
 
+  <!-- USERS SECTION -->
   <section id="usersSection" class="section active">
     <div class="controls">
-      <input type="text" id="userSearchInput" placeholder="Search by name, email, trade, role..." />
-      <select id="roleFilter">
-        <option value="">All Roles</option>
-        <option value="admin">Admin</option>
-        <option value="apprentice">Apprentice</option>
-        <option value="contractor">Contractor</option>
-        <option value="company">Company</option>
-        <option value="member">Member</option>
-        <option value="trade worker">Trade Worker</option>
-      </select>
-      <select id="statusFilter">
-        <option value="">All Status</option>
-        <option value="pending">Pending</option>
-        <option value="approved">Approved</option>
-        <option value="suspended">Suspended</option>
-      </select>
+      <div>
+        <input type="text" id="userSearchInput" placeholder="Search users..." />
+        <select id="roleFilter">
+          <option value="">All Roles</option>
+          <option value="admin">Admin</option>
+          <option value="apprentice">Apprentice</option>
+          <option value="contractor">Contractor</option>
+          <option value="company">Company</option>
+          <option value="member">Member</option>
+          <option value="trade worker">Trade Worker</option>
+        </select>
+        <select id="statusFilter">
+          <option value="">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="suspended">Suspended</option>
+        </select>
+      </div>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Full Name</th><th>Email</th><th>Role</th><th>Trade</th><th>Company</th><th>Status</th><th>Date Joined</th><th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="usersTable"><tr><td colspan="8">Loading users...</td></tr></tbody>
-    </table>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Trade</th>
+            <th>Status</th>
+            <th>Sign-Ins</th>
+            <th>Joined</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersTable">
+          <tr><td colspan="8" class="empty"><p>Loading users...</p></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" id="usersPagination"></div>
   </section>
 
+  <!-- MESSAGES SECTION -->
   <section id="messagesSection" class="section">
     <div class="controls">
-      <input type="text" id="messageSearchInput" placeholder="Search messages..." />
+      <div>
+        <input type="text" id="messageSearchInput" placeholder="Search messages..." />
+      </div>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Conversation ID</th><th>From</th><th>To</th><th>Last Message</th><th>Status</th><th>Date</th>
-        </tr>
-      </thead>
-      <tbody id="messagesTable"><tr><td colspan="6">Loading messages...</td></tr></tbody>
-    </table>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Conversation ID</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Last Message</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="messagesTable">
+          <tr><td colspan="6" class="empty"><p>Loading messages...</p></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" id="messagesPagination"></div>
   </section>
 
+  <!-- POSTS SECTION -->
   <section id="postsSection" class="section">
     <div class="controls">
-      <input type="text" id="postSearchInput" placeholder="Search posts, captions, users..." />
+      <div>
+        <input type="text" id="postSearchInput" placeholder="Search posts..." />
+      </div>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Preview</th><th>User</th><th>Caption / Text</th><th>Media Type</th><th>Media Link</th><th>Date</th><th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="postsTable"><tr><td colspan="7">Loading posts...</td></tr></tbody>
-    </table>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Preview</th>
+            <th>User</th>
+            <th>Caption</th>
+            <th>Type</th>
+            <th>Link</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="postsTable">
+          <tr><td colspan="7" class="empty"><p>Loading posts...</p></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" id="postsPagination"></div>
   </section>
 
+  <!-- SPONSORS SECTION -->
   <section id="sponsorsSection" class="section">
 
     <div class="form-box">
       <h2>Add Sponsor</h2>
-
       <div class="form-grid">
         <input id="sponsorCompany" placeholder="Company Name" />
         <input id="sponsorContact" placeholder="Contact Name" />
         <input id="sponsorEmail" placeholder="Email Address" />
         <input id="sponsorPhone" placeholder="Phone Number" />
         <input id="sponsorWebsite" placeholder="Website" />
-
         <select id="sponsorPackage">
           <option value="Starter Sponsor">Starter Sponsor - $100/month</option>
           <option value="Featured Sponsor">Featured Sponsor - $250/month</option>
           <option value="Top Trade Partner">Top Trade Partner - $500/month</option>
           <option value="Custom Sponsor">Custom Sponsor</option>
         </select>
-
         <input id="sponsorAmount" placeholder="Amount Example: $250/month" />
-
         <select id="sponsorStatus">
           <option value="pending">Pending</option>
           <option value="approved">Approved</option>
           <option value="paused">Paused</option>
         </select>
       </div>
-
       <textarea id="sponsorNotes" placeholder="Notes about sponsor..."></textarea>
-
-      <br><br>
-      <button class="approve-btn" onclick="addSponsor()">Add Sponsor</button>
-      <button class="suspend-btn" onclick="clearSponsorForm()">Clear</button>
+      <div class="form-actions">
+        <button class="approve-btn" onclick="addSponsor()">Add Sponsor</button>
+        <button class="suspend-btn" onclick="clearSponsorForm()">Clear Form</button>
+      </div>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Company</th><th>Contact</th><th>Email</th><th>Phone</th><th>Package</th><th>Amount</th><th>Status</th><th>Website</th><th>Date</th><th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="sponsorsTable"><tr><td colspan="10">Loading sponsorships...</td></tr></tbody>
-    </table>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Contact</th>
+            <th>Email</th>
+            <th>Package</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="sponsorsTable">
+          <tr><td colspan="8" class="empty"><p>Loading sponsorships...</p></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" id="sponsorsPagination"></div>
 
   </section>
 
@@ -235,9 +1008,7 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const ADMIN_EMAILS = [
-    "linktradenetwork@gmail.com"
-  ].map(email => email.toLowerCase());
+  const ADMIN_EMAILS = ["linktradenetwork@gmail.com"].map(email => email.toLowerCase());
 
   let allUsers = [];
   let allConversations = [];
@@ -245,20 +1016,26 @@
   let allSponsors = [];
   let listenersStarted = false;
 
+  // Pagination
+  const itemsPerPage = 10;
+  let currentPages = {
+    users: 1,
+    messages: 1,
+    posts: 1,
+    sponsors: 1
+  };
+
   const accessScreen = document.getElementById("accessScreen");
   const adminApp = document.getElementById("adminApp");
-
-  const usersTable = document.getElementById("usersTable");
-  const messagesTable = document.getElementById("messagesTable");
-  const postsTable = document.getElementById("postsTable");
-  const sponsorsTable = document.getElementById("sponsorsTable");
 
   onAuthStateChanged(auth, async user => {
     if (!user) {
       accessScreen.innerHTML = `
-        <h2>Admin Login Required</h2>
-        <p>You must be signed in first.</p>
-        <button class="small-btn" onclick="window.location.href='front.html'">Go To Login</button>
+        <div style="text-align:center">
+          <h2 style="color:#fff;margin-bottom:12px">Admin Login Required</h2>
+          <p style="color:var(--text-muted);margin-bottom:24px">You must be signed in first.</p>
+          <button class="small-btn" onclick="window.location.href='front.html'">Go To Login</button>
+        </div>
       `;
       return;
     }
@@ -282,15 +1059,17 @@
         }
       }
     } catch (error) {
-      console.error("Admin user document check failed:", error);
+      console.error("Admin check failed:", error);
     }
 
     if (!allowedByEmail && !allowedByUserDoc) {
       accessScreen.innerHTML = `
-        <h2>Access Denied</h2>
-        <p>Signed in as: <strong>${safe(email || "Unknown")}</strong></p>
-        <p>This email is not approved for the LTN Admin Dashboard.</p>
-        <button class="small-btn" onclick="window.location.href='dashboard.html'">Back To Dashboard</button>
+        <div style="text-align:center">
+          <h2 style="color:#fff;margin-bottom:12px">Access Denied</h2>
+          <p style="color:var(--text-muted);margin-bottom:8px">Signed in as: <strong style="color:var(--accent)">${safe(email || "Unknown")}</strong></p>
+          <p style="color:var(--text-muted);margin-bottom:24px">This email is not approved for the admin dashboard.</p>
+          <button class="small-btn" onclick="window.location.href='dashboard.html'">Back To Dashboard</button>
+        </div>
       `;
       return;
     }
@@ -308,41 +1087,53 @@
   function startAdminDashboard() {
     onSnapshot(collection(db, "users"), snapshot => {
       allUsers = [];
-      snapshot.forEach(docSnap => allUsers.push({ id: docSnap.id, ...docSnap.data() }));
+      snapshot.forEach(docSnap => {
+        allUsers.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      currentPages.users = 1;
       renderUsers();
       updateStats();
     }, error => {
-      usersTable.innerHTML = `<tr><td colspan="8" class="empty">Permission error loading users. Check Firestore rules.</td></tr>`;
+      document.getElementById("usersTable").innerHTML = `<tr><td colspan="8" class="empty"><p>Permission error. Check Firestore rules.</p></td></tr>`;
       console.error(error);
     });
 
     onSnapshot(collection(db, "conversations"), snapshot => {
       allConversations = [];
-      snapshot.forEach(docSnap => allConversations.push({ id: docSnap.id, ...docSnap.data() }));
+      snapshot.forEach(docSnap => {
+        allConversations.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      currentPages.messages = 1;
       renderMessages();
       updateStats();
     }, error => {
-      messagesTable.innerHTML = `<tr><td colspan="6" class="empty">Permission error loading messages. Check Firestore rules.</td></tr>`;
+      document.getElementById("messagesTable").innerHTML = `<tr><td colspan="6" class="empty"><p>Permission error. Check Firestore rules.</p></td></tr>`;
       console.error(error);
     });
 
     onSnapshot(collection(db, "posts"), snapshot => {
       allPosts = [];
-      snapshot.forEach(docSnap => allPosts.push({ id: docSnap.id, ...docSnap.data() }));
+      snapshot.forEach(docSnap => {
+        allPosts.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      currentPages.posts = 1;
       renderPosts();
       updateStats();
     }, error => {
-      postsTable.innerHTML = `<tr><td colspan="7" class="empty">Permission error loading posts. Check Firestore rules.</td></tr>`;
+      document.getElementById("postsTable").innerHTML = `<tr><td colspan="7" class="empty"><p>Permission error. Check Firestore rules.</p></td></tr>`;
       console.error(error);
     });
 
     onSnapshot(collection(db, "sponsorships"), snapshot => {
       allSponsors = [];
-      snapshot.forEach(docSnap => allSponsors.push({ id: docSnap.id, ...docSnap.data() }));
+      snapshot.forEach(docSnap => {
+        allSponsors.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      currentPages.sponsors = 1;
       renderSponsors();
       updateStats();
     }, error => {
-      sponsorsTable.innerHTML = `<tr><td colspan="10" class="empty">Permission error loading sponsorships. Check Firestore rules.</td></tr>`;
+      document.getElementById("sponsorsTable").innerHTML = `<tr><td colspan="8" class="empty"><p>Permission error. Check Firestore rules.</p></td></tr>`;
       console.error(error);
     });
   }
@@ -353,7 +1144,7 @@
     const statusFilter = document.getElementById("statusFilter").value.toLowerCase();
 
     const filtered = allUsers.filter(user => {
-      const text = `${user.fullName || ""} ${user.name || ""} ${user.email || ""} ${user.role || ""} ${user.trade || ""} ${user.company || ""}`.toLowerCase();
+      const text = `${user.fullName || ""} ${user.name || ""} ${user.email || ""} ${user.role || ""} ${user.trade || ""}`.toLowerCase();
       const role = (user.role || "").toLowerCase();
       const status = (user.status || "pending").toLowerCase();
 
@@ -362,119 +1153,125 @@
         (!statusFilter || status === statusFilter);
     });
 
-    if (!filtered.length) {
-      usersTable.innerHTML = `<tr><td colspan="8" class="empty">No users found</td></tr>`;
-      return;
-    }
-
-    usersTable.innerHTML = filtered.map(user => {
+    renderPaginatedTable("users", filtered, "usersTable", (user) => {
       const status = user.status || "pending";
+      const signIns = user.signInCount || 0;
       return `
         <tr>
           <td>${safe(user.fullName || user.name || user.displayName || "N/A")}</td>
           <td>${safe(user.email || "N/A")}</td>
           <td>${safe(user.role || "N/A")}</td>
           <td>${safe(user.trade || "N/A")}</td>
-          <td>${safe(user.company || user.companyName || "N/A")}</td>
           <td><span class="badge ${safe(status)}">${safe(status)}</span></td>
+          <td>${signIns}</td>
           <td>${formatDate(user.createdAt)}</td>
-          <td>
+          <td style="white-space:nowrap">
             <button class="approve-btn" onclick="approveUser('${user.id}')">Approve</button>
-            <button class="suspend-btn" onclick="suspendUser('${user.id}')">Suspend</button>
             <button class="delete-btn" onclick="deleteUserDoc('${user.id}')">Delete</button>
           </td>
         </tr>
       `;
-    }).join("");
+    });
   }
 
   function renderMessages() {
     const search = document.getElementById("messageSearchInput").value.toLowerCase();
 
     const filtered = allConversations.filter(item => {
-      const text = `${item.id || ""} ${item.fromUserId || ""} ${item.toUserId || ""} ${item.lastMessage || ""} ${item.message || ""} ${item.text || ""}`.toLowerCase();
+      const text = `${item.id || ""} ${item.fromUserId || ""} ${item.toUserId || ""} ${item.lastMessage || ""}`.toLowerCase();
       return text.includes(search);
     });
 
-    if (!filtered.length) {
-      messagesTable.innerHTML = `<tr><td colspan="6" class="empty">No conversations found</td></tr>`;
-      return;
-    }
-
-    messagesTable.innerHTML = filtered.map(item => `
-      <tr>
-        <td>${safe(item.id)}</td>
-        <td>${safe(item.fromUserId || item.senderId || "N/A")}</td>
-        <td>${safe(item.toUserId || item.receiverId || "N/A")}</td>
-        <td>${safe(item.lastMessage || item.message || item.text || "N/A")}</td>
-        <td>${safe(item.status || "open")}</td>
-        <td>${formatDate(item.updatedAt || item.createdAt)}</td>
-      </tr>
-    `).join("");
+    renderPaginatedTable("messages", filtered, "messagesTable", (item) => {
+      return `
+        <tr>
+          <td style="font-size:11px">${safe(item.id)}</td>
+          <td>${safe(item.fromUserId || "N/A")}</td>
+          <td>${safe(item.toUserId || "N/A")}</td>
+          <td>${safe((item.lastMessage || item.message || item.text || "N/A").substring(0, 40))}</td>
+          <td><span class="badge approved">${safe(item.status || "open")}</span></td>
+          <td>${formatDate(item.updatedAt || item.createdAt)}</td>
+        </tr>
+      `;
+    });
   }
 
   function renderPosts() {
     const search = document.getElementById("postSearchInput").value.toLowerCase();
 
     const filtered = allPosts.filter(post => {
-      const text = `${post.caption || ""} ${post.text || ""} ${post.content || ""} ${post.userName || ""} ${post.email || ""}`.toLowerCase();
+      const text = `${post.caption || ""} ${post.text || ""} ${post.content || ""} ${post.userName || ""}`.toLowerCase();
       return text.includes(search);
     });
 
-    if (!filtered.length) {
-      postsTable.innerHTML = `<tr><td colspan="7" class="empty">No posts found</td></tr>`;
-      return;
-    }
-
-    postsTable.innerHTML = filtered.map(post => {
+    renderPaginatedTable("posts", filtered, "postsTable", (post) => {
       const mediaUrl = post.mediaUrl || post.imageUrl || post.photoUrl || post.videoUrl || "";
       const mediaType = getMediaType(post, mediaUrl);
-
       let preview = "N/A";
       if (mediaType === "photo" && mediaUrl) preview = `<img class="thumb" src="${safeUrl(mediaUrl)}" />`;
-      if (mediaType === "video") preview = "Video";
+      if (mediaType === "video") preview = "🎥 Video";
 
       return `
         <tr>
           <td>${preview}</td>
-          <td>${safe(post.userName || post.fullName || post.email || post.userId || "N/A")}</td>
-          <td>${safe(post.caption || post.text || post.content || "N/A")}</td>
+          <td>${safe(post.userName || post.fullName || "N/A")}</td>
+          <td>${safe((post.caption || post.text || post.content || "N/A").substring(0, 40))}</td>
           <td>${safe(mediaType)}</td>
-          <td>${mediaUrl ? `<a class="media-link" href="${safeUrl(mediaUrl)}" target="_blank">Open Media</a>` : "N/A"}</td>
+          <td>${mediaUrl ? `<a class="media-link" href="${safeUrl(mediaUrl)}" target="_blank">View</a>` : "N/A"}</td>
           <td>${formatDate(post.createdAt)}</td>
           <td><button class="delete-btn" onclick="deletePost('${post.id}')">Delete</button></td>
         </tr>
       `;
-    }).join("");
+    });
   }
 
   function renderSponsors() {
-    if (!allSponsors.length) {
-      sponsorsTable.innerHTML = `<tr><td colspan="10" class="empty">No sponsorships yet</td></tr>`;
-      return;
-    }
-
-    sponsorsTable.innerHTML = allSponsors.map(sponsor => {
+    renderPaginatedTable("sponsors", allSponsors, "sponsorsTable", (sponsor) => {
       const status = sponsor.status || "pending";
       return `
         <tr>
           <td>${safe(sponsor.companyName || "N/A")}</td>
           <td>${safe(sponsor.contactName || "N/A")}</td>
           <td>${safe(sponsor.email || "N/A")}</td>
-          <td>${safe(sponsor.phone || "N/A")}</td>
           <td>${safe(sponsor.package || "N/A")}</td>
           <td>${safe(sponsor.amount || "N/A")}</td>
           <td><span class="badge ${safe(status)}">${safe(status)}</span></td>
-          <td>${sponsor.website ? `<a class="media-link" href="${safeUrl(sponsor.website)}" target="_blank">Visit</a>` : "N/A"}</td>
           <td>${formatDate(sponsor.createdAt)}</td>
-          <td>
+          <td style="white-space:nowrap">
             <button class="approve-btn" onclick="approveSponsor('${sponsor.id}')">Approve</button>
-            <button class="suspend-btn" onclick="pauseSponsor('${sponsor.id}')">Pause</button>
             <button class="delete-btn" onclick="deleteSponsor('${sponsor.id}')">Delete</button>
           </td>
         </tr>
       `;
-    }).join("");
+    });
+  }
+
+  function renderPaginatedTable(type, data, tableId, renderRow) {
+    if (!data.length) {
+      document.getElementById(tableId).innerHTML = `<tr><td colspan="100%" class="empty"><p>No items found</p></td></tr>`;
+      document.getElementById(type + "Pagination").innerHTML = "";
+      return;
+    }
+
+    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const currentPage = currentPages[type] || 1;
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const pageData = data.slice(start, end);
+
+    document.getElementById(tableId).innerHTML = pageData.map(renderRow).join("");
+
+    // Render pagination
+    let paginationHTML = "";
+    if (totalPages > 1) {
+      paginationHTML += `<button onclick="changePage('${type}', ${currentPage - 1})" class="${currentPage === 1 ? 'disabled' : ''}">← Prev</button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        paginationHTML += `<button onclick="changePage('${type}', ${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+      }
+      paginationHTML += `<button onclick="changePage('${type}', ${currentPage + 1})" class="${currentPage === totalPages ? 'disabled' : ''}">Next →</button>`;
+      paginationHTML += `<span>${currentPage} of ${totalPages}</span>`;
+    }
+    document.getElementById(type + "Pagination").innerHTML = paginationHTML;
   }
 
   function updateStats() {
@@ -536,6 +1333,14 @@
     window.location.href = "front.html";
   };
 
+  window.changePage = function(type, page) {
+    currentPages[type] = Math.max(1, page);
+    if (type === "users") renderUsers();
+    if (type === "messages") renderMessages();
+    if (type === "posts") renderPosts();
+    if (type === "sponsors") renderSponsors();
+  };
+
   window.addSponsor = async function() {
     const companyName = document.getElementById("sponsorCompany").value.trim();
     const contactName = document.getElementById("sponsorContact").value.trim();
@@ -586,15 +1391,10 @@
     alert("User approved");
   };
 
-  window.suspendUser = async userId => {
-    await updateDoc(doc(db, "users", userId), { status: "suspended" });
-    alert("User suspended");
-  };
-
   window.deleteUserDoc = async userId => {
-    if (!confirm("Delete this user record from Firestore?")) return;
+    if (!confirm("Delete this user record?")) return;
     await deleteDoc(doc(db, "users", userId));
-    alert("User document deleted");
+    alert("User deleted");
   };
 
   window.deletePost = async postId => {
@@ -606,11 +1406,6 @@
   window.approveSponsor = async sponsorId => {
     await updateDoc(doc(db, "sponsorships", sponsorId), { status: "approved" });
     alert("Sponsor approved");
-  };
-
-  window.pauseSponsor = async sponsorId => {
-    await updateDoc(doc(db, "sponsorships", sponsorId), { status: "paused" });
-    alert("Sponsor paused");
   };
 
   window.deleteSponsor = async sponsorId => {
