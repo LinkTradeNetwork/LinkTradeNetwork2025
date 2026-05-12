@@ -1,50 +1,398 @@
-from pathlib import Path
-
-html = r'''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LTN Members</title>
 
-  <!-- LTN FORCE UPDATE VERSION: members-strict-access-gate-v3-20260512 -->
+  <!-- LTN FORCE UPDATE VERSION: members-achievements-display-20260512-v5 -->
 
   <style>
-    body{margin:0;font-family:Arial,sans-serif;background:#f0f4f8;color:#293241}
-    .topbar{background:#3d5a80;color:white;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
-    .logo{font-weight:800;font-size:22px}
-    .nav a,.nav button{color:white;text-decoration:none;margin-left:16px;font-weight:700;background:none;border:none;cursor:pointer}
-    .nav a:hover,.nav button:hover{opacity:.8}
-    .hero{background:linear-gradient(135deg,#ff8c3a,#ea6a00);color:white;padding:50px 20px;text-align:center}
-    .hero h1{margin:0;font-size:38px}
-    .hero p{font-size:18px;margin-top:10px}
-    .wrap{max-width:1150px;margin:0 auto;padding:30px 20px}
-    .search-box{background:white;padding:20px;border-radius:18px;box-shadow:0 8px 25px rgba(0,0,0,.08);margin-bottom:25px}
-    input{width:100%;padding:14px;border:1px solid #cfd9e6;border-radius:12px;font-size:16px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
-    .card{background:white;border-radius:18px;padding:22px;box-shadow:0 8px 25px rgba(0,0,0,.08);border:1px solid #e2e8f0}
-    .avatar{width:78px;height:78px;border-radius:50%;background:#3d5a80;color:white;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;margin-bottom:14px;overflow:hidden}
-    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-    .name{font-size:22px;font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-    .ltn-check{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#ea6a00;color:white;font-size:14px;font-weight:900;line-height:1;vertical-align:middle;box-shadow:0 2px 5px rgba(0,0,0,.18)}
-    .trade{color:#ea6a00;font-weight:800;margin-bottom:6px}
-    .location{color:#64748b;font-size:14px;margin-bottom:10px}
-    .bio{color:#475569;font-size:14px;margin-bottom:14px}
-    .btn{display:inline-block;background:#ea6a00;color:white;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:800;cursor:pointer;border:none;margin-top:10px}
-    .btn:hover{background:#c35700}
-    .empty{background:white;padding:25px;border-radius:18px;text-align:center;color:#64748b;box-shadow:0 8px 25px rgba(0,0,0,.08)}
+    *{
+      box-sizing:border-box;
+      -webkit-text-size-adjust:100%;
+    }
+
+    html,body{
+      overflow-x:hidden;
+    }
+
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:#f0f4f8;
+      color:#293241;
+    }
+
+    .topbar{
+      background:#3d5a80;
+      color:white;
+      padding:16px 24px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+      box-shadow:0 6px 20px rgba(0,0,0,.14);
+    }
+
+    .logo{
+      font-weight:800;
+      font-size:22px;
+      word-break:break-word;
+    }
+
+    .nav{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+
+    .nav a,
+    .nav button{
+      color:white;
+      text-decoration:none;
+      font-weight:700;
+      background:none;
+      border:none;
+      cursor:pointer;
+      font-size:14px;
+      padding:0;
+      font-family:inherit;
+    }
+
+    .nav a:hover,
+    .nav button:hover{
+      opacity:.8;
+    }
+
+    .hero{
+      background:linear-gradient(135deg,#ff8c3a,#ea6a00);
+      color:white;
+      padding:52px 20px;
+      text-align:center;
+    }
+
+    .hero h1{
+      margin:0;
+      font-size:40px;
+      line-height:1.1;
+    }
+
+    .hero p{
+      font-size:18px;
+      margin:12px auto 0;
+      max-width:850px;
+      line-height:1.5;
+    }
+
+    .wrap{
+      max-width:1180px;
+      margin:0 auto;
+      padding:30px 20px;
+    }
+
+    .search-box{
+      background:white;
+      padding:20px;
+      border-radius:18px;
+      box-shadow:0 8px 25px rgba(0,0,0,.08);
+      margin-bottom:25px;
+      border:1px solid #e2e8f0;
+    }
+
+    input{
+      width:100%;
+      padding:14px;
+      border:1px solid #cfd9e6;
+      border-radius:12px;
+      font-size:16px;
+      outline:none;
+    }
+
+    input:focus{
+      border-color:#ea6a00;
+      box-shadow:0 0 0 3px rgba(234,106,0,.15);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:20px;
+    }
+
+    .card{
+      background:white;
+      border-radius:20px;
+      padding:22px;
+      box-shadow:0 8px 25px rgba(0,0,0,.08);
+      border:1px solid #e2e8f0;
+      overflow:hidden;
+    }
+
+    .avatar{
+      width:78px;
+      height:78px;
+      border-radius:50%;
+      background:#3d5a80;
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:26px;
+      font-weight:800;
+      margin-bottom:14px;
+      overflow:hidden;
+      flex-shrink:0;
+    }
+
+    .avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .name{
+      font-size:22px;
+      font-weight:800;
+      margin-bottom:5px;
+      display:flex;
+      align-items:center;
+      gap:7px;
+      flex-wrap:wrap;
+      word-break:break-word;
+    }
+
+    .ltn-check{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:22px;
+      height:22px;
+      border-radius:50%;
+      background:#ea6a00;
+      color:white;
+      font-size:14px;
+      font-weight:900;
+      line-height:1;
+      vertical-align:middle;
+      box-shadow:0 2px 5px rgba(0,0,0,.18);
+      flex-shrink:0;
+    }
+
+    .trade{
+      color:#ea6a00;
+      font-weight:800;
+      margin-bottom:6px;
+      word-break:break-word;
+    }
+
+    .location{
+      color:#64748b;
+      font-size:14px;
+      margin-bottom:8px;
+      line-height:1.4;
+      word-break:break-word;
+    }
+
+    .bio{
+      color:#475569;
+      font-size:14px;
+      margin:12px 0 14px;
+      line-height:1.45;
+      word-break:break-word;
+    }
+
+    .achievement-box{
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:16px;
+      padding:14px;
+      margin-top:14px;
+    }
+
+    .achievement-title{
+      font-size:13px;
+      font-weight:900;
+      color:#334155;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+      margin-bottom:10px;
+    }
+
+    .achievement-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .achievement-stat{
+      background:white;
+      border:1px solid #e2e8f0;
+      border-radius:12px;
+      padding:10px;
+      min-width:0;
+    }
+
+    .achievement-stat strong{
+      display:block;
+      color:#1e293b;
+      font-size:18px;
+      line-height:1.1;
+      word-break:break-word;
+    }
+
+    .achievement-stat span{
+      display:block;
+      color:#64748b;
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      margin-top:3px;
+      line-height:1.25;
+      word-break:break-word;
+    }
+
+    .progress-mini{
+      margin-top:12px;
+    }
+
+    .progress-mini-top{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      color:#475569;
+      font-size:13px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .progress-track{
+      height:10px;
+      background:#e2e8f0;
+      border-radius:999px;
+      overflow:hidden;
+    }
+
+    .progress-fill{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,#ea6a00,#ff9a3c);
+      border-radius:999px;
+    }
+
+    .badge-list{
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+      margin-top:12px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+      background:#fff4e8;
+      color:#c35700;
+      border:1px solid #ffd3aa;
+      border-radius:999px;
+      padding:6px 9px;
+      font-size:12px;
+      font-weight:800;
+      max-width:100%;
+      word-break:break-word;
+    }
+
+    .btn{
+      display:inline-block;
+      background:#ea6a00;
+      color:white;
+      padding:10px 16px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:800;
+      cursor:pointer;
+      border:none;
+      margin-top:14px;
+      font-family:inherit;
+    }
+
+    .btn:hover{
+      background:#c35700;
+    }
+
+    .empty{
+      background:white;
+      padding:25px;
+      border-radius:18px;
+      text-align:center;
+      color:#64748b;
+      box-shadow:0 8px 25px rgba(0,0,0,.08);
+      border:1px solid #e2e8f0;
+      line-height:1.5;
+    }
+
+    @media(max-width:760px){
+      .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+        padding:14px 16px;
+      }
+
+      .nav{
+        width:100%;
+      }
+
+      .logo{
+        font-size:18px;
+      }
+
+      .hero{
+        padding:38px 16px;
+      }
+
+      .hero h1{
+        font-size:32px;
+      }
+
+      .hero p{
+        font-size:16px;
+      }
+
+      .wrap{
+        padding:22px 14px;
+      }
+
+      .grid{
+        grid-template-columns:1fr;
+      }
+
+      .achievement-grid{
+        grid-template-columns:1fr 1fr;
+      }
+    }
+
+    @media(max-width:420px){
+      .achievement-grid{
+        grid-template-columns:1fr;
+      }
+
+      .card{
+        padding:18px;
+      }
+    }
   </style>
 </head>
 
 <body>
 
-<!-- LTN STRICT ACCESS GATE -->
 <script>
 (function () {
   const accessGranted = localStorage.getItem("ltn_access_granted") === "true";
 
   if (!accessGranted) {
-    window.location.replace("front.html?v=membersblocked3");
+    window.location.replace("front.html?v=membersblocked-achievements-v5");
     return;
   }
 })();
@@ -52,22 +400,23 @@ html = r'''<!DOCTYPE html>
 
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
+
   <div class="nav">
-    <a href="dashboard.html?v=20260512memberssecure3">Dashboard</a>
-    <a href="members.html?v=20260512memberssecure3">Members</a>
+    <a href="dashboard.html?v=20260512membersachievements5">Dashboard</a>
+    <a href="members.html?v=20260512membersachievements5">Members</a>
     <button onclick="logoutUser()">Logout</button>
   </div>
 </div>
 
 <section class="hero">
   <h1>Trade Members</h1>
-  <p>See skilled trade workers, apprentices, instructors, contractors, and employers joining LinkTradeNetwork.</p>
+  <p>See skilled trade workers, apprentices, instructors, contractors, and employers joining LinkTradeNetwork — including hours, certifications, skills, and jobsite proof.</p>
 </section>
 
 <div class="wrap">
 
   <div class="search-box">
-    <input id="searchInput" type="text" placeholder="Search by name, trade, city, state, country, or role...">
+    <input id="searchInput" type="text" placeholder="Search by name, trade, city, state, country, role, certification, skill, or apprenticeship level...">
   </div>
 
   <div id="membersGrid" class="grid">
@@ -111,8 +460,9 @@ html = r'''<!DOCTYPE html>
     localStorage.removeItem("profileEmail");
     localStorage.removeItem("ltn_user");
     localStorage.removeItem("userName");
+    localStorage.removeItem("ltn_apprentice_email");
 
-    window.location.replace("front.html?v=loggedoutmembers");
+    window.location.replace("front.html?v=loggedoutmembers-achievements-v5");
   };
 
   function safe(value){
@@ -122,6 +472,10 @@ html = r'''<!DOCTYPE html>
       .replaceAll(">","&gt;")
       .replaceAll('"',"&quot;")
       .replaceAll("'","&#039;");
+  }
+
+  function safeUrl(value){
+    return encodeURIComponent(String(value || ""));
   }
 
   function getInitials(name){
@@ -171,6 +525,157 @@ html = r'''<!DOCTYPE html>
       : "";
   }
 
+  function getProgress(member){
+    const p = member.apprenticeshipProgress || {};
+
+    const hours = Number(
+      member.hoursCompleted ??
+      member.totalHours ??
+      member.apprenticeshipHours ??
+      p.hoursCompleted ??
+      p.totalHours ??
+      0
+    ) || 0;
+
+    const progressPercent = Number(
+      member.progressPercent ??
+      p.progressPercent ??
+      Math.min(100, Math.round((hours / 8000) * 100))
+    ) || 0;
+
+    const certifications = Array.isArray(member.certifications)
+      ? member.certifications
+      : Array.isArray(p.certifications)
+        ? p.certifications
+        : [];
+
+    const skills = Array.isArray(member.skillsLearned)
+      ? member.skillsLearned
+      : Array.isArray(member.skills)
+        ? member.skills
+        : Array.isArray(p.skillsLearned)
+          ? p.skillsLearned
+          : [];
+
+    const badges = Array.isArray(member.badgesEarned)
+      ? member.badgesEarned
+      : Array.isArray(member.badges)
+        ? member.badges
+        : Array.isArray(p.badgesEarned)
+          ? p.badgesEarned
+          : [];
+
+    const projectsCompleted = Number(
+      member.projectsCompleted ??
+      p.projectsCompleted ??
+      0
+    ) || 0;
+
+    const jobsiteUploads = Number(
+      member.jobsiteUploads ??
+      member.verifiedPhotos ??
+      p.jobsiteUploads ??
+      p.verifiedPhotos ??
+      0
+    ) || 0;
+
+    const apprenticeLevel =
+      member.apprenticeLevel ||
+      member.currentLevel ||
+      p.apprenticeLevel ||
+      p.currentLevel ||
+      "";
+
+    return {
+      hours,
+      progressPercent: Math.max(0, Math.min(100, progressPercent)),
+      certifications,
+      skills,
+      badges,
+      projectsCompleted,
+      jobsiteUploads,
+      apprenticeLevel
+    };
+  }
+
+  function hasAchievements(progress){
+    return (
+      progress.hours > 0 ||
+      progress.certifications.length > 0 ||
+      progress.skills.length > 0 ||
+      progress.badges.length > 0 ||
+      progress.projectsCompleted > 0 ||
+      progress.jobsiteUploads > 0 ||
+      progress.apprenticeLevel
+    );
+  }
+
+  function renderAchievements(member){
+    const progress = getProgress(member);
+
+    if(!hasAchievements(progress)){
+      return "";
+    }
+
+    const visibleBadges = [];
+
+    if(progress.apprenticeLevel){
+      visibleBadges.push(progress.apprenticeLevel);
+    }
+
+    progress.badges.slice(0,4).forEach(b => visibleBadges.push(b));
+    progress.certifications.slice(0,3).forEach(c => visibleBadges.push(c));
+    progress.skills.slice(0,3).forEach(s => visibleBadges.push(s));
+
+    const uniqueBadges = [...new Set(visibleBadges.filter(Boolean))].slice(0,7);
+
+    return `
+      <div class="achievement-box">
+        <div class="achievement-title">Accomplishment Snapshot</div>
+
+        <div class="achievement-grid">
+          <div class="achievement-stat">
+            <strong>${safe(progress.hours.toLocaleString())}</strong>
+            <span>Hours Completed</span>
+          </div>
+
+          <div class="achievement-stat">
+            <strong>${safe(progress.certifications.length)}</strong>
+            <span>Certifications</span>
+          </div>
+
+          <div class="achievement-stat">
+            <strong>${safe(progress.skills.length)}</strong>
+            <span>Skills Learned</span>
+          </div>
+
+          <div class="achievement-stat">
+            <strong>${safe(progress.jobsiteUploads)}</strong>
+            <span>Jobsite Proof</span>
+          </div>
+        </div>
+
+        <div class="progress-mini">
+          <div class="progress-mini-top">
+            <span>Apprenticeship Progress</span>
+            <span>${safe(progress.progressPercent)}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:${safe(progress.progressPercent)}%"></div>
+          </div>
+        </div>
+
+        ${
+          uniqueBadges.length
+            ? `<div class="badge-list">
+                ${uniqueBadges.map(item => `<span class="badge">✓ ${safe(item)}</span>`).join("")}
+              </div>`
+            : ""
+        }
+      </div>
+    `;
+  }
+
   function renderMembers(list){
     const grid = document.getElementById("membersGrid");
     grid.innerHTML = "";
@@ -202,8 +707,8 @@ html = r'''<!DOCTYPE html>
         <div class="avatar">
           ${
             photo
-              ? `<img src="${safe(photo)}" alt="${safe(name)}" onerror="this.remove(); this.parentElement.innerText='${getInitials(name)}';">`
-              : getInitials(name)
+              ? `<img src="${safe(photo)}" alt="${safe(name)}" onerror="this.remove(); this.parentElement.innerText='${safe(getInitials(name))}';">`
+              : safe(getInitials(name))
           }
         </div>
 
@@ -218,7 +723,9 @@ html = r'''<!DOCTYPE html>
         ${location ? `<div class="location">${safe(location)}</div>` : ""}
         ${bio ? `<div class="bio">${safe(bio)}</div>` : ""}
 
-        <button class="btn" onclick="window.location.href='profile.html?id=${member.id}&v=20260512memberssecure3'">
+        ${renderAchievements(member)}
+
+        <button class="btn" onclick="window.location.href='profile.html?id=${safeUrl(member.id)}&v=20260512membersachievements5'">
           View Profile
         </button>
       `;
@@ -241,14 +748,16 @@ html = r'''<!DOCTYPE html>
     }catch(error){
       console.error(error);
       document.getElementById("membersGrid").innerHTML =
-        `<div class="empty">Could not load members.</div>`;
+        `<div class="empty">Could not load members. Please refresh the page.</div>`;
     }
   }
 
   document.getElementById("searchInput").addEventListener("input", function(){
-    const term = this.value.toLowerCase();
+    const term = this.value.toLowerCase().trim();
 
     const filtered = members.filter(member => {
+      const progress = getProgress(member);
+
       const text = `
         ${member.name || ""}
         ${member.fullName || ""}
@@ -261,6 +770,12 @@ html = r'''<!DOCTYPE html>
         ${member.role || ""}
         ${member.profileType || ""}
         ${member.bio || ""}
+        ${progress.apprenticeLevel || ""}
+        ${progress.hours || ""}
+        ${progress.progressPercent || ""}
+        ${progress.certifications.join(" ")}
+        ${progress.skills.join(" ")}
+        ${progress.badges.join(" ")}
       `.toLowerCase();
 
       return text.includes(term);
@@ -274,9 +789,4 @@ html = r'''<!DOCTYPE html>
 
 </body>
 </html>
-'''
-
-path = Path('/mnt/data/members-full-secure.html')
-path.write_text(html, encoding='utf-8')
-print(f"Created {path} with {len(html.splitlines())} lines")
 
