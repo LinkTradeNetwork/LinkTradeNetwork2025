@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-ui-fix-20260512-v4 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-accomplishments-20260512-v6 -->
 
   <style>
     *{
@@ -239,6 +239,7 @@
       margin-top:14px;
       white-space:nowrap;
       transition:.2s ease;
+      font-family:inherit;
     }
 
     .button.secondary{
@@ -279,43 +280,53 @@
       overflow-wrap:anywhere;
     }
 
-    .log-list{
-      margin-top:14px;
+    .accomplishment-grid{
       display:grid;
-      gap:10px;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:16px;
     }
 
-    .log-item{
+    .accomplishment-card{
       background:#f8fafc;
       border:1px solid #e2e8f0;
-      padding:12px 14px;
-      border-radius:12px;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      font-size:14px;
-      align-items:center;
-      flex-wrap:wrap;
+      border-radius:18px;
+      padding:18px;
     }
 
-    .log-main{
-      display:flex;
-      flex-direction:column;
-      gap:3px;
-      overflow-wrap:anywhere;
-      word-break:break-word;
+    .accomplishment-card strong{
+      display:block;
+      font-size:26px;
+      color:#1e293b;
+      margin-bottom:5px;
     }
 
-    .empty{
+    .accomplishment-card span{
       color:#64748b;
-      background:#f8fafc;
-      border:1px dashed #cbd5e1;
-      padding:14px;
-      border-radius:12px;
+      font-size:13px;
+      font-weight:800;
+      text-transform:uppercase;
+    }
+
+    .badge-list{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
       margin-top:14px;
-      font-size:14px;
-      line-height:1.5;
-      overflow-wrap:anywhere;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:#fff4e8;
+      color:#c35700;
+      border:1px solid #ffd3aa;
+      border-radius:999px;
+      padding:7px 11px;
+      font-size:13px;
+      font-weight:800;
+      max-width:100%;
+      word-break:break-word;
     }
 
     .list-box{
@@ -387,82 +398,23 @@
       color:#1e293b;
     }
 
-    .modal-backdrop{
-      display:none;
-      position:fixed;
-      inset:0;
-      background:rgba(15,23,42,.55);
-      z-index:1000;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      overflow-y:auto;
-    }
-
-    .modal-backdrop.active{
-      display:flex;
-    }
-
-    .modal{
-      background:white;
-      border-radius:18px;
-      max-width:520px;
-      width:calc(100% - 36px);
-      box-shadow:0 20px 60px rgba(0,0,0,.30);
-      overflow:hidden;
-      max-height:95vh;
-      overflow-y:auto;
-    }
-
-    .modal-header{
-      padding:18px 20px;
-      border-bottom:1px solid #e2e8f0;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-    }
-
-    .modal-header h2{
-      margin:0;
-      font-size:20px;
-      overflow-wrap:anywhere;
-    }
-
-    .modal-close{
-      background:none;
-      border:none;
-      font-size:28px;
-      cursor:pointer;
+    .empty{
       color:#64748b;
-      line-height:1;
-      flex-shrink:0;
-    }
-
-    .modal-body{
-      padding:20px;
-    }
-
-    .modal-footer{
-      padding:16px 20px;
-      border-top:1px solid #e2e8f0;
-      display:flex;
-      justify-content:flex-end;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .form-group{
-      margin-bottom:14px;
-    }
-
-    .form-group label{
-      display:block;
-      margin-bottom:6px;
-      font-weight:700;
+      background:#f8fafc;
+      border:1px dashed #cbd5e1;
+      padding:14px;
+      border-radius:12px;
+      margin-top:14px;
       font-size:14px;
-      color:#334155;
+      line-height:1.5;
       overflow-wrap:anywhere;
+    }
+
+    .form-row{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:12px;
+      margin-top:14px;
     }
 
     .form-control{
@@ -478,6 +430,13 @@
     textarea.form-control{
       min-height:90px;
       resize:vertical;
+    }
+
+    .save-status{
+      margin-top:12px;
+      font-size:13px;
+      font-weight:800;
+      color:#3d5a80;
     }
 
     @media(max-width:1150px){
@@ -498,7 +457,6 @@
     }
 
     @media(max-width:750px){
-
       .topbar{
         padding:14px 16px;
         flex-direction:column;
@@ -537,29 +495,7 @@
         width:100%;
       }
 
-      .modal{
-        width:calc(100% - 24px);
-      }
-
-      .modal-body{
-        padding:16px;
-      }
-
-      .modal-footer{
-        padding:16px;
-      }
-
-      .modal-footer .button{
-        width:100%;
-        margin-top:0;
-      }
-
       .list-item{
-        flex-direction:column;
-        align-items:flex-start;
-      }
-
-      .log-item{
         flex-direction:column;
         align-items:flex-start;
       }
@@ -570,7 +506,6 @@
     }
 
     @media(max-width:480px){
-
       .hero{
         padding:20px;
       }
@@ -594,14 +529,6 @@
       .section-title{
         font-size:22px;
       }
-
-      .modal-header{
-        padding:16px;
-      }
-
-      .modal-body{
-        padding:14px;
-      }
     }
   </style>
 </head>
@@ -611,6 +538,7 @@
 <script>
   (function () {
     const hasProfile =
+      localStorage.getItem("ltn_access_granted") === "true" ||
       localStorage.getItem("ltn_current_profile") ||
       localStorage.getItem("ltnUserProfile") ||
       localStorage.getItem("ltn_profile") ||
@@ -621,7 +549,7 @@
       localStorage.getItem("ltn_apprentice_email");
 
     if (!hasProfile) {
-      window.location.replace("front.html?v=20260512accessgate");
+      window.location.replace("front.html?v=20260512apprenticeshipgate6");
     }
   })();
 </script>
@@ -630,11 +558,15 @@
   <div class="logo">LTN • LinkTradeNetwork</div>
 
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512accessgate'">
+    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512apprentice6'">
       Dashboard
     </button>
 
-    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512accessgate'">
+    <button class="dashbtn" onclick="window.location.href='members.html?v=20260512apprentice6'">
+      Members
+    </button>
+
+    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512apprentice6'">
       Back
     </button>
   </div>
@@ -647,8 +579,8 @@
       <h1 id="welcome">Welcome, Trade Worker</h1>
 
       <div class="sub">
-        Track your apprenticeship, hours, skills, certifications, school,
-        instructor, and progress.
+        Track your apprenticeship, hours, skills, certifications, projects,
+        jobsite proof, and progress companies can see in the members section.
       </div>
 
       <div id="verificationBadge" class="verified-badge" style="display:none">
@@ -741,6 +673,11 @@
 
       </div>
 
+      <div class="form-row">
+        <input id="hoursInput" class="form-control" type="number" min="1" placeholder="Hours worked">
+        <input id="hoursNoteInput" class="form-control" type="text" placeholder="What did you work on?">
+      </div>
+
       <button class="button" onclick="addHours()">
         + Add Hours Worked
       </button>
@@ -748,6 +685,8 @@
       <button class="button secondary" onclick="resetHours()">
         Reset Hours
       </button>
+
+      <div id="saveStatus" class="save-status"></div>
 
     </div>
 
@@ -770,10 +709,659 @@
 
   </div>
 
+  <div class="section-title">Accomplishment Dashboard</div>
+
+  <div class="card">
+
+    <div class="label">What Companies Can See</div>
+
+    <div class="value" style="font-size:24px">
+      Your Trade Worker Snapshot
+    </div>
+
+    <div class="small">
+      These numbers help members, contractors, instructors, and companies understand your real progress.
+    </div>
+
+    <div class="accomplishment-grid" style="margin-top:18px">
+
+      <div class="accomplishment-card">
+        <strong id="certCount">0</strong>
+        <span>Certifications Earned</span>
+      </div>
+
+      <div class="accomplishment-card">
+        <strong id="skillCount">0</strong>
+        <span>Skills Learned</span>
+      </div>
+
+      <div class="accomplishment-card">
+        <strong id="projectCount">0</strong>
+        <span>Projects Completed</span>
+      </div>
+
+      <div class="accomplishment-card">
+        <strong id="photoCount">0</strong>
+        <span>Jobsite Proof Uploads</span>
+      </div>
+
+    </div>
+
+    <div class="badge-list" id="badgeList"></div>
+
+  </div>
+
+  <div class="section-title">Add Certifications, Skills, and Jobsite Proof</div>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="label">Certification</div>
+      <div class="value small-value">Add Certification</div>
+      <div class="small">Example: OSHA 10, OSHA 30, CPR, Forklift, NCCER</div>
+
+      <input id="certInput" class="form-control" style="margin-top:14px" type="text" placeholder="Certification name">
+
+      <button class="button" onclick="addCertification()">
+        + Add Certification
+      </button>
+
+      <div id="certList" class="list-box"></div>
+    </div>
+
+    <div class="card">
+      <div class="label">Skill</div>
+      <div class="value small-value">Add Skill Learned</div>
+      <div class="small">Example: conduit bending, pipe fitting, wiring, blueprint reading</div>
+
+      <input id="skillInput" class="form-control" style="margin-top:14px" type="text" placeholder="Skill learned">
+
+      <button class="button" onclick="addSkill()">
+        + Add Skill
+      </button>
+
+      <div id="skillList" class="list-box"></div>
+    </div>
+
+    <div class="card">
+      <div class="label">Project</div>
+      <div class="value small-value">Add Project Completed</div>
+      <div class="small">Example: commercial rough-in, panel install, HVAC changeout</div>
+
+      <input id="projectInput" class="form-control" style="margin-top:14px" type="text" placeholder="Project completed">
+
+      <button class="button" onclick="addProject()">
+        + Add Project
+      </button>
+
+      <div id="projectList" class="list-box"></div>
+    </div>
+
+    <div class="card">
+      <div class="label">Jobsite Proof</div>
+      <div class="value small-value">Track Work Photos / Videos</div>
+      <div class="small">Use this to count uploaded jobsite proof shown on your member profile.</div>
+
+      <button class="button" onclick="addJobsiteProof()">
+        + Add Jobsite Proof
+      </button>
+
+      <button class="button secondary" onclick="resetJobsiteProof()">
+        Reset Jobsite Proof
+      </button>
+    </div>
+
+  </div>
+
+  <div class="section-title">Hour Log</div>
+
+  <div class="card">
+    <div class="label">Recent Hours Added</div>
+    <div id="hourLogList" class="list-box"></div>
+  </div>
+
 </div>
 
-<script>
-  console.log("LTN Apprenticeship Dashboard Loaded");
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
+    authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
+    projectId: "linktradenetwork-2dcd1",
+    storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
+    messagingSenderId: "219091766597",
+    appId: "1:219091766597:web:9878c199ba17e0ed89c22c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const BENCHMARK_HOURS = 8000;
+
+  let currentUserId = null;
+  let profile = {};
+  let state = {
+    hoursCompleted: 0,
+    hourLogs: [],
+    certifications: [],
+    skillsLearned: [],
+    projects: [],
+    jobsiteUploads: 0,
+    badgesEarned: []
+  };
+
+  function safe(value){
+    return String(value || "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function getStoredProfile(){
+    const keys = [
+      "ltn_current_profile",
+      "ltnUserProfile",
+      "ltn_profile",
+      "currentUserProfile",
+      "userProfile",
+      "ltn_user"
+    ];
+
+    for(const key of keys){
+      const raw = localStorage.getItem(key);
+      if(!raw) continue;
+
+      try{
+        const parsed = JSON.parse(raw);
+        if(parsed && typeof parsed === "object"){
+          return parsed;
+        }
+      }catch(e){}
+    }
+
+    return {
+      name: localStorage.getItem("userName") || "",
+      email: localStorage.getItem("userEmail") || localStorage.getItem("profileEmail") || localStorage.getItem("ltn_apprentice_email") || ""
+    };
+  }
+
+  function getProfileName(data){
+    return data.fullName || data.name || data.displayName || data.userName || "Trade Worker";
+  }
+
+  function getProfileEmail(data){
+    return data.email || data.userEmail || data.profileEmail || localStorage.getItem("userEmail") || "Guest User";
+  }
+
+  function getProfileRole(data){
+    return data.role || data.profileType || "Apprentice";
+  }
+
+  function getProfileTrade(data){
+    return data.trade || data.specialty || data.tradePath || "Not selected";
+  }
+
+  function getTradeSchool(data){
+    return data.tradeSchool || data.school || data.trainingCenter || data.instructorSchool || "Not added";
+  }
+
+  function getLocation(data){
+    const city = data.city || "";
+    const stateValue = data.state || "";
+    const country = data.country || "";
+
+    const location =
+      city || stateValue || country
+        ? `${city}${city && stateValue ? ", " : ""}${stateValue}${(city || stateValue) && country ? ", " : ""}${country}`
+        : "";
+
+    return location || "Not added";
+  }
+
+  function isVerified(data){
+    return (
+      data.ltnVerified === true ||
+      data.ltnVerified === "true" ||
+      data.verified === true ||
+      data.verified === "true" ||
+      data.orangeVerified === true ||
+      data.orangeVerified === "true"
+    );
+  }
+
+  function getLevel(hours){
+    if(hours >= 8000) return "Journey-Level Ready";
+    if(hours >= 6000) return "Advanced Apprentice";
+    if(hours >= 4000) return "Level 4 Apprentice";
+    if(hours >= 2000) return "Level 3 Apprentice";
+    if(hours >= 1000) return "Level 2 Apprentice";
+    if(hours > 0) return "Level 1 Apprentice";
+    return "New Apprentice";
+  }
+
+  function buildBadges(){
+    const badges = [];
+
+    if(state.hoursCompleted >= 1000) badges.push("1,000 Hour Club");
+    if(state.hoursCompleted >= 2000) badges.push("2,000 Hour Club");
+    if(state.hoursCompleted >= 4000) badges.push("4,000 Hour Club");
+    if(state.hoursCompleted >= 8000) badges.push("8,000 Hour Club");
+    if(state.certifications.length > 0) badges.push("Certification Uploaded");
+    if(state.skillsLearned.length > 0) badges.push("Skills Added");
+    if(state.projects.length > 0) badges.push("Project Proof Added");
+    if(state.jobsiteUploads > 0) badges.push("Jobsite Proof Added");
+
+    state.badgesEarned = badges;
+  }
+
+  function loadLocalProgress(){
+    const raw = localStorage.getItem("ltn_apprenticeship_progress_v6");
+
+    if(raw){
+      try{
+        const saved = JSON.parse(raw);
+
+        state = {
+          hoursCompleted: Number(saved.hoursCompleted || 0),
+          hourLogs: Array.isArray(saved.hourLogs) ? saved.hourLogs : [],
+          certifications: Array.isArray(saved.certifications) ? saved.certifications : [],
+          skillsLearned: Array.isArray(saved.skillsLearned) ? saved.skillsLearned : [],
+          projects: Array.isArray(saved.projects) ? saved.projects : [],
+          jobsiteUploads: Number(saved.jobsiteUploads || 0),
+          badgesEarned: Array.isArray(saved.badgesEarned) ? saved.badgesEarned : []
+        };
+      }catch(e){}
+    }
+
+    buildBadges();
+  }
+
+  function saveLocalProgress(){
+    localStorage.setItem("ltn_apprenticeship_progress_v6", JSON.stringify(state));
+  }
+
+  async function saveToFirebase(){
+    buildBadges();
+    saveLocalProgress();
+
+    const progressPercent = Math.min(100, Math.round((state.hoursCompleted / BENCHMARK_HOURS) * 100));
+    const currentLevel = getLevel(state.hoursCompleted);
+
+    const payload = {
+      hoursCompleted: state.hoursCompleted,
+      totalHours: state.hoursCompleted,
+      apprenticeshipHours: state.hoursCompleted,
+      progressPercent: progressPercent,
+      apprenticeLevel: currentLevel,
+      currentLevel: currentLevel,
+      certifications: state.certifications,
+      skillsLearned: state.skillsLearned,
+      skills: state.skillsLearned,
+      projectsCompleted: state.projects.length,
+      projects: state.projects,
+      jobsiteUploads: state.jobsiteUploads,
+      verifiedPhotos: state.jobsiteUploads,
+      badgesEarned: state.badgesEarned,
+      badges: state.badgesEarned,
+      apprenticeshipProgress: {
+        hoursCompleted: state.hoursCompleted,
+        totalHours: state.hoursCompleted,
+        progressPercent: progressPercent,
+        apprenticeLevel: currentLevel,
+        currentLevel: currentLevel,
+        certifications: state.certifications,
+        skillsLearned: state.skillsLearned,
+        projectsCompleted: state.projects.length,
+        projects: state.projects,
+        jobsiteUploads: state.jobsiteUploads,
+        verifiedPhotos: state.jobsiteUploads,
+        badgesEarned: state.badgesEarned,
+        updatedAt: new Date().toISOString()
+      }
+    };
+
+    document.getElementById("saveStatus").textContent = "Saving progress...";
+
+    try{
+      if(currentUserId){
+        await setDoc(doc(db, "users", currentUserId), payload, { merge:true });
+        document.getElementById("saveStatus").textContent = "Saved. Members section can show this accomplishment snapshot.";
+      }else{
+        document.getElementById("saveStatus").textContent = "Saved on this device. Sign in with Firebase Auth to publish to members.";
+      }
+    }catch(error){
+      console.error(error);
+      document.getElementById("saveStatus").textContent = "Saved on this device. Firebase save did not complete.";
+    }
+  }
+
+  function renderProfile(){
+    document.getElementById("welcome").textContent = `Welcome, ${getProfileName(profile)}`;
+    document.getElementById("userName").textContent = getProfileName(profile);
+    document.getElementById("userEmail").textContent = getProfileEmail(profile);
+    document.getElementById("userRole").textContent = getProfileRole(profile);
+    document.getElementById("userTrade").textContent = getProfileTrade(profile);
+    document.getElementById("userTradeSchool").textContent = getTradeSchool(profile);
+    document.getElementById("userLocation").textContent = getLocation(profile);
+    document.getElementById("heroRoleBadge").textContent = `${getProfileRole(profile)} Progress Profile`;
+
+    if(isVerified(profile)){
+      document.getElementById("verificationBadge").style.display = "inline-flex";
+    }
+
+    document.getElementById("profileDetails").innerHTML = `
+      <div class="profile-detail"><b>Trade:</b> ${safe(getProfileTrade(profile))}</div>
+      <div class="profile-detail"><b>School / Training Center:</b> ${safe(getTradeSchool(profile))}</div>
+      <div class="profile-detail"><b>Location:</b> ${safe(getLocation(profile))}</div>
+      <div class="profile-detail"><b>Member Visibility:</b> Accomplishments save to your member snapshot when Firebase user access is available.</div>
+    `;
+  }
+
+  function renderProgress(){
+    buildBadges();
+
+    const hours = state.hoursCompleted;
+    const percent = Math.min(100, Math.round((hours / BENCHMARK_HOURS) * 100));
+    const remaining = Math.max(0, BENCHMARK_HOURS - hours);
+    const level = getLevel(hours);
+
+    document.getElementById("userHours").textContent = hours.toLocaleString();
+    document.getElementById("hoursBar").style.width = `${percent}%`;
+    document.getElementById("progressText").textContent = `${percent}% toward industry benchmark`;
+    document.getElementById("percentBox").textContent = `${percent}%`;
+    document.getElementById("remainingHours").textContent = remaining.toLocaleString();
+    document.getElementById("loggedCount").textContent = state.hourLogs.length;
+    document.getElementById("currentLevel").textContent = level;
+
+    document.getElementById("certCount").textContent = state.certifications.length;
+    document.getElementById("skillCount").textContent = state.skillsLearned.length;
+    document.getElementById("projectCount").textContent = state.projects.length;
+    document.getElementById("photoCount").textContent = state.jobsiteUploads;
+
+    const badgeList = document.getElementById("badgeList");
+
+    if(state.badgesEarned.length === 0){
+      badgeList.innerHTML = `<div class="empty">No badges earned yet. Add hours, certifications, skills, projects, or jobsite proof to build your accomplishment profile.</div>`;
+    }else{
+      badgeList.innerHTML = state.badgesEarned.map(badge => `
+        <span class="badge"><span class="orange-check">✓</span>${safe(badge)}</span>
+      `).join("");
+    }
+
+    renderHourLog();
+    renderCerts();
+    renderSkills();
+    renderProjects();
+  }
+
+  function renderHourLog(){
+    const box = document.getElementById("hourLogList");
+
+    if(state.hourLogs.length === 0){
+      box.innerHTML = `<div class="empty">No hours logged yet.</div>`;
+      return;
+    }
+
+    box.innerHTML = state.hourLogs.slice().reverse().map((log, reverseIndex) => {
+      const realIndex = state.hourLogs.length - 1 - reverseIndex;
+
+      return `
+        <div class="list-item">
+          <div>
+            <strong>${safe(Number(log.hours || 0).toLocaleString())} hours</strong>
+            <span>${safe(log.note || "Hours worked")} • ${safe(log.date || "")}</span>
+          </div>
+          <button class="delete-small" onclick="deleteHourLog(${realIndex})">Delete</button>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function renderCerts(){
+    const box = document.getElementById("certList");
+
+    if(state.certifications.length === 0){
+      box.innerHTML = `<div class="empty">No certifications added yet.</div>`;
+      return;
+    }
+
+    box.innerHTML = state.certifications.map((item,index) => `
+      <div class="list-item">
+        <div>
+          <strong>${safe(item)}</strong>
+          <span>Certification earned</span>
+        </div>
+        <button class="delete-small" onclick="deleteCertification(${index})">Delete</button>
+      </div>
+    `).join("");
+  }
+
+  function renderSkills(){
+    const box = document.getElementById("skillList");
+
+    if(state.skillsLearned.length === 0){
+      box.innerHTML = `<div class="empty">No skills added yet.</div>`;
+      return;
+    }
+
+    box.innerHTML = state.skillsLearned.map((item,index) => `
+      <div class="list-item">
+        <div>
+          <strong>${safe(item)}</strong>
+          <span>Skill learned</span>
+        </div>
+        <button class="delete-small" onclick="deleteSkill(${index})">Delete</button>
+      </div>
+    `).join("");
+  }
+
+  function renderProjects(){
+    const box = document.getElementById("projectList");
+
+    if(state.projects.length === 0){
+      box.innerHTML = `<div class="empty">No projects added yet.</div>`;
+      return;
+    }
+
+    box.innerHTML = state.projects.map((item,index) => `
+      <div class="list-item">
+        <div>
+          <strong>${safe(item)}</strong>
+          <span>Project completed</span>
+        </div>
+        <button class="delete-small" onclick="deleteProject(${index})">Delete</button>
+      </div>
+    `).join("");
+  }
+
+  window.addHours = async function(){
+    const input = document.getElementById("hoursInput");
+    const noteInput = document.getElementById("hoursNoteInput");
+
+    const hours = Number(input.value || 0);
+    const note = noteInput.value.trim();
+
+    if(!hours || hours <= 0){
+      alert("Please enter hours worked.");
+      return;
+    }
+
+    state.hoursCompleted += hours;
+
+    state.hourLogs.push({
+      hours: hours,
+      note: note || "Hours worked",
+      date: new Date().toLocaleDateString()
+    });
+
+    input.value = "";
+    noteInput.value = "";
+
+    renderProgress();
+    await saveToFirebase();
+  };
+
+  window.resetHours = async function(){
+    if(!confirm("Reset all hours and hour logs?")) return;
+
+    state.hoursCompleted = 0;
+    state.hourLogs = [];
+
+    renderProgress();
+    await saveToFirebase();
+  };
+
+  window.deleteHourLog = async function(index){
+    const log = state.hourLogs[index];
+    if(!log) return;
+
+    state.hoursCompleted = Math.max(0, state.hoursCompleted - Number(log.hours || 0));
+    state.hourLogs.splice(index,1);
+
+    renderProgress();
+    await saveToFirebase();
+  };
+
+  window.addCertification = async function(){
+    const input = document.getElementById("certInput");
+    const value = input.value.trim();
+
+    if(!value){
+      alert("Please enter a certification.");
+      return;
+    }
+
+    if(!state.certifications.includes(value)){
+      state.certifications.push(value);
+    }
+
+    input.value = "";
+    renderProgress();
+    await saveToFirebase();
+  };
+
+  window.deleteCertification = async function(index){
+    state.certifications.splice(index,1);
+    renderProgress();
+    await saveToFirebase();
+  };
+
+  window.addSkill = async function(){
+    const input = document.getElementById("skillInput");
+    const value = input.value.trim();
+
+    if(!value){
+      alert("Please enter a skill.");
+      return;
+    }
+
+    if(!state.skillsLearned.includes(value)){
+      state.skillsLearned.push(value);
+    }
+
+    input.value = "";
+    renderProgress();
+    await saveToFirebase();
+  };
+
+  window.deleteSkill = async function(index){
+    state.skillsLearned.splice(index,1);
+    renderProgress();
+    await saveToFirebase();
+  };
+
+  window.addProject = async function(){
+    const input = document.getElementById("projectInput");
+    const value = input.value.trim();
+
+    if(!value){
+      alert("Please enter a project.");
+      return;
+    }
+
+    if(!state.projects.includes(value)){
+      state.projects.push(value);
+    }
+
+    input.value = "";
+    renderProgress();
+    await saveToFirebase();
+  };
+
+  window.deleteProject = async function(index){
+    state.projects.splice(index,1);
+    renderProgress();
+    await saveToFirebase();
+  };
+
+  window.addJobsiteProof = async function(){
+    state.jobsiteUploads += 1;
+    renderProgress();
+    await saveToFirebase();
+  };
+
+  window.resetJobsiteProof = async function(){
+    if(!confirm("Reset jobsite proof count?")) return;
+
+    state.jobsiteUploads = 0;
+    renderProgress();
+    await saveToFirebase();
+  };
+
+  async function loadFirebaseProfile(uid){
+    try{
+      const ref = doc(db, "users", uid);
+      const snap = await getDoc(ref);
+
+      if(snap.exists()){
+        const firebaseProfile = snap.data();
+        profile = { ...profile, ...firebaseProfile };
+
+        const p = firebaseProfile.apprenticeshipProgress || {};
+
+        state.hoursCompleted = Number(firebaseProfile.hoursCompleted ?? firebaseProfile.totalHours ?? p.hoursCompleted ?? state.hoursCompleted ?? 0) || 0;
+        state.hourLogs = Array.isArray(p.hourLogs) ? p.hourLogs : state.hourLogs;
+        state.certifications = Array.isArray(firebaseProfile.certifications) ? firebaseProfile.certifications : Array.isArray(p.certifications) ? p.certifications : state.certifications;
+        state.skillsLearned = Array.isArray(firebaseProfile.skillsLearned) ? firebaseProfile.skillsLearned : Array.isArray(firebaseProfile.skills) ? firebaseProfile.skills : Array.isArray(p.skillsLearned) ? p.skillsLearned : state.skillsLearned;
+        state.projects = Array.isArray(firebaseProfile.projects) ? firebaseProfile.projects : Array.isArray(p.projects) ? p.projects : state.projects;
+        state.jobsiteUploads = Number(firebaseProfile.jobsiteUploads ?? firebaseProfile.verifiedPhotos ?? p.jobsiteUploads ?? p.verifiedPhotos ?? state.jobsiteUploads ?? 0) || 0;
+        state.badgesEarned = Array.isArray(firebaseProfile.badgesEarned) ? firebaseProfile.badgesEarned : Array.isArray(p.badgesEarned) ? p.badgesEarned : state.badgesEarned;
+      }
+    }catch(error){
+      console.error(error);
+    }
+  }
+
+  async function init(){
+    profile = getStoredProfile();
+    loadLocalProgress();
+    renderProfile();
+    renderProgress();
+
+    onAuthStateChanged(auth, async function(user){
+      if(user){
+        currentUserId = user.uid;
+
+        profile.email = profile.email || user.email;
+        profile.name = profile.name || user.displayName;
+
+        await loadFirebaseProfile(user.uid);
+        renderProfile();
+        renderProgress();
+        await saveToFirebase();
+      }
+    });
+  }
+
+  init();
+
+  console.log("LTN Apprenticeship Accomplishments Dashboard Loaded v6");
 </script>
 
 </body>
