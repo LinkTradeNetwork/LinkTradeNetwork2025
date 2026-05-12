@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LTN Members</title>
 
+  <!-- LTN FORCE UPDATE VERSION: members-secure-access-gate-20260512 -->
+
   <style>
     body{margin:0;font-family:Arial,sans-serif;background:#f0f4f8;color:#293241}
     .topbar{background:#3d5a80;color:white;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
@@ -42,24 +44,39 @@
 
 <body>
 
+<!-- LTN SECURE ACCESS GATE -->
+<script>
+(function () {
+
+  const accessGranted =
+    localStorage.getItem("ltn_access_granted") === "true";
+
+  if (!accessGranted) {
+    window.location.replace("front.html?v=membersblocked");
+    return;
+  }
+
+})();
+</script>
+
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="nav">
-    <a href="dashboard.html">Dashboard</a>
-    <a href="members.html">Members</a>
+    <a href="dashboard.html?v=20260512memberssecure">Dashboard</a>
+    <a href="members.html?v=20260512memberssecure">Members</a>
     <button onclick="logoutUser()">Logout</button>
   </div>
 </div>
 
 <section class="hero">
   <h1>Trade Members</h1>
-  <p>See skilled trade workers, apprentices, and contractors joining LinkTradeNetwork.</p>
+  <p>See skilled trade workers, apprentices, instructors, contractors, and employers joining LinkTradeNetwork.</p>
 </section>
 
 <div class="wrap">
 
   <div class="search-box">
-    <input id="searchInput" type="text" placeholder="Search by name, trade, city, or state...">
+    <input id="searchInput" type="text" placeholder="Search by name, trade, city, state, country, or role...">
   </div>
 
   <div id="membersGrid" class="grid">
@@ -89,8 +106,14 @@
   let members = [];
 
   window.logoutUser = async function () {
-    await signOut(auth);
-    window.location.href = "index.html";
+
+    try{
+      await signOut(auth);
+    }catch(e){}
+
+    localStorage.removeItem("ltn_access_granted");
+
+    window.location.href = "front.html?v=loggedout";
   };
 
   function safe(value){
@@ -104,6 +127,7 @@
 
   function getInitials(name){
     if(!name) return "LT";
+
     return name
       .split(" ")
       .filter(Boolean)
@@ -148,24 +172,56 @@
   }
 
   function renderMembers(list){
+
     const grid = document.getElementById("membersGrid");
+
     grid.innerHTML = "";
 
     if(list.length === 0){
-      grid.innerHTML = `<div class="empty">No members found yet.</div>`;
+
+      grid.innerHTML = `
+        <div class="empty">
+          No members found yet.
+        </div>
+      `;
+
       return;
     }
 
     list.forEach(member => {
-      const name = member.fullName || member.name || member.displayName || "Trade Member";
-      const trade = member.trade || member.specialty || "Trade Not Selected";
+
+      const name =
+        member.fullName ||
+        member.name ||
+        member.displayName ||
+        "Trade Member";
+
+      const trade =
+        member.trade ||
+        member.specialty ||
+        "Trade Not Selected";
+
       const city = member.city || "";
       const state = member.state || "";
-      const location = city || state ? `${city}${city && state ? ", " : ""}${state}` : "";
+      const country = member.country || "";
+
+      const location =
+        city || state || country
+          ? `${city}${city && state ? ", " : ""}${state}${(city || state) && country ? ", " : ""}${country}`
+          : "";
+
+      const role =
+        member.role ||
+        member.profileType ||
+        member.userRole ||
+        "";
+
       const bio = member.bio || "";
+
       const photo = getProfilePhoto(member);
 
       const card = document.createElement("div");
+
       card.className = "card";
 
       card.innerHTML = `
@@ -184,7 +240,10 @@
 
         <div class="trade">${safe(trade)}</div>
 
+        ${role ? `<div class="location"><strong>Role:</strong> ${safe(role)}</div>` : ""}
+
         ${location ? `<div class="location">${safe(location)}</div>` : ""}
+
         ${bio ? `<div class="bio">${safe(bio)}</div>` : ""}
 
         <button class="btn" onclick="window.location.href='profile.html?id=${member.id}'">
@@ -193,31 +252,47 @@
       `;
 
       grid.appendChild(card);
+
     });
+
   }
 
   async function loadMembers(){
+
     try{
+
       const usersSnap = await getDocs(collection(db, "users"));
+
       members = [];
 
       usersSnap.forEach(docSnap => {
-        members.push({ id: docSnap.id, ...docSnap.data() });
+
+        members.push({
+          id: docSnap.id,
+          ...docSnap.data()
+        });
+
       });
 
       renderMembers(members);
 
     }catch(error){
+
       console.error(error);
+
       document.getElementById("membersGrid").innerHTML =
         `<div class="empty">Could not load members.</div>`;
+
     }
+
   }
 
   document.getElementById("searchInput").addEventListener("input", function(){
+
     const term = this.value.toLowerCase();
 
     const filtered = members.filter(member => {
+
       const text = `
         ${member.name || ""}
         ${member.fullName || ""}
@@ -226,13 +301,18 @@
         ${member.specialty || ""}
         ${member.city || ""}
         ${member.state || ""}
+        ${member.country || ""}
+        ${member.role || ""}
+        ${member.profileType || ""}
         ${member.bio || ""}
       `.toLowerCase();
 
       return text.includes(term);
+
     });
 
     renderMembers(filtered);
+
   });
 
   loadMembers();
