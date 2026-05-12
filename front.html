@@ -17,95 +17,737 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <title>LinkTradeNetwork • Sign In</title>
 
-<!-- LTN FORCE UPDATE VERSION: front-access-granted-login-20260512 -->
+<!-- LTN FORCE UPDATE VERSION: front-clean-ui-20260512 -->
 
 <style>
   :root { 
-    --bg:#f0f4f8; 
+    --bg:#fff7ed; 
     --panel:#ffffff; 
-    --ink:#1e293b; 
+    --ink:#172033; 
     --muted:#64748b; 
     --line:#e2e8f0; 
     --brand:#ea6a00;
     --brand2:#c35700; 
-    --ok:#22c55e; 
-    --err:#ef4444; 
-    --accent:#3d5a80;
+    --ok:#16a34a; 
+    --err:#dc2626; 
+    --accent:#243b53;
   }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent} 
+
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+  }
+
   body{
     margin:0;
-    background: linear-gradient(135deg, #ffa366 0%, #ff8c3a 50%, #ff7e2e 100%);
     color:var(--ink);
-    font-family:'Poppins',Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+    font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
     min-height:100vh;
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,0.75), transparent 35%),
+      linear-gradient(135deg, #fff2df 0%, #ffb06f 45%, #ea6a00 100%);
     -webkit-font-smoothing:antialiased;
     -moz-osx-font-smoothing:grayscale;
   }
-  .wrap{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;flex-direction:column}
-  .logo-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;animation:fadeInDown 0.6s ease-out}
-  @keyframes fadeInDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
-  .logo{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#ea6a00,#c35700);display:grid;place-items:center;font-size:32px;box-shadow:0 8px 24px rgba(234,106,0,0.4);font-weight:800;color:#f5f5f5}
-  .brand-name{font-size:28px;font-weight:800;color:#f5f5f5;text-shadow:0 2px 8px rgba(0,0,0,0.2);letter-spacing:-0.5px}
-  .trades{display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap;justify-content:center;max-width:620px;animation:fadeIn 0.8s ease-out 0.2s both}
-  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-  .trade-badge{background:rgba(255,255,255,0.25);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.35);color:#1e293b;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:all 0.2s}
-  .trade-badge:hover{background:rgba(255,255,255,0.35);transform:translateY(-2px)}
-  .card{background:var(--panel);border:1px solid rgba(255,255,255,0.2);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:32px 28px;width:100%;max-width:480px;animation:fadeInUp 0.6s ease-out 0.3s both}
-  @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-  h1{text-align:center;margin:0 0 8px;color:var(--ink);font-size:28px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:12px}
-  .title-logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#ea6a00,#c35700);display:grid;place-items:center;font-size:22px;box-shadow:0 4px 12px rgba(234,106,0,0.3);font-weight:800;color:#f5f5f5;flex-shrink:0}
-  p.sub{text-align:center;color:var(--muted);margin:0 0 20px;font-size:15px;line-height:1.5}
-  label{display:block;margin-top:16px;font-size:14px;color:var(--ink);font-weight:600;margin-bottom:6px}
-  input{width:100%;background:#f8fafc;color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:14px 16px;font-size:16px;transition:all 0.2s;font-family:inherit;min-height:52px}
-  input:focus{outline:none;border-color:var(--brand);background:#ffffff;box-shadow:0 0 0 4px rgba(234,106,0,0.1)}
-  .name-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
-  .agree{display:flex;gap:10px;margin-top:16px;font-size:14px;align-items:flex-start;line-height:1.5}
-  .agree input[type="checkbox"]{width:20px;height:20px;margin:2px 0 0 0;cursor:pointer;accent-color:var(--brand);flex-shrink:0}
-  .agree a{color:var(--brand);text-decoration:none;font-weight:600}
-  .agree a:hover{text-decoration:underline}
-  button{width:100%;margin-top:20px;background:linear-gradient(135deg, var(--brand) 0%, var(--brand2) 100%);color:#fff;border:0;border-radius:12px;padding:16px;font-weight:700;font-size:16px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 16px rgba(234,106,0,0.4);font-family:inherit;min-height:52px}
-  button:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(234,106,0,0.5)}
-  button:active{transform:translateY(0)}
-  button:disabled{opacity:0.6;cursor:not-allowed;transform:none}
-  .msg{margin-top:12px;font-size:14px;font-weight:600;padding:12px 16px;border-radius:10px;display:none}
-  .msg.show{display:block}
-  .err{color:var(--err);background:#fef2f2;border:1px solid #fecaca} 
-  .ok{color:var(--ok);background:#f0fdf4;border:1px solid #bbf7d0}
-  .otp-box{margin-top:20px;display:none;padding-top:20px;border-top:2px solid var(--line)}
-  .otp-box.show{display:block}
-  .otp-inputs{display:flex;gap:8px;margin:16px 0;justify-content:center}
-  .otp-inputs input{width:52px;height:64px;text-align:center;font-size:28px;font-weight:700;border:2px solid var(--line);border-radius:12px;background:#f8fafc;color:var(--ink);padding:0;min-height:auto;letter-spacing:0}
-  .otp-inputs input:focus{border-color:var(--brand);background:#ffffff;box-shadow:0 0 0 3px rgba(234,106,0,0.15)}
-  #resendBtn{background:#64748b;box-shadow:0 4px 12px rgba(100,116,139,0.3)}
-  #resendBtn:hover{background:#475569}
-  .otp-box > div:first-child{text-align:center;color:var(--muted);font-size:14px;line-height:1.6}
-  .otp-box > div:first-child b{color:var(--brand);font-weight:700}
-  .tabs{display:flex;gap:10px;margin:0 auto 24px;max-width:480px;width:100%;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border-radius:14px;padding:6px;animation:fadeIn 0.8s ease-out 0.1s both}
-  .tab{flex:1;text-align:center;background:transparent;border:none;border-radius:10px;padding:12px;font-weight:700;font-size:15px;color:rgba(255,255,255,0.8);cursor:pointer;transition:all 0.3s;min-height:48px}
-  .tab.active{background:#ffffff;color:var(--brand);box-shadow:0 2px 8px rgba(0,0,0,0.15)}
-  @media(max-width:640px){.wrap{padding:16px}.logo-header{margin-bottom:16px}.logo{width:48px;height:48px;font-size:28px;border-radius:14px}.brand-name{font-size:24px}.trades{gap:8px;margin-bottom:20px;max-width:100%}.trade-badge{padding:8px 14px;font-size:12px}.card{padding:24px 20px;border-radius:16px}h1{font-size:24px;margin-bottom:6px;gap:10px}.title-logo{width:36px;height:36px;font-size:18px;border-radius:10px}p.sub{font-size:14px;margin-bottom:16px}.name-grid{gap:10px}label{font-size:13px;margin-top:12px}input{padding:12px 14px;font-size:16px;min-height:48px;border-radius:10px}.otp-inputs{gap:6px;margin:12px 0}.otp-inputs input{width:48px;height:58px;font-size:24px}button{padding:14px;font-size:15px;min-height:48px;margin-top:16px}.tabs{gap:8px;padding:5px}.tab{padding:10px;font-size:14px;min-height:44px}}
-  @media(max-width:400px){.wrap{padding:12px}.logo-header{gap:10px}.brand-name{font-size:20px}.trades{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.trade-badge{font-size:11px;padding:7px 12px}.card{padding:20px 16px}h1{font-size:22px;gap:8px}.title-logo{width:32px;height:32px;font-size:16px;border-radius:8px}p.sub{font-size:13px}.name-grid{grid-template-columns:1fr;gap:0}.otp-inputs{gap:5px}.otp-inputs input{width:44px;height:54px;font-size:22px}}
-  @media(max-height:500px) and (orientation:landscape){.wrap{padding:10px}.logo-header{margin-bottom:8px}.logo{width:40px;height:40px;font-size:24px}.brand-name{font-size:18px}.trades{display:none}.card{padding:16px;max-width:90vw}h1{font-size:20px;margin-bottom:4px;gap:8px}.title-logo{width:28px;height:28px;font-size:14px;border-radius:8px}p.sub{font-size:12px;margin-bottom:10px}label{margin-top:8px;font-size:12px}input{padding:10px 12px;min-height:42px}button{padding:10px;min-height:42px;margin-top:10px}.otp-box{margin-top:10px;padding-top:10px}.otp-inputs{margin:8px 0}.otp-inputs input{width:40px;height:48px;font-size:20px}}
-  @keyframes successPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-  #doneStep.show{animation:successPulse 0.5s ease-in-out}
+
+  .wrap{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:22px;
+    flex-direction:column;
+  }
+
+  .hero{
+    text-align:center;
+    max-width:760px;
+    margin-bottom:20px;
+    animation:fadeInDown 0.6s ease-out;
+  }
+
+  .logo-header{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    margin-bottom:14px;
+  }
+
+  .logo{
+    width:58px;
+    height:58px;
+    border-radius:18px;
+    background:linear-gradient(135deg,#ea6a00,#b84d00);
+    display:grid;
+    place-items:center;
+    font-size:24px;
+    box-shadow:0 12px 28px rgba(120,53,15,0.35);
+    font-weight:900;
+    color:#fff;
+    letter-spacing:-1px;
+  }
+
+  .brand-name{
+    font-size:30px;
+    font-weight:900;
+    color:#ffffff;
+    text-shadow:0 3px 12px rgba(0,0,0,0.22);
+    letter-spacing:-0.8px;
+  }
+
+  .hero-title{
+    margin:0;
+    color:#ffffff;
+    font-size:22px;
+    font-weight:850;
+    line-height:1.25;
+    text-shadow:0 2px 9px rgba(0,0,0,0.2);
+  }
+
+  .hero-sub{
+    margin:8px auto 0;
+    color:rgba(255,255,255,0.92);
+    font-size:14px;
+    line-height:1.45;
+    max-width:620px;
+    text-shadow:0 2px 7px rgba(0,0,0,0.18);
+  }
+
+  @keyframes fadeInDown{
+    from{opacity:0;transform:translateY(-18px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  @keyframes fadeIn{
+    from{opacity:0}
+    to{opacity:1}
+  }
+
+  @keyframes fadeInUp{
+    from{opacity:0;transform:translateY(24px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  .trades{
+    display:flex;
+    gap:8px;
+    margin:18px auto 0;
+    flex-wrap:wrap;
+    justify-content:center;
+    max-width:720px;
+    animation:fadeIn 0.8s ease-out 0.2s both;
+  }
+
+  .trade-badge{
+    background:rgba(255,255,255,0.30);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.38);
+    color:#172033;
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:800;
+    box-shadow:0 3px 12px rgba(0,0,0,0.10);
+    transition:all 0.2s;
+    white-space:nowrap;
+  }
+
+  .trade-badge:hover{
+    background:rgba(255,255,255,0.45);
+    transform:translateY(-1px);
+  }
+
+  .tabs{
+    display:flex;
+    gap:8px;
+    margin:0 auto 14px;
+    max-width:480px;
+    width:100%;
+    background:rgba(255,255,255,0.25);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.30);
+    border-radius:16px;
+    padding:6px;
+    animation:fadeIn 0.8s ease-out 0.1s both;
+  }
+
+  .tab{
+    flex:1;
+    text-align:center;
+    background:transparent;
+    border:none;
+    border-radius:12px;
+    padding:12px;
+    font-weight:900;
+    font-size:15px;
+    color:rgba(255,255,255,0.86);
+    cursor:pointer;
+    transition:all 0.25s;
+    min-height:48px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .tab.active{
+    background:#ffffff;
+    color:var(--brand);
+    box-shadow:0 6px 18px rgba(0,0,0,0.16);
+  }
+
+  .card{
+    background:rgba(255,255,255,0.96);
+    border:1px solid rgba(255,255,255,0.65);
+    border-radius:24px;
+    box-shadow:0 24px 70px rgba(49,24,10,0.28);
+    padding:30px 28px 28px;
+    width:100%;
+    max-width:480px;
+    animation:fadeInUp 0.6s ease-out 0.3s both;
+  }
+
+  h1{
+    text-align:center;
+    margin:0 0 8px;
+    color:var(--ink);
+    font-size:28px;
+    font-weight:900;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    letter-spacing:-0.6px;
+  }
+
+  .title-logo{
+    width:42px;
+    height:42px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#ea6a00,#b84d00);
+    display:grid;
+    place-items:center;
+    font-size:17px;
+    box-shadow:0 6px 16px rgba(234,106,0,0.32);
+    font-weight:900;
+    color:#fff;
+    flex-shrink:0;
+  }
+
+  p.sub{
+    text-align:center;
+    color:var(--muted);
+    margin:0 0 20px;
+    font-size:14px;
+    line-height:1.5;
+  }
+
+  .trust-line{
+    background:#fff7ed;
+    border:1px solid #fed7aa;
+    color:#9a3412;
+    border-radius:14px;
+    padding:10px 12px;
+    font-size:12px;
+    font-weight:800;
+    text-align:center;
+    margin-bottom:18px;
+  }
+
+  label{
+    display:block;
+    margin-top:14px;
+    font-size:13px;
+    color:var(--ink);
+    font-weight:800;
+    margin-bottom:6px;
+  }
+
+  input{
+    width:100%;
+    background:#f8fafc;
+    color:var(--ink);
+    border:2px solid var(--line);
+    border-radius:14px;
+    padding:14px 15px;
+    font-size:16px;
+    transition:all 0.2s;
+    font-family:inherit;
+    min-height:52px;
+  }
+
+  input:focus{
+    outline:none;
+    border-color:var(--brand);
+    background:#ffffff;
+    box-shadow:0 0 0 4px rgba(234,106,0,0.12);
+  }
+
+  .name-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:6px;
+  }
+
+  .agree{
+    display:flex;
+    gap:10px;
+    margin-top:16px;
+    font-size:13px;
+    align-items:flex-start;
+    line-height:1.45;
+    color:var(--muted);
+  }
+
+  .agree input[type="checkbox"]{
+    width:20px;
+    height:20px;
+    margin:1px 0 0 0;
+    cursor:pointer;
+    accent-color:var(--brand);
+    flex-shrink:0;
+    min-height:auto;
+  }
+
+  .agree a{
+    color:var(--brand);
+    text-decoration:none;
+    font-weight:900;
+  }
+
+  .agree a:hover{
+    text-decoration:underline;
+  }
+
+  button{
+    width:100%;
+    margin-top:18px;
+    background:linear-gradient(135deg, var(--brand) 0%, var(--brand2) 100%);
+    color:#fff;
+    border:0;
+    border-radius:14px;
+    padding:15px;
+    font-weight:900;
+    font-size:16px;
+    cursor:pointer;
+    transition:all 0.25s;
+    box-shadow:0 8px 20px rgba(234,106,0,0.34);
+    font-family:inherit;
+    min-height:52px;
+  }
+
+  button:hover{
+    transform:translateY(-1px);
+    box-shadow:0 10px 24px rgba(234,106,0,0.42);
+  }
+
+  button:active{
+    transform:translateY(0);
+  }
+
+  button:disabled{
+    opacity:0.6;
+    cursor:not-allowed;
+    transform:none;
+  }
+
+  .msg{
+    margin-top:12px;
+    font-size:14px;
+    font-weight:800;
+    padding:12px 14px;
+    border-radius:12px;
+    display:none;
+    line-height:1.4;
+  }
+
+  .msg.show{
+    display:block;
+  }
+
+  .err{
+    color:var(--err);
+    background:#fef2f2;
+    border:1px solid #fecaca;
+  }
+
+  .ok{
+    color:var(--ok);
+    background:#f0fdf4;
+    border:1px solid #bbf7d0;
+  }
+
+  .otp-box{
+    margin-top:20px;
+    display:none;
+    padding-top:20px;
+    border-top:2px solid var(--line);
+  }
+
+  .otp-box.show{
+    display:block;
+  }
+
+  .otp-inputs{
+    display:flex;
+    gap:8px;
+    margin:16px 0;
+    justify-content:center;
+  }
+
+  .otp-inputs input{
+    width:52px;
+    height:64px;
+    text-align:center;
+    font-size:28px;
+    font-weight:900;
+    border:2px solid var(--line);
+    border-radius:14px;
+    background:#f8fafc;
+    color:var(--ink);
+    padding:0;
+    min-height:auto;
+    letter-spacing:0;
+  }
+
+  .otp-inputs input:focus{
+    border-color:var(--brand);
+    background:#ffffff;
+    box-shadow:0 0 0 3px rgba(234,106,0,0.15);
+  }
+
+  #resendBtn{
+    background:#64748b;
+    box-shadow:0 5px 14px rgba(100,116,139,0.28);
+  }
+
+  #resendBtn:hover{
+    background:#475569;
+  }
+
+  .otp-box > div:first-child{
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.6;
+  }
+
+  .otp-box > div:first-child b{
+    color:var(--brand);
+    font-weight:900;
+  }
+
+  .footer-note{
+    margin-top:16px;
+    color:rgba(255,255,255,0.92);
+    text-align:center;
+    font-size:12px;
+    font-weight:700;
+    text-shadow:0 2px 8px rgba(0,0,0,0.18);
+  }
+
+  @keyframes successPulse{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.03)}
+  }
+
+  #doneStep.show{
+    animation:successPulse 0.5s ease-in-out;
+  }
+
+  @media(max-width:640px){
+    .wrap{
+      padding:16px;
+      justify-content:flex-start;
+      padding-top:22px;
+    }
+
+    .hero{
+      margin-bottom:16px;
+    }
+
+    .logo-header{
+      margin-bottom:10px;
+      gap:10px;
+    }
+
+    .logo{
+      width:48px;
+      height:48px;
+      font-size:20px;
+      border-radius:15px;
+    }
+
+    .brand-name{
+      font-size:23px;
+    }
+
+    .hero-title{
+      font-size:18px;
+    }
+
+    .hero-sub{
+      font-size:13px;
+      max-width:94%;
+    }
+
+    .trades{
+      gap:6px;
+      margin-top:14px;
+      max-width:100%;
+    }
+
+    .trade-badge{
+      padding:7px 11px;
+      font-size:11px;
+    }
+
+    .tabs{
+      margin-bottom:12px;
+      border-radius:14px;
+    }
+
+    .tab{
+      padding:10px;
+      font-size:14px;
+      min-height:44px;
+    }
+
+    .card{
+      padding:24px 20px;
+      border-radius:20px;
+    }
+
+    h1{
+      font-size:23px;
+      gap:9px;
+    }
+
+    .title-logo{
+      width:36px;
+      height:36px;
+      font-size:14px;
+      border-radius:12px;
+    }
+
+    p.sub{
+      font-size:13px;
+      margin-bottom:14px;
+    }
+
+    .trust-line{
+      font-size:11px;
+      padding:9px 10px;
+      margin-bottom:14px;
+    }
+
+    .name-grid{
+      gap:10px;
+    }
+
+    label{
+      font-size:13px;
+      margin-top:12px;
+    }
+
+    input{
+      padding:12px 13px;
+      font-size:16px;
+      min-height:48px;
+      border-radius:12px;
+    }
+
+    .otp-inputs{
+      gap:6px;
+      margin:12px 0;
+    }
+
+    .otp-inputs input{
+      width:48px;
+      height:58px;
+      font-size:24px;
+    }
+
+    button{
+      padding:14px;
+      font-size:15px;
+      min-height:48px;
+      margin-top:16px;
+    }
+  }
+
+  @media(max-width:400px){
+    .wrap{
+      padding:12px;
+      padding-top:18px;
+    }
+
+    .logo-header{
+      gap:9px;
+    }
+
+    .brand-name{
+      font-size:20px;
+    }
+
+    .hero-title{
+      font-size:16px;
+    }
+
+    .trades{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      width:100%;
+      gap:6px;
+    }
+
+    .trade-badge{
+      text-align:center;
+      font-size:10.5px;
+      padding:7px 8px;
+    }
+
+    .card{
+      padding:22px 16px;
+      border-radius:18px;
+    }
+
+    h1{
+      font-size:21px;
+    }
+
+    .name-grid{
+      grid-template-columns:1fr;
+      gap:0;
+    }
+
+    .otp-inputs{
+      gap:5px;
+    }
+
+    .otp-inputs input{
+      width:44px;
+      height:54px;
+      font-size:22px;
+    }
+  }
+
+  @media(max-height:560px) and (orientation:landscape){
+    .wrap{
+      padding:10px;
+      justify-content:flex-start;
+    }
+
+    .hero{
+      margin-bottom:10px;
+    }
+
+    .logo-header{
+      margin-bottom:6px;
+    }
+
+    .logo{
+      width:40px;
+      height:40px;
+      font-size:16px;
+    }
+
+    .brand-name{
+      font-size:18px;
+    }
+
+    .hero-title,
+    .hero-sub,
+    .trades,
+    .footer-note{
+      display:none;
+    }
+
+    .card{
+      padding:16px;
+      max-width:90vw;
+    }
+
+    h1{
+      font-size:20px;
+      margin-bottom:4px;
+    }
+
+    .title-logo{
+      width:28px;
+      height:28px;
+      font-size:12px;
+    }
+
+    p.sub{
+      font-size:12px;
+      margin-bottom:10px;
+    }
+
+    .trust-line{
+      display:none;
+    }
+
+    label{
+      margin-top:8px;
+      font-size:12px;
+    }
+
+    input{
+      padding:10px 12px;
+      min-height:42px;
+    }
+
+    button{
+      padding:10px;
+      min-height:42px;
+      margin-top:10px;
+    }
+
+    .otp-box{
+      margin-top:10px;
+      padding-top:10px;
+    }
+
+    .otp-inputs{
+      margin:8px 0;
+    }
+
+    .otp-inputs input{
+      width:40px;
+      height:48px;
+      font-size:20px;
+    }
+  }
 </style>
 </head>
+
 <body>
 
 <div class="wrap">
-  <div class="logo-header">
-    <div class="logo">LTN</div>
-    <div class="brand-name">LinkTradeNetwork</div>
-  </div>
 
-  <div class="trades">
-    <span class="trade-badge">Plumbing</span>
-    <span class="trade-badge">Electrical</span>
-    <span class="trade-badge">HVAC</span>
-    <span class="trade-badge">Low Voltage</span>
-    <span class="trade-badge">Physical Security</span>
-    <span class="trade-badge">General Contractor</span>
+  <div class="hero">
+    <div class="logo-header">
+      <div class="logo">LTN</div>
+      <div class="brand-name">LinkTradeNetwork</div>
+    </div>
+
+    <h2 class="hero-title">Built for trade workers on the rise</h2>
+    <p class="hero-sub">
+      Connect with apprentices, trade schools, contractors, employers, and skilled trade professionals.
+    </p>
+
+    <div class="trades">
+      <span class="trade-badge">Plumbing</span>
+      <span class="trade-badge">Electrical</span>
+      <span class="trade-badge">HVAC</span>
+      <span class="trade-badge">Low Voltage</span>
+      <span class="trade-badge">Physical Security</span>
+      <span class="trade-badge">General Contractor</span>
+      <span class="trade-badge">Carpentry</span>
+      <span class="trade-badge">Welding</span>
+    </div>
   </div>
 
   <div class="tabs">
@@ -114,8 +756,12 @@
   </div>
 
   <div class="card">
-    <h1 id="cardTitle"><span class="title-logo">LTN</span><span>Sign Up</span></h1>
-    <p class="sub" id="cardSub">Create your account and join skilled trade professionals nationwide</p>
+    <h1 id="cardTitle"><span class="title-logo">LTN</span><span>Join LTN</span></h1>
+    <p class="sub" id="cardSub">Create your account and join the skilled trades network</p>
+
+    <div class="trust-line">
+      Free to join • Built for apprentices, workers, schools, contractors, and employers
+    </div>
 
     <div id="joinStep">
       <div class="name-grid">
@@ -158,7 +804,7 @@
       <div id="passwordStep" style="display:none;margin-top:20px;padding-top:20px;border-top:2px solid var(--line)">
         <div style="text-align:center;margin-bottom:16px">
           <div style="font-size:28px;margin-bottom:8px">🔐</div>
-          <div style="font-weight:700;font-size:18px;color:var(--ink)">Create Your 6-Digit Password</div>
+          <div style="font-weight:900;font-size:18px;color:var(--ink)">Create Your 6-Digit Password</div>
           <div style="font-size:13px;color:var(--muted);margin-top:4px">Use a 6-digit code you will remember for sign in</div>
         </div>
         <label>6-Digit Password / Code</label>
@@ -180,7 +826,7 @@
 
       <div style="text-align:center;margin-top:12px">
         <span style="font-size:13px;color:var(--muted)">Forgot your password? </span>
-        <a href="#" id="forgotPasswordLink" style="font-size:13px;color:var(--brand);font-weight:600">Reset it here</a>
+        <a href="#" id="forgotPasswordLink" style="font-size:13px;color:var(--brand);font-weight:900">Reset it here</a>
       </div>
 
       <div id="signinMsg" class="msg"></div>
@@ -190,6 +836,9 @@
       ✅ Success! Redirecting to your dashboard...
     </div>
   </div>
+
+  <div class="footer-note">LinkTradeNetwork.com</div>
+
 </div>
 
 <script type="module">
@@ -232,9 +881,11 @@ function showMsg(el, text, type) {
   el.textContent = text;
   el.className = `msg ${type} show`;
 }
+
 function hideMsg(el) {
   el.className = 'msg';
 }
+
 function cleanFirebaseError(err) {
   const code = String(err && err.code || '');
   const message = String(err && err.message || '');
@@ -263,8 +914,8 @@ const signinStep= $('#signinStep');
 tabSignup.onclick = () => {
   tabSignup.classList.add('active');
   tabSignin.classList.remove('active');
-  cardTitle.innerHTML = '<span class="title-logo">LTN</span><span>Sign Up</span>';
-  cardSub.textContent = 'Create your account and join skilled trade professionals nationwide';
+  cardTitle.innerHTML = '<span class="title-logo">LTN</span><span>Join LTN</span>';
+  cardSub.textContent = 'Create your account and join the skilled trades network';
   joinStep.style.display = 'block';
   signinStep.style.display = 'none';
   hideMsg($('#signinMsg'));
@@ -273,8 +924,8 @@ tabSignup.onclick = () => {
 tabSignin.onclick = () => {
   tabSignin.classList.add('active');
   tabSignup.classList.remove('active');
-  cardTitle.innerHTML = '<span class="title-logo">LTN</span><span>Sign In</span>';
-  cardSub.textContent = 'Welcome back! Sign in to access your account';
+  cardTitle.innerHTML = '<span class="title-logo">LTN</span><span>Welcome Back</span>';
+  cardSub.textContent = 'Sign in to access your LinkTradeNetwork account';
   joinStep.style.display = 'none';
   signinStep.style.display = 'block';
   hideMsg($('#joinMsg'));
@@ -350,6 +1001,7 @@ joinBtn.onclick = async () => {
     showMsg(joinMsg, 'Please fill in all fields', 'err');
     return;
   }
+
   if (!consent.checked) {
     showMsg(joinMsg, 'Please agree to the Terms & Conditions', 'err');
     return;
@@ -394,6 +1046,7 @@ joinBtn.onclick = async () => {
 
 verifyBtn.onclick = async () => {
   const c = code();
+
   if (c.length !== 6) {
     showMsg(otpMsg, 'Please enter the complete 6-digit code', 'err');
     return;
@@ -404,6 +1057,7 @@ verifyBtn.onclick = async () => {
 
   try {
     const result = await verifySignupCode({ email: currentEmail, code: c });
+
     if (result.data && result.data.success) {
       codeVerified = true;
       otpBox.classList.remove('show');
@@ -433,14 +1087,17 @@ document.getElementById('setPasswordBtn').onclick = async () => {
     showMsg(msg, 'Please verify your email code first.', 'err');
     return;
   }
+
   if (!pw || !pw2) {
     showMsg(msg, 'Please fill in both fields', 'err');
     return;
   }
+
   if (pw !== pw2) {
     showMsg(msg, 'Passwords do not match', 'err');
     return;
   }
+
   if (!/^\d{6}$/.test(pw)) {
     showMsg(msg, 'Password must be exactly 6 numbers', 'err');
     return;
@@ -468,11 +1125,14 @@ document.getElementById('setPasswordBtn').onclick = async () => {
     grantLTNAccess(currentEmail, currentFullName, result.data.uid);
 
     showMsg(msg, '✅ Password saved! Entering LTN...', 'ok');
+
     const doneStep = $('#doneStep');
     doneStep.style.display = 'block';
     doneStep.classList.add('show');
 
-    setTimeout(() => { window.location.replace('dashboard.html?v=accessgranted'); }, 900);
+    setTimeout(() => {
+      window.location.replace('dashboard.html?v=accessgranted');
+    }, 900);
 
   } catch (e) {
     showMsg(msg, cleanFirebaseError(e), 'err');
@@ -498,7 +1158,12 @@ resendBtn.onclick = async () => {
     });
 
     const ok = result.data && result.data.success;
-    showMsg(otpMsg, ok ? 'New code sent to your email!' : 'Failed to resend code', ok ? 'ok' : 'err');
+
+    showMsg(
+      otpMsg,
+      ok ? 'New code sent to your email!' : 'Failed to resend code',
+      ok ? 'ok' : 'err'
+    );
 
     if (ok) {
       codeInputs.forEach(inp => inp.value = '');
@@ -522,6 +1187,7 @@ signinBtn.onclick = async () => {
     showMsg(signinMsg, 'Please enter your email address', 'err');
     return;
   }
+
   if (!password) {
     showMsg(signinMsg, 'Please enter your password', 'err');
     return;
@@ -539,7 +1205,9 @@ signinBtn.onclick = async () => {
 
     showMsg(signinMsg, 'Success! Redirecting...', 'ok');
 
-    setTimeout(() => { window.location.replace('dashboard.html?v=accessgranted'); }, 700);
+    setTimeout(() => {
+      window.location.replace('dashboard.html?v=accessgranted');
+    }, 700);
 
   } catch (e) {
     showMsg(signinMsg, cleanFirebaseError(e), 'err');
@@ -549,11 +1217,49 @@ signinBtn.onclick = async () => {
   signinBtn.textContent = 'Sign In';
 };
 
-firstNameInput.addEventListener('keypress', e => { if (e.key === 'Enter') lastNameInput.focus(); });
-lastNameInput.addEventListener('keypress', e => { if (e.key === 'Enter') emailInput.focus(); });
-emailInput.addEventListener('keypress', e => { if (e.key === 'Enter') joinBtn.click(); });
-signinEmail.addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('signinPassword').focus(); });
-document.getElementById('signinPassword').addEventListener('keypress', e => { if (e.key === 'Enter') signinBtn.click(); });
+const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+
+if (forgotPasswordLink) {
+  forgotPasswordLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    const email = (signinEmail.value || '').trim().toLowerCase();
+
+    if (!email) {
+      showMsg(signinMsg, 'Enter your email address first, then click reset.', 'err');
+      signinEmail.focus();
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      showMsg(signinMsg, 'Password reset email sent. Check your inbox.', 'ok');
+    } catch (e) {
+      showMsg(signinMsg, cleanFirebaseError(e), 'err');
+    }
+  });
+}
+
+firstNameInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter') lastNameInput.focus();
+});
+
+lastNameInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter') emailInput.focus();
+});
+
+emailInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter') joinBtn.click();
+});
+
+signinEmail.addEventListener('keypress', e => {
+  if (e.key === 'Enter') document.getElementById('signinPassword').focus();
+});
+
+document.getElementById('signinPassword').addEventListener('keypress', e => {
+  if (e.key === 'Enter') signinBtn.click();
+});
 </script>
+
 </body>
 </html>
