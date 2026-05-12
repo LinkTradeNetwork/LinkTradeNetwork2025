@@ -12,8 +12,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
-<!-- LTN UPDATE: Pagination + countries + instructor/teacher profile support -->
-<!-- LTN UPDATE 2026-05-12: Added true post pagination + international country/city profile fields -->
+<!-- LTN FORCE UPDATE 2026-05-12: ACCESS GATE + pagination + countries + instructor/teacher profile support -->
+<!-- LTN VERSION: dashboard-access-gate-20260512-securelogin -->
 <style>
 /* =========================================================
    LinkTradeNetwork UI/UX Design System v2
@@ -232,6 +232,60 @@ a[href="apprenticeship.html"]{border-radius:999px!important;background:linear-gr
 </head>
 <body>
 
+<!-- LTN ACCESS GATE: protects dashboard.html from direct URL access -->
+<script>
+(function () {
+  const accessKeys = [
+    "ltn_current_profile",
+    "ltnUserProfile",
+    "ltn_profile",
+    "ltn_user",
+    "userEmail",
+    "profileEmail",
+    "ltn_user_email"
+  ];
+
+  const hasSession = accessKeys.some(function (key) {
+    const value = localStorage.getItem(key);
+    return value && String(value).trim().length > 0;
+  });
+
+  if (!hasSession) {
+    window.location.replace("front.html?v=20260512securelogin");
+  }
+
+  window.LTNLogout = function () {
+    const keysToClear = [
+      "userEmail",
+      "profileEmail",
+      "ltn_user_email",
+      "ltn_current_profile",
+      "ltnUserProfile",
+      "ltn_profile",
+      "ltn_profile_data",
+      "currentUserProfile",
+      "userProfile",
+      "ltn_user"
+    ];
+
+    keysToClear.forEach(function (key) {
+      try { localStorage.removeItem(key); } catch (e) {}
+    });
+
+    try {
+      if (window.firebase && firebase.auth) {
+        firebase.auth().signOut().finally(function () {
+          window.location.href = "front.html?v=20260512securelogin";
+        });
+        return;
+      }
+    } catch (e) {}
+
+    window.location.href = "front.html?v=20260512securelogin";
+  };
+})();
+</script>
+
 <!-- LIVE ALERT BANNER - shows when user has connection requests or unread messages -->
 <div class="connection-alert" id="connection-alert-banner" onclick="openAlerts()" style="display:none">
   🔔 <span id="alert-text">You have updates</span>
@@ -260,7 +314,7 @@ a[href="apprenticeship.html"]{border-radius:999px!important;background:linear-gr
     </div>
 
     <nav class="nav" id="main-nav">
-      <a href="dashboard.html" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
+      <a href="dashboard.html?v=20260512securelogin" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
       <a href="members.html" data-nav="members" onclick="setActiveNav(this)">Members</a>
       <a href="find-apprenticeships.html" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
       <a href="#jobs" data-nav="jobs" onclick="setActiveNav(this)">Jobs</a>
@@ -273,7 +327,7 @@ a[href="apprenticeship.html"]{border-radius:999px!important;background:linear-gr
         <span id="messages-badge" class="notification-badge" style="display:none">0</span>
       </a>
       <button class="btn nav-action" data-nav="post-job" onclick="setActiveNav(this); JobPostManager.openModal()">Post a Job</button>
-      <a href="index.html" data-nav="logout" onclick="setActiveNav(this)" class="btn btn-secondary">Logout</a>
+      <a href="#" data-nav="logout" onclick="LTNLogout(); return false;" class="btn btn-secondary">Logout</a>
     </nav>
   </div>
 </header>
@@ -343,7 +397,7 @@ a[href="apprenticeship.html"]{border-radius:999px!important;background:linear-gr
       <!-- APPRENTICESHIP ACTION BUTTONS -->
       <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
 
-        <a href="apprenticeship.html" onclick="prepareApprenticeTrackerFromDashboard()" style="
+        <a href="apprenticeship.html?v=20260512accessgate" onclick="prepareApprenticeTrackerFromDashboard()" style="
           display:inline-block;
           background:#1e293b;
           color:white;
