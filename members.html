@@ -1,11 +1,13 @@
-<!DOCTYPE html>
+from pathlib import Path
+
+html = r'''<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LTN Members</title>
 
-  <!-- LTN FORCE UPDATE VERSION: members-secure-access-gate-v2-20260512 -->
+  <!-- LTN FORCE UPDATE VERSION: members-strict-access-gate-v3-20260512 -->
 
   <style>
     body{margin:0;font-family:Arial,sans-serif;background:#f0f4f8;color:#293241}
@@ -13,57 +15,36 @@
     .logo{font-weight:800;font-size:22px}
     .nav a,.nav button{color:white;text-decoration:none;margin-left:16px;font-weight:700;background:none;border:none;cursor:pointer}
     .nav a:hover,.nav button:hover{opacity:.8}
-
     .hero{background:linear-gradient(135deg,#ff8c3a,#ea6a00);color:white;padding:50px 20px;text-align:center}
     .hero h1{margin:0;font-size:38px}
     .hero p{font-size:18px;margin-top:10px}
-
     .wrap{max-width:1150px;margin:0 auto;padding:30px 20px}
-
     .search-box{background:white;padding:20px;border-radius:18px;box-shadow:0 8px 25px rgba(0,0,0,.08);margin-bottom:25px}
     input{width:100%;padding:14px;border:1px solid #cfd9e6;border-radius:12px;font-size:16px}
-
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
     .card{background:white;border-radius:18px;padding:22px;box-shadow:0 8px 25px rgba(0,0,0,.08);border:1px solid #e2e8f0}
-
     .avatar{width:78px;height:78px;border-radius:50%;background:#3d5a80;color:white;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;margin-bottom:14px;overflow:hidden}
     .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-
     .name{font-size:22px;font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
     .ltn-check{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#ea6a00;color:white;font-size:14px;font-weight:900;line-height:1;vertical-align:middle;box-shadow:0 2px 5px rgba(0,0,0,.18)}
     .trade{color:#ea6a00;font-weight:800;margin-bottom:6px}
     .location{color:#64748b;font-size:14px;margin-bottom:10px}
     .bio{color:#475569;font-size:14px;margin-bottom:14px}
-
     .btn{display:inline-block;background:#ea6a00;color:white;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:800;cursor:pointer;border:none;margin-top:10px}
     .btn:hover{background:#c35700}
-
     .empty{background:white;padding:25px;border-radius:18px;text-align:center;color:#64748b;box-shadow:0 8px 25px rgba(0,0,0,.08)}
   </style>
 </head>
 
 <body>
 
-<!-- LTN SECURE ACCESS GATE -->
+<!-- LTN STRICT ACCESS GATE -->
 <script>
 (function () {
-  const accessGranted =
-    localStorage.getItem("ltn_access_granted") === "true";
+  const accessGranted = localStorage.getItem("ltn_access_granted") === "true";
 
-  const hasFirebaseUser =
-    localStorage.getItem("firebase:authUser:linktradenetwork-2dcd1:[DEFAULT]");
-
-  const hasProfile =
-    localStorage.getItem("ltn_current_profile") ||
-    localStorage.getItem("ltnUserProfile") ||
-    localStorage.getItem("ltn_profile") ||
-    localStorage.getItem("currentUserProfile") ||
-    localStorage.getItem("userProfile") ||
-    localStorage.getItem("userEmail") ||
-    localStorage.getItem("profileEmail");
-
-  if (!accessGranted && !hasFirebaseUser && !hasProfile) {
-    window.location.replace("front.html?v=membersblocked2");
+  if (!accessGranted) {
+    window.location.replace("front.html?v=membersblocked3");
     return;
   }
 })();
@@ -72,8 +53,8 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="nav">
-    <a href="dashboard.html?v=20260512memberssecure2">Dashboard</a>
-    <a href="members.html?v=20260512memberssecure2">Members</a>
+    <a href="dashboard.html?v=20260512memberssecure3">Dashboard</a>
+    <a href="members.html?v=20260512memberssecure3">Members</a>
     <button onclick="logoutUser()">Logout</button>
   </div>
 </div>
@@ -123,10 +104,15 @@
     localStorage.removeItem("ltn_access_granted");
     localStorage.removeItem("ltn_current_profile");
     localStorage.removeItem("ltnUserProfile");
+    localStorage.removeItem("ltn_profile");
+    localStorage.removeItem("currentUserProfile");
+    localStorage.removeItem("userProfile");
     localStorage.removeItem("userEmail");
     localStorage.removeItem("profileEmail");
+    localStorage.removeItem("ltn_user");
+    localStorage.removeItem("userName");
 
-    window.location.href = "front.html?v=loggedout";
+    window.location.replace("front.html?v=loggedoutmembers");
   };
 
   function safe(value){
@@ -173,7 +159,9 @@
       member.ltnverified === true ||
       member.ltnverified === "true" ||
       member.verified === true ||
-      member.verified === "true"
+      member.verified === "true" ||
+      member.orangeVerified === true ||
+      member.orangeVerified === "true"
     );
   }
 
@@ -230,7 +218,7 @@
         ${location ? `<div class="location">${safe(location)}</div>` : ""}
         ${bio ? `<div class="bio">${safe(bio)}</div>` : ""}
 
-        <button class="btn" onclick="window.location.href='profile.html?id=${member.id}'">
+        <button class="btn" onclick="window.location.href='profile.html?id=${member.id}&v=20260512memberssecure3'">
           View Profile
         </button>
       `;
@@ -286,3 +274,9 @@
 
 </body>
 </html>
+'''
+
+path = Path('/mnt/data/members-full-secure.html')
+path.write_text(html, encoding='utf-8')
+print(f"Created {path} with {len(html.splitlines())} lines")
+
