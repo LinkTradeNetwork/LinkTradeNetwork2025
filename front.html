@@ -17,6 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <title>LinkTradeNetwork • Sign In</title>
 
+<!-- LTN FORCE UPDATE VERSION: front-access-granted-login-20260512 -->
+
 <style>
   :root { 
     --bg:#f0f4f8; 
@@ -40,366 +42,57 @@
     -webkit-font-smoothing:antialiased;
     -moz-osx-font-smoothing:grayscale;
   }
-  .wrap{
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:20px;
-    flex-direction:column;
-  }
-  .logo-header{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    margin-bottom:20px;
-    animation:fadeInDown 0.6s ease-out;
-  }
-  @keyframes fadeInDown{
-    from{opacity:0;transform:translateY(-20px)}
-    to{opacity:1;transform:translateY(0)}
-  }
-  .logo{
-    width:56px;
-    height:56px;
-    border-radius:16px;
-    background:linear-gradient(135deg,#ea6a00,#c35700);
-    display:grid;
-    place-items:center;
-    font-size:32px;
-    box-shadow:0 8px 24px rgba(234,106,0,0.4);
-    font-weight:800;
-    color:#f5f5f5;
-  }
-  .brand-name{
-    font-size:28px;
-    font-weight:800;
-    color:#f5f5f5;
-    text-shadow:0 2px 8px rgba(0,0,0,0.2);
-    letter-spacing:-0.5px;
-  }
-  .trades{
-    display:flex;
-    gap:10px;
-    margin-bottom:28px;
-    flex-wrap:wrap;
-    justify-content:center;
-    max-width:620px;
-    animation:fadeIn 0.8s ease-out 0.2s both;
-  }
-  @keyframes fadeIn{
-    from{opacity:0}
-    to{opacity:1}
-  }
-  .trade-badge{
-    background:rgba(255,255,255,0.25);
-    backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,0.35);
-    color:#1e293b;
-    padding:10px 18px;
-    border-radius:20px;
-    font-size:13px;
-    font-weight:600;
-    box-shadow:0 2px 8px rgba(0,0,0,0.15);
-    transition:all 0.2s;
-  }
-  .trade-badge:hover{
-    background:rgba(255,255,255,0.35);
-    transform:translateY(-2px);
-  }
-  .card{
-    background:var(--panel);
-    border:1px solid rgba(255,255,255,0.2);
-    border-radius:20px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.3);
-    padding:32px 28px;
-    width:100%;
-    max-width:480px;
-    animation:fadeInUp 0.6s ease-out 0.3s both;
-  }
-  @keyframes fadeInUp{
-    from{opacity:0;transform:translateY(30px)}
-    to{opacity:1;transform:translateY(0)}
-  }
-  h1{
-    text-align:center;
-    margin:0 0 8px;
-    color:var(--ink);
-    font-size:28px;
-    font-weight:800;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:12px;
-  }
-  .title-logo{
-    width:42px;
-    height:42px;
-    border-radius:12px;
-    background:linear-gradient(135deg,#ea6a00,#c35700);
-    display:grid;
-    place-items:center;
-    font-size:22px;
-    box-shadow:0 4px 12px rgba(234,106,0,0.3);
-    font-weight:800;
-    color:#f5f5f5;
-    flex-shrink:0;
-  }
-  p.sub{
-    text-align:center;
-    color:var(--muted);
-    margin:0 0 20px;
-    font-size:15px;
-    line-height:1.5;
-  }
-  label{
-    display:block;
-    margin-top:16px;
-    font-size:14px;
-    color:var(--ink);
-    font-weight:600;
-    margin-bottom:6px;
-  }
-  input{
-    width:100%;
-    background:#f8fafc;
-    color:var(--ink);
-    border:2px solid var(--line);
-    border-radius:12px;
-    padding:14px 16px;
-    font-size:16px;
-    transition:all 0.2s;
-    font-family:inherit;
-    min-height:52px;
-  }
-  input:focus{
-    outline:none;
-    border-color:var(--brand);
-    background:#ffffff;
-    box-shadow:0 0 0 4px rgba(234,106,0,0.1);
-  }
-  .name-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-    margin-top:16px;
-  }
-  .agree{
-    display:flex;
-    gap:10px;
-    margin-top:16px;
-    font-size:14px;
-    align-items:flex-start;
-    line-height:1.5;
-  }
-  .agree input[type="checkbox"]{
-    width:20px;
-    height:20px;
-    margin:2px 0 0 0;
-    cursor:pointer;
-    accent-color:var(--brand);
-    flex-shrink:0;
-  }
-  .agree a{
-    color:var(--brand);
-    text-decoration:none;
-    font-weight:600;
-  }
-  .agree a:hover{
-    text-decoration:underline;
-  }
-button{
-    width:100%;
-    margin-top:20px;
-    background:linear-gradient(135deg, var(--brand) 0%, var(--brand2) 100%);
-    color:#fff;
-    border:0;
-    border-radius:12px;
-    padding:16px;
-    font-weight:700;
-    font-size:16px;
-    cursor:pointer;
-    transition:all 0.3s;
-    box-shadow:0 4px 16px rgba(234,106,0,0.4);
-    font-family:inherit;
-    min-height:52px;
-  }
-  button:hover{
-    transform:translateY(-2px);
-    box-shadow:0 6px 20px rgba(234,106,0,0.5);
-  }
-  button:active{
-    transform:translateY(0);
-  }
-  button:disabled{
-    opacity:0.6;
-    cursor:not-allowed;
-    transform:none;
-  }
-  .msg{
-    margin-top:12px;
-    font-size:14px;
-    font-weight:600;
-    padding:12px 16px;
-    border-radius:10px;
-    display:none;
-  }
+  .wrap{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;flex-direction:column}
+  .logo-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;animation:fadeInDown 0.6s ease-out}
+  @keyframes fadeInDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+  .logo{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#ea6a00,#c35700);display:grid;place-items:center;font-size:32px;box-shadow:0 8px 24px rgba(234,106,0,0.4);font-weight:800;color:#f5f5f5}
+  .brand-name{font-size:28px;font-weight:800;color:#f5f5f5;text-shadow:0 2px 8px rgba(0,0,0,0.2);letter-spacing:-0.5px}
+  .trades{display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap;justify-content:center;max-width:620px;animation:fadeIn 0.8s ease-out 0.2s both}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .trade-badge{background:rgba(255,255,255,0.25);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.35);color:#1e293b;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:all 0.2s}
+  .trade-badge:hover{background:rgba(255,255,255,0.35);transform:translateY(-2px)}
+  .card{background:var(--panel);border:1px solid rgba(255,255,255,0.2);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:32px 28px;width:100%;max-width:480px;animation:fadeInUp 0.6s ease-out 0.3s both}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+  h1{text-align:center;margin:0 0 8px;color:var(--ink);font-size:28px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:12px}
+  .title-logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#ea6a00,#c35700);display:grid;place-items:center;font-size:22px;box-shadow:0 4px 12px rgba(234,106,0,0.3);font-weight:800;color:#f5f5f5;flex-shrink:0}
+  p.sub{text-align:center;color:var(--muted);margin:0 0 20px;font-size:15px;line-height:1.5}
+  label{display:block;margin-top:16px;font-size:14px;color:var(--ink);font-weight:600;margin-bottom:6px}
+  input{width:100%;background:#f8fafc;color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:14px 16px;font-size:16px;transition:all 0.2s;font-family:inherit;min-height:52px}
+  input:focus{outline:none;border-color:var(--brand);background:#ffffff;box-shadow:0 0 0 4px rgba(234,106,0,0.1)}
+  .name-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  .agree{display:flex;gap:10px;margin-top:16px;font-size:14px;align-items:flex-start;line-height:1.5}
+  .agree input[type="checkbox"]{width:20px;height:20px;margin:2px 0 0 0;cursor:pointer;accent-color:var(--brand);flex-shrink:0}
+  .agree a{color:var(--brand);text-decoration:none;font-weight:600}
+  .agree a:hover{text-decoration:underline}
+  button{width:100%;margin-top:20px;background:linear-gradient(135deg, var(--brand) 0%, var(--brand2) 100%);color:#fff;border:0;border-radius:12px;padding:16px;font-weight:700;font-size:16px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 16px rgba(234,106,0,0.4);font-family:inherit;min-height:52px}
+  button:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(234,106,0,0.5)}
+  button:active{transform:translateY(0)}
+  button:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+  .msg{margin-top:12px;font-size:14px;font-weight:600;padding:12px 16px;border-radius:10px;display:none}
   .msg.show{display:block}
-  .err{
-    color:var(--err);
-    background:#fef2f2;
-    border:1px solid #fecaca;
-  } 
-  .ok{
-    color:var(--ok);
-    background:#f0fdf4;
-    border:1px solid #bbf7d0;
-  }
-  .otp-box{
-    margin-top:20px;
-    display:none;
-    padding-top:20px;
-    border-top:2px solid var(--line);
-  }
+  .err{color:var(--err);background:#fef2f2;border:1px solid #fecaca} 
+  .ok{color:var(--ok);background:#f0fdf4;border:1px solid #bbf7d0}
+  .otp-box{margin-top:20px;display:none;padding-top:20px;border-top:2px solid var(--line)}
   .otp-box.show{display:block}
-  .otp-inputs{
-    display:flex;
-    gap:8px;
-    margin:16px 0;
-    justify-content:center;
-  }
-  .otp-inputs input{
-    width:52px;
-    height:64px;
-    text-align:center;
-    font-size:28px;
-    font-weight:700;
-    border:2px solid var(--line);
-    border-radius:12px;
-    background:#f8fafc;
-    color:var(--ink);
-    padding:0;
-    min-height:auto;
-    letter-spacing:0;
-  }
-  .otp-inputs input:focus{
-    border-color:var(--brand);
-    background:#ffffff;
-    box-shadow:0 0 0 3px rgba(234,106,0,0.15);
-  }
-  #resendBtn{
-    background:#64748b;
-    box-shadow:0 4px 12px rgba(100,116,139,0.3);
-  }
-  #resendBtn:hover{
-    background:#475569;
-  }
-  .otp-box > div:first-child{
-    text-align:center;
-    color:var(--muted);
-    font-size:14px;
-    line-height:1.6;
-  }
-  .otp-box > div:first-child b{
-    color:var(--brand);
-    font-weight:700;
-  }
-  .tabs{
-    display:flex;
-    gap:10px;
-    margin:0 auto 24px;
-    max-width:480px;
-    width:100%;
-    background:rgba(255,255,255,0.2);
-    backdrop-filter:blur(10px);
-    border-radius:14px;
-    padding:6px;
-    animation:fadeIn 0.8s ease-out 0.1s both;
-  }
-  .tab{
-    flex:1;
-    text-align:center;
-    background:transparent;
-    border:none;
-    border-radius:10px;
-    padding:12px;
-    font-weight:700;
-    font-size:15px;
-    color:rgba(255,255,255,0.8);
-    cursor:pointer;
-    transition:all 0.3s;
-    min-height:48px;
-  }
-  .tab.active{
-    background:#ffffff;
-    color:var(--brand);
-    box-shadow:0 2px 8px rgba(0,0,0,0.15);
-  }
-
-  @media(max-width:640px){
-    .wrap{padding:16px}
-    .logo-header{margin-bottom:16px}
-    .logo{width:48px;height:48px;font-size:28px;border-radius:14px}
-    .brand-name{font-size:24px}
-    .trades{gap:8px;margin-bottom:20px;max-width:100%}
-    .trade-badge{padding:8px 14px;font-size:12px}
-    .card{padding:24px 20px;border-radius:16px}
-    h1{font-size:24px;margin-bottom:6px;gap:10px}
-    .title-logo{width:36px;height:36px;font-size:18px;border-radius:10px}
-    p.sub{font-size:14px;margin-bottom:16px}
-    .name-grid{gap:10px}
-    label{font-size:13px;margin-top:12px}
-    input{padding:12px 14px;font-size:16px;min-height:48px;border-radius:10px}
-    .otp-inputs{gap:6px;margin:12px 0}
-    .otp-inputs input{width:48px;height:58px;font-size:24px}
-    button{padding:14px;font-size:15px;min-height:48px;margin-top:16px}
-    .tabs{gap:8px;padding:5px}
-    .tab{padding:10px;font-size:14px;min-height:44px}
-  }
-
-  @media(max-width:400px){
-    .wrap{padding:12px}
-    .logo-header{gap:10px}
-    .brand-name{font-size:20px}
-    .trades{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
-    .trade-badge{font-size:11px;padding:7px 12px}
-    .card{padding:20px 16px}
-    h1{font-size:22px;gap:8px}
-    .title-logo{width:32px;height:32px;font-size:16px;border-radius:8px}
-    p.sub{font-size:13px}
-    .name-grid{grid-template-columns:1fr;gap:0}
-    .otp-inputs{gap:5px}
-    .otp-inputs input{width:44px;height:54px;font-size:22px}
-  }
-
-  @media(max-height:500px) and (orientation:landscape){
-    .wrap{padding:10px}
-    .logo-header{margin-bottom:8px}
-    .logo{width:40px;height:40px;font-size:24px}
-    .brand-name{font-size:18px}
-    .trades{display:none}
-    .card{padding:16px;max-width:90vw}
-    h1{font-size:20px;margin-bottom:4px;gap:8px}
-    .title-logo{width:28px;height:28px;font-size:14px;border-radius:8px}
-    p.sub{font-size:12px;margin-bottom:10px}
-    label{margin-top:8px;font-size:12px}
-    input{padding:10px 12px;min-height:42px}
-    button{padding:10px;min-height:42px;margin-top:10px}
-    .otp-box{margin-top:10px;padding-top:10px}
-    .otp-inputs{margin:8px 0}
-    .otp-inputs input{width:40px;height:48px;font-size:20px}
-  }
-
-  @keyframes successPulse{
-    0%,100%{transform:scale(1)}
-    50%{transform:scale(1.05)}
-  }
-  #doneStep.show{
-    animation:successPulse 0.5s ease-in-out;
-  }
+  .otp-inputs{display:flex;gap:8px;margin:16px 0;justify-content:center}
+  .otp-inputs input{width:52px;height:64px;text-align:center;font-size:28px;font-weight:700;border:2px solid var(--line);border-radius:12px;background:#f8fafc;color:var(--ink);padding:0;min-height:auto;letter-spacing:0}
+  .otp-inputs input:focus{border-color:var(--brand);background:#ffffff;box-shadow:0 0 0 3px rgba(234,106,0,0.15)}
+  #resendBtn{background:#64748b;box-shadow:0 4px 12px rgba(100,116,139,0.3)}
+  #resendBtn:hover{background:#475569}
+  .otp-box > div:first-child{text-align:center;color:var(--muted);font-size:14px;line-height:1.6}
+  .otp-box > div:first-child b{color:var(--brand);font-weight:700}
+  .tabs{display:flex;gap:10px;margin:0 auto 24px;max-width:480px;width:100%;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border-radius:14px;padding:6px;animation:fadeIn 0.8s ease-out 0.1s both}
+  .tab{flex:1;text-align:center;background:transparent;border:none;border-radius:10px;padding:12px;font-weight:700;font-size:15px;color:rgba(255,255,255,0.8);cursor:pointer;transition:all 0.3s;min-height:48px}
+  .tab.active{background:#ffffff;color:var(--brand);box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+  @media(max-width:640px){.wrap{padding:16px}.logo-header{margin-bottom:16px}.logo{width:48px;height:48px;font-size:28px;border-radius:14px}.brand-name{font-size:24px}.trades{gap:8px;margin-bottom:20px;max-width:100%}.trade-badge{padding:8px 14px;font-size:12px}.card{padding:24px 20px;border-radius:16px}h1{font-size:24px;margin-bottom:6px;gap:10px}.title-logo{width:36px;height:36px;font-size:18px;border-radius:10px}p.sub{font-size:14px;margin-bottom:16px}.name-grid{gap:10px}label{font-size:13px;margin-top:12px}input{padding:12px 14px;font-size:16px;min-height:48px;border-radius:10px}.otp-inputs{gap:6px;margin:12px 0}.otp-inputs input{width:48px;height:58px;font-size:24px}button{padding:14px;font-size:15px;min-height:48px;margin-top:16px}.tabs{gap:8px;padding:5px}.tab{padding:10px;font-size:14px;min-height:44px}}
+  @media(max-width:400px){.wrap{padding:12px}.logo-header{gap:10px}.brand-name{font-size:20px}.trades{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.trade-badge{font-size:11px;padding:7px 12px}.card{padding:20px 16px}h1{font-size:22px;gap:8px}.title-logo{width:32px;height:32px;font-size:16px;border-radius:8px}p.sub{font-size:13px}.name-grid{grid-template-columns:1fr;gap:0}.otp-inputs{gap:5px}.otp-inputs input{width:44px;height:54px;font-size:22px}}
+  @media(max-height:500px) and (orientation:landscape){.wrap{padding:10px}.logo-header{margin-bottom:8px}.logo{width:40px;height:40px;font-size:24px}.brand-name{font-size:18px}.trades{display:none}.card{padding:16px;max-width:90vw}h1{font-size:20px;margin-bottom:4px;gap:8px}.title-logo{width:28px;height:28px;font-size:14px;border-radius:8px}p.sub{font-size:12px;margin-bottom:10px}label{margin-top:8px;font-size:12px}input{padding:10px 12px;min-height:42px}button{padding:10px;min-height:42px;margin-top:10px}.otp-box{margin-top:10px;padding-top:10px}.otp-inputs{margin:8px 0}.otp-inputs input{width:40px;height:48px;font-size:20px}}
+  @keyframes successPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  #doneStep.show{animation:successPulse 0.5s ease-in-out}
 </style>
 </head>
 <body>
+
 <div class="wrap">
   <div class="logo-header">
     <div class="logo">LTN</div>
@@ -491,37 +184,6 @@ button{
       </div>
 
       <div id="signinMsg" class="msg"></div>
-
-      <div id="forgotStep" style="display:none;margin-top:20px;padding-top:20px;border-top:2px solid var(--line)">
-        <div style="text-align:center;font-size:14px;color:var(--muted);margin-bottom:12px">
-          Enter your email — Firebase will send a password reset link
-        </div>
-
-        <label>Email Address</label>
-        <input id="resetEmail" type="email" placeholder="you@example.com" autocomplete="email" />
-        <button id="sendResetBtn">Send Password Reset Email</button>
-
-        <div id="resetStep2" style="display:none;margin-top:16px">
-          <div style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:8px">Enter the code sent to your email</div>
-
-          <div class="otp-inputs" id="resetOtpInputs">
-            <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
-            <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
-            <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
-            <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
-            <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
-            <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
-          </div>
-
-          <label>New Password</label>
-          <input id="resetNewPassword" type="password" inputmode="numeric" maxlength="6" placeholder="Enter 6 digits" />
-          <label>Confirm New Password</label>
-          <input id="resetConfirmPassword" type="password" placeholder="Repeat your password" />
-          <button id="resetPasswordBtn">Reset Password</button>
-        </div>
-
-        <div id="resetMsg" class="msg"></div>
-      </div>
     </div>
 
     <div id="doneStep" class="msg ok" style="display:none">
@@ -535,7 +197,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/fireba
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 
-/* ===== FIREBASE CONFIG ===== */
 const firebaseConfig = {
   apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
   authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
@@ -555,6 +216,17 @@ const createVerifiedUser = httpsCallable(functions, "createVerifiedUser");
 
 const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
+
+function grantLTNAccess(email, name, uid) {
+  localStorage.setItem("ltn_access_granted", "true");
+  localStorage.setItem("userEmail", email || "");
+  localStorage.setItem("userName", name || "");
+  localStorage.setItem("ltn_user", JSON.stringify({
+    email: email || "",
+    name: name || "",
+    uid: uid || ""
+  }));
+}
 
 function showMsg(el, text, type) {
   el.textContent = text;
@@ -793,21 +465,15 @@ document.getElementById('setPasswordBtn').onclick = async () => {
 
     await signInWithEmailAndPassword(auth, currentEmail, pw);
 
-    localStorage.setItem('ltn_user', JSON.stringify({
-      firstName: currentFirstName,
-      lastName: currentLastName,
-      name: currentFullName,
-      email: currentEmail,
-      uid: result.data.uid
-    }));
-    localStorage.setItem('userEmail', currentEmail);
-    localStorage.setItem('userName', currentFullName);
+    grantLTNAccess(currentEmail, currentFullName, result.data.uid);
 
     showMsg(msg, '✅ Password saved! Entering LTN...', 'ok');
     const doneStep = $('#doneStep');
     doneStep.style.display = 'block';
     doneStep.classList.add('show');
-    setTimeout(() => { window.location.replace('dashboard.html'); }, 900);
+
+    setTimeout(() => { window.location.replace('dashboard.html?v=accessgranted'); }, 900);
+
   } catch (e) {
     showMsg(msg, cleanFirebaseError(e), 'err');
   }
@@ -868,11 +534,13 @@ signinBtn.onclick = async () => {
   try {
     const cred = await signInWithEmailAndPassword(auth, email, password);
     const userName = cred.user.displayName || '';
-    localStorage.setItem('ltn_user', JSON.stringify({ email, name: userName, uid: cred.user.uid }));
-    localStorage.setItem('userEmail', email);
-    localStorage.setItem('userName', userName);
+
+    grantLTNAccess(email, userName, cred.user.uid);
+
     showMsg(signinMsg, 'Success! Redirecting...', 'ok');
-    setTimeout(() => { window.location.replace('dashboard.html'); }, 700);
+
+    setTimeout(() => { window.location.replace('dashboard.html?v=accessgranted'); }, 700);
+
   } catch (e) {
     showMsg(signinMsg, cleanFirebaseError(e), 'err');
   }
@@ -880,59 +548,6 @@ signinBtn.onclick = async () => {
   signinBtn.disabled = false;
   signinBtn.textContent = 'Sign In';
 };
-
-const forgotLink = document.getElementById('forgotPasswordLink');
-if (forgotLink) {
-  forgotLink.onclick = function(e) {
-    e.preventDefault();
-    document.getElementById('forgotStep').style.display = 'block';
-    document.getElementById('resetStep2').style.display = 'none';
-    const info = document.querySelector('#forgotStep > div:first-child');
-    if (info) info.textContent = 'Enter your email — Firebase will send a password reset link';
-    const sendBtn = document.getElementById('sendResetBtn');
-    if (sendBtn) sendBtn.textContent = 'Send Password Reset Email';
-    const fe = document.getElementById('resetEmail');
-    if (fe) {
-      fe.value = signinEmail.value || '';
-      fe.focus();
-    }
-  };
-}
-
-const sendResetBtn = document.getElementById('sendResetBtn');
-if (sendResetBtn) {
-  sendResetBtn.onclick = async () => {
-    const email = (document.getElementById('resetEmail').value || '').trim().toLowerCase();
-    const msg = document.getElementById('resetMsg');
-
-    if (!email) {
-      showMsg(msg, 'Please enter your email', 'err');
-      return;
-    }
-
-    sendResetBtn.disabled = true;
-    sendResetBtn.textContent = 'Sending...';
-
-    try {
-      await sendPasswordResetEmail(auth, email);
-      showMsg(msg, 'Password reset email sent. Check your inbox.', 'ok');
-      document.getElementById('resetStep2').style.display = 'none';
-    } catch (e) {
-      showMsg(msg, cleanFirebaseError(e), 'err');
-    }
-
-    sendResetBtn.disabled = false;
-    sendResetBtn.textContent = 'Send Password Reset Email';
-  };
-}
-
-const resetPasswordBtn = document.getElementById('resetPasswordBtn');
-if (resetPasswordBtn) {
-  resetPasswordBtn.onclick = async () => {
-    const msg = document.getElementById('resetMsg');
-    showMsg(msg, 'Firebase sends password reset by email link now. Use the reset email button above.', 'ok');
-  };
-}
 
 firstNameInput.addEventListener('keypress', e => { if (e.key === 'Enter') lastNameInput.focus(); });
 lastNameInput.addEventListener('keypress', e => { if (e.key === 'Enter') emailInput.focus(); });
