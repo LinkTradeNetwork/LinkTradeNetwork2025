@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-ui-ux-member-preview-20260512-v7 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-ui-ux-member-preview-20260512-v8 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -46,6 +46,7 @@
     .hero-badge{
       background:#fff4e8;color:#c35700;border:1px solid #ffd3aa;
       padding:12px 16px;border-radius:14px;font-weight:800;text-align:center;
+      cursor:default;
     }
     .verified-badge{
       display:inline-flex;align-items:center;gap:8px;background:#fff4e8;
@@ -179,7 +180,7 @@
       localStorage.getItem("ltn_apprentice_email");
 
     if (!hasProfile) {
-      window.location.replace("front.html?v=20260512apprenticeshipgate7");
+      window.location.replace("front.html?v=20260512apprenticeshipgate8");
     }
   })();
 </script>
@@ -187,9 +188,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512apprentice7'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='members.html?v=20260512apprentice7'">Members</button>
-    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512apprentice7'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512apprentice8'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='members.html?v=20260512apprentice8'">Members</button>
+    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512apprentice8'">Back</button>
   </div>
 </div>
 
@@ -207,7 +208,7 @@
         <span>Verified LTN Profile</span>
       </div>
     </div>
-    <div class="hero-badge" id="heroRoleBadge">Apprenticeship Progress Profile</div>
+    <div class="hero-badge" id="heroRoleBadge">Progress Snapshot Saves to Members</div>
   </div>
 
   <div class="grid">
@@ -261,6 +262,7 @@
     <div class="value small-value">Accomplishment Snapshot</div>
     <div class="small">
       This preview shows how your apprenticeship progress can appear inside the LTN Members section.
+      Use the Members button at the top-right to view the full members page.
     </div>
 
     <div class="preview-card">
@@ -428,6 +430,7 @@
   function getProfileRole(data){return data.role || data.profileType || "Apprentice"}
   function getProfileTrade(data){return data.trade || data.specialty || data.tradePath || "Not selected"}
   function getTradeSchool(data){return data.tradeSchool || data.school || data.trainingCenter || data.instructorSchool || "Not added"}
+
   function getLocation(data){
     const city=data.city || "";
     const stateValue=data.state || "";
@@ -437,12 +440,15 @@
       : "";
     return location || "Not added";
   }
+
   function isVerified(data){
     return data.ltnVerified===true || data.ltnVerified==="true" || data.verified===true || data.verified==="true" || data.orangeVerified===true || data.orangeVerified==="true";
   }
+
   function getInitials(name){
     return String(name || "LT").split(" ").filter(Boolean).map(w=>w[0]).join("").substring(0,2).toUpperCase() || "LT";
   }
+
   function getLevel(hours){
     if(hours>=8000) return "Journey-Level Ready";
     if(hours>=6000) return "Advanced Apprentice";
@@ -452,6 +458,7 @@
     if(hours>0) return "Level 1 Apprentice";
     return "New Apprentice";
   }
+
   function buildBadges(){
     const badges=[];
     if(state.hoursCompleted>=1000) badges.push("1,000 Hour Club");
@@ -464,8 +471,9 @@
     if(state.jobsiteUploads>0) badges.push("Jobsite Proof Added");
     state.badgesEarned=badges;
   }
+
   function loadLocalProgress(){
-    const raw=localStorage.getItem("ltn_apprenticeship_progress_v7");
+    const raw=localStorage.getItem("ltn_apprenticeship_progress_v8") || localStorage.getItem("ltn_apprenticeship_progress_v7");
     if(raw){
       try{
         const saved=JSON.parse(raw);
@@ -483,9 +491,11 @@
     }
     buildBadges();
   }
+
   function saveLocalProgress(){
-    localStorage.setItem("ltn_apprenticeship_progress_v7", JSON.stringify(state));
+    localStorage.setItem("ltn_apprenticeship_progress_v8", JSON.stringify(state));
   }
+
   async function saveToFirebase(){
     buildBadges();
     state.updatedAt=new Date().toLocaleDateString();
@@ -541,6 +551,7 @@
       document.getElementById("saveStatus").textContent="Saved on this device. Online save did not complete.";
     }
   }
+
   function renderProfile(){
     const name=getProfileName(profile);
     const trade=getProfileTrade(profile);
@@ -553,7 +564,7 @@
     document.getElementById("userTrade").textContent=trade;
     document.getElementById("userTradeSchool").textContent=getTradeSchool(profile);
     document.getElementById("userLocation").textContent=location;
-    document.getElementById("heroRoleBadge").textContent=`${getProfileRole(profile)} Progress Profile`;
+    document.getElementById("heroRoleBadge").textContent="Progress Snapshot Saves to Members";
     document.getElementById("previewInitials").textContent=getInitials(name);
     document.getElementById("previewName").textContent=name;
     document.getElementById("previewTrade").textContent=trade;
@@ -568,6 +579,7 @@
       <div class="profile-detail"><b>Members Visibility:</b> Your progress can show in Members after it saves to your profile.</div>
     `;
   }
+
   function renderProgress(){
     buildBadges();
 
@@ -607,6 +619,7 @@
     renderSkills();
     renderProjects();
   }
+
   function renderHourLog(){
     const box=document.getElementById("hourLogList");
     if(state.hourLogs.length===0){
@@ -622,18 +635,21 @@
         </div>`;
     }).join("");
   }
+
   function renderCerts(){
     const box=document.getElementById("certList");
     box.innerHTML=state.certifications.length ? state.certifications.map((item,index)=>`
       <div class="list-item"><div><strong>${safe(item)}</strong><span>Certification earned</span></div><button class="delete-small" onclick="deleteCertification(${index})">Delete</button></div>
     `).join("") : `<div class="empty">No certifications added yet.</div>`;
   }
+
   function renderSkills(){
     const box=document.getElementById("skillList");
     box.innerHTML=state.skillsLearned.length ? state.skillsLearned.map((item,index)=>`
       <div class="list-item"><div><strong>${safe(item)}</strong><span>Skill learned</span></div><button class="delete-small" onclick="deleteSkill(${index})">Delete</button></div>
     `).join("") : `<div class="empty">No skills added yet.</div>`;
   }
+
   function renderProjects(){
     const box=document.getElementById("projectList");
     box.innerHTML=state.projects.length ? state.projects.map((item,index)=>`
@@ -787,7 +803,7 @@
   }
 
   init();
-  console.log("LTN Apprenticeship UI UX Member Preview Loaded v7");
+  console.log("LTN Apprenticeship UI UX Member Preview Loaded v8");
 </script>
 
 </body>
