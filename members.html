@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LTN Members</title>
 
-  <!-- LTN FORCE UPDATE VERSION: members-secure-access-gate-20260512 -->
+  <!-- LTN FORCE UPDATE VERSION: members-secure-access-gate-v2-20260512 -->
 
   <style>
     body{margin:0;font-family:Arial,sans-serif;background:#f0f4f8;color:#293241}
@@ -47,23 +47,33 @@
 <!-- LTN SECURE ACCESS GATE -->
 <script>
 (function () {
-
   const accessGranted =
     localStorage.getItem("ltn_access_granted") === "true";
 
-  if (!accessGranted) {
-    window.location.replace("front.html?v=membersblocked");
+  const hasFirebaseUser =
+    localStorage.getItem("firebase:authUser:linktradenetwork-2dcd1:[DEFAULT]");
+
+  const hasProfile =
+    localStorage.getItem("ltn_current_profile") ||
+    localStorage.getItem("ltnUserProfile") ||
+    localStorage.getItem("ltn_profile") ||
+    localStorage.getItem("currentUserProfile") ||
+    localStorage.getItem("userProfile") ||
+    localStorage.getItem("userEmail") ||
+    localStorage.getItem("profileEmail");
+
+  if (!accessGranted && !hasFirebaseUser && !hasProfile) {
+    window.location.replace("front.html?v=membersblocked2");
     return;
   }
-
 })();
 </script>
 
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="nav">
-    <a href="dashboard.html?v=20260512memberssecure">Dashboard</a>
-    <a href="members.html?v=20260512memberssecure">Members</a>
+    <a href="dashboard.html?v=20260512memberssecure2">Dashboard</a>
+    <a href="members.html?v=20260512memberssecure2">Members</a>
     <button onclick="logoutUser()">Logout</button>
   </div>
 </div>
@@ -106,12 +116,15 @@
   let members = [];
 
   window.logoutUser = async function () {
-
     try{
       await signOut(auth);
     }catch(e){}
 
     localStorage.removeItem("ltn_access_granted");
+    localStorage.removeItem("ltn_current_profile");
+    localStorage.removeItem("ltnUserProfile");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("profileEmail");
 
     window.location.href = "front.html?v=loggedout";
   };
@@ -127,7 +140,6 @@
 
   function getInitials(name){
     if(!name) return "LT";
-
     return name
       .split(" ")
       .filter(Boolean)
@@ -172,56 +184,30 @@
   }
 
   function renderMembers(list){
-
     const grid = document.getElementById("membersGrid");
-
     grid.innerHTML = "";
 
     if(list.length === 0){
-
-      grid.innerHTML = `
-        <div class="empty">
-          No members found yet.
-        </div>
-      `;
-
+      grid.innerHTML = `<div class="empty">No members found yet.</div>`;
       return;
     }
 
     list.forEach(member => {
-
-      const name =
-        member.fullName ||
-        member.name ||
-        member.displayName ||
-        "Trade Member";
-
-      const trade =
-        member.trade ||
-        member.specialty ||
-        "Trade Not Selected";
-
+      const name = member.fullName || member.name || member.displayName || "Trade Member";
+      const trade = member.trade || member.specialty || "Trade Not Selected";
       const city = member.city || "";
       const state = member.state || "";
       const country = member.country || "";
+      const role = member.role || member.profileType || "";
+      const bio = member.bio || "";
+      const photo = getProfilePhoto(member);
 
       const location =
         city || state || country
           ? `${city}${city && state ? ", " : ""}${state}${(city || state) && country ? ", " : ""}${country}`
           : "";
 
-      const role =
-        member.role ||
-        member.profileType ||
-        member.userRole ||
-        "";
-
-      const bio = member.bio || "";
-
-      const photo = getProfilePhoto(member);
-
       const card = document.createElement("div");
-
       card.className = "card";
 
       card.innerHTML = `
@@ -241,9 +227,7 @@
         <div class="trade">${safe(trade)}</div>
 
         ${role ? `<div class="location"><strong>Role:</strong> ${safe(role)}</div>` : ""}
-
         ${location ? `<div class="location">${safe(location)}</div>` : ""}
-
         ${bio ? `<div class="bio">${safe(bio)}</div>` : ""}
 
         <button class="btn" onclick="window.location.href='profile.html?id=${member.id}'">
@@ -252,47 +236,31 @@
       `;
 
       grid.appendChild(card);
-
     });
-
   }
 
   async function loadMembers(){
-
     try{
-
       const usersSnap = await getDocs(collection(db, "users"));
-
       members = [];
 
       usersSnap.forEach(docSnap => {
-
-        members.push({
-          id: docSnap.id,
-          ...docSnap.data()
-        });
-
+        members.push({ id: docSnap.id, ...docSnap.data() });
       });
 
       renderMembers(members);
 
     }catch(error){
-
       console.error(error);
-
       document.getElementById("membersGrid").innerHTML =
         `<div class="empty">Could not load members.</div>`;
-
     }
-
   }
 
   document.getElementById("searchInput").addEventListener("input", function(){
-
     const term = this.value.toLowerCase();
 
     const filtered = members.filter(member => {
-
       const text = `
         ${member.name || ""}
         ${member.fullName || ""}
@@ -308,11 +276,9 @@
       `.toLowerCase();
 
       return text.includes(term);
-
     });
 
     renderMembers(filtered);
-
   });
 
   loadMembers();
