@@ -12,6 +12,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
+<!-- LTN UPDATE: Pagination + countries + instructor/teacher profile support -->
 <!-- LTN UPDATE 2026-05-12: Added true post pagination + international country/city profile fields -->
 <style>
 /* =========================================================
@@ -561,6 +562,15 @@ a[href="apprenticeship.html"]{border-radius:999px!important;background:linear-gr
         <div class="form-group"><label>Full Name *</label><input type="text" id="input-name" class="form-control" placeholder="John Smith" required></div>
         <div class="form-group"><label>Email Address *</label><input type="email" id="input-email" class="form-control" placeholder="john@example.com" required></div>
         <div class="form-group"><label>Phone Number</label><input type="tel" id="input-phone" class="form-control" placeholder="(555) 123-4567"></div>
+        <div class="form-group"><label>Profile Type *</label>
+          <select id="input-profile-type" class="form-control" required>
+            <option value="Skilled Trade Worker">Skilled Trade Worker</option>
+            <option value="Apprentice">Apprentice</option>
+            <option value="Instructor / Teacher">Instructor / Teacher</option>
+            <option value="Trade School / Training Center">Trade School / Training Center</option>
+            <option value="Employer / Contractor">Employer / Contractor</option>
+          </select>
+        </div>
         <div class="form-group"><label>Trade / Specialty *</label>
           <select id="input-trade" class="form-control" required>
             <option value="">Select your trade</option>
@@ -573,6 +583,8 @@ a[href="apprenticeship.html"]{border-radius:999px!important;background:linear-gr
             <option value="Sprinkler Systems">Sprinkler Systems</option>
             <option value="Carpentry">Carpentry</option>
             <option value="Welding">Welding</option>
+            <option value="Instructor / Teacher">Instructor / Teacher</option>
+            <option value="Trade School / Training Center">Trade School / Training Center</option>
             <option value="Other">Other</option>
           </select>
         </div>
@@ -586,6 +598,16 @@ a[href="apprenticeship.html"]{border-radius:999px!important;background:linear-gr
             <div class="form-group"><label>Employer / Contractor</label><input type="text" id="input-apprentice-employer" class="form-control" placeholder="Company or contractor name"></div>
             <div class="form-group"><label>Apprenticeship Start Date</label><input type="date" id="input-apprentice-start-date" class="form-control"></div>
             <div class="form-group"><label>Current Hours Completed</label><input type="number" id="input-apprentice-hours" class="form-control" placeholder="0" min="0" max="8000"></div>
+          </div>
+        </div>
+        <div style="margin:18px 0;padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)">
+          <label style="display:flex;align-items:center;gap:10px;font-weight:700;cursor:pointer">
+            <input type="checkbox" id="input-is-instructor" style="width:auto;min-height:auto">
+            I am an instructor / teacher
+          </label>
+          <div id="instructor-fields" style="display:none;margin-top:14px">
+            <div class="form-group"><label>School / Training Center</label><input type="text" id="input-instructor-school" class="form-control" placeholder="Superior Training Centre, trade school, union program, etc."></div>
+            <div class="form-group"><label>Courses / Trades Taught</label><input type="text" id="input-instructor-courses" class="form-control" placeholder="Electrical, HVAC, Plumbing, Low Voltage, Safety, etc."></div>
           </div>
         </div>
         <div class="form-group"><label>Years of Experience</label><input type="number" id="input-experience" class="form-control" placeholder="5" min="0" max="50"></div>
@@ -1881,14 +1903,22 @@ const ProfileManager = {
     if(fields) fields.style.display = (checkbox && checkbox.checked) ? 'block' : 'none';
   },
 
+  toggleInstructorFields(){
+    const checkbox = document.getElementById('input-is-instructor');
+    const fields = document.getElementById('instructor-fields');
+    if(fields) fields.style.display = (checkbox && checkbox.checked) ? 'block' : 'none';
+  },
+
   populateForm(p){
     p = p || {};
     const app = p.apprenticeship || {};
+    const instr = p.instructor || {};
     const byId = id => document.getElementById(id);
 
     if(byId('input-name')) byId('input-name').value=p.fullName||p.name||'';
     if(byId('input-email')){ byId('input-email').value=p.email||ltnGetCurrentEmail()||''; byId('input-email').disabled=true; }
     if(byId('input-phone')) byId('input-phone').value=p.phone||'';
+    if(byId('input-profile-type')) byId('input-profile-type').value=p.profileType||'Skilled Trade Worker';
     if(byId('input-trade')) byId('input-trade').value=p.trade||'';
     if(byId('input-experience')) byId('input-experience').value=p.experience||'';
     const profileCountry = p.country || localStorage.getItem('ltn_user_country') || 'United States';
@@ -1906,7 +1936,12 @@ const ProfileManager = {
     if(byId('input-apprentice-start-date')) byId('input-apprentice-start-date').value = app.startDate || '';
     if(byId('input-apprentice-hours')) byId('input-apprentice-hours').value = app.hours || 0;
 
+    if(byId('input-is-instructor')) byId('input-is-instructor').checked = !!instr.isInstructor || p.profileType === 'Instructor / Teacher';
+    if(byId('input-instructor-school')) byId('input-instructor-school').value = instr.school || '';
+    if(byId('input-instructor-courses')) byId('input-instructor-courses').value = instr.courses || '';
+
     this.toggleApprenticeFields();
+    this.toggleInstructorFields();
   },
 
   closeModal(){
@@ -1926,6 +1961,7 @@ const ProfileManager = {
       email,
       fullName:       (document.getElementById('input-name')||{}).value ? document.getElementById('input-name').value.trim() : '',
       phone:          (document.getElementById('input-phone')||{}).value ? document.getElementById('input-phone').value.trim() : '',
+      profileType:    (document.getElementById('input-profile-type')||{}).value || 'Skilled Trade Worker',
       trade:          (document.getElementById('input-trade')||{}).value || '',
       experience:     (document.getElementById('input-experience')||{}).value || '',
       country:        (document.getElementById('input-country')||{}).value || 'United States',
@@ -1942,8 +1978,15 @@ const ProfileManager = {
         employer:     (document.getElementById('input-apprentice-employer')||{}).value ? document.getElementById('input-apprentice-employer').value.trim() : '',
         startDate:    (document.getElementById('input-apprentice-start-date')||{}).value || '',
         hours:        Number((document.getElementById('input-apprentice-hours')||{}).value || 0)
+      },
+      instructor: {
+        isInstructor: !!(document.getElementById('input-is-instructor') && document.getElementById('input-is-instructor').checked),
+        school:       (document.getElementById('input-instructor-school')||{}).value ? document.getElementById('input-instructor-school').value.trim() : '',
+        courses:      (document.getElementById('input-instructor-courses')||{}).value ? document.getElementById('input-instructor-courses').value.trim() : ''
       }
     };
+
+    if(profile.profileType === 'Instructor / Teacher') profile.instructor.isInstructor = true;
 
     if(!profile.fullName||!profile.trade||!profile.country||!profile.city||!profile.state){
       alert('Please fill in: Full Name, Trade, Country, City, and State / Region');
