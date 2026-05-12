@@ -12,6 +12,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
+<!-- LTN UPDATE 2026-05-12: Added true post pagination + international country/city profile fields -->
 <style>
 /* =========================================================
    LinkTradeNetwork UI/UX Design System v2
@@ -588,11 +589,22 @@ a[href="apprenticeship.html"]{border-radius:999px!important;background:linear-gr
           </div>
         </div>
         <div class="form-group"><label>Years of Experience</label><input type="number" id="input-experience" class="form-control" placeholder="5" min="0" max="50"></div>
-        <div class="form-group"><label>City *</label><input type="text" id="input-city" class="form-control" placeholder="Milwaukee" required></div>
-        <div class="form-group"><label>State *</label>
+        <!-- LTN GLOBAL LOCATION UPDATE: Country + city/region fields for USA, Australia, and India -->
+        <div class="form-group"><label>Country *</label>
+          <select id="input-country" class="form-control" required>
+            <option value="United States">United States</option>
+            <option value="Australia">Australia</option>
+            <option value="India">India</option>
+          </select>
+        </div>
+        <div class="form-group"><label>City *</label>
+          <select id="input-city" class="form-control" required>
+            <option value="">Select city</option>
+          </select>
+        </div>
+        <div class="form-group"><label>State / Region *</label>
           <select id="input-state" class="form-control" required>
-            <option value="">Select state</option>
-            <option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option><option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option><option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option><option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option><option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option><option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option><option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option><option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option><option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option><option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option><option value="WI">Wisconsin</option><option value="WY">Wyoming</option>
+            <option value="">Select state / region</option>
           </select>
         </div>
         <div class="form-group"><label>About / Bio</label><textarea id="input-bio" class="form-control" placeholder="Tell employers about your skills and experience..."></textarea></div>
@@ -1447,13 +1459,14 @@ function ltnBuildApprenticeProfile(profile){
   const fullName = profile.fullName || profile.name || localStorage.getItem('userName') || localStorage.getItem('ltn_user_name') || '';
   const email = profile.email || ltnGetCurrentEmail() || '';
   const trade = profile.trade || localStorage.getItem('ltn_user_trade') || '';
+  const country = profile.country || localStorage.getItem('ltn_user_country') || 'United States';
   const city = profile.city || localStorage.getItem('ltn_user_city') || '';
   const state = profile.state || localStorage.getItem('ltn_user_state') || '';
   const hours = Number(app.hours || localStorage.getItem('ltn_apprentice_hours') || 0);
   return {
     isApprentice: !!app.isApprentice, fullName, name: fullName, userName: fullName, displayName: fullName,
     email, userEmail: email, phone: profile.phone || '', trade, userTrade: trade, experience: profile.experience || '',
-    city, state, location: [city,state].filter(Boolean).join(', '),
+    country, city, state, location: [city,state,country && country !== 'United States' ? country : ''].filter(Boolean).join(', '),
     program: app.program || '', school: app.program || '', employer: app.employer || '', contractor: app.employer || '',
     startDate: app.startDate || '', hours, completedHours: hours, currentHours: hours, apprenticeHours: hours,
     bio: profile.bio || '', skills: profile.skills || '', certifications: profile.certifications || '', updatedAt: new Date().toISOString()
@@ -1481,6 +1494,8 @@ function ltnSaveProfileEverywhere(profile){
   localStorage.setItem('ltn_user_trade', apprenticeProfile.trade || '');
   localStorage.setItem('userTrade', apprenticeProfile.trade || '');
   localStorage.setItem('trade', apprenticeProfile.trade || '');
+  localStorage.setItem('ltn_user_country', apprenticeProfile.country || 'United States');
+  localStorage.setItem('userCountry', apprenticeProfile.country || 'United States');
   localStorage.setItem('ltn_user_city', apprenticeProfile.city || '');
   localStorage.setItem('ltn_user_state', apprenticeProfile.state || '');
   localStorage.setItem('userCity', apprenticeProfile.city || '');
@@ -1505,6 +1520,7 @@ function ltnSaveProfileEverywhere(profile){
   localStorage.setItem('apprenticeSchool', apprenticeProfile.program || '');
   localStorage.setItem('apprenticeEmployer', apprenticeProfile.employer || '');
   localStorage.setItem('apprenticeStartDate', apprenticeProfile.startDate || '');
+  localStorage.setItem('apprenticeCountry', apprenticeProfile.country || 'United States');
   localStorage.setItem('apprenticeCity', apprenticeProfile.city || '');
   localStorage.setItem('apprenticeState', apprenticeProfile.state || '');
   localStorage.setItem('apprenticeLocation', apprenticeProfile.location || '');
@@ -1521,6 +1537,7 @@ window.prepareApprenticeTrackerFromDashboard = function(){
       email: email || localStorage.getItem('userEmail') || '',
       fullName: localStorage.getItem('userName') || localStorage.getItem('apprenticeName') || ((document.getElementById('display-name')||{}).innerText || ''),
       trade: localStorage.getItem('userTrade') || localStorage.getItem('ltn_user_trade') || ((document.getElementById('display-trade')||{}).innerText || ''),
+      country: localStorage.getItem('ltn_user_country') || localStorage.getItem('userCountry') || 'United States',
       city: localStorage.getItem('ltn_user_city') || localStorage.getItem('userCity') || '',
       state: localStorage.getItem('ltn_user_state') || localStorage.getItem('userState') || '',
       apprenticeship: { isApprentice: true, program: localStorage.getItem('apprenticeProgram') || '', employer: localStorage.getItem('apprenticeEmployer') || '', startDate: localStorage.getItem('apprenticeStartDate') || '', hours: Number(localStorage.getItem('ltn_apprentice_hours') || localStorage.getItem('apprenticeHours') || 0) }
@@ -1532,6 +1549,66 @@ window.prepareApprenticeTrackerFromDashboard = function(){
   return true;
 };
 
+
+
+/* ===== LTN GLOBAL LOCATION MANAGER =====
+   Forces Edit Profile to support United States, Australia, and India starter locations.
+   This is intentionally inside dashboard.html so GitHub Pages deploys the change immediately.
+*/
+const LTN_LOCATION_DATA = {
+  'United States': {
+    cities: ['Milwaukee','Detroit','Chicago','Indianapolis','Madison','New York','Los Angeles','Dallas','Houston','Phoenix','Miami'],
+    regions: [
+      ['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],['FL','Florida'],['GA','Georgia'],['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],['IN','Indiana'],['IA','Iowa'],['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],['ME','Maine'],['MD','Maryland'],['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],['MS','Mississippi'],['MO','Missouri'],['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],['NH','New Hampshire'],['NJ','New Jersey'],['NM','New Mexico'],['NY','New York'],['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],['OK','Oklahoma'],['OR','Oregon'],['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],['SD','South Dakota'],['TN','Tennessee'],['TX','Texas'],['UT','Utah'],['VT','Vermont'],['VA','Virginia'],['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming']
+    ]
+  },
+  'Australia': {
+    cities: ['Sydney','Melbourne','Brisbane','Perth','Adelaide','Canberra','Newcastle','Wollongong','Gold Coast'],
+    regions: [['NSW','New South Wales'],['VIC','Victoria'],['QLD','Queensland'],['WA','Western Australia'],['SA','South Australia'],['ACT','Australian Capital Territory'],['TAS','Tasmania'],['NT','Northern Territory']]
+  },
+  'India': {
+    cities: ['Delhi'],
+    regions: [['Delhi','Delhi']]
+  }
+};
+const LocationManager = {
+  fillSelect(select, options, placeholder){
+    if(!select) return;
+    select.innerHTML = `<option value="">${placeholder}</option>` + options.map(item => {
+      const value = Array.isArray(item) ? item[0] : item;
+      const label = Array.isArray(item) ? item[1] : item;
+      return `<option value="${value}">${label}</option>`;
+    }).join('');
+  },
+  refresh(country, savedCity, savedState){
+    const countrySelect = document.getElementById('input-country');
+    const citySelect = document.getElementById('input-city');
+    const stateSelect = document.getElementById('input-state');
+    const selectedCountry = country || (countrySelect && countrySelect.value) || 'United States';
+    const data = LTN_LOCATION_DATA[selectedCountry] || LTN_LOCATION_DATA['United States'];
+    if(countrySelect) countrySelect.value = selectedCountry;
+    this.fillSelect(citySelect, data.cities, 'Select city');
+    this.fillSelect(stateSelect, data.regions, 'Select state / region');
+    if(citySelect && savedCity){
+      const hasCity = Array.from(citySelect.options).some(o => o.value === savedCity);
+      if(!hasCity) citySelect.add(new Option(savedCity, savedCity));
+      citySelect.value = savedCity;
+    }
+    if(stateSelect && savedState){
+      const hasState = Array.from(stateSelect.options).some(o => o.value === savedState);
+      if(!hasState) stateSelect.add(new Option(savedState, savedState));
+      stateSelect.value = savedState;
+    }
+  },
+  init(){
+    const countrySelect = document.getElementById('input-country');
+    if(countrySelect && !countrySelect.dataset.ltnBound){
+      countrySelect.dataset.ltnBound = 'true';
+      countrySelect.addEventListener('change', () => this.refresh(countrySelect.value, '', ''));
+    }
+    this.refresh((countrySelect && countrySelect.value) || 'United States', '', '');
+  }
+};
 
 const ProfileManager = {
   currentImageUrl: '',
@@ -1586,6 +1663,9 @@ const ProfileManager = {
     if(closeBtn)  closeBtn.addEventListener('click',()=>this.closeModal());
     if(cancelBtn) cancelBtn.addEventListener('click',()=>this.closeModal());
     if(saveBtn)   saveBtn.addEventListener('click',()=>this.saveProfile());
+
+    const countrySelect = document.getElementById('input-country');
+    if(countrySelect) countrySelect.addEventListener('change',()=>LocationManager.refresh(countrySelect.value, '', ''));
 
     const apprenticeToggle = document.getElementById('input-is-apprentice');
     if(apprenticeToggle) apprenticeToggle.addEventListener('change',()=>this.toggleApprenticeFields());
@@ -1811,6 +1891,9 @@ const ProfileManager = {
     if(byId('input-phone')) byId('input-phone').value=p.phone||'';
     if(byId('input-trade')) byId('input-trade').value=p.trade||'';
     if(byId('input-experience')) byId('input-experience').value=p.experience||'';
+    const profileCountry = p.country || localStorage.getItem('ltn_user_country') || 'United States';
+    LocationManager.refresh(profileCountry, p.city || '', p.state || '');
+    if(byId('input-country')) byId('input-country').value = profileCountry;
     if(byId('input-city')) byId('input-city').value=p.city||'';
     if(byId('input-state')) byId('input-state').value=p.state||'';
     if(byId('input-bio')) byId('input-bio').value=p.bio||'';
@@ -1845,6 +1928,7 @@ const ProfileManager = {
       phone:          (document.getElementById('input-phone')||{}).value ? document.getElementById('input-phone').value.trim() : '',
       trade:          (document.getElementById('input-trade')||{}).value || '',
       experience:     (document.getElementById('input-experience')||{}).value || '',
+      country:        (document.getElementById('input-country')||{}).value || 'United States',
       city:           (document.getElementById('input-city')||{}).value ? document.getElementById('input-city').value.trim() : '',
       state:          (document.getElementById('input-state')||{}).value || '',
       bio:            (document.getElementById('input-bio')||{}).value ? document.getElementById('input-bio').value.trim() : '',
@@ -1861,8 +1945,8 @@ const ProfileManager = {
       }
     };
 
-    if(!profile.fullName||!profile.trade||!profile.city||!profile.state){
-      alert('Please fill in: Full Name, Trade, City, State');
+    if(!profile.fullName||!profile.trade||!profile.country||!profile.city||!profile.state){
+      alert('Please fill in: Full Name, Trade, Country, City, and State / Region');
       return;
     }
 
@@ -1944,7 +2028,11 @@ const ProfileManager = {
       displayName.innerHTML = `${safeText(name)}${verified ? ' <span class="ltn-verified-check" title="LTN Verified">✓</span>' : ''}`;
     }
     if(displayTrade) displayTrade.textContent = p.trade ? (p.experience ? `${p.trade} • ${p.experience} years` : p.trade) : 'Your Trade';
-    if(displayLocation) displayLocation.textContent = (p.city&&p.state) ? `${p.city}, ${p.state}` : 'Your Location';
+    if(displayLocation){
+      const country = p.country || localStorage.getItem('ltn_user_country') || '';
+      const locationParts = [p.city, p.state, country && country !== 'United States' ? country : ''].filter(Boolean);
+      displayLocation.textContent = locationParts.length ? locationParts.join(', ') : 'Your Location';
+    }
   }
 };
 
@@ -2302,6 +2390,7 @@ async function loadSponsors(){
 
 /* ===== FILTER BUTTONS ===== */
 document.addEventListener('DOMContentLoaded',function(){
+  LocationManager.init();
   ProfileManager.init();
   SuccessStories.init();
 
@@ -2615,7 +2704,13 @@ function saveJob(jobTitle){
 
 /* ===== POSTS FEED ===== */
 const PostsFeed = {
+  // TRUE PAGINATION: only fetches the next batch instead of re-loading every post.
   limit: 25,
+  pageSize: 10,
+  lastVisiblePostDoc: null,
+  hasMorePosts: true,
+  isLoadingPosts: false,
+  loadedPosts: [],
   currentImageData: null,
   currentVideoData: null,
   currentVideoObjectUrl: null,
@@ -2631,7 +2726,7 @@ const PostsFeed = {
       if (container) container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Firebase is not ready. Refresh and try again.</div>';
       return;
     }
-    this.listenForPosts();
+    this.resetPagination();
   },
 
   safeText(value) {
@@ -2655,6 +2750,7 @@ const PostsFeed = {
       email,
       fullName: (user && (user.fullName || user.name)) || localStorage.getItem('userName') || 'Member',
       trade: (user && user.trade) || '',
+      country: (user && user.country) || localStorage.getItem('ltn_user_country') || 'United States',
       city: (user && user.city) || '',
       state: (user && user.state) || '',
       profileImageUrl: (user && (user.profileImageUrl || user.profileImage || user.photoURL)) || ''
@@ -2842,6 +2938,7 @@ const PostsFeed = {
         email: poster.email,
         fullName: poster.fullName || 'Member',
         trade: poster.trade || '',
+        country: poster.country || 'United States',
         city: poster.city || '',
         state: poster.state || '',
         profileImageUrl: poster.profileImageUrl || '',
@@ -2860,6 +2957,7 @@ const PostsFeed = {
       document.getElementById('post-content').value = '';
       this.removeImage();
       this.removeVideo();
+      this.resetPagination();
     } catch (e) {
       console.error('Firebase post error:', e);
       alert(e.message || 'Failed to post. Please try again.');
@@ -2868,23 +2966,58 @@ const PostsFeed = {
     }
   },
 
-  listenForPosts() {
+  resetPagination() {
+    this.lastVisiblePostDoc = null;
+    this.hasMorePosts = true;
+    this.loadedPosts = [];
     const container = document.getElementById('posts-container');
-    if (!container || !firebaseDb) return;
-    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading community posts...</div>';
-    if (this.unsubscribe) this.unsubscribe();
+    if (container) container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading community posts...</div>';
+    this.loadMore();
+  },
 
-    this.unsubscribe = firebaseDb.collection('posts')
-      .orderBy('createdAtMs', 'desc')
-      .limit(this.limit)
-      .onSnapshot((snapshot) => {
-        const posts = [];
-        snapshot.forEach(doc => posts.push({ id: doc.id, ...doc.data() }));
-        this.renderPosts(posts);
-      }, (err) => {
-        console.error('Firebase posts load error:', err);
-        container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load posts. Check Firebase rules.</div>';
-      });
+  listenForPosts() {
+    // Backward-compatible wrapper so older buttons/calls still work.
+    this.resetPagination();
+  },
+
+  async loadMore() {
+    const container = document.getElementById('posts-container');
+    const loadMoreBtn = document.getElementById('load-more-posts');
+    if (!container || !firebaseDb || this.isLoadingPosts || !this.hasMorePosts) return;
+
+    this.isLoadingPosts = true;
+    if (loadMoreBtn) {
+      loadMoreBtn.disabled = true;
+      loadMoreBtn.textContent = 'Loading...';
+    }
+
+    try {
+      let q = firebaseDb.collection('posts')
+        .orderBy('createdAtMs', 'desc')
+        .limit(this.pageSize);
+
+      if (this.lastVisiblePostDoc) q = q.startAfter(this.lastVisiblePostDoc);
+
+      const snapshot = await q.get();
+      const newPosts = [];
+      snapshot.forEach(doc => newPosts.push({ id: doc.id, ...doc.data() }));
+
+      if (!snapshot.empty) this.lastVisiblePostDoc = snapshot.docs[snapshot.docs.length - 1];
+      if (newPosts.length < this.pageSize) this.hasMorePosts = false;
+
+      this.loadedPosts = this.loadedPosts.concat(newPosts);
+      this.renderPosts(this.loadedPosts);
+    } catch (err) {
+      console.error('Firebase posts pagination error:', err);
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Failed to load posts. Check Firebase rules and Firestore indexes.</div>';
+    } finally {
+      this.isLoadingPosts = false;
+      if (loadMoreBtn) {
+        loadMoreBtn.disabled = false;
+        loadMoreBtn.textContent = this.hasMorePosts ? 'Load More Posts' : 'No More Posts';
+        loadMoreBtn.style.display = this.hasMorePosts ? 'inline-block' : 'none';
+      }
+    }
   },
 
   renderPosts(posts) {
@@ -2895,6 +3028,8 @@ const PostsFeed = {
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
         <h3>No posts yet</h3><p>Be the first to post in the community!</p>
       </div>`;
+      const loadMoreBtn = document.getElementById('load-more-posts');
+      if (loadMoreBtn) loadMoreBtn.style.display = 'none';
       return;
     }
     const normalized = posts.map(post => this.normalizePost(post));
@@ -2904,15 +3039,10 @@ const PostsFeed = {
       this.listenCommentCount(post.postId);
     });
     const loadMoreBtn = document.getElementById('load-more-posts');
-    if (loadMoreBtn) loadMoreBtn.style.display = posts.length >= this.limit ? 'inline-block' : 'none';
+    if (loadMoreBtn) loadMoreBtn.style.display = this.hasMorePosts ? 'inline-block' : 'none';
   },
 
-  loadPosts() { this.listenForPosts(); },
-
-  loadMore() {
-    this.limit += 25;
-    this.listenForPosts();
-  },
+  loadPosts() { this.resetPagination(); },
 
   normalizePost(post) {
     const email = this.getCurrentEmail();
@@ -2922,6 +3052,7 @@ const PostsFeed = {
       email: String(post.email || '').toLowerCase(),
       fullName: post.fullName || post.name || 'Member',
       trade: post.trade || '',
+      country: post.country || 'United States',
       city: post.city || '',
       state: post.state || '',
       profileImageUrl: post.profileImageUrl || post.photoURL || '',
@@ -2940,7 +3071,7 @@ const PostsFeed = {
 
   renderPost(post) {
     const initials = (post.fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    const loc = [post.city, post.state].filter(Boolean).join(', ');
+    const loc = [post.city, post.state, post.country && post.country !== 'United States' ? post.country : ''].filter(Boolean).join(', ');
     const when = post.postedAt ? new Date(post.postedAt).toLocaleDateString() : '';
     const safeContent = this.safeHtml(post.content || '');
     const avatar = post.profileImageUrl
