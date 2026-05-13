@@ -6,6 +6,8 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>LTN Admin Dashboard</title>
 
+  <!-- LTN FORCE UPDATE VERSION: admin-signin-count-clean-url-v26 -->
+
   <style>
     :root {
       --primary: #0b1f3a;
@@ -31,7 +33,8 @@
       box-sizing: border-box;
     }
 
-    html, body {
+    html,
+    body {
       height: 100%;
       overflow-x: hidden;
     }
@@ -44,7 +47,6 @@
       font-size: 14px;
     }
 
-    /* ===== HEADER ===== */
     header {
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
       border-bottom: 1px solid var(--border);
@@ -105,7 +107,6 @@
       box-shadow: var(--shadow-sm);
     }
 
-    /* ===== MAIN LAYOUT ===== */
     #accessScreen {
       display: flex;
       align-items: center;
@@ -155,7 +156,6 @@
       padding: 30px 20px;
     }
 
-    /* ===== ALERT/WARNING ===== */
     .warning {
       background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
       border: 1px solid rgba(255, 193, 7, 0.3);
@@ -167,7 +167,6 @@
       line-height: 1.7;
     }
 
-    /* ===== STATS GRID ===== */
     .stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -217,7 +216,6 @@
       font-weight: 600;
     }
 
-    /* ===== TABS ===== */
     .tabs {
       display: flex;
       gap: 8px;
@@ -261,7 +259,6 @@
       background: var(--accent);
     }
 
-    /* ===== SECTIONS ===== */
     .section {
       display: none;
       animation: fadeIn 0.3s ease;
@@ -272,11 +269,17 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
-    /* ===== CONTROLS & FILTERS ===== */
     .controls {
       display: flex;
       gap: 12px;
@@ -293,7 +296,8 @@
       min-width: 200px;
     }
 
-    input, select {
+    input,
+    select {
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text);
@@ -308,7 +312,8 @@
       color: var(--text-muted);
     }
 
-    input:focus, select:focus {
+    input:focus,
+    select:focus {
       outline: none;
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(234, 106, 0, 0.1);
@@ -319,7 +324,6 @@
       color: var(--text);
     }
 
-    /* ===== TABLE ===== */
     .table-wrapper {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -353,6 +357,7 @@
       padding: 14px;
       border-bottom: 1px solid var(--border);
       color: var(--text);
+      vertical-align: top;
     }
 
     tbody tr:hover {
@@ -363,7 +368,6 @@
       border-bottom: none;
     }
 
-    /* ===== BADGES ===== */
     .badge {
       display: inline-block;
       padding: 6px 12px;
@@ -394,7 +398,6 @@
       color: #ff6b6b;
     }
 
-    /* ===== BUTTONS ===== */
     button {
       border: none;
       border-radius: 6px;
@@ -451,7 +454,6 @@
       transform: translateY(-2px);
     }
 
-    /* ===== FORM ===== */
     .form-box {
       background: var(--surface);
       padding: 25px;
@@ -505,7 +507,6 @@
       flex-wrap: wrap;
     }
 
-    /* ===== EMPTY STATE ===== */
     .empty {
       text-align: center;
       padding: 50px 20px;
@@ -517,7 +518,6 @@
       font-size: 14px;
     }
 
-    /* ===== MEDIA PREVIEW ===== */
     .thumb {
       max-width: 60px;
       max-height: 60px;
@@ -538,7 +538,6 @@
       text-decoration: underline;
     }
 
-    /* ===== PAGINATION ===== */
     .pagination {
       display: flex;
       gap: 8px;
@@ -581,7 +580,6 @@
       font-size: 12px;
     }
 
-    /* ===== RESPONSIVE ===== */
     @media (max-width: 1024px) {
       .container {
         padding: 20px 16px;
@@ -660,7 +658,8 @@
         width: 100%;
       }
 
-      input, select {
+      input,
+      select {
         width: 100%;
         min-width: unset;
       }
@@ -671,10 +670,11 @@
 
       table {
         font-size: 12px;
-        min-width: 600px;
+        min-width: 700px;
       }
 
-      th, td {
+      th,
+      td {
         padding: 10px;
       }
 
@@ -742,7 +742,8 @@
         display: none;
       }
 
-      th, td {
+      th,
+      td {
         padding: 8px;
         font-size: 11px;
       }
@@ -794,13 +795,13 @@
 <div class="container">
 
   <div class="warning">
-    ⚠️ Secure admin page: only approved admin emails can view this dashboard. Deleting a user removes the Firestore document only—it does not delete the Firebase Authentication login.
+    ⚠️ Secure admin page: only approved admin emails can view this dashboard. Login count reads signInCount, loginCount, totalLogins, loginHistory, loginEvents, and stats.signInCount fields when available.
   </div>
 
-  <!-- Stats Grid -->
   <div class="stats">
     <div class="card"><h2 id="totalUsers">0</h2><p>Total Users</p></div>
     <div class="card"><h2 id="pendingUsers">0</h2><p>Pending Users</p></div>
+    <div class="card"><h2 id="totalSignIns">0</h2><p>Total Sign-Ins</p></div>
     <div class="card"><h2 id="totalMessages">0</h2><p>Conversations</p></div>
     <div class="card"><h2 id="totalPosts">0</h2><p>Posts</p></div>
     <div class="card"><h2 id="totalPhotos">0</h2><p>Photos</p></div>
@@ -808,7 +809,6 @@
     <div class="card"><h2 id="totalSponsors">0</h2><p>Sponsorships</p></div>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs">
     <button class="tab-btn active" onclick="showTab('usersSection', this)">Users</button>
     <button class="tab-btn" onclick="showTab('messagesSection', this)">Messages</button>
@@ -816,7 +816,6 @@
     <button class="tab-btn" onclick="showTab('sponsorsSection', this)">Sponsorships</button>
   </div>
 
-  <!-- USERS SECTION -->
   <section id="usersSection" class="section active">
     <div class="controls">
       <div>
@@ -849,19 +848,19 @@
             <th>Trade</th>
             <th>Status</th>
             <th>Sign-Ins</th>
+            <th>Last Login</th>
             <th>Joined</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody id="usersTable">
-          <tr><td colspan="8" class="empty"><p>Loading users...</p></td></tr>
+          <tr><td colspan="9" class="empty"><p>Loading users...</p></td></tr>
         </tbody>
       </table>
     </div>
     <div class="pagination" id="usersPagination"></div>
   </section>
 
-  <!-- MESSAGES SECTION -->
   <section id="messagesSection" class="section">
     <div class="controls">
       <div>
@@ -889,7 +888,6 @@
     <div class="pagination" id="messagesPagination"></div>
   </section>
 
-  <!-- POSTS SECTION -->
   <section id="postsSection" class="section">
     <div class="controls">
       <div>
@@ -918,7 +916,6 @@
     <div class="pagination" id="postsPagination"></div>
   </section>
 
-  <!-- SPONSORS SECTION -->
   <section id="sponsorsSection" class="section">
 
     <div class="form-box">
@@ -977,11 +974,13 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
   import {
     getAuth,
     onAuthStateChanged,
     signOut
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
   import {
     getFirestore,
     collection,
@@ -1008,7 +1007,9 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const ADMIN_EMAILS = ["linktradenetwork@gmail.com"].map(email => email.toLowerCase());
+  const ADMIN_EMAILS = [
+    "linktradenetwork@gmail.com"
+  ].map(email => email.toLowerCase());
 
   let allUsers = [];
   let allConversations = [];
@@ -1016,8 +1017,8 @@
   let allSponsors = [];
   let listenersStarted = false;
 
-  // Pagination
   const itemsPerPage = 10;
+
   let currentPages = {
     users: 1,
     messages: 1,
@@ -1034,7 +1035,7 @@
         <div style="text-align:center">
           <h2 style="color:#fff;margin-bottom:12px">Admin Login Required</h2>
           <p style="color:var(--text-muted);margin-bottom:24px">You must be signed in first.</p>
-          <button class="small-btn" onclick="window.location.href='front.html'">Go To Login</button>
+          <button class="small-btn" onclick="window.location.href='/front/'">Go To Login</button>
         </div>
       `;
       return;
@@ -1068,13 +1069,14 @@
           <h2 style="color:#fff;margin-bottom:12px">Access Denied</h2>
           <p style="color:var(--text-muted);margin-bottom:8px">Signed in as: <strong style="color:var(--accent)">${safe(email || "Unknown")}</strong></p>
           <p style="color:var(--text-muted);margin-bottom:24px">This email is not approved for the admin dashboard.</p>
-          <button class="small-btn" onclick="window.location.href='dashboard.html'">Back To Dashboard</button>
+          <button class="small-btn" onclick="window.location.href='/dashboard/'">Back To Dashboard</button>
         </div>
       `;
       return;
     }
 
     document.getElementById("signedInAs").textContent = "Signed in as: " + email;
+
     accessScreen.style.display = "none";
     adminApp.style.display = "block";
 
@@ -1087,55 +1089,145 @@
   function startAdminDashboard() {
     onSnapshot(collection(db, "users"), snapshot => {
       allUsers = [];
+
       snapshot.forEach(docSnap => {
-        allUsers.push({ id: docSnap.id, ...docSnap.data() });
+        allUsers.push({
+          id: docSnap.id,
+          ...docSnap.data()
+        });
       });
+
       currentPages.users = 1;
       renderUsers();
       updateStats();
+
     }, error => {
-      document.getElementById("usersTable").innerHTML = `<tr><td colspan="8" class="empty"><p>Permission error. Check Firestore rules.</p></td></tr>`;
+      document.getElementById("usersTable").innerHTML =
+        `<tr><td colspan="9" class="empty"><p>Permission error. Check Firestore rules.</p></td></tr>`;
       console.error(error);
     });
 
     onSnapshot(collection(db, "conversations"), snapshot => {
       allConversations = [];
+
       snapshot.forEach(docSnap => {
-        allConversations.push({ id: docSnap.id, ...docSnap.data() });
+        allConversations.push({
+          id: docSnap.id,
+          ...docSnap.data()
+        });
       });
+
       currentPages.messages = 1;
       renderMessages();
       updateStats();
+
     }, error => {
-      document.getElementById("messagesTable").innerHTML = `<tr><td colspan="6" class="empty"><p>Permission error. Check Firestore rules.</p></td></tr>`;
+      document.getElementById("messagesTable").innerHTML =
+        `<tr><td colspan="6" class="empty"><p>Permission error. Check Firestore rules.</p></td></tr>`;
       console.error(error);
     });
 
     onSnapshot(collection(db, "posts"), snapshot => {
       allPosts = [];
+
       snapshot.forEach(docSnap => {
-        allPosts.push({ id: docSnap.id, ...docSnap.data() });
+        allPosts.push({
+          id: docSnap.id,
+          ...docSnap.data()
+        });
       });
+
       currentPages.posts = 1;
       renderPosts();
       updateStats();
+
     }, error => {
-      document.getElementById("postsTable").innerHTML = `<tr><td colspan="7" class="empty"><p>Permission error. Check Firestore rules.</p></td></tr>`;
+      document.getElementById("postsTable").innerHTML =
+        `<tr><td colspan="7" class="empty"><p>Permission error. Check Firestore rules.</p></td></tr>`;
       console.error(error);
     });
 
     onSnapshot(collection(db, "sponsorships"), snapshot => {
       allSponsors = [];
+
       snapshot.forEach(docSnap => {
-        allSponsors.push({ id: docSnap.id, ...docSnap.data() });
+        allSponsors.push({
+          id: docSnap.id,
+          ...docSnap.data()
+        });
       });
+
       currentPages.sponsors = 1;
       renderSponsors();
       updateStats();
+
     }, error => {
-      document.getElementById("sponsorsTable").innerHTML = `<tr><td colspan="8" class="empty"><p>Permission error. Check Firestore rules.</p></td></tr>`;
+      document.getElementById("sponsorsTable").innerHTML =
+        `<tr><td colspan="8" class="empty"><p>Permission error. Check Firestore rules.</p></td></tr>`;
       console.error(error);
     });
+  }
+
+  function getSignInCount(user) {
+    const directFields = [
+      user.signInCount,
+      user.loginCount,
+      user.totalLogins,
+      user.totalSignIns,
+      user.signins,
+      user.signIns,
+      user.loginTimes,
+      user.authLoginCount
+    ];
+
+    for (const value of directFields) {
+      const numberValue = Number(value);
+      if (!Number.isNaN(numberValue) && numberValue > 0) {
+        return numberValue;
+      }
+    }
+
+    if (user.stats) {
+      const statsFields = [
+        user.stats.signInCount,
+        user.stats.loginCount,
+        user.stats.totalLogins,
+        user.stats.totalSignIns
+      ];
+
+      for (const value of statsFields) {
+        const numberValue = Number(value);
+        if (!Number.isNaN(numberValue) && numberValue > 0) {
+          return numberValue;
+        }
+      }
+    }
+
+    if (Array.isArray(user.loginHistory)) {
+      return user.loginHistory.length;
+    }
+
+    if (Array.isArray(user.loginEvents)) {
+      return user.loginEvents.length;
+    }
+
+    if (Array.isArray(user.signInHistory)) {
+      return user.signInHistory.length;
+    }
+
+    return 0;
+  }
+
+  function getLastLogin(user) {
+    return (
+      user.lastLoginAt ||
+      user.lastSignInAt ||
+      user.lastSigninAt ||
+      user.lastLogin ||
+      user.lastActiveAt ||
+      user.updatedAt ||
+      null
+    );
   }
 
   function renderUsers() {
@@ -1144,7 +1236,7 @@
     const statusFilter = document.getElementById("statusFilter").value.toLowerCase();
 
     const filtered = allUsers.filter(user => {
-      const text = `${user.fullName || ""} ${user.name || ""} ${user.email || ""} ${user.role || ""} ${user.trade || ""}`.toLowerCase();
+      const text = `${user.fullName || ""} ${user.name || ""} ${user.displayName || ""} ${user.email || ""} ${user.role || ""} ${user.trade || ""}`.toLowerCase();
       const role = (user.role || "").toLowerCase();
       const status = (user.status || "pending").toLowerCase();
 
@@ -1153,17 +1245,19 @@
         (!statusFilter || status === statusFilter);
     });
 
-    renderPaginatedTable("users", filtered, "usersTable", (user) => {
+    renderPaginatedTable("users", filtered, "usersTable", user => {
       const status = user.status || "pending";
-      const signIns = user.signInCount || 0;
+      const signIns = getSignInCount(user);
+
       return `
         <tr>
           <td>${safe(user.fullName || user.name || user.displayName || "N/A")}</td>
           <td>${safe(user.email || "N/A")}</td>
-          <td>${safe(user.role || "N/A")}</td>
+          <td>${safe(user.role || user.profileType || "N/A")}</td>
           <td>${safe(user.trade || "N/A")}</td>
           <td><span class="badge ${safe(status)}">${safe(status)}</span></td>
-          <td>${signIns}</td>
+          <td><strong style="color:var(--accent-light)">${safe(signIns)}</strong></td>
+          <td>${formatDate(getLastLogin(user))}</td>
           <td>${formatDate(user.createdAt)}</td>
           <td style="white-space:nowrap">
             <button class="approve-btn" onclick="approveUser('${user.id}')">Approve</button>
@@ -1182,7 +1276,7 @@
       return text.includes(search);
     });
 
-    renderPaginatedTable("messages", filtered, "messagesTable", (item) => {
+    renderPaginatedTable("messages", filtered, "messagesTable", item => {
       return `
         <tr>
           <td style="font-size:11px">${safe(item.id)}</td>
@@ -1204,12 +1298,19 @@
       return text.includes(search);
     });
 
-    renderPaginatedTable("posts", filtered, "postsTable", (post) => {
+    renderPaginatedTable("posts", filtered, "postsTable", post => {
       const mediaUrl = post.mediaUrl || post.imageUrl || post.photoUrl || post.videoUrl || "";
       const mediaType = getMediaType(post, mediaUrl);
+
       let preview = "N/A";
-      if (mediaType === "photo" && mediaUrl) preview = `<img class="thumb" src="${safeUrl(mediaUrl)}" />`;
-      if (mediaType === "video") preview = "🎥 Video";
+
+      if (mediaType === "photo" && mediaUrl) {
+        preview = `<img class="thumb" src="${safeUrl(mediaUrl)}" />`;
+      }
+
+      if (mediaType === "video") {
+        preview = "🎥 Video";
+      }
 
       return `
         <tr>
@@ -1226,8 +1327,9 @@
   }
 
   function renderSponsors() {
-    renderPaginatedTable("sponsors", allSponsors, "sponsorsTable", (sponsor) => {
+    renderPaginatedTable("sponsors", allSponsors, "sponsorsTable", sponsor => {
       const status = sponsor.status || "pending";
+
       return `
         <tr>
           <td>${safe(sponsor.companyName || "N/A")}</td>
@@ -1248,7 +1350,9 @@
 
   function renderPaginatedTable(type, data, tableId, renderRow) {
     if (!data.length) {
-      document.getElementById(tableId).innerHTML = `<tr><td colspan="100%" class="empty"><p>No items found</p></td></tr>`;
+      document.getElementById(tableId).innerHTML =
+        `<tr><td colspan="100%" class="empty"><p>No items found</p></td></tr>`;
+
       document.getElementById(type + "Pagination").innerHTML = "";
       return;
     }
@@ -1259,28 +1363,55 @@
     const end = start + itemsPerPage;
     const pageData = data.slice(start, end);
 
-    document.getElementById(tableId).innerHTML = pageData.map(renderRow).join("");
+    document.getElementById(tableId).innerHTML =
+      pageData.map(renderRow).join("");
 
-    // Render pagination
     let paginationHTML = "";
+
     if (totalPages > 1) {
-      paginationHTML += `<button onclick="changePage('${type}', ${currentPage - 1})" class="${currentPage === 1 ? 'disabled' : ''}">← Prev</button>`;
+      paginationHTML +=
+        `<button onclick="changePage('${type}', ${currentPage - 1})" class="${currentPage === 1 ? 'disabled' : ''}">← Prev</button>`;
+
       for (let i = 1; i <= totalPages; i++) {
-        paginationHTML += `<button onclick="changePage('${type}', ${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+        paginationHTML +=
+          `<button onclick="changePage('${type}', ${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
       }
-      paginationHTML += `<button onclick="changePage('${type}', ${currentPage + 1})" class="${currentPage === totalPages ? 'disabled' : ''}">Next →</button>`;
-      paginationHTML += `<span>${currentPage} of ${totalPages}</span>`;
+
+      paginationHTML +=
+        `<button onclick="changePage('${type}', ${currentPage + 1})" class="${currentPage === totalPages ? 'disabled' : ''}">Next →</button>`;
+
+      paginationHTML +=
+        `<span>${currentPage} of ${totalPages}</span>`;
     }
+
     document.getElementById(type + "Pagination").innerHTML = paginationHTML;
   }
 
   function updateStats() {
+    const totalSignIns = allUsers.reduce((sum, user) => {
+      return sum + getSignInCount(user);
+    }, 0);
+
     document.getElementById("totalUsers").textContent = allUsers.length;
-    document.getElementById("pendingUsers").textContent = allUsers.filter(u => (u.status || "pending") === "pending").length;
+
+    document.getElementById("pendingUsers").textContent =
+      allUsers.filter(u => (u.status || "pending") === "pending").length;
+
+    document.getElementById("totalSignIns").textContent = totalSignIns;
+
     document.getElementById("totalMessages").textContent = allConversations.length;
     document.getElementById("totalPosts").textContent = allPosts.length;
-    document.getElementById("totalPhotos").textContent = allPosts.filter(p => getMediaType(p, p.mediaUrl || p.imageUrl || p.photoUrl || "") === "photo").length;
-    document.getElementById("totalVideos").textContent = allPosts.filter(p => getMediaType(p, p.mediaUrl || p.videoUrl || "") === "video").length;
+
+    document.getElementById("totalPhotos").textContent =
+      allPosts.filter(p =>
+        getMediaType(p, p.mediaUrl || p.imageUrl || p.photoUrl || "") === "photo"
+      ).length;
+
+    document.getElementById("totalVideos").textContent =
+      allPosts.filter(p =>
+        getMediaType(p, p.mediaUrl || p.videoUrl || "") === "video"
+      ).length;
+
     document.getElementById("totalSponsors").textContent = allSponsors.length;
   }
 
@@ -1288,16 +1419,43 @@
     const type = (post.mediaType || post.type || "").toLowerCase();
     const lowerUrl = (url || "").toLowerCase();
 
-    if (type.includes("video") || lowerUrl.includes(".mp4") || lowerUrl.includes(".mov") || lowerUrl.includes(".webm")) return "video";
-    if (type.includes("photo") || type.includes("image") || lowerUrl.includes(".jpg") || lowerUrl.includes(".jpeg") || lowerUrl.includes(".png") || lowerUrl.includes(".webp")) return "photo";
+    if (
+      type.includes("video") ||
+      lowerUrl.includes(".mp4") ||
+      lowerUrl.includes(".mov") ||
+      lowerUrl.includes(".webm")
+    ) {
+      return "video";
+    }
+
+    if (
+      type.includes("photo") ||
+      type.includes("image") ||
+      lowerUrl.includes(".jpg") ||
+      lowerUrl.includes(".jpeg") ||
+      lowerUrl.includes(".png") ||
+      lowerUrl.includes(".webp")
+    ) {
+      return "photo";
+    }
+
     return url ? "media" : "text";
   }
 
   function formatDate(value) {
     if (!value) return "N/A";
+
     try {
-      if (value.seconds) return new Date(value.seconds * 1000).toLocaleDateString();
+      if (value.toDate && typeof value.toDate === "function") {
+        return value.toDate().toLocaleDateString();
+      }
+
+      if (value.seconds) {
+        return new Date(value.seconds * 1000).toLocaleDateString();
+      }
+
       return new Date(value).toLocaleDateString();
+
     } catch {
       return "N/A";
     }
@@ -1314,27 +1472,32 @@
 
   function safeUrl(url) {
     if (!url) return "#";
+
     const cleaned = String(url).trim();
+
     if (!cleaned.startsWith("http://") && !cleaned.startsWith("https://")) {
       return "https://" + cleaned;
     }
+
     return cleaned;
   }
 
   window.showTab = function(sectionId, button) {
     document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+
     document.getElementById(sectionId).classList.add("active");
     button.classList.add("active");
   };
 
   window.logoutAdmin = async function() {
     await signOut(auth);
-    window.location.href = "front.html";
+    window.location.href = "/front/";
   };
 
   window.changePage = function(type, page) {
     currentPages[type] = Math.max(1, page);
+
     if (type === "users") renderUsers();
     if (type === "messages") renderMessages();
     if (type === "posts") renderPosts();
@@ -1387,30 +1550,42 @@
   };
 
   window.approveUser = async userId => {
-    await updateDoc(doc(db, "users", userId), { status: "approved" });
+    await updateDoc(doc(db, "users", userId), {
+      status: "approved"
+    });
+
     alert("User approved");
   };
 
   window.deleteUserDoc = async userId => {
     if (!confirm("Delete this user record?")) return;
+
     await deleteDoc(doc(db, "users", userId));
+
     alert("User deleted");
   };
 
   window.deletePost = async postId => {
     if (!confirm("Delete this post?")) return;
+
     await deleteDoc(doc(db, "posts", postId));
+
     alert("Post deleted");
   };
 
   window.approveSponsor = async sponsorId => {
-    await updateDoc(doc(db, "sponsorships", sponsorId), { status: "approved" });
+    await updateDoc(doc(db, "sponsorships", sponsorId), {
+      status: "approved"
+    });
+
     alert("Sponsor approved");
   };
 
   window.deleteSponsor = async sponsorId => {
     if (!confirm("Delete this sponsorship?")) return;
+
     await deleteDoc(doc(db, "sponsorships", sponsorId));
+
     alert("Sponsorship deleted");
   };
 
