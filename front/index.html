@@ -1,1 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6CYFMPH84F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-6CYFMPH84F');
+</script>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>LinkTradeNetwork • Sign In</title>
+
+<!-- LTN FORCE UPDATE VERSION: signin-clean-url-no-trust-line-20260513-v22 -->
+
+<style>
+  :root { 
+    --bg:#fff7ed; 
+    --panel:#ffffff; 
+    --ink:#172033; 
+    --muted:#64748b; 
+    --line:#e2e8f0; 
+    --brand:#ea6a00;
+    --brand2:#c35700; 
+    --ok:#16a34a; 
+    --err:#dc2626; 
+    --accent:#243b53;
+  }
+
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  body{
+    margin:0;
+    color:var(--ink);
+    font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,0.75), transparent 35%),
+      linear-gradient(135deg, #fff2df 0%, #ffb06f 45%, #ea6a00 100%);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  .wrap{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:22px;
+    flex-direction:column;
+  }
+
+  .hero{
+    text-align:center;
+    max-width:760px;
+    margin-bottom:20px;
+    animation:fadeInDown 0.6s ease-out;
+  }
+
+  .logo-header{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    margin-bottom:14px;
+  }
+
+  .logo{
+    width:58px;
+    height:58px;
+    border-radius:18px;
+    background:linear-gradient(135deg,#ea6a00,#b84d00);
+    display:grid;
+    place-items:center;
+    font-size:24px;
+    box-shadow:0 12px 28px rgba(120,53,15,0.35);
+    font-weight:900;
+    color:#fff;
+    letter-spacing:-1px;
+  }
+
+  .brand-name{
+    font-size:30px;
+    font-weight:900;
+    color:#ffffff;
+    text-shadow:0 3px 12px rgba(0,0,0,0.22);
+    letter-spacing:-0.8px;
+  }
+
+  .hero-title{
+    margin:0;
+    color:#ffffff;
+    font-size:22px;
+    font-weight:850;
+    line-height:1.25;
+    text-shadow:0 2px 9px rgba(0,0,0,0.2);
+  }
+
+  .hero-sub{
+    margin:8px auto 0;
+    color:rgba(255,255,255,0.92);
+    font-size:14px;
+    line-height:1.45;
+    max-width:620px;
+    text-shadow:0 2px 7px rgba(0,0,0,0.18);
+  }
+
+  @keyframes fadeInDown{
+    from{opacity:0;transform:translateY(-18px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  @keyframes fadeIn{
+    from{opacity:0}
+    to{opacity:1}
+  }
+
+  @keyframes fadeInUp{
+    from{opacity:0;transform:translateY(24px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  .trades{
+    display:flex;
+    gap:8px;
+    margin:18px auto 0;
+    flex-wrap:wrap;
+    justify-content:center;
+    max-width:720px;
+    animation:fadeIn 0.8s ease-out 0.2s both;
+  }
+
+  .trade-badge{
+    background:rgba(255,255,255,0.30);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.38);
+    color:#172033;
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:800;
+    box-shadow:0 3px 12px rgba(0,0,0,0.10);
+    transition:all 0.2s;
+    white-space:nowrap;
+  }
+
+  .trade-badge:hover{
+    background:rgba(255,255,255,0.45);
+    transform:translateY(-1px);
+  }
+
+  .tabs{
+    display:flex;
+    gap:8px;
+    margin:0 auto 14px;
+    max-width:480px;
+    width:100%;
+    background:rgba(255,255,255,0.25);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.30);
+    border-radius:16px;
+    padding:6px;
+    animation:fadeIn 0.8s ease-out 0.1s both;
+  }
+
+  .tab{
+    flex:1;
+    text-align:center;
+    background:transparent;
+    border:none;
+    border-radius:12px;
+    padding:12px;
+    font-weight:900;
+    font-size:15px;
+    color:rgba(255,255,255,0.86);
+    cursor:pointer;
+    transition:all 0.25s;
+    min-height:48px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .tab.active{
+    background:#ffffff;
+    color:var(--brand);
+    box-shadow:0 6px 18px rgba(0,0,0,0.16);
+  }
+
+  .card{
+    background:rgba(255,255,255,0.96);
+    border:1px solid rgba(255,255,255,0.65);
+    border-radius:24px;
+    box-shadow:0 24px 70px rgba(49,24,10,0.28);
+    padding:30px 28px 28px;
+    width:100%;
+    max-width:480px;
+    animation:fadeInUp 0.6s ease-out 0.3s both;
+  }
+
+  h1{
+    text-align:center;
+    margin:0 0 8px;
+    color:var(--ink);
+    font-size:28px;
+    font-weight:900;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    letter-spacing:-0.6px;
+  }
+
+  .title-logo{
+    width:42px;
+    height:42px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#ea6a00,#b84d00);
+    display:grid;
+    place-items:center;
+    font-size:17px;
+    box-shadow:0 6px 16px rgba(234,106,0,0.32);
+    font-weight:900;
+    color:#fff;
+    flex-shrink:0;
+  }
+
+  p.sub{
+    text-align:center;
+    color:var(--muted);
+    margin:0 0 20px;
+    font-size:14px;
+    line-height:1.5;
+  }
+
+  label{
+    display:block;
+    margin-top:14px;
+    font-size:13px;
+    color:var(--ink);
+    font-weight:800;
+    margin-bottom:6px;
+  }
+
+  input{
+    width:100%;
+    background:#f8fafc;
+    color:var(--ink);
+    border:2px solid var(--line);
+    border-radius:14px;
+    padding:14px 15px;
+    font-size:16px;
+    transition:all 0.2s;
+    font-family:inherit;
+    min-height:52px;
+  }
+
+  input:focus{
+    outline:none;
+    border-color:var(--brand);
+    background:#ffffff;
+    box-shadow:0 0 0 4px rgba(234,106,0,0.12);
+  }
+
+  .name-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:6px;
+  }
+
+  .agree{
+    display:flex;
+    gap:10px;
+    margin-top:16px;
+    font-size:13px;
+    align-items:flex-start;
+    line-height:1.45;
+    color:var(--muted);
+  }
+
+  .agree input[type="checkbox"]{
+    width:20px;
+    height:20px;
+    margin:1px 0 0 0;
+    cursor:pointer;
+    accent-color:var(--brand);
+    flex-shrink:0;
+    min-height:auto;
+  }
+
+  .agree a{
+    color:var(--brand);
+    text-decoration:none;
+    font-weight:900;
+  }
+
+  .agree a:hover{
+    text-decoration:underline;
+  }
+
+  button{
+    width:100%;
+    margin-top:18px;
+    background:linear-gradient(135deg, var(--brand) 0%, var(--brand2) 100%);
+    color:#fff;
+    border:0;
+    border-radius:14px;
+    padding:15px;
+    font-weight:900;
+    font-size:16px;
+    cursor:pointer;
+    transition:all 0.25s;
+    box-shadow:0 8px 20px rgba(234,106,0,0.34);
+    font-family:inherit;
+    min-height:52px;
+  }
+
+  button:hover{
+    transform:translateY(-1px);
+    box-shadow:0 10px 24px rgba(234,106,0,0.42);
+  }
+
+  button:active{
+    transform:translateY(0);
+  }
+
+  button:disabled{
+    opacity:0.6;
+    cursor:not-allowed;
+    transform:none;
+  }
+
+  .msg{
+    margin-top:12px;
+    font-size:14px;
+    font-weight:800;
+    padding:12px 14px;
+    border-radius:12px;
+    display:none;
+    line-height:1.4;
+  }
+
+  .msg.show{
+    display:block;
+  }
+
+  .err{
+    color:var(--err);
+    background:#fef2f2;
+    border:1px solid #fecaca;
+  }
+
+  .ok{
+    color:var(--ok);
+    background:#f0fdf4;
+    border:1px solid #bbf7d0;
+  }
+
+  .otp-box{
+    margin-top:20px;
+    display:none;
+    padding-top:20px;
+    border-top:2px solid var(--line);
+  }
+
+  .otp-box.show{
+    display:block;
+  }
+
+  .otp-inputs{
+    display:flex;
+    gap:8px;
+    margin:16px 0;
+    justify-content:center;
+  }
+
+  .otp-inputs input{
+    width:52px;
+    height:64px;
+    text-align:center;
+    font-size:28px;
+    font-weight:900;
+    border:2px solid var(--line);
+    border-radius:14px;
+    background:#f8fafc;
+    color:var(--ink);
+    padding:0;
+    min-height:auto;
+    letter-spacing:0;
+  }
+
+  .otp-inputs input:focus{
+    border-color:var(--brand);
+    background:#ffffff;
+    box-shadow:0 0 0 3px rgba(234,106,0,0.15);
+  }
+
+  #resendBtn{
+    background:#64748b;
+    box-shadow:0 5px 14px rgba(100,116,139,0.28);
+  }
+
+  #resendBtn:hover{
+    background:#475569;
+  }
+
+  .otp-box > div:first-child{
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.6;
+  }
+
+  .otp-box > div:first-child b{
+    color:var(--brand);
+    font-weight:900;
+  }
+
+  .footer-note{
+    margin-top:16px;
+    color:rgba(255,255,255,0.92);
+    text-align:center;
+    font-size:12px;
+    font-weight:700;
+    text-shadow:0 2px 8px rgba(0,0,0,0.18);
+  }
+
+  @keyframes successPulse{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.03)}
+  }
+
+  #doneStep.show{
+    animation:successPulse 0.5s ease-in-out;
+  }
+
+  @media(max-width:640px){
+    .wrap{
+      padding:16px;
+      justify-content:flex-start;
+      padding-top:22px;
+    }
+
+    .hero{
+      margin-bottom:16px;
+    }
+
+    .logo-header{
+      margin-bottom:10px;
+      gap:10px;
+    }
+
+    .logo{
+      width:48px;
+      height:48px;
+      font-size:20px;
+      border-radius:15px;
+    }
+
+    .brand-name{
+      font-size:23px;
+    }
+
+    .hero-title{
+      font-size:18px;
+    }
+
+    .hero-sub{
+      font-size:13px;
+      max-width:94%;
+    }
+
+    .trades{
+      gap:6px;
+      margin-top:14px;
+      max-width:100%;
+    }
+
+    .trade-badge{
+      padding:7px 11px;
+      font-size:11px;
+    }
+
+    .tabs{
+      margin-bottom:12px;
+      border-radius:14px;
+    }
+
+    .tab{
+      padding:10px;
+      font-size:14px;
+      min-height:44px;
+    }
+
+    .card{
+      padding:24px 20px;
+      border-radius:20px;
+    }
+
+    h1{
+      font-size:23px;
+      gap:9px;
+    }
+
+    .title-logo{
+      width:36px;
+      height:36px;
+      font-size:14px;
+      border-radius:12px;
+    }
+
+    p.sub{
+      font-size:13px;
+      margin-bottom:14px;
+    }
+
+    .name-grid{
+      gap:10px;
+    }
+
+    label{
+      font-size:13px;
+      margin-top:12px;
+    }
+
+    input{
+      padding:12px 13px;
+      font-size:16px;
+      min-height:48px;
+      border-radius:12px;
+    }
+
+    .otp-inputs{
+      gap:6px;
+      margin:12px 0;
+    }
+
+    .otp-inputs input{
+      width:48px;
+      height:58px;
+      font-size:24px;
+    }
+
+    button{
+      padding:14px;
+      font-size:15px;
+      min-height:48px;
+      margin-top:16px;
+    }
+  }
+
+  @media(max-width:400px){
+    .wrap{
+      padding:12px;
+      padding-top:18px;
+    }
+
+    .logo-header{
+      gap:9px;
+    }
+
+    .brand-name{
+      font-size:20px;
+    }
+
+    .hero-title{
+      font-size:16px;
+    }
+
+    .trades{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      width:100%;
+      gap:6px;
+    }
+
+    .trade-badge{
+      text-align:center;
+      font-size:10.5px;
+      padding:7px 8px;
+    }
+
+    .card{
+      padding:22px 16px;
+      border-radius:18px;
+    }
+
+    h1{
+      font-size:21px;
+    }
+
+    .name-grid{
+      grid-template-columns:1fr;
+      gap:0;
+    }
+
+    .otp-inputs{
+      gap:5px;
+    }
+
+    .otp-inputs input{
+      width:44px;
+      height:54px;
+      font-size:22px;
+    }
+  }
+
+  @media(max-height:560px) and (orientation:landscape){
+    .wrap{
+      padding:10px;
+      justify-content:flex-start;
+    }
+
+    .hero{
+      margin-bottom:10px;
+    }
+
+    .logo-header{
+      margin-bottom:6px;
+    }
+
+    .logo{
+      width:40px;
+      height:40px;
+      font-size:16px;
+    }
+
+    .brand-name{
+      font-size:18px;
+    }
+
+    .hero-title,
+    .hero-sub,
+    .trades,
+    .footer-note{
+      display:none;
+    }
+
+    .card{
+      padding:16px;
+      max-width:90vw;
+    }
+
+    h1{
+      font-size:20px;
+      margin-bottom:4px;
+    }
+
+    .title-logo{
+      width:28px;
+      height:28px;
+      font-size:12px;
+    }
+
+    p.sub{
+      font-size:12px;
+      margin-bottom:10px;
+    }
+
+    label{
+      margin-top:8px;
+      font-size:12px;
+    }
+
+    input{
+      padding:10px 12px;
+      min-height:42px;
+    }
+
+    button{
+      padding:10px;
+      min-height:42px;
+      margin-top:10px;
+    }
+
+    .otp-box{
+      margin-top:10px;
+      padding-top:10px;
+    }
+
+    .otp-inputs{
+      margin:8px 0;
+    }
+
+    .otp-inputs input{
+      width:40px;
+      height:48px;
+      font-size:20px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="logo-header">
+      <div class="logo">LTN</div>
+      <div class="brand-name">LinkTradeNetwork</div>
+    </div>
+
+    <h2 class="hero-title">Built for trade workers on the rise</h2>
+    <p class="hero-sub">
+      Connect with apprentices, trade schools, contractors, employers, and skilled trade professionals.
+    </p>
+
+    <div class="trades">
+      <span class="trade-badge">Plumbing</span>
+      <span class="trade-badge">Electrical</span>
+      <span class="trade-badge">HVAC</span>
+      <span class="trade-badge">Low Voltage</span>
+      <span class="trade-badge">Physical Security</span>
+      <span class="trade-badge">General Contractor</span>
+      <span class="trade-badge">Carpentry</span>
+      <span class="trade-badge">Welding</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-signup">Sign Up</div>
+    <div class="tab" id="tab-signin">Sign In</div>
+  </div>
+
+  <div class="card">
+    <h1 id="cardTitle"><span class="title-logo">LTN</span><span>Join LTN</span></h1>
+    <p class="sub" id="cardSub">Create your account and join the skilled trades network</p>
+
+    <div id="joinStep">
+      <div class="name-grid">
+        <div>
+          <label>First Name</label>
+          <input id="firstName" placeholder="John" autocomplete="given-name" />
+        </div>
+        <div>
+          <label>Last Name</label>
+          <input id="lastName" placeholder="Doe" autocomplete="family-name" />
+        </div>
+      </div>
+
+      <label>Email Address</label>
+      <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+
+      <label class="agree">
+        <input id="consent" type="checkbox">
+        <span>I agree to the <a href="/terms.html" target="_blank">Terms &amp; Conditions</a></span>
+      </label>
+
+      <button id="joinBtn">Get Verification Code</button>
+      <div id="joinMsg" class="msg"></div>
+
+      <div id="otpStep" class="otp-box">
+        <div>Enter the 6-digit code sent to<br><b id="otpEmail"></b></div>
+        <div class="otp-inputs">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*">
+        </div>
+        <button id="verifyBtn">Verify & Continue</button>
+        <button id="resendBtn">Resend Code</button>
+        <div id="otpMsg" class="msg"></div>
+      </div>
+
+      <div id="passwordStep" style="display:none;margin-top:20px;padding-top:20px;border-top:2px solid var(--line)">
+        <div style="text-align:center;margin-bottom:16px">
+          <div style="font-size:28px;margin-bottom:8px">🔐</div>
+          <div style="font-weight:900;font-size:18px;color:var(--ink)">Create Your 6-Digit Password</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px">Use a 6-digit code you will remember for sign in</div>
+        </div>
+        <label>6-Digit Password / Code</label>
+        <input id="newPassword" type="password" inputmode="numeric" maxlength="6" placeholder="Enter 6 digits" autocomplete="new-password" />
+        <label>Confirm 6-Digit Password / Code</label>
+        <input id="confirmPassword" type="password" inputmode="numeric" maxlength="6" placeholder="Repeat 6 digits" autocomplete="new-password" />
+        <div style="font-size:12px;color:var(--muted);margin-top:8px">• Must be exactly 6 numbers</div>
+        <button id="setPasswordBtn">Save Password & Enter LTN</button>
+        <div id="passwordMsg" class="msg"></div>
+      </div>
+    </div>
+
+    <div id="signinStep" style="display:none;">
+      <label>Email Address</label>
+      <input id="signinEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+      <label>6-Digit Password / Code</label>
+      <input id="signinPassword" type="password" placeholder="Your 6-digit password/code" autocomplete="current-password" />
+      <button id="signinBtn">Sign In</button>
+
+      <div style="text-align:center;margin-top:12px">
+        <span style="font-size:13px;color:var(--muted)">Forgot your password? </span>
+        <a href="#" id="forgotPasswordLink" style="font-size:13px;color:var(--brand);font-weight:900">Reset it here</a>
+      </div>
+
+      <div id="signinMsg" class="msg"></div>
+    </div>
+
+    <div id="doneStep" class="msg ok" style="display:none">
+      ✅ Success! Redirecting to your dashboard...
+    </div>
+  </div>
+
+  <div class="footer-note">LinkTradeNetwork.com</div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
+  authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
+  projectId: "linktradenetwork-2dcd1",
+  storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
+  messagingSenderId: "219091766597",
+  appId: "1:219091766597:web:9878c199ba17e0ed89c22c"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const functions = getFunctions(app, "us-central1");
+
+const requestVerificationCode = httpsCallable(functions, "requestVerificationCode");
+const verifySignupCode = httpsCallable(functions, "verifySignupCode");
+const createVerifiedUser = httpsCallable(functions, "createVerifiedUser");
+
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+function grantLTNAccess(email, name, uid) {
+  localStorage.setItem("ltn_access_granted", "true");
+  localStorage.setItem("userEmail", email || "");
+  localStorage.setItem("userName", name || "");
+  localStorage.setItem("ltn_user", JSON.stringify({
+    email: email || "",
+    name: name || "",
+    uid: uid || ""
+  }));
+}
+
+function showMsg(el, text, type) {
+  el.textContent = text;
+  el.className = `msg ${type} show`;
+}
+
+function hideMsg(el) {
+  el.className = 'msg';
+}
+
+function cleanFirebaseError(err) {
+  const code = String(err && err.code || '');
+  const message = String(err && err.message || '');
+
+  if (code.includes('auth/invalid-credential') || code.includes('auth/wrong-password')) return 'Incorrect email or password.';
+  if (code.includes('auth/user-not-found')) return 'No account found with that email.';
+  if (code.includes('auth/email-already-in-use') || code.includes('already-exists')) return 'That email is already registered. Please sign in.';
+  if (code.includes('auth/invalid-email')) return 'Please enter a valid email address.';
+  if (code.includes('auth/weak-password')) return 'Password must be exactly 6 digits.';
+  if (code.includes('deadline-exceeded')) return 'Code expired. Please request a new code.';
+  if (code.includes('permission-denied')) return 'Invalid code.';
+  if (code.includes('not-found')) return 'No verification code found. Please request a new code.';
+  if (code.includes('failed-precondition')) return 'Please verify your email first.';
+  if (code.includes('resource-exhausted')) return 'Too many attempts. Please request a new code.';
+
+  return message.replace('FirebaseError: ', '').replace(/^functions\/[a-z-]+\s*/i, '') || 'Something went wrong. Please try again.';
+}
+
+const tabSignup = $('#tab-signup');
+const tabSignin = $('#tab-signin');
+const cardTitle = $('#cardTitle');
+const cardSub   = $('#cardSub');
+const joinStep  = $('#joinStep');
+const signinStep= $('#signinStep');
+
+tabSignup.onclick = () => {
+  tabSignup.classList.add('active');
+  tabSignin.classList.remove('active');
+  cardTitle.innerHTML = '<span class="title-logo">LTN</span><span>Join LTN</span>';
+  cardSub.textContent = 'Create your account and join the skilled trades network';
+  joinStep.style.display = 'block';
+  signinStep.style.display = 'none';
+  hideMsg($('#signinMsg'));
+};
+
+tabSignin.onclick = () => {
+  tabSignin.classList.add('active');
+  tabSignup.classList.remove('active');
+  cardTitle.innerHTML = '<span class="title-logo">LTN</span><span>Welcome Back</span>';
+  cardSub.textContent = 'Sign in to access your LinkTradeNetwork account';
+  joinStep.style.display = 'none';
+  signinStep.style.display = 'block';
+  hideMsg($('#joinMsg'));
+  $('#otpStep').classList.remove('show');
+};
+
+const joinBtn = $('#joinBtn');
+const joinMsg = $('#joinMsg');
+const otpBox = $('#otpStep');
+const otpMsg = $('#otpMsg');
+const otpEmail = $('#otpEmail');
+const verifyBtn = $('#verifyBtn');
+const resendBtn = $('#resendBtn');
+const firstNameInput = $('#firstName');
+const lastNameInput = $('#lastName');
+const emailInput = $('#email');
+const consent = $('#consent');
+const codeInputs = $$('#otpStep .otp-inputs input');
+
+const signinEmail = $('#signinEmail');
+const signinBtn = $('#signinBtn');
+const signinMsg = $('#signinMsg');
+
+let currentEmail = '';
+let currentFirstName = '';
+let currentLastName = '';
+let currentFullName = '';
+let codeVerified = false;
+
+['newPassword', 'confirmPassword'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/\D/g, '').slice(0, 6);
+    });
+  }
+});
+
+function code() {
+  return codeInputs.map(i => i.value).join('');
+}
+
+codeInputs.forEach((inp, i) => {
+  inp.addEventListener('input', () => {
+    inp.value = inp.value.replace(/\D/g, '');
+    if (inp.value && i < 5) codeInputs[i + 1].focus();
+  });
+
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !inp.value && i > 0) {
+      codeInputs[i - 1].focus();
+    }
+  });
+
+  inp.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+    if (paste.length === 6) {
+      codeInputs.forEach((input, idx) => {
+        input.value = paste[idx] || '';
+      });
+      codeInputs[5].focus();
+    }
+  });
+});
+
+joinBtn.onclick = async () => {
+  const firstName = (firstNameInput.value || '').trim();
+  const lastName = (lastNameInput.value || '').trim();
+  const email = (emailInput.value || '').trim().toLowerCase();
+
+  if (!firstName || !lastName || !email) {
+    showMsg(joinMsg, 'Please fill in all fields', 'err');
+    return;
+  }
+
+  if (!consent.checked) {
+    showMsg(joinMsg, 'Please agree to the Terms & Conditions', 'err');
+    return;
+  }
+
+  showMsg(joinMsg, 'Sending verification code...', 'ok');
+  joinBtn.disabled = true;
+
+  const fullName = `${firstName} ${lastName}`;
+
+  try {
+    const result = await requestVerificationCode({
+      firstName,
+      lastName,
+      fullName,
+      email,
+      consent: true,
+      userAgent: navigator.userAgent
+    });
+
+    if (result.data && result.data.success) {
+      currentEmail = email;
+      currentFirstName = firstName;
+      currentLastName = lastName;
+      currentFullName = fullName;
+      codeVerified = false;
+      otpEmail.textContent = email;
+      otpBox.classList.add('show');
+      hideMsg(joinMsg);
+      codeInputs.forEach(inp => inp.value = '');
+      codeInputs[0].focus();
+      localStorage.setItem('userEmail', email);
+    } else {
+      throw new Error((result.data && result.data.error) || 'Failed to send code');
+    }
+  } catch (e) {
+    showMsg(joinMsg, cleanFirebaseError(e), 'err');
+  }
+
+  joinBtn.disabled = false;
+};
+
+verifyBtn.onclick = async () => {
+  const c = code();
+
+  if (c.length !== 6) {
+    showMsg(otpMsg, 'Please enter the complete 6-digit code', 'err');
+    return;
+  }
+
+  verifyBtn.disabled = true;
+  verifyBtn.textContent = 'Verifying...';
+
+  try {
+    const result = await verifySignupCode({ email: currentEmail, code: c });
+
+    if (result.data && result.data.success) {
+      codeVerified = true;
+      otpBox.classList.remove('show');
+      document.getElementById('passwordStep').style.display = 'block';
+      document.getElementById('newPassword').focus();
+      hideMsg(otpMsg);
+    } else {
+      throw new Error((result.data && result.data.error) || 'Invalid or expired code');
+    }
+  } catch (e) {
+    showMsg(otpMsg, cleanFirebaseError(e), 'err');
+    codeInputs.forEach(inp => inp.value = '');
+    codeInputs[0].focus();
+  }
+
+  verifyBtn.disabled = false;
+  verifyBtn.textContent = 'Verify & Continue';
+};
+
+document.getElementById('setPasswordBtn').onclick = async () => {
+  const pw = $('#newPassword').value.trim();
+  const pw2 = $('#confirmPassword').value.trim();
+  const btn = document.getElementById('setPasswordBtn');
+  const msg = document.getElementById('passwordMsg');
+
+  if (!codeVerified) {
+    showMsg(msg, 'Please verify your email code first.', 'err');
+    return;
+  }
+
+  if (!pw || !pw2) {
+    showMsg(msg, 'Please fill in both fields', 'err');
+    return;
+  }
+
+  if (pw !== pw2) {
+    showMsg(msg, 'Passwords do not match', 'err');
+    return;
+  }
+
+  if (!/^\d{6}$/.test(pw)) {
+    showMsg(msg, 'Password must be exactly 6 numbers', 'err');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  try {
+    const result = await createVerifiedUser({
+      email: currentEmail,
+      password: pw,
+      firstName: currentFirstName,
+      lastName: currentLastName,
+      fullName: currentFullName,
+      consent: true
+    });
+
+    if (!result.data || !result.data.success) {
+      throw new Error((result.data && result.data.error) || 'Could not create account');
+    }
+
+    await signInWithEmailAndPassword(auth, currentEmail, pw);
+
+    grantLTNAccess(currentEmail, currentFullName, result.data.uid);
+
+    showMsg(msg, '✅ Password saved! Entering LTN...', 'ok');
+
+    const doneStep = $('#doneStep');
+    doneStep.style.display = 'block';
+    doneStep.classList.add('show');
+
+    setTimeout(() => {
+      window.location.replace('/dashboard/?v=accessgranted');
+    }, 900);
+
+  } catch (e) {
+    showMsg(msg, cleanFirebaseError(e), 'err');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Save Password & Enter LTN';
+};
+
+resendBtn.onclick = async () => {
+  const fullName = `${currentFirstName} ${currentLastName}`;
+  resendBtn.disabled = true;
+  resendBtn.textContent = 'Sending...';
+
+  try {
+    const result = await requestVerificationCode({
+      firstName: currentFirstName,
+      lastName: currentLastName,
+      fullName,
+      email: currentEmail,
+      consent: true,
+      userAgent: navigator.userAgent
+    });
+
+    const ok = result.data && result.data.success;
+
+    showMsg(
+      otpMsg,
+      ok ? 'New code sent to your email!' : 'Failed to resend code',
+      ok ? 'ok' : 'err'
+    );
+
+    if (ok) {
+      codeInputs.forEach(inp => inp.value = '');
+      codeInputs[0].focus();
+    }
+  } catch (e) {
+    showMsg(otpMsg, cleanFirebaseError(e), 'err');
+  }
+
+  setTimeout(() => {
+    resendBtn.disabled = false;
+    resendBtn.textContent = 'Resend Code';
+  }, 3000);
+};
+
+signinBtn.onclick = async () => {
+  const email = (signinEmail.value || '').trim().toLowerCase();
+  const password = ($('#signinPassword') || { value: '' }).value.trim();
+
+  if (!email) {
+    showMsg(signinMsg, 'Please enter your email address', 'err');
+    return;
+  }
+
+  if (!password) {
+    showMsg(signinMsg, 'Please enter your password', 'err');
+    return;
+  }
+
+  signinBtn.disabled = true;
+  signinBtn.textContent = 'Signing in...';
+  showMsg(signinMsg, 'Signing you in...', 'ok');
+
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const userName = cred.user.displayName || '';
+
+    grantLTNAccess(email, userName, cred.user.uid);
+
+    showMsg(signinMsg, 'Success! Redirecting...', 'ok');
+
+    setTimeout(() => {
+      window.location.replace('/dashboard/?v=accessgranted');
+    }, 700);
+
+  } catch (e) {
+    showMsg(signinMsg, cleanFirebaseError(e), 'err');
+  }
+
+  signinBtn.disabled = false;
+  signinBtn.textContent = 'Sign In';
+};
+
+const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+
+if (forgotPasswordLink) {
+  forgotPasswordLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    const email = (signinEmail.value || '').trim().toLowerCase();
+
+    if (!email) {
+      showMsg(signinMsg, 'Enter your email address first, then click reset.', 'err');
+      signinEmail.focus();
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      showMsg(signinMsg, 'Password reset email sent. Check your inbox.', 'ok');
+    } catch (e) {
+      showMsg(signinMsg, cleanFirebaseError(e), 'err');
+    }
+  });
+}
+
+firstNameInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter') lastNameInput.focus();
+});
+
+lastNameInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter') emailInput.focus();
+});
+
+emailInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter') joinBtn.click();
+});
+
+signinEmail.addEventListener('keypress', e => {
+  if (e.key === 'Enter') document.getElementById('signinPassword').focus();
+});
+
+document.getElementById('signinPassword').addEventListener('keypress', e => {
+  if (e.key === 'Enter') signinBtn.click();
+});
+</script>
+
+</body>
+</html>
