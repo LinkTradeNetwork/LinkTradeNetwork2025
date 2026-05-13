@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- VERSION: INDEX-LTN-HERO-FIX-FULL-2026-05-13 -->
+  <!-- VERSION: INDEX-LTN-HERO-FIX-FULL-2026-05-13-V2 -->
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6CYFMPH84F"></script>
   <script>
@@ -145,9 +145,12 @@
       white-space:nowrap;
       word-break:keep-all;
       overflow-wrap:normal;
-      font-size:clamp(38px,7vw,96px);
-      line-height:.92;
-      letter-spacing:-.04em;
+      font-size:clamp(34px,6.1vw,82px);
+      line-height:.90;
+      letter-spacing:-.05em;
+      max-width:100%;
+      position:relative;
+      z-index:3;
     }
 
     h2{font-size:clamp(36px,5vw,64px);font-weight:900;text-transform:uppercase}
@@ -467,7 +470,7 @@
       .stats-inner{grid-template-columns:repeat(2,1fr)}
       .ai-panel{align-items:flex-start;flex-direction:column}
       .ai-search{width:100%;flex:auto}
-      .hero-title{font-size:clamp(32px,8vw,72px)}
+      .hero-title{font-size:clamp(30px,7vw,62px)}
     }
 
     @media(max-width:760px){
@@ -486,8 +489,9 @@
       .hero h1{letter-spacing:-.05em}
       .hero-title{
         white-space:nowrap;
-        font-size:clamp(26px,8.3vw,42px);
-        line-height:.95;
+        font-size:clamp(24px,7vw,36px);
+        line-height:.92;
+        letter-spacing:-.04em;
       }
       .hero-text{text-align:left}
       .hero-sub{font-size:18px;line-height:1.45}
