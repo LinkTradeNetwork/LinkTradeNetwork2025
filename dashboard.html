@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
 
-<!-- LTN FORCE UPDATE 2026-05-12: SECURE FIREBASE AUTH ACCESS GATE v11 -->
-<!-- LTN VERSION: dashboard-secure-firebase-auth-gate-20260512-v11 -->
+<!-- LTN FORCE UPDATE 2026-05-13: DASHBOARD NETWORK CENTER NAV CLEANUP v12 -->
+<!-- LTN VERSION: dashboard-network-center-nav-cleanup-20260513-v12 -->
 
 <style>
 :root{
@@ -898,7 +898,7 @@ a[href^="apprentiship.html"]:hover,a[href^="apprenticeship.html"]:hover{
 (function () {
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "front.html?v=20260512secureauthdashboard11";
+  window.LTN_FRONT_GATE_URL = "front.html?v=20260513networkcenterdashboard12";
 
   window.LTNClearLocalSession = function () {
     [
@@ -953,18 +953,15 @@ a[href^="apprentiship.html"]:hover,a[href^="apprenticeship.html"]:hover{
     </div>
 
     <nav class="nav" id="main-nav">
-      <a href="dashboard.html?v=20260512secureauthdashboard11" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
-      <a href="members.html?v=20260512secureauthdashboard11" data-nav="members" onclick="setActiveNav(this)">Members</a>
-      <a href="find-apprenticeships.html?v=20260512secureauthdashboard11" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
-      <a href="apprenticeship.html?v=20260512secureauthdashboard11" data-nav="track-progress" onclick="prepareApprenticeTrackerFromDashboard(); setActiveNav(this)" class="btn nav-action">Track My Progress</a>
+      <a href="dashboard.html?v=20260513networkcenterdashboard12" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
+      <a href="members.html?v=20260513networkcenterdashboard12" data-nav="members" onclick="setActiveNav(this)">Members</a>
+      <a href="find-apprenticeships.html?v=20260513networkcenterdashboard12" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
+      <a href="apprenticeship.html?v=20260513networkcenterdashboard12" data-nav="track-progress" onclick="prepareApprenticeTrackerFromDashboard(); setActiveNav(this)" class="btn nav-action">Track My Progress</a>
       <a href="#jobs" data-nav="jobs" onclick="setActiveNav(this)">Jobs</a>
-      <a href="#" data-nav="network" onclick="setActiveNav(this); NetworkManager.openNetworkModal(); return false;" style="position:relative">
-        Network
+      <a href="network-center.html?v=20260513networkcenterdashboard12" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
+        Network Center
         <span id="network-badge" class="notification-badge" style="display:none">0</span>
-      </a>
-      <a href="#" data-nav="messages" onclick="setActiveNav(this); MessageManager.openMessagesModal(); return false;" style="position:relative">
-        Messages
-        <span id="messages-badge" class="notification-badge" style="display:none">0</span>
+        <span id="messages-badge" class="notification-badge" style="display:none;right:-14px">0</span>
       </a>
       <button class="btn nav-action" data-nav="post-job" onclick="setActiveNav(this); JobPostManager.openModal()">Post a Job</button>
       <a href="#" data-nav="logout" onclick="LTNLogout(); return false;" class="btn btn-secondary">Logout</a>
@@ -1168,7 +1165,7 @@ a[href^="apprentiship.html"]:hover,a[href^="apprenticeship.html"]:hover{
           <li style="margin-bottom:8px">Showcase your skills and certifications</li>
           <li>Get matched with projects in your area</li>
         </ul>
-        <button class="btn-primary" style="width:100%" onclick="NetworkManager.openNetworkModal()">Join Network</button>
+        <a class="btn-primary" style="width:100%" href="network-center.html?v=20260513networkcenterdashboard12">Open Network Center</a>
       </div>
     </section>
 
@@ -1294,7 +1291,7 @@ a[href^="apprentiship.html"]:hover,a[href^="apprenticeship.html"]:hover{
 <div class="modal-backdrop" id="network-modal">
   <div class="modal" style="max-width:700px">
     <div class="modal-header">
-      <h2>Network</h2>
+      <h2>Network Center</h2>
       <button class="modal-close" onclick="NetworkManager.closeNetworkModal()">&times;</button>
     </div>
     <div class="modal-body" style="padding:0">
