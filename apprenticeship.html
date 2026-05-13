@@ -1,98 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="auth-checking">
 <head>
   <title>LTN Apprenticeship Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-ui-ux-access-gate-20260512-v9 -->
-
-  <script>
-    window.LTN_APP_VERSION = "20260512apprenticeshipv9";
-    window.LTN_FRONT_GATE_URL = "front.html?v=20260512apprenticeshipgate9";
-
-    (function () {
-      function parseJson(raw) {
-        if (!raw) return null;
-        try {
-          var parsed = JSON.parse(raw);
-          return parsed && typeof parsed === "object" ? parsed : null;
-        } catch (e) {
-          return null;
-        }
-      }
-
-      function hasUsefulProfile(profile) {
-        if (!profile || typeof profile !== "object") return false;
-        return Boolean(
-          profile.email ||
-          profile.userEmail ||
-          profile.profileEmail ||
-          profile.name ||
-          profile.fullName ||
-          profile.displayName ||
-          profile.userName
-        );
-      }
-
-      window.ltnHasLocalAccess = function () {
-        if (localStorage.getItem("ltn_access_granted") === "true") return true;
-
-        var profileKeys = [
-          "ltn_current_profile",
-          "ltnUserProfile",
-          "ltn_profile",
-          "currentUserProfile",
-          "userProfile",
-          "ltn_user"
-        ];
-
-        for (var i = 0; i < profileKeys.length; i++) {
-          if (hasUsefulProfile(parseJson(localStorage.getItem(profileKeys[i])))) return true;
-        }
-
-        var simpleKeys = [
-          "userEmail",
-          "profileEmail",
-          "ltn_apprentice_email",
-          "userName",
-          "ltn_user_email"
-        ];
-
-        for (var j = 0; j < simpleKeys.length; j++) {
-          if (localStorage.getItem(simpleKeys[j])) return true;
-        }
-
-        return false;
-      };
-
-      window.ltnGoToAccessGate = function () {
-        window.location.replace(window.LTN_FRONT_GATE_URL);
-      };
-
-      document.documentElement.classList.add(window.ltnHasLocalAccess() ? "gate-ready" : "gate-pending");
-
-      window.__ltnGateTimer = setTimeout(function () {
-        if (
-          document.documentElement.classList.contains("gate-pending") &&
-          !window.__ltnAuthResolved &&
-          !window.ltnHasLocalAccess()
-        ) {
-          window.ltnGoToAccessGate();
-        }
-      }, 4500);
-    })();
-  </script>
+  <!-- LTN FORCE UPDATE VERSION: apprentiship-secure-firebase-auth-20260512-v10 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
     html,body{overflow-x:hidden}
-    html.gate-pending body{visibility:hidden}
-    html.gate-ready body{visibility:visible}
+    html.auth-checking body{visibility:hidden}
+    html.auth-ready body{visibility:visible}
 
     :root{
       --blue:#2f557a;
-      --blue-dark:#263f5b;
       --orange:#e96916;
       --orange-soft:#fff2e8;
       --orange-border:#ffd1ad;
@@ -100,7 +22,6 @@
       --muted:#64748b;
       --line:#dbe3ee;
       --soft:#f7f9fc;
-      --white:#ffffff;
       --danger:#dc2626;
       --shadow:0 18px 48px rgba(23,32,51,.16);
       --radius:18px;
@@ -130,19 +51,8 @@
       z-index:10;
     }
 
-    .logo{
-      font-size:21px;
-      font-weight:900;
-      letter-spacing:.2px;
-      line-height:1.2;
-    }
-
-    .top-actions{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
+    .logo{font-size:21px;font-weight:900;line-height:1.2}
+    .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 
     .logout,.dashbtn,.button{
       background:var(--orange);
@@ -161,18 +71,10 @@
     }
 
     .dashbtn{background:white;color:var(--blue)}
-    .button.secondary{background:var(--blue)}
     .button.soft{background:white;color:var(--blue);border:1px solid var(--line)}
-    .button.danger{background:var(--danger)}
     .logout:hover,.dashbtn:hover,.button:hover{filter:brightness(.97);transform:translateY(-1px)}
-    .button:active,.logout:active,.dashbtn:active{transform:translateY(0)}
 
-    .wrap{
-      max-width:1180px;
-      margin:0 auto;
-      padding:30px 20px 42px;
-    }
-
+    .wrap{max-width:1180px;margin:0 auto;padding:30px 20px 42px}
     .hero,.card{
       background:rgba(255,255,255,.98);
       border:1px solid rgba(255,255,255,.7);
@@ -189,31 +91,10 @@
       align-items:center;
     }
 
-    h1{
-      margin:0;
-      font-size:34px;
-      line-height:1.08;
-      overflow-wrap:anywhere;
-      letter-spacing:0;
-    }
-
-    .sub,.small{
-      color:var(--muted);
-    }
-
-    .sub{
-      margin-top:9px;
-      font-size:16px;
-      line-height:1.55;
-      max-width:760px;
-    }
-
-    .hero-stack{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      align-items:flex-end;
-    }
+    h1{margin:0;font-size:34px;line-height:1.08;overflow-wrap:anywhere}
+    .sub,.small{color:var(--muted)}
+    .sub{margin-top:9px;font-size:16px;line-height:1.55;max-width:760px}
+    .hero-stack{display:flex;flex-direction:column;gap:10px;align-items:flex-end}
 
     .hero-badge,.sync-pill{
       background:var(--orange-soft);
@@ -223,16 +104,11 @@
       border-radius:999px;
       font-weight:900;
       text-align:center;
-      cursor:default;
       font-size:13px;
       line-height:1.2;
     }
 
-    .sync-pill{
-      background:#eef6ff;
-      color:#24517b;
-      border-color:#cbe0f4;
-    }
+    .sync-pill{background:#eef6ff;color:#24517b;border-color:#cbe0f4}
 
     .verified-badge{
       display:inline-flex;
@@ -265,17 +141,8 @@
       flex-shrink:0;
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-      gap:18px;
-    }
-
-    .card{
-      padding:22px;
-      overflow:hidden;
-    }
-
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+    .card{padding:22px;overflow:hidden}
     .card.big{grid-column:span 2}
 
     .label{
@@ -294,13 +161,9 @@
       line-height:1.1;
       overflow-wrap:anywhere;
       word-break:break-word;
-      letter-spacing:0;
     }
 
-    .value.small-value{
-      font-size:21px;
-      line-height:1.25;
-    }
+    .value.small-value{font-size:21px;line-height:1.25}
 
     .section-title{
       color:white;
@@ -309,7 +172,6 @@
       margin:28px 0 14px;
       text-shadow:0 2px 8px rgba(0,0,0,.15);
       overflow-wrap:anywhere;
-      letter-spacing:0;
     }
 
     .progress-bar{
@@ -344,20 +206,8 @@
       min-width:0;
     }
 
-    .metric strong{
-      display:block;
-      font-size:23px;
-      color:var(--ink);
-      overflow-wrap:anywhere;
-      letter-spacing:0;
-    }
-
-    .metric span{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:900;
-      text-transform:uppercase;
-    }
+    .metric strong{display:block;font-size:23px;color:var(--ink);overflow-wrap:anywhere}
+    .metric span{font-size:12px;color:var(--muted);font-weight:900;text-transform:uppercase}
 
     .form-row{
       display:grid;
@@ -408,26 +258,10 @@
       padding:16px;
     }
 
-    .accomplishment-card strong{
-      display:block;
-      font-size:26px;
-      color:var(--ink);
-      margin-bottom:5px;
-    }
+    .accomplishment-card strong{display:block;font-size:26px;color:var(--ink);margin-bottom:5px}
+    .accomplishment-card span{color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase}
 
-    .accomplishment-card span{
-      color:var(--muted);
-      font-size:12px;
-      font-weight:900;
-      text-transform:uppercase;
-    }
-
-    .badge-list{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:14px;
-    }
+    .badge-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 
     .badge{
       display:inline-flex;
@@ -444,11 +278,7 @@
       word-break:break-word;
     }
 
-    .list-box{
-      margin-top:14px;
-      display:grid;
-      gap:10px;
-    }
+    .list-box{margin-top:14px;display:grid;gap:10px}
 
     .list-item{
       background:var(--soft);
@@ -462,19 +292,8 @@
       flex-wrap:wrap;
     }
 
-    .list-item strong{
-      display:block;
-      font-size:15px;
-      word-break:break-word;
-    }
-
-    .list-item span{
-      display:block;
-      color:var(--muted);
-      font-size:13px;
-      margin-top:3px;
-      line-height:1.4;
-    }
+    .list-item strong{display:block;font-size:15px;word-break:break-word}
+    .list-item span{display:block;color:var(--muted);font-size:13px;margin-top:3px;line-height:1.4}
 
     .delete-small{
       background:#ef4444;
@@ -489,11 +308,7 @@
       font-family:inherit;
     }
 
-    .profile-details{
-      margin-top:14px;
-      display:grid;
-      gap:8px;
-    }
+    .profile-details{margin-top:14px;display:grid;gap:8px}
 
     .profile-detail{
       background:var(--soft);
@@ -528,12 +343,7 @@
       margin-top:18px;
     }
 
-    .preview-top{
-      display:flex;
-      align-items:center;
-      gap:14px;
-      flex-wrap:wrap;
-    }
+    .preview-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 
     .preview-avatar{
       width:62px;
@@ -549,19 +359,8 @@
       flex-shrink:0;
     }
 
-    .preview-name{
-      font-size:22px;
-      font-weight:900;
-      color:var(--ink);
-      overflow-wrap:anywhere;
-    }
-
-    .preview-trade{
-      font-weight:900;
-      color:var(--orange);
-      margin-top:3px;
-      overflow-wrap:anywhere;
-    }
+    .preview-name{font-size:22px;font-weight:900;color:var(--ink);overflow-wrap:anywhere}
+    .preview-trade{font-weight:900;color:var(--orange);margin-top:3px;overflow-wrap:anywhere}
 
     .preview-note{
       background:var(--orange-soft);
@@ -583,13 +382,7 @@
     }
 
     .danger-zone .label{color:#be123c}
-
-    .inline-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:14px;
-    }
+    .inline-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 
     @media(max-width:900px){
       .hero{grid-template-columns:1fr}
@@ -599,12 +392,7 @@
     }
 
     @media(max-width:750px){
-      .topbar{
-        padding:14px 16px;
-        flex-direction:column;
-        align-items:flex-start;
-      }
-
+      .topbar{padding:14px 16px;flex-direction:column;align-items:flex-start}
       .top-actions{width:100%}
       .dashbtn,.logout{flex:1;text-align:center}
       .logo{font-size:18px}
@@ -637,9 +425,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512apprentice9'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='members.html?v=20260512apprentice9'">Members</button>
-    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512apprentice9'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512secureapprentiship10'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='members.html?v=20260512secureapprentiship10'">Members</button>
+    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512secureapprentiship10'">Back</button>
   </div>
 </div>
 
@@ -658,7 +446,7 @@
     </div>
     <div class="hero-stack">
       <div class="hero-badge" id="heroRoleBadge">Progress Snapshot Saves to Members</div>
-      <div class="sync-pill" id="syncStatus">Checking access...</div>
+      <div class="sync-pill" id="syncStatus">Checking secure sign in...</div>
     </div>
   </div>
 
@@ -699,9 +487,7 @@
     <div class="card">
       <div class="label">Industry Benchmark</div>
       <div class="value small-value">8000 Hour Progress Track</div>
-      <div class="small">
-        LTN uses 8000 hours as a simple industry benchmark, not a legal licensing requirement.
-      </div>
+      <div class="small">LTN uses 8000 hours as a simple industry benchmark, not a legal licensing requirement.</div>
       <div class="profile-details" id="profileDetails"></div>
     </div>
   </div>
@@ -711,9 +497,7 @@
   <div class="card">
     <div class="label">Public Member Preview</div>
     <div class="value small-value">Accomplishment Snapshot</div>
-    <div class="small">
-      This preview shows how your apprenticeship progress can appear inside the LTN Members section.
-    </div>
+    <div class="small">This preview shows how your apprenticeship progress can appear inside the LTN Members section.</div>
 
     <div class="preview-card">
       <div class="preview-top">
@@ -789,28 +573,22 @@
     <div class="card">
       <div class="label">Jobsite Proof Count</div>
       <div class="value small-value">Track Work Photos / Videos</div>
-      <div class="small">
-        This counts jobsite proof items. It does not upload actual files yet.
-      </div>
+      <div class="small">This counts jobsite proof items. It does not upload actual files yet.</div>
       <button class="button" onclick="addJobsiteProof()" style="margin-top:14px">+ Add Jobsite Proof Count</button>
     </div>
   </div>
 
   <div class="section-title">Hour Log</div>
-
   <div class="card">
     <div class="label">Recent Hours Added</div>
     <div id="hourLogList" class="list-box"></div>
   </div>
 
   <div class="section-title">Settings</div>
-
   <div class="card">
     <div class="danger-zone">
       <div class="label">Reset Options</div>
-      <div class="small">
-        Use these only if you need to clear progress. You will be asked to confirm first.
-      </div>
+      <div class="small">Use these only if you need to clear progress. You will be asked to confirm first.</div>
       <div class="inline-actions">
         <button class="button soft" onclick="resetHours()">Reset Hours</button>
         <button class="button soft" onclick="resetJobsiteProof()">Reset Jobsite Proof Count</button>
@@ -840,6 +618,7 @@
   const BENCHMARK_HOURS = 8000;
 
   let currentUserId = null;
+  let currentUserEmail = "";
   let profile = {};
   let state = {
     hoursCompleted:0,
@@ -852,21 +631,6 @@
     updatedAt:""
   };
 
-  function unlockPage(message){
-    window.__ltnAuthResolved = true;
-    clearTimeout(window.__ltnGateTimer);
-    document.documentElement.classList.remove("gate-pending");
-    document.documentElement.classList.add("gate-ready");
-    const sync = document.getElementById("syncStatus");
-    if(sync) sync.textContent = message || "Access confirmed";
-  }
-
-  function denyPage(){
-    window.__ltnAuthResolved = true;
-    clearTimeout(window.__ltnGateTimer);
-    if(!window.ltnHasLocalAccess()) window.ltnGoToAccessGate();
-  }
-
   function safe(value){
     return String(value || "")
       .replaceAll("&","&amp;")
@@ -876,36 +640,44 @@
       .replaceAll("'","&#039;");
   }
 
-  function readJson(key){
-    const raw = localStorage.getItem(key);
-    if(!raw) return null;
-    try{
-      const parsed = JSON.parse(raw);
-      return parsed && typeof parsed === "object" ? parsed : null;
-    }catch(e){
-      return null;
-    }
+  function progressKey(){
+    return currentUserId ? `ltn_apprenticeship_progress_${currentUserId}_v10` : "";
   }
 
-  function getStoredProfile(){
-    const keys=["ltn_current_profile","ltnUserProfile","ltn_profile","currentUserProfile","userProfile","ltn_user"];
+  function saveLocalProgress(){
+    const key = progressKey();
+    if(key) localStorage.setItem(key, JSON.stringify(state));
+  }
 
-    for(const key of keys){
-      const parsed = readJson(key);
-      if(parsed) return parsed;
+  function loadLocalProgressForUser(uid){
+    const raw = localStorage.getItem(`ltn_apprenticeship_progress_${uid}_v10`);
+    if(!raw){
+      buildBadges();
+      return;
     }
 
-    return {
-      name:localStorage.getItem("userName") || "",
-      email:localStorage.getItem("userEmail") || localStorage.getItem("profileEmail") || localStorage.getItem("ltn_apprentice_email") || localStorage.getItem("ltn_user_email") || ""
-    };
+    try{
+      const saved = JSON.parse(raw);
+      state = {
+        hoursCompleted:Number(saved.hoursCompleted || 0),
+        hourLogs:Array.isArray(saved.hourLogs) ? saved.hourLogs : [],
+        certifications:Array.isArray(saved.certifications) ? saved.certifications : [],
+        skillsLearned:Array.isArray(saved.skillsLearned) ? saved.skillsLearned : [],
+        projects:Array.isArray(saved.projects) ? saved.projects : [],
+        jobsiteUploads:Number(saved.jobsiteUploads || 0),
+        badgesEarned:Array.isArray(saved.badgesEarned) ? saved.badgesEarned : [],
+        updatedAt:saved.updatedAt || ""
+      };
+    }catch(e){}
+
+    buildBadges();
   }
 
   function getProfileName(data){return data.fullName || data.name || data.displayName || data.userName || "Trade Worker"}
-  function getProfileEmail(data){return data.email || data.userEmail || data.profileEmail || localStorage.getItem("userEmail") || localStorage.getItem("profileEmail") || localStorage.getItem("ltn_apprentice_email") || "Guest User"}
+  function getProfileEmail(data){return data.email || data.userEmail || data.profileEmail || currentUserEmail || "Signed In User"}
   function getProfileRole(data){return data.role || data.profileType || "Apprentice"}
   function getProfileTrade(data){return data.trade || data.specialty || data.tradePath || "Not selected"}
-  function getTradeSchool(data){return data.tradeSchool || data.school || data.trainingCenter || data.instructorSchool || "Not added"}
+  function getTradeSchool(data){return data.tradeSchool || data.school || data.trainingCenter || data.instructorSchool || (data.apprenticeship && data.apprenticeship.program) || "Not added"}
 
   function getLocation(data){
     const city=data.city || "";
@@ -948,44 +720,22 @@
     state.badgesEarned=badges;
   }
 
-  function loadLocalProgress(){
-    const raw =
-      localStorage.getItem("ltn_apprenticeship_progress_v9") ||
-      localStorage.getItem("ltn_apprenticeship_progress_v8") ||
-      localStorage.getItem("ltn_apprenticeship_progress_v7");
-
-    if(raw){
-      try{
-        const saved=JSON.parse(raw);
-        state={
-          hoursCompleted:Number(saved.hoursCompleted || 0),
-          hourLogs:Array.isArray(saved.hourLogs) ? saved.hourLogs : [],
-          certifications:Array.isArray(saved.certifications) ? saved.certifications : [],
-          skillsLearned:Array.isArray(saved.skillsLearned) ? saved.skillsLearned : [],
-          projects:Array.isArray(saved.projects) ? saved.projects : [],
-          jobsiteUploads:Number(saved.jobsiteUploads || 0),
-          badgesEarned:Array.isArray(saved.badgesEarned) ? saved.badgesEarned : [],
-          updatedAt:saved.updatedAt || ""
-        };
-      }catch(e){}
+  async function saveToFirebase(){
+    if(!currentUserId){
+      window.location.replace("front.html?v=secureauth20260512v10");
+      return;
     }
 
     buildBadges();
-  }
-
-  function saveLocalProgress(){
-    localStorage.setItem("ltn_apprenticeship_progress_v9", JSON.stringify(state));
-  }
-
-  async function saveToFirebase(){
-    buildBadges();
-    state.updatedAt=new Date().toLocaleDateString();
+    state.updatedAt = new Date().toLocaleDateString();
     saveLocalProgress();
 
-    const progressPercent=Math.min(100,Math.round((state.hoursCompleted / BENCHMARK_HOURS) * 100));
-    const currentLevel=getLevel(state.hoursCompleted);
+    const progressPercent = Math.min(100,Math.round((state.hoursCompleted / BENCHMARK_HOURS) * 100));
+    const currentLevel = getLevel(state.hoursCompleted);
 
-    const payload={
+    const payload = {
+      uid: currentUserId,
+      email: currentUserEmail,
       hoursCompleted:state.hoursCompleted,
       totalHours:state.hoursCompleted,
       apprenticeshipHours:state.hoursCompleted,
@@ -1023,17 +773,12 @@
     document.getElementById("saveStatus").textContent="Saving progress...";
 
     try{
-      if(currentUserId){
-        await setDoc(doc(db,"users",currentUserId),payload,{merge:true});
-        document.getElementById("saveStatus").textContent="Saved. Your accomplishment snapshot can now appear in the Members section.";
-        document.getElementById("syncStatus").textContent="Online save complete";
-      }else{
-        document.getElementById("saveStatus").textContent="Saved on this device. Sign in to publish this to Members.";
-        document.getElementById("syncStatus").textContent="Saved on this device";
-      }
+      await setDoc(doc(db,"users",currentUserId),payload,{merge:true});
+      document.getElementById("saveStatus").textContent="Saved securely to your signed-in profile.";
+      document.getElementById("syncStatus").textContent="Online save complete";
     }catch(error){
       console.error(error);
-      document.getElementById("saveStatus").textContent="Saved on this device. Online save did not complete.";
+      document.getElementById("saveStatus").textContent="Device save complete. Online save did not complete.";
       document.getElementById("syncStatus").textContent="Device save complete";
     }
   }
@@ -1050,19 +795,17 @@
     document.getElementById("userTrade").textContent=trade;
     document.getElementById("userTradeSchool").textContent=getTradeSchool(profile);
     document.getElementById("userLocation").textContent=location;
-    document.getElementById("heroRoleBadge").textContent="Progress Snapshot Saves to Members";
     document.getElementById("previewInitials").textContent=getInitials(name);
     document.getElementById("previewName").textContent=name;
     document.getElementById("previewTrade").textContent=trade;
     document.getElementById("previewLocation").textContent=location;
-
     document.getElementById("verificationBadge").style.display=isVerified(profile) ? "inline-flex" : "none";
 
     document.getElementById("profileDetails").innerHTML=`
       <div class="profile-detail"><b>Trade:</b> ${safe(trade)}</div>
       <div class="profile-detail"><b>School / Training Center:</b> ${safe(getTradeSchool(profile))}</div>
       <div class="profile-detail"><b>Location:</b> ${safe(location)}</div>
-      <div class="profile-detail"><b>Members Visibility:</b> Your progress can show in Members after it saves to your profile.</div>
+      <div class="profile-detail"><b>Secure Access:</b> This page only loads data for the signed-in Firebase user.</div>
     `;
   }
 
@@ -1142,6 +885,30 @@
     box.innerHTML=state.projects.length ? state.projects.map((item,index)=>`
       <div class="list-item"><div><strong>${safe(item)}</strong><span>Project completed</span></div><button class="delete-small" onclick="deleteProject(${index})">Delete</button></div>
     `).join("") : `<div class="empty">No projects added yet.</div>`;
+  }
+
+  async function loadFirebaseProfile(uid){
+    try{
+      const snap=await getDoc(doc(db,"users",uid));
+
+      if(snap.exists()){
+        const firebaseProfile=snap.data();
+        profile={...profile,...firebaseProfile};
+        const p=firebaseProfile.apprenticeshipProgress || {};
+
+        state.hoursCompleted=Number(firebaseProfile.hoursCompleted ?? firebaseProfile.totalHours ?? p.hoursCompleted ?? state.hoursCompleted ?? 0) || 0;
+        state.hourLogs=Array.isArray(p.hourLogs) ? p.hourLogs : state.hourLogs;
+        state.certifications=Array.isArray(firebaseProfile.certifications) ? firebaseProfile.certifications : Array.isArray(p.certifications) ? p.certifications : state.certifications;
+        state.skillsLearned=Array.isArray(firebaseProfile.skillsLearned) ? firebaseProfile.skillsLearned : Array.isArray(firebaseProfile.skills) ? firebaseProfile.skills : Array.isArray(p.skillsLearned) ? p.skillsLearned : state.skillsLearned;
+        state.projects=Array.isArray(firebaseProfile.projects) ? firebaseProfile.projects : Array.isArray(p.projects) ? p.projects : state.projects;
+        state.jobsiteUploads=Number(firebaseProfile.jobsiteUploads ?? firebaseProfile.verifiedPhotos ?? p.jobsiteUploads ?? p.verifiedPhotos ?? state.jobsiteUploads ?? 0) || 0;
+        state.badgesEarned=Array.isArray(firebaseProfile.badgesEarned) ? firebaseProfile.badgesEarned : Array.isArray(p.badgesEarned) ? p.badgesEarned : state.badgesEarned;
+        state.updatedAt=state.updatedAt || firebaseProfile.updatedAt || "";
+      }
+    }catch(error){
+      console.error(error);
+      document.getElementById("saveStatus").textContent="Could not load online profile. Check Firestore rules and sign-in status.";
+    }
   }
 
   window.addHours=async function(){
@@ -1249,72 +1016,45 @@
     renderProgress();
   };
 
-  async function loadFirebaseProfile(uid){
-    try{
-      const ref=doc(db,"users",uid);
-      const snap=await getDoc(ref);
-
-      if(snap.exists()){
-        const firebaseProfile=snap.data();
-        profile={...profile,...firebaseProfile};
-        const p=firebaseProfile.apprenticeshipProgress || {};
-
-        state.hoursCompleted=Number(firebaseProfile.hoursCompleted ?? firebaseProfile.totalHours ?? p.hoursCompleted ?? state.hoursCompleted ?? 0) || 0;
-        state.hourLogs=Array.isArray(p.hourLogs) ? p.hourLogs : state.hourLogs;
-        state.certifications=Array.isArray(firebaseProfile.certifications) ? firebaseProfile.certifications : Array.isArray(p.certifications) ? p.certifications : state.certifications;
-        state.skillsLearned=Array.isArray(firebaseProfile.skillsLearned) ? firebaseProfile.skillsLearned : Array.isArray(firebaseProfile.skills) ? firebaseProfile.skills : Array.isArray(p.skillsLearned) ? p.skillsLearned : state.skillsLearned;
-        state.projects=Array.isArray(firebaseProfile.projects) ? firebaseProfile.projects : Array.isArray(p.projects) ? p.projects : state.projects;
-        state.jobsiteUploads=Number(firebaseProfile.jobsiteUploads ?? firebaseProfile.verifiedPhotos ?? p.jobsiteUploads ?? p.verifiedPhotos ?? state.jobsiteUploads ?? 0) || 0;
-        state.badgesEarned=Array.isArray(firebaseProfile.badgesEarned) ? firebaseProfile.badgesEarned : Array.isArray(p.badgesEarned) ? p.badgesEarned : state.badgesEarned;
-        state.updatedAt=state.updatedAt || firebaseProfile.updatedAt || "";
-      }
-    }catch(error){
-      console.error(error);
-    }
+  function showPage(){
+    document.documentElement.classList.remove("auth-checking");
+    document.documentElement.classList.add("auth-ready");
   }
 
-  async function init(){
-    profile=getStoredProfile();
-    loadLocalProgress();
-
-    if(window.ltnHasLocalAccess()){
-      unlockPage("Access confirmed");
+  onAuthStateChanged(auth, async function(user){
+    if(!user){
+      window.location.replace("front.html?v=secureauth20260512v10");
+      return;
     }
+
+    currentUserId = user.uid;
+    currentUserEmail = user.email || "";
+
+    profile = {
+      uid:user.uid,
+      email:user.email || "",
+      name:user.displayName || ""
+    };
+
+    localStorage.setItem("ltn_auth_uid", user.uid);
+    if(user.email) localStorage.setItem("userEmail", user.email);
+
+    loadLocalProgressForUser(user.uid);
+    await loadFirebaseProfile(user.uid);
 
     renderProfile();
     renderProgress();
 
-    onAuthStateChanged(auth, async function(user){
-      window.__ltnAuthResolved = true;
-      clearTimeout(window.__ltnGateTimer);
+    document.getElementById("syncStatus").textContent="Signed in securely";
+    document.getElementById("saveStatus").textContent="Secure profile loaded.";
 
-      if(user){
-        currentUserId=user.uid;
-        profile.email=profile.email || user.email;
-        profile.name=profile.name || user.displayName;
+    showPage();
+  });
 
-        localStorage.setItem("ltn_access_granted","true");
-        if(user.email) localStorage.setItem("userEmail",user.email);
-
-        unlockPage("Signed in and synced");
-        await loadFirebaseProfile(user.uid);
-        renderProfile();
-        renderProgress();
-        await saveToFirebase();
-        renderProgress();
-      }else if(window.ltnHasLocalAccess()){
-        unlockPage("Device access confirmed");
-        document.getElementById("saveStatus").textContent="Progress saves on this device. Sign in to publish updates to Members.";
-      }else{
-        denyPage();
-      }
-    });
-  }
-
-  init();
-  console.log("LTN Apprenticeship UI UX Access Gate Loaded v9");
+  console.log("LTN Apprentiship Secure Firebase Auth Loaded v10");
 </script>
 
 </body>
 </html>
+
 
