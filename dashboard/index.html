@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
 
-<!-- LTN FORCE UPDATE 2026-05-13: CLEAN URL ROOT NAVIGATION FIX v14 -->
-<!-- LTN VERSION: dashboard-clean-url-root-navigation-20260513-v14 -->
+<!-- LTN FORCE UPDATE 2026-05-13: DASHBOARD APPRENTICESHIP HOURS SYNC FIX v15 -->
+<!-- LTN VERSION: dashboard-apprenticeship-hours-sync-20260513-v15 -->
 
 <style>
 :root{
@@ -956,7 +956,7 @@ a[href^="/apprenticeship/"]:hover,a[href^="/find-apprenticeships/"]:hover{
       <a href="/dashboard/?v=20260513cleanurlrootnav14" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
       <a href="/members/?v=20260513cleanurlrootnav14" data-nav="members" onclick="setActiveNav(this)">Members</a>
       <a href="/find-apprenticeships/?v=20260513cleanurlrootnav14" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
-      <a href="/apprenticeship/?v=20260513cleanurlrootnav14" data-nav="track-progress" onclick="prepareApprenticeTrackerFromDashboard(); setActiveNav(this)" class="btn nav-action">Track My Progress</a>
+      <a href="/apprenticeship/?v=20260513cleanurlrootnav14" data-nav="track-progress" onclick="return prepareApprenticeTrackerFromDashboardAndNavigate(event, this.href)" class="btn nav-action">Track My Progress</a>
       <a href="#jobs" data-nav="jobs" onclick="setActiveNav(this)">Jobs</a>
       <a href="/network-center/?v=20260513cleanurlrootnav14" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
         Network Center
@@ -1642,6 +1642,10 @@ async function saveProfileToFirestore(profile) {
   if (!authUser || !authUser.uid) return false;
 
   const cleanEmail = String(authUser.email || profile.email || "").trim().toLowerCase();
+  const app = profile.apprenticeship || {};
+  const apprenticeHours = Math.max(0, Number(app.hours ?? profile.hoursCompleted ?? profile.totalHours ?? profile.apprenticeshipHours ?? profile.hours ?? 0) || 0);
+  const progressPercent = Math.min(100, Math.round((apprenticeHours / 8000) * 100));
+  const currentLevel = apprenticeHours >= 8000 ? "Journey-Level Ready" : apprenticeHours >= 6000 ? "Advanced Apprentice" : apprenticeHours >= 4000 ? "Level 4 Apprentice" : apprenticeHours >= 2000 ? "Level 3 Apprentice" : apprenticeHours >= 1000 ? "Level 2 Apprentice" : apprenticeHours > 0 ? "Level 1 Apprentice" : "New Apprentice";
 
   const cleanProfile = {
     uid: authUser.uid,
@@ -1663,9 +1667,24 @@ async function saveProfileToFirestore(profile) {
     profileImage: profile.profileImageUrl || profile.profileImage || profile.photoURL || "",
     photoURL: profile.profileImageUrl || profile.profileImage || profile.photoURL || "",
     ltnVerified: profile.ltnVerified === true,
-    apprenticeship: profile.apprenticeship || {},
+    apprenticeship: { ...(profile.apprenticeship || {}), hours: apprenticeHours },
     instructor: profile.instructor || {},
-    hours: profile.apprenticeship && profile.apprenticeship.isApprentice ? Number(profile.apprenticeship.hours || 0) : Number(profile.hours || 0),
+    hours: apprenticeHours,
+    hoursCompleted: apprenticeHours,
+    totalHours: apprenticeHours,
+    apprenticeshipHours: apprenticeHours,
+    progressPercent: progressPercent,
+    apprenticeLevel: currentLevel,
+    currentLevel: currentLevel,
+    apprenticeshipProgress: {
+      hoursCompleted: apprenticeHours,
+      totalHours: apprenticeHours,
+      apprenticeshipHours: apprenticeHours,
+      progressPercent: progressPercent,
+      apprenticeLevel: currentLevel,
+      currentLevel: currentLevel,
+      updatedAt: new Date().toISOString()
+    },
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
 
@@ -2239,10 +2258,66 @@ function ltnSaveProfileEverywhere(profile) {
   localStorage.setItem("apprenticeHours", String(apprenticeProfile.hours || 0));
   localStorage.setItem("completedHours", String(apprenticeProfile.hours || 0));
   localStorage.setItem("currentHours", String(apprenticeProfile.hours || 0));
+
+  try {
+    const uid = localStorage.getItem("ltn_auth_uid") || (firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid) || "";
+    if (uid) {
+      const oldRaw = localStorage.getItem(`ltn_apprenticeship_progress_${uid}_v17`) || "{}";
+      let progress = {};
+      try { progress = JSON.parse(oldRaw) || {}; } catch (e) { progress = {}; }
+      progress.hoursCompleted = Number(apprenticeProfile.hours || 0);
+      progress.totalHours = Number(apprenticeProfile.hours || 0);
+      progress.apprenticeshipHours = Number(apprenticeProfile.hours || 0);
+      progress.updatedAt = new Date().toISOString();
+      if (!Array.isArray(progress.hourLogs)) progress.hourLogs = [];
+      if (!Array.isArray(progress.certifications)) progress.certifications = [];
+      if (!Array.isArray(progress.skillsLearned)) progress.skillsLearned = [];
+      if (!Array.isArray(progress.projects)) progress.projects = [];
+      if (!Array.isArray(progress.badgesEarned)) progress.badgesEarned = [];
+      if (typeof progress.jobsiteUploads !== "number") progress.jobsiteUploads = Number(progress.jobsiteUploads || 0);
+      localStorage.setItem(`ltn_apprenticeship_progress_${uid}_v17`, JSON.stringify(progress));
+    }
+  } catch (e) {
+    console.warn("LTN apprenticeship local progress sync failed:", e);
+  }
+}
+
+function ltnProfileFromOpenFormOrSaved() {
+  const saved = ltnReadCurrentProfile() || {};
+  const hasForm = !!document.getElementById("input-apprentice-hours");
+  if (!hasForm) return saved;
+
+  const email = ltnGetCurrentEmail() || saved.email || "";
+  return {
+    ...saved,
+    email,
+    fullName: ((document.getElementById("input-name") || {}).value || saved.fullName || saved.name || "").trim(),
+    phone: ((document.getElementById("input-phone") || {}).value || saved.phone || "").trim(),
+    profileType: (document.getElementById("input-profile-type") || {}).value || saved.profileType || "Skilled Trade Worker",
+    trade: (document.getElementById("input-trade") || {}).value || saved.trade || "",
+    experience: (document.getElementById("input-experience") || {}).value || saved.experience || "",
+    country: (document.getElementById("input-country") || {}).value || saved.country || "United States",
+    city: ((document.getElementById("input-city") || {}).value || saved.city || "").trim(),
+    state: (document.getElementById("input-state") || {}).value || saved.state || "",
+    bio: ((document.getElementById("input-bio") || {}).value || saved.bio || "").trim(),
+    skills: ((document.getElementById("input-skills") || {}).value || saved.skills || "").trim(),
+    certifications: ((document.getElementById("input-certifications") || {}).value || saved.certifications || "").trim(),
+    profileImageUrl: saved.profileImageUrl || saved.profileImage || saved.photoURL || "",
+    ltnVerified: saved.ltnVerified === true,
+    apprenticeship: {
+      ...(saved.apprenticeship || {}),
+      isApprentice: true,
+      program: ((document.getElementById("input-apprentice-program") || {}).value || (saved.apprenticeship || {}).program || "").trim(),
+      employer: ((document.getElementById("input-apprentice-employer") || {}).value || (saved.apprenticeship || {}).employer || "").trim(),
+      startDate: (document.getElementById("input-apprentice-start-date") || {}).value || (saved.apprenticeship || {}).startDate || "",
+      hours: Number((document.getElementById("input-apprentice-hours") || {}).value || (saved.apprenticeship || {}).hours || saved.hoursCompleted || saved.totalHours || 0) || 0
+    },
+    instructor: saved.instructor || {}
+  };
 }
 
 window.prepareApprenticeTrackerFromDashboard = function() {
-  let profile = ltnReadCurrentProfile();
+  let profile = ltnProfileFromOpenFormOrSaved();
   const email = ltnGetCurrentEmail();
 
   if (!profile || !profile.email) {
@@ -2265,8 +2340,48 @@ window.prepareApprenticeTrackerFromDashboard = function() {
 
   if (!profile.apprenticeship) profile.apprenticeship = {};
   profile.apprenticeship.isApprentice = true;
+  profile.apprenticeship.hours = Math.max(0, Number(profile.apprenticeship.hours || profile.hoursCompleted || profile.totalHours || 0) || 0);
+  profile.hoursCompleted = profile.apprenticeship.hours;
+  profile.totalHours = profile.apprenticeship.hours;
+  profile.apprenticeshipHours = profile.apprenticeship.hours;
+  profile.apprenticeshipProgress = {
+    ...(profile.apprenticeshipProgress || {}),
+    hoursCompleted: profile.apprenticeship.hours,
+    totalHours: profile.apprenticeship.hours,
+    apprenticeshipHours: profile.apprenticeship.hours,
+    updatedAt: new Date().toISOString()
+  };
+
   ltnSaveProfileEverywhere(profile);
   return true;
+};
+
+window.prepareApprenticeTrackerFromDashboardAndNavigate = async function(event, targetUrl) {
+  if (event && event.preventDefault) event.preventDefault();
+
+  const profile = ltnProfileFromOpenFormOrSaved();
+  if (profile) {
+    if (!profile.apprenticeship) profile.apprenticeship = {};
+    profile.apprenticeship.isApprentice = true;
+    profile.apprenticeship.hours = Math.max(0, Number(profile.apprenticeship.hours || profile.hoursCompleted || profile.totalHours || 0) || 0);
+    profile.hoursCompleted = profile.apprenticeship.hours;
+    profile.totalHours = profile.apprenticeship.hours;
+    profile.apprenticeshipHours = profile.apprenticeship.hours;
+    profile.apprenticeshipProgress = {
+      ...(profile.apprenticeshipProgress || {}),
+      hoursCompleted: profile.apprenticeship.hours,
+      totalHours: profile.apprenticeship.hours,
+      apprenticeshipHours: profile.apprenticeship.hours,
+      updatedAt: new Date().toISOString()
+    };
+    ltnSaveProfileEverywhere(profile);
+    try { await saveProfileToFirestore(profile); } catch (e) { console.warn("Apprenticeship handoff Firebase save failed:", e); }
+  } else {
+    window.prepareApprenticeTrackerFromDashboard();
+  }
+
+  window.location.href = targetUrl || "/apprenticeship/?v=20260513cleanurlrootnav14";
+  return false;
 };
 
 /* ===== LOCATION MANAGER ===== */
@@ -2746,6 +2861,18 @@ const ProfileManager = {
     };
 
     if (profile.profileType === "Instructor / Teacher") profile.instructor.isInstructor = true;
+
+    profile.apprenticeship.hours = Math.max(0, Number(profile.apprenticeship.hours || 0) || 0);
+    profile.hoursCompleted = profile.apprenticeship.hours;
+    profile.totalHours = profile.apprenticeship.hours;
+    profile.apprenticeshipHours = profile.apprenticeship.hours;
+    profile.apprenticeshipProgress = {
+      ...(profile.apprenticeshipProgress || {}),
+      hoursCompleted: profile.apprenticeship.hours,
+      totalHours: profile.apprenticeship.hours,
+      apprenticeshipHours: profile.apprenticeship.hours,
+      updatedAt: new Date().toISOString()
+    };
 
     if (!profile.fullName || !profile.trade || !profile.country || !profile.city || !profile.state) {
       alert("Please fill in: Full Name, Trade, Country, City, and State / Region");
