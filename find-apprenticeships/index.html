@@ -1,1 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Apprenticeships | LinkTradeNetwork</title>
 
+<!-- LTN FORCE UPDATE VERSION: clean-url-find-apprenticeships-20260513-v18 -->
+
+<style>
+:root{
+  --bg:#f0f4f8;
+  --ink:#293241;
+  --muted:#5d7290;
+  --line:#cfd9e6;
+  --panel:#ffffff;
+  --panel2:#f8fafc;
+  --brand:#ea6a00;
+  --brand2:#c35700;
+  --accent:#3d5a80;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:Arial, sans-serif;
+}
+
+.topbar{
+  background:var(--accent);
+  color:white;
+  padding:16px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+}
+
+.logo{
+  font-size:22px;
+  font-weight:800;
+}
+
+.nav{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.nav a{
+  color:white;
+  text-decoration:none;
+  font-weight:700;
+  padding:10px 16px;
+  border-radius:8px;
+}
+
+.nav a:hover{
+  background:rgba(255,255,255,.15);
+}
+
+.nav .active{
+  background:var(--brand);
+}
+
+.wrap{
+  max-width:1150px;
+  margin:0 auto;
+  padding:28px 20px;
+}
+
+.hero{
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  color:white;
+  border-radius:18px;
+  padding:30px;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+  margin-bottom:22px;
+}
+
+.hero h1{
+  margin:0 0 8px;
+  font-size:34px;
+}
+
+.hero p{
+  margin:0;
+  font-size:17px;
+  color:rgba(255,255,255,.92);
+}
+
+.filters{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px;
+  margin-bottom:22px;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);
+}
+
+.filter-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;
+}
+
+label{
+  font-weight:700;
+  font-size:14px;
+  display:block;
+  margin-bottom:6px;
+}
+
+input,select{
+  width:100%;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  font-size:15px;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+
+button,.btn{
+  background:var(--brand);
+  color:white;
+  border:none;
+  padding:12px 18px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  text-decoration:none;
+  display:inline-block;
+}
+
+button:hover,.btn:hover{
+  background:var(--brand2);
+}
+
+.btn-secondary{
+  background:var(--accent);
+}
+
+.btn-secondary:hover{
+  background:#2c4566;
+}
+
+.results-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.results-header h2{
+  margin:0;
+  font-size:24px;
+}
+
+.count{
+  background:#fff4e8;
+  color:#c35700;
+  padding:6px 12px;
+  border-radius:999px;
+  font-weight:800;
+}
+
+.list{
+  display:grid;
+  gap:16px;
+}
+
+.job-card{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);
+}
+
+.job-top{
+  display:flex;
+  gap:15px;
+  align-items:flex-start;
+}
+
+.avatar{
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  background:var(--accent);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  font-weight:800;
+  overflow:hidden;
+  flex-shrink:0;
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.job-main{
+  flex:1;
+  min-width:0;
+}
+
+.job-card h3{
+  margin:0 0 8px;
+  font-size:22px;
+}
+
+.company{
+  font-weight:800;
+  color:var(--accent);
+  margin-bottom:5px;
+}
+
+.meta{
+  color:var(--muted);
+  font-size:14px;
+  margin-bottom:12px;
+}
+
+.tags{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:12px 0;
+}
+
+.tag{
+  background:var(--panel2);
+  color:var(--accent);
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:13px;
+  font-weight:700;
+}
+
+.desc{
+  color:#334155;
+  line-height:1.5;
+}
+
+.empty{
+  background:white;
+  border:1px dashed var(--line);
+  border-radius:16px;
+  padding:28px;
+  text-align:center;
+  color:var(--muted);
+}
+
+.note{
+  margin-top:20px;
+  background:white;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+@media(max-width:700px){
+  .hero h1{font-size:28px}
+  .topbar{align-items:flex-start}
+  .job-top{flex-direction:column}
+}
+</style>
+</head>
+
+<body>
+
+<!-- LTN SECURE ACCESS GATE -->
+<script>
+(function () {
+
+  const rawProfile =
+    localStorage.getItem("ltn_current_profile") ||
+    localStorage.getItem("ltnUserProfile") ||
+    localStorage.getItem("ltn_profile") ||
+    localStorage.getItem("currentUserProfile") ||
+    localStorage.getItem("userProfile");
+
+  const email =
+    localStorage.getItem("userEmail") ||
+    localStorage.getItem("profileEmail") ||
+    localStorage.getItem("ltn_apprentice_email");
+
+  if (!rawProfile && !email) {
+    window.location.replace("/front.html?v=20260513findappv18");
+    return;
+  }
+
+  if (rawProfile) {
+    try {
+      const parsed = JSON.parse(rawProfile);
+
+      const hasIdentity =
+        parsed &&
+        (
+          parsed.email ||
+          parsed.fullName ||
+          parsed.name ||
+          parsed.displayName
+        );
+
+      if (!hasIdentity) {
+        localStorage.clear();
+        window.location.replace("/front.html?v=20260513findappv18");
+        return;
+      }
+
+    } catch (err) {
+      localStorage.clear();
+      window.location.replace("/front.html?v=20260513findappv18");
+      return;
+    }
+  }
+
+})();
+</script>
+
+<header class="topbar">
+  <div class="logo">LTN • Find Apprenticeships</div>
+
+  <nav class="nav">
+    <a href="/dashboard/?v=20260513findappv18">Dashboard</a>
+    <a href="/members/?v=20260513findappv18">Members</a>
+    <a href="/apprenticeship/?v=20260513findappv18">Track Progress</a>
+    <a href="/find-apprenticeships/?v=20260513findappv18" class="active">Find Apprenticeships</a>
+    <a href="/network-center/?v=20260513findappv18">Network Center</a>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <h1>🔎 Find Apprenticeships</h1>
+    <p>Search beginner-friendly trade opportunities, helper roles, apprenticeships, traineeships, and entry-level jobs across the United States, Australia, and India.</p>
+  </section>
+
+  <section class="filters">
+    <div class="filter-grid">
+
+      <div>
+        <label>Country</label>
+        <select id="country-filter">
+          <option value="All">All Countries</option>
+          <option value="United States">United States</option>
+          <option value="Australia">Australia</option>
+          <option value="India">India</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Trade</label>
+        <select id="trade-filter">
+          <option value="All">All Trades</option>
+          <option value="Low Voltage">Low Voltage</option>
+          <option value="Electrical">Electrical</option>
+          <option value="Plumbing">Plumbing</option>
+          <option value="HVAC">HVAC</option>
+          <option value="Physical Security">Physical Security</option>
+          <option value="General Contractor">General Contractor</option>
+          <option value="Sprinkler">Sprinkler</option>
+          <option value="Carpentry">Carpentry</option>
+          <option value="Welding">Welding</option>
+          <option value="Solar">Solar</option>
+          <option value="Telecom">Telecom</option>
+          <option value="Fiber">Fiber</option>
+          <option value="CCTV">CCTV</option>
+        </select>
+      </div>
+
+      <div>
+        <label>City / State / Region</label>
+        <input id="location-filter" placeholder="Detroit, Sydney, Delhi">
+      </div>
+
+      <div>
+        <label>Keyword</label>
+        <input id="keyword-filter" placeholder="helper, apprentice, trainee, entry level">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button onclick="applyFilters()">Search</button>
+      <button class="btn-secondary" onclick="resetFilters()">Reset</button>
+      <a href="/dashboard/?v=20260513findappv18" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+  </section>
+
+  <div class="results-header">
+    <h2>Apprenticeship Opportunities</h2>
+    <div class="count" id="result-count">Loading...</div>
+  </div>
+
+  <section id="results" class="list">
+    <div class="empty">Loading apprenticeship opportunities...</div>
+  </section>
+
+  <section class="note">
+    <strong>Note:</strong> This page pulls live jobs from Firebase when available. Starter sample listings now include United States, Australia, and India so LinkTradeNetwork feels ready for global trade workforce expansion.
+  </section>
+
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
+  authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
+  projectId: "linktradenetwork-2dcd1",
+  storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
+  messagingSenderId: "219091766597",
+  appId: "1:219091766597:web:9878c199ba17e0ed89c22c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const SAMPLE_JOBS = [
+  {
+    id:"sample-1",
+    title:"Low Voltage Apprentice / Helper",
+    company:"LTN Partner Contractor",
+    trade:"Low Voltage",
+    country:"United States",
+    location:"Detroit, MI",
+    pay:"$18-$24/hr",
+    type:"Apprenticeship",
+    tags:["Apprentice","Helper","Entry Level","Low Voltage"],
+    description:"Assist with pulling cable, labeling, basic terminations, camera installs, and jobsite support. Great role for someone starting in the trade.",
+    isSample:true
+  },
+  {
+    id:"sample-2",
+    title:"Electrical Apprentice",
+    company:"Metro Electrical Services",
+    trade:"Electrical",
+    country:"United States",
+    location:"Warren, MI",
+    pay:"$20-$28/hr",
+    type:"Apprenticeship",
+    tags:["Apprentice","Electrical","Training"],
+    description:"Entry-level electrical apprentice role assisting journeymen with conduit, wiring, material handling, and basic installation work.",
+    isSample:true
+  },
+  {
+    id:"sample-3",
+    title:"HVAC Helper",
+    company:"Comfort Mechanical",
+    trade:"HVAC",
+    country:"United States",
+    location:"Livonia, MI",
+    pay:"$17-$23/hr",
+    type:"Entry Level",
+    tags:["Helper","HVAC","No Experience"],
+    description:"Support HVAC technicians with installs, service preparation, equipment movement, and learning basic HVAC field tasks.",
+    isSample:true
+  },
+  {
+    id:"sample-4",
+    title:"Security Installer Trainee",
+    company:"Physical Security Contractor",
+    trade:"Physical Security",
+    country:"United States",
+    location:"Troy, MI",
+    pay:"$18-$25/hr",
+    type:"Entry Level",
+    tags:["Trainee","Cameras","Access Control","No Experience"],
+    description:"Learn camera, access control, intercom, and intrusion installation. Good fit for low voltage or security beginners.",
+    isSample:true
+  },
+  {
+    id:"sample-au-1",
+    title:"Electrical Apprentice",
+    company:"Australian Trade Training Partner",
+    trade:"Electrical",
+    country:"Australia",
+    location:"Sydney, NSW",
+    pay:"Pay varies",
+    type:"Apprenticeship",
+    tags:["Australia","Apprentice","Electrical","Beginner Friendly"],
+    description:"Starter apprenticeship opportunity for electrical students or new trade workers looking to build hands-on field experience in Australia.",
+    isSample:true
+  },
+  {
+    id:"sample-au-2",
+    title:"HVAC / Refrigeration Trainee",
+    company:"HVAC Training Partner",
+    trade:"HVAC",
+    country:"Australia",
+    location:"Melbourne, VIC",
+    pay:"Pay varies",
+    type:"Trainee",
+    tags:["Australia","HVAC","Refrigeration","Trainee"],
+    description:"Entry-level HVAC and refrigeration trainee opportunity focused on field support, equipment handling, safety, and learning from experienced technicians.",
+    isSample:true
+  },
+  {
+    id:"sample-au-3",
+    title:"Security Systems Apprentice",
+    company:"Security Integration Partner",
+    trade:"Physical Security",
+    country:"Australia",
+    location:"Brisbane, QLD",
+    pay:"Pay varies",
+    type:"Apprenticeship",
+    tags:["Australia","CCTV","Access Control","Low Voltage"],
+    description:"Beginner-friendly security systems role supporting CCTV, access control, cabling, and installation teams.",
+    isSample:true
+  },
+  {
+    id:"sample-au-4",
+    title:"Solar Installation Helper",
+    company:"Renewable Energy Training Partner",
+    trade:"Solar",
+    country:"Australia",
+    location:"Perth, WA",
+    pay:"Pay varies",
+    type:"Entry Level",
+    tags:["Australia","Solar","Helper","Renewable Energy"],
+    description:"Entry-level solar helper role for workers interested in renewable energy, electrical support, and jobsite installation experience.",
+    isSample:true
+  },
+  {
+    id:"sample-in-1",
+    title:"Electrical Trainee",
+    company:"India Skilled Trades Partner",
+    trade:"Electrical",
+    country:"India",
+    location:"Delhi, India",
+    pay:"Pay varies",
+    type:"Trainee",
+    tags:["India","Delhi","Electrical","Beginner Friendly"],
+    description:"Starter electrical trainee opportunity for new workers building basic trade skills, safety awareness, and field experience.",
+    isSample:true
+  },
+  {
+    id:"sample-in-2",
+    title:"Telecom / Fiber Helper",
+    company:"Telecom Training Partner",
+    trade:"Telecom",
+    country:"India",
+    location:"Delhi, India",
+    pay:"Pay varies",
+    type:"Helper",
+    tags:["India","Delhi","Telecom","Fiber","Entry Level"],
+    description:"Entry-level telecom helper role supporting fiber cabling, labeling, routing, and basic field installation work.",
+    isSample:true
+  },
+  {
+    id:"sample-in-3",
+    title:"CCTV Installation Trainee",
+    company:"Security Technology Partner",
+    trade:"CCTV",
+    country:"India",
+    location:"Delhi, India",
+    pay:"Pay varies",
+    type:"Trainee",
+    tags:["India","Delhi","CCTV","Security","Low Voltage"],
+    description:"Beginner CCTV installation trainee role focused on cameras, cabling, mounting, testing, and learning security technology systems.",
+    isSample:true
+  },
+  {
+    id:"sample-in-4",
+    title:"Solar Technician Helper",
+    company:"Solar Workforce Partner",
+    trade:"Solar",
+    country:"India",
+    location:"Delhi, India",
+    pay:"Pay varies",
+    type:"Entry Level",
+    tags:["India","Delhi","Solar","Helper","Renewable Energy"],
+    description:"Entry-level solar helper opportunity for workers interested in renewable energy installation and field support.",
+    isSample:true
+  }
+];
+
+let allJobs = [];
+let usersMap = {};
+
+function escapeHtml(value){
+  return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function getInitials(name){
+  if(!name) return "LT";
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .map(w => w[0])
+    .join("")
+    .substring(0,2)
+    .toUpperCase();
+}
+
+function getProfilePhoto(userOrJob){
+  return (
+    userOrJob.profileImageUrl ||
+    userOrJob.profileImage ||
+    userOrJob.photoURL ||
+    userOrJob.photoUrl ||
+    userOrJob.profilePhoto ||
+    userOrJob.profilePhotoUrl ||
+    userOrJob.avatarUrl ||
+    userOrJob.avatar ||
+    userOrJob.imageUrl ||
+    userOrJob.image ||
+    userOrJob.picture ||
+    userOrJob.logoUrl ||
+    ""
+  );
+}
+
+function normalizeJob(docId, job){
+  const posterId =
+    job.userId ||
+    job.posterId ||
+    job.createdBy ||
+    job.authorId ||
+    job.companyUserId ||
+    "";
+
+  const poster = posterId && usersMap[posterId] ? usersMap[posterId] : {};
+
+  const company =
+    job.company ||
+    job.companyName ||
+    poster.company ||
+    poster.companyName ||
+    poster.fullName ||
+    poster.name ||
+    "Company TBD";
+
+  const posterName =
+    poster.fullName ||
+    poster.name ||
+    poster.displayName ||
+    company;
+
+  const city = job.city || "";
+  const state = job.state || job.region || "";
+
+  const country =
+    job.country ||
+    job.profileCountry ||
+    poster.country ||
+    "United States";
+
+  const location =
+    job.location ||
+    (city || state ? `${city}${city && state ? ", " : ""}${state}` : "");
+
+  const pay =
+    job.pay ||
+    job.payRange ||
+    job.salary ||
+    job.rate ||
+    buildPay(job);
+
+  const title =
+    job.title ||
+    job.jobTitle ||
+    "Apprenticeship Opportunity";
+
+  const trade =
+    job.trade ||
+    job.category ||
+    job.skill ||
+    job.tradeType ||
+    "";
+
+  const description =
+    job.description ||
+    job.desc ||
+    job.details ||
+    "";
+
+  const rawTags =
+    job.tags ||
+    job.skills ||
+    job.requiredSkills ||
+    [];
+
+  const tags = Array.isArray(rawTags)
+    ? rawTags
+    : String(rawTags || "").split(",").map(s => s.trim()).filter(Boolean);
+
+  const photo =
+    getProfilePhoto(job) ||
+    getProfilePhoto(poster);
+
+  return {
+    id: docId,
+    title,
+    company,
+    posterName,
+    posterId,
+    trade,
+    country,
+    location,
+    pay,
+    type: job.type || job.jobType || "",
+    tags,
+    description,
+    photo,
+    original: job,
+    isSample:false
+  };
+}
+
+function buildPay(job){
+  const min = job.payMin || job.minPay || "";
+  const max = job.payMax || job.maxPay || "";
+  const period = job.payPeriod || job.period || "hourly";
+
+  if(min && max) return `$${min}-$${max}/${period}`;
+  if(min) return `$${min}+/${period}`;
+  return "Pay TBD";
+}
+
+function isApprenticeshipFriendly(job){
+  const text = [
+    job.title,
+    job.type,
+    job.trade,
+    job.description,
+    job.company,
+    job.location,
+    job.country,
+    ...(job.tags || [])
+  ].join(" ").toLowerCase();
+
+  const keywords = [
+    "apprentice",
+    "apprenticeship",
+    "helper",
+    "entry level",
+    "entry-level",
+    "trainee",
+    "no experience",
+    "beginner",
+    "trade school",
+    "assistant",
+    "junior"
+  ];
+
+  return keywords.some(k => text.includes(k));
+}
+
+function renderJobs(jobs){
+  const results = document.getElementById("results");
+  document.getElementById("result-count").innerText = `${jobs.length} found`;
+
+  if(!jobs.length){
+    results.innerHTML = `
+      <div class="empty">
+        <h3>No apprenticeships found</h3>
+        <p>Try changing the country, trade, city, or keyword.</p>
+      </div>
+    `;
+    return;
+  }
+
+  results.innerHTML = jobs.map(job => {
+    const profileLink = job.posterId ? `/profile.html?id=${encodeURIComponent(job.posterId)}` : "/members/";
+    const photoHtml = job.photo
+      ? `<img src="${escapeHtml(job.photo)}" alt="${escapeHtml(job.company)}" onerror="this.remove();this.parentElement.innerText='${getInitials(job.company)}';">`
+      : getInitials(job.company);
+
+    return `
+      <div class="job-card">
+        <div class="job-top">
+          <div class="avatar">${photoHtml}</div>
+
+          <div class="job-main">
+            <h3>${escapeHtml(job.title)}</h3>
+
+            <div class="company">${escapeHtml(job.company)}</div>
+
+            <div class="meta">
+              ${escapeHtml(job.country || "Country TBD")} •
+              ${escapeHtml(job.trade || "Trade TBD")} •
+              ${escapeHtml(job.location || "Location TBD")} •
+              ${escapeHtml(job.pay || "Pay TBD")}
+            </div>
+
+            <div class="tags">
+              ${(job.tags || []).map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}
+            </div>
+
+            <p class="desc">${escapeHtml(job.description || "Details coming soon.")}</p>
+
+            <div class="actions">
+              <button onclick="markInterested('${escapeHtml(job.id)}')">Apply / Interested</button>
+              <a class="btn btn-secondary" href="${profileLink}">View Profile</a>
+              <a class="btn btn-secondary" href="/apprenticeship/?v=20260513findappv18">Track My Progress</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function applyFilters(){
+  const country = document.getElementById("country-filter").value.toLowerCase();
+  const trade = document.getElementById("trade-filter").value.toLowerCase();
+  const location = document.getElementById("location-filter").value.trim().toLowerCase();
+  const keyword = document.getElementById("keyword-filter").value.trim().toLowerCase();
+
+  let filtered = allJobs.filter(isApprenticeshipFriendly);
+
+  if(country !== "all"){
+    filtered = filtered.filter(job => String(job.country || "").toLowerCase().includes(country));
+  }
+
+  if(trade !== "all"){
+    filtered = filtered.filter(job => String(job.trade || "").toLowerCase().includes(trade));
+  }
+
+  if(location){
+    filtered = filtered.filter(job => String(job.location || "").toLowerCase().includes(location));
+  }
+
+  if(keyword){
+    filtered = filtered.filter(job => {
+      const text = [
+        job.title,
+        job.company,
+        job.posterName,
+        job.trade,
+        job.country,
+        job.location,
+        job.type,
+        job.description,
+        ...(job.tags || [])
+      ].join(" ").toLowerCase();
+
+      return text.includes(keyword);
+    });
+  }
+
+  renderJobs(filtered);
+}
+
+window.applyFilters = applyFilters;
+
+window.resetFilters = function(){
+  document.getElementById("country-filter").value = "All";
+  document.getElementById("trade-filter").value = "All";
+  document.getElementById("location-filter").value = "";
+  document.getElementById("keyword-filter").value = "";
+  applyFilters();
+};
+
+window.markInterested = async function(jobId){
+  const job = allJobs.find(j => j.id === jobId);
+
+  if(!job){
+    alert("Job not found.");
+    return;
+  }
+
+  if(job.isSample){
+    alert("This is a sample listing. Live applications will work on Firebase jobs.");
+    return;
+  }
+
+  let email = localStorage.getItem("userEmail") || "";
+
+  try{
+    const stored = JSON.parse(localStorage.getItem("ltn_user") || "{}");
+    if(!email && stored.email) email = stored.email;
+  }catch(e){}
+
+  await addDoc(collection(db, "applications"), {
+    jobId: job.id,
+    jobTitle: job.title,
+    company: job.company,
+    country: job.country || "",
+    applicantEmail: email || "unknown",
+    status: "interested",
+    createdAt: serverTimestamp()
+  });
+
+  alert("Interest sent. This will show in Firebase applications.");
+};
+
+async function loadUsers(){
+  usersMap = {};
+
+  const usersSnap = await getDocs(collection(db, "users"));
+
+  usersSnap.forEach(docSnap => {
+    usersMap[docSnap.id] = {
+      id: docSnap.id,
+      ...docSnap.data()
+    };
+  });
+}
+
+async function loadJobs(){
+  try{
+    await loadUsers();
+
+    const jobsSnap = await getDocs(collection(db, "jobs"));
+    const liveJobs = [];
+
+    jobsSnap.forEach(docSnap => {
+      liveJobs.push(normalizeJob(docSnap.id, docSnap.data()));
+    });
+
+    const apprenticeJobs = liveJobs.filter(isApprenticeshipFriendly);
+
+    if(apprenticeJobs.length){
+      allJobs = [...liveJobs, ...SAMPLE_JOBS];
+    }else{
+      allJobs = SAMPLE_JOBS;
+    }
+
+    applyFilters();
+
+  }catch(error){
+    console.error("Error loading Firebase jobs:", error);
+    allJobs = SAMPLE_JOBS;
+    applyFilters();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadJobs);
+</script>
+
+</body>
+</html>
