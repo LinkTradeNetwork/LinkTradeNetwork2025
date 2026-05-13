@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprentiship-secure-firebase-auth-20260512-v10 -->
+  <!-- LTN FORCE UPDATE VERSION: apprentiship-remove-timestamp-20260513-v11 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -472,7 +472,6 @@
         <div class="metric"><strong id="percentBox">0%</strong><span>Progress</span></div>
         <div class="metric"><strong id="remainingHours">8000</strong><span>Hours Remaining</span></div>
         <div class="metric"><strong id="loggedCount">0</strong><span>Hour Logs</span></div>
-        <div class="metric"><strong id="lastUpdated">Not updated</strong><span>Last Updated</span></div>
       </div>
 
       <div class="form-row">
@@ -824,7 +823,6 @@
     document.getElementById("remainingHours").textContent=remaining.toLocaleString();
     document.getElementById("loggedCount").textContent=state.hourLogs.length;
     document.getElementById("currentLevel").textContent=level;
-    document.getElementById("lastUpdated").textContent=state.updatedAt || "Not updated";
 
     document.getElementById("certCount").textContent=state.certifications.length;
     document.getElementById("skillCount").textContent=state.skillsLearned.length;
