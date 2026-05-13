@@ -1,1 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkTradeNetwork - Terms & Conditions</title>
 
+    <!-- LTN FORCE UPDATE VERSION: terms-clean-url-20260513-v1 -->
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #e8944a 0%, #d97e35 100%);
+            color: white;
+            padding: 32px 16px;
+            margin-bottom: 0;
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .logo-badge {
+            background: rgba(255, 255, 255, 0.95);
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: #d97e35;
+            flex-shrink: 0;
+        }
+
+        .header-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .top-links {
+            max-width: 800px;
+            margin: 0 auto 14px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .top-links a {
+            background: rgba(255,255,255,.18);
+            color: white;
+            border: 1px solid rgba(255,255,255,.35);
+            text-decoration: none;
+            font-weight: 700;
+            padding: 9px 13px;
+            border-radius: 999px;
+            font-size: 13px;
+        }
+
+        .top-links a:hover {
+            background: rgba(255,255,255,.28);
+        }
+
+        .page-header p {
+            font-size: 15px;
+            font-weight: 400;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        .last-updated {
+            max-width: 800px;
+            margin: 12px auto 0;
+            padding: 0 16px;
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        .terms-card {
+            background: white;
+            padding: 24px 20px;
+            margin-bottom: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .terms-card h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #d97e35;
+            margin-bottom: 16px;
+            margin-top: 0;
+        }
+
+        .terms-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .terms-card p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 12px;
+            line-height: 1.8;
+        }
+
+        .terms-card ul {
+            list-style: none;
+            margin-left: 0;
+            margin-bottom: 16px;
+            padding-left: 0;
+        }
+
+        .terms-card li {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+            padding-left: 24px;
+            position: relative;
+            line-height: 1.8;
+        }
+
+        .terms-card li:before {
+            content: "•";
+            position: absolute;
+            left: 8px;
+            color: #e8944a;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 32px 0;
+        }
+
+        .contact-info {
+            background: #fff3e6;
+            border-left: 4px solid #e8944a;
+            padding: 16px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .contact-info p {
+            margin-bottom: 8px;
+        }
+
+        .contact-info p:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-info strong {
+            color: #d97e35;
+            font-weight: 600;
+        }
+
+        .contact-info a {
+            color: #d97e35;
+            text-decoration: none;
+            word-break: break-word;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        .highlight-box {
+            background: #ffe6cc;
+            border-left: 4px solid #d97e35;
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
+
+        .table-of-contents {
+            background: #f5f5f5;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+
+        .table-of-contents h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .table-of-contents ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .table-of-contents li {
+            margin-bottom: 6px;
+            color: #555;
+        }
+
+        .table-of-contents a {
+            color: #d97e35;
+            text-decoration: none;
+        }
+
+        .table-of-contents a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-spacing {
+            height: 24px;
+        }
+
+        @media (max-width: 480px) {
+            .page-header {
+                padding: 24px 16px;
+            }
+
+            .header-content {
+                gap: 12px;
+                margin-bottom: 12px;
+            }
+
+            .logo-badge {
+                width: 48px;
+                height: 48px;
+                font-size: 16px;
+                border-radius: 10px;
+            }
+
+            .header-text h1 {
+                font-size: 24px;
+            }
+
+            .top-links {
+                padding: 0;
+                gap: 8px;
+            }
+
+            .top-links a {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .page-header p {
+                font-size: 14px;
+            }
+
+            .terms-card {
+                padding: 18px 16px;
+                margin-bottom: 16px;
+                border-radius: 6px;
+            }
+
+            .terms-card h2 {
+                font-size: 20px;
+                margin-bottom: 14px;
+            }
+
+            .terms-card h3 {
+                font-size: 15px;
+                margin-top: 16px;
+                margin-bottom: 10px;
+            }
+
+            .terms-card p {
+                font-size: 13px;
+                margin-bottom: 10px;
+            }
+
+            .terms-card li {
+                font-size: 13px;
+                margin-bottom: 8px;
+            }
+
+            .divider {
+                margin: 24px 0;
+            }
+
+            .contact-info {
+                padding: 14px 12px;
+                font-size: 13px;
+            }
+
+            .highlight-box {
+                font-size: 12px;
+                padding: 12px 14px;
+            }
+
+            .table-of-contents {
+                font-size: 12px;
+                padding: 12px 14px;
+            }
+
+            .table-of-contents h3 {
+                font-size: 13px;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a1a1a;
+                color: #e0e0e0;
+            }
+
+            .terms-card {
+                background: #2a2a2a;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            }
+
+            .terms-card h2 {
+                color: #f5a86a;
+            }
+
+            .terms-card h3 {
+                color: #e0e0e0;
+            }
+
+            .terms-card p {
+                color: #b0b0b0;
+            }
+
+            .terms-card li {
+                color: #b0b0b0;
+            }
+
+            .divider {
+                border-top-color: #444;
+            }
+
+            .contact-info {
+                background: #2d1f0f;
+                border-left-color: #f5a86a;
+                color: #b0b0b0;
+            }
+
+            .contact-info strong {
+                color: #f5a86a;
+            }
+
+            .contact-info a {
+                color: #f5a86a;
+            }
+
+            .highlight-box {
+                background: #3d2810;
+                border-left-color: #f5a86a;
+                color: #b0b0b0;
+            }
+
+            .table-of-contents {
+                background: #2a2a2a;
+                color: #b0b0b0;
+            }
+
+            .table-of-contents a {
+                color: #f5a86a;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-header">
+        <div class="header-content">
+            <div class="logo-badge">LTN</div>
+            <div class="header-text">
+                <h1>LinkTradeNetwork</h1>
+            </div>
+        </div>
+
+        <div class="top-links">
+            <a href="/signin/">Sign In</a>
+            <a href="/dashboard/">Dashboard</a>
+            <a href="/">Home</a>
+        </div>
+
+        <p>Terms & Conditions</p>
+        <div class="last-updated">Last updated: May 2026</div>
+    </div>
+
+    <div class="container">
+        <div class="terms-card">
+            <div class="table-of-contents">
+                <h3>Table of Contents</h3>
+                <ol>
+                    <li><a href="#section1">Agreement to Terms</a></li>
+                    <li><a href="#section2">Use License</a></li>
+                    <li><a href="#section3">Disclaimer of Warranties</a></li>
+                    <li><a href="#section4">Limitation of Liability</a></li>
+                    <li><a href="#section5">Indemnification</a></li>
+                    <li><a href="#section6">User Accounts & Responsibility</a></li>
+                    <li><a href="#section7">Intellectual Property Rights</a></li>
+                    <li><a href="#section8">User-Generated Content</a></li>
+                    <li><a href="#section9">Third-Party Services & Links</a></li>
+                    <li><a href="#section10">Acceptable Use & Content Policy</a></li>
+                    <li><a href="#section11">Data & Privacy</a></li>
+                    <li><a href="#section12">Account Termination</a></li>
+                    <li><a href="#section13">Modifications to Terms</a></li>
+                    <li><a href="#section14">Dispute Resolution</a></li>
+                    <li><a href="#section15">Severability</a></li>
+                    <li><a href="#section16">Contact</a></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="terms-card" id="section1">
+            <h2>1. Agreement to Terms</h2>
+            <p>By accessing and using LinkTradeNetwork ("the Platform"), you agree to be bound by these Terms & Conditions. If you do not agree with any part of these terms, you may not use the Platform. LinkTradeNetwork reserves the right to update these terms at any time, with changes effective upon posting. Your continued use constitutes acceptance of modified terms.</p>
+        </div>
+
+        <div class="terms-card" id="section2">
+            <h2>2. Use License</h2>
+            <p>LinkTradeNetwork grants you a limited, non-exclusive, non-transferable license to access and use the Platform for lawful purposes only. You may not:</p>
+            <ul>
+                <li>Reproduce, distribute, or transmit any content without permission</li>
+                <li>Use the Platform for any commercial purpose without authorization</li>
+                <li>Reverse engineer, decompile, or attempt to access the Platform's source code</li>
+                <li>Use bots, scrapers, or automated tools to collect data</li>
+                <li>Attempt to gain unauthorized access to the Platform or user data</li>
+                <li>Interfere with or disrupt the Platform's normal operation</li>
+            </ul>
+        </div>
+
+        <div class="terms-card" id="section3">
+            <h2>3. Disclaimer of Warranties</h2>
+            <div class="highlight-box">
+                <strong>THE PLATFORM IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND.</strong>
+            </div>
+            <p>LinkTradeNetwork disclaims all warranties, express or implied, including but not limited to:</p>
+            <ul>
+                <li>Warranties of merchantability or fitness for a particular purpose</li>
+                <li>Warranties that the Platform will be error-free or uninterrupted</li>
+                <li>Warranties regarding the accuracy or completeness of content</li>
+                <li>Warranties that defects will be corrected</li>
+            </ul>
+            <p>LinkTradeNetwork does not warrant that the Platform will meet your requirements, operate uninterrupted, or be secure.</p>
+        </div>
+
+        <div class="terms-card" id="section4">
+            <h2>4. Limitation of Liability</h2>
+            <div class="highlight-box">
+                <strong>TO THE MAXIMUM EXTENT PERMITTED BY LAW, LINKTRADENETWORK SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES.</strong>
+            </div>
+            <p>This includes but is not limited to damages for loss of profits, data, goodwill, or business interruption, even if LinkTradeNetwork has been advised of the possibility of such damages.</p>
+            <p>In no event shall LinkTradeNetwork's total liability exceed the amount you paid to use the Platform in the 12 months preceding the claim, or $100, whichever is less.</p>
+            <p>Some jurisdictions do not allow limitation of liability, so this limitation may not apply to you.</p>
+        </div>
+
+        <div class="terms-card" id="section5">
+            <h2>5. Indemnification</h2>
+            <p>You agree to indemnify, defend, and hold harmless LinkTradeNetwork, its officers, directors, employees, and agents from any claims, damages, losses, or expenses arising from:</p>
+            <ul>
+                <li>Your use of the Platform in violation of these terms</li>
+                <li>Your violation of any applicable law or regulation</li>
+                <li>Your user-generated content or submissions</li>
+                <li>Your infringement of third-party intellectual property rights</li>
+                <li>Claims by other users arising from your conduct on the Platform</li>
+            </ul>
+            <p>LinkTradeNetwork reserves the right to assume control of your defense with counsel of its choosing at your expense.</p>
+        </div>
+
+        <div class="terms-card" id="section6">
+            <h2>6. User Accounts & Responsibility</h2>
+            <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You agree to:</p>
+            <ul>
+                <li>Provide accurate, current, and complete registration information</li>
+                <li>Maintain and update your information as needed</li>
+                <li>Notify LinkTradeNetwork immediately of any unauthorized account access</li>
+                <li>Accept responsibility for all account activity</li>
+                <li>Comply with all applicable laws and regulations</li>
+            </ul>
+            <p>LinkTradeNetwork is not liable for any loss or damage resulting from unauthorized account access if you fail to notify us promptly or act negligently in protecting your credentials.</p>
+        </div>
+
+        <div class="terms-card" id="section7">
+            <h2>7. Intellectual Property Rights</h2>
+            <p>All content on the Platform—including text, graphics, logos, images, software, and data—is the property of LinkTradeNetwork or its content providers and is protected by copyright, trademark, and other intellectual property laws.</p>
+            <p>You may not use, reproduce, modify, or distribute any Platform content without explicit written permission from LinkTradeNetwork. Unauthorized use may result in legal action and account termination.</p>
+            <p>LinkTradeNetwork is a registered trademark of LinkTradeNetwork. Unauthorized use of our trademarks is prohibited.</p>
+        </div>
+
+        <div class="terms-card" id="section8">
+            <h2>8. User-Generated Content</h2>
+            <p>By submitting content to the Platform—including posts, comments, images, and profile information—you grant LinkTradeNetwork a worldwide, royalty-free, perpetual license to use, reproduce, modify, and distribute that content for Platform operations and improvement.</p>
+            <p>You retain ownership of your user-generated content and represent that:</p>
+            <ul>
+                <li>You own or have permission to use all content you submit</li>
+                <li>Your content does not infringe third-party rights</li>
+                <li>Your content complies with all applicable laws</li>
+                <li>You grant LinkTradeNetwork the rights described above</li>
+            </ul>
+            <p>LinkTradeNetwork is not responsible for user-generated content and does not endorse any user submissions. We reserve the right to remove any content that violates these terms.</p>
+        </div>
+
+        <div class="terms-card" id="section9">
+            <h2>9. Third-Party Services & Links</h2>
+            <p>The Platform may include links to third-party websites, apps, and services that are not operated by LinkTradeNetwork. We are not responsible for the content, accuracy, or practices of third-party services.</p>
+            <p>If you use payment processors, email services, or other third-party integrations through LinkTradeNetwork, you agree that:</p>
+            <ul>
+                <li>LinkTradeNetwork is not liable for service interruptions or failures</li>
+                <li>Third-party terms of service apply to those services</li>
+                <li>You release LinkTradeNetwork from liability related to third-party services</li>
+                <li>You review and comply with third-party privacy and terms policies</li>
+            </ul>
+        </div>
+
+        <div class="terms-card" id="section10">
+            <h2>10. Acceptable Use & Content Policy</h2>
+            <p>LinkTradeNetwork is a professional technology platform built for skilled trade professionals, apprentices, instructors, contractors, and employers. By using this platform, you agree to maintain professional and respectful conduct at all times.</p>
+            <h3>10.1 Prohibited Content</h3>
+            <p>The following content and behavior are strictly prohibited on LinkTradeNetwork:</p>
+            <ul>
+                <li>Any form of nudity, sexually explicit material, or adult content</li>
+                <li>Vulgar, obscene, hateful, or offensive language</li>
+                <li>Harassment, intimidation, threats, or abusive conduct toward other users</li>
+                <li>Discriminatory content based on race, religion, gender, nationality, disability, or protected status</li>
+                <li>False, misleading, deceptive, or fraudulent information</li>
+                <li>Spam, scams, phishing attempts, or unauthorized advertising</li>
+                <li>Impersonation of another individual, company, or organization</li>
+                <li>Content that violates applicable laws or regulations</li>
+            </ul>
+            <h3>10.2 Professional Conduct</h3>
+            <p>Users are expected to represent themselves honestly and professionally. All interactions, profile information, posts, comments, images, and uploaded content must reflect behavior appropriate for a professional skilled trades environment.</p>
+            <h3>10.3 Enforcement</h3>
+            <p>LinkTradeNetwork reserves the right to review, remove, restrict, suspend, or permanently terminate any account or content that violates these Terms & Conditions or negatively impacts the integrity, safety, or professional nature of the platform. Serious violations may result in immediate account termination without prior notice.</p>
+            <h3>10.4 Reporting Violations</h3>
+            <p>If you encounter content or behavior that violates these standards, please report it immediately to our team. LinkTradeNetwork reserves the right to investigate reported violations and take appropriate action at its sole discretion.</p>
+        </div>
+
+        <div class="terms-card" id="section11">
+            <h2>11. Data & Privacy</h2>
+            <p>Your use of LinkTradeNetwork is also governed by our Privacy Policy, which explains how we collect, use, and protect your personal information. By using the Platform, you consent to our data practices as described in the Privacy Policy.</p>
+            <p>We are committed to protecting your data and complying with applicable privacy laws including GDPR, CCPA, and other regional regulations. For details on data retention, access, and deletion, please review our full Privacy Policy.</p>
+            <p>If you are a resident of the EU, California, or other jurisdictions with privacy rights, you have the right to access, correct, and delete your personal data. Contact us for assistance with these requests.</p>
+        </div>
+
+        <div class="terms-card" id="section12">
+            <h2>12. Account Termination</h2>
+            <h3>12.1 Termination by LinkTradeNetwork</h3>
+            <p>LinkTradeNetwork may terminate or suspend your account immediately, without notice, for:</p>
+            <ul>
+                <li>Violation of these Terms & Conditions</li>
+                <li>Illegal activity or violation of laws</li>
+                <li>Harassment, threats, or abusive behavior</li>
+                <li>Intellectual property infringement</li>
+                <li>Payment disputes or fraud</li>
+                <li>Extended inactivity (6+ months)</li>
+                <li>Any conduct LinkTradeNetwork deems harmful to the Platform or other users</li>
+            </ul>
+            <h3>12.2 Termination by You</h3>
+            <p>You may request account termination by contacting us at Team@linktradenetwork.com. Upon termination, your access to the Platform ends, though we may retain certain data as required by law.</p>
+            <h3>12.3 Effect of Termination</h3>
+            <p>Termination does not relieve you of obligations under these terms. Sections on Limitation of Liability, Indemnification, and Dispute Resolution survive termination.</p>
+        </div>
+
+        <div class="terms-card" id="section13">
+            <h2>13. Modifications to Terms</h2>
+            <p>LinkTradeNetwork may modify these Terms & Conditions at any time. Material changes will be communicated via email or a prominent notice on the Platform. Your continued use of the Platform after modifications constitute acceptance of the updated terms.</p>
+            <p>If you do not accept modified terms, you must stop using the Platform. We recommend reviewing these terms periodically for updates.</p>
+        </div>
+
+        <div class="terms-card" id="section14">
+            <h2>14. Dispute Resolution</h2>
+            <h3>14.1 Informal Resolution</h3>
+            <p>Before initiating legal proceedings, you agree to attempt informal resolution by contacting Team@linktradenetwork.com with a detailed description of your dispute.</p>
+            <h3>14.2 Arbitration</h3>
+            <p>Any dispute arising from or related to these Terms & Conditions shall be resolved by binding arbitration under the American Arbitration Association (AAA) rules, conducted remotely. Arbitration shall be conducted by a single arbitrator in English.</p>
+            <p>Arbitration allows each party to present evidence and arguments but provides less discovery and appeal rights than court proceedings. By agreeing to arbitration, you waive your right to a jury trial.</p>
+            <h3>14.3 Governing Law</h3>
+            <p>These Terms & Conditions are governed by and construed in accordance with the laws of the United States and the state of Michigan, without regard to conflicts of law principles.</p>
+            <h3>14.4 Exceptions</h3>
+            <p>Notwithstanding arbitration, either party may seek injunctive relief in court to prevent irreparable harm, intellectual property infringement, or breach of confidentiality.</p>
+        </div>
+
+        <div class="terms-card" id="section15">
+            <h2>15. Severability</h2>
+            <p>If any provision of these Terms & Conditions is found to be invalid, illegal, or unenforceable, that provision shall be severed, and the remaining provisions shall remain in full force and effect. If a provision cannot be severed without materially altering the agreement, the parties agree to modify the provision to the minimum extent necessary to make it enforceable.</p>
+        </div>
+
+        <div class="terms-card" id="section16">
+            <h2>16. Contact</h2>
+            <p>For questions regarding these Terms & Conditions, please contact us:</p>
+            <div class="contact-info">
+                <p><strong>Email:</strong> <a href="mailto:Team@linktradenetwork.com">Team@linktradenetwork.com</a></p>
+                <p><strong>Website:</strong> <a href="https://www.linktradenetwork.com" target="_blank">www.linktradenetwork.com</a></p>
+                <p><strong>Company:</strong> LinkTradeNetwork</p>
+            </div>
+        </div>
+
+        <div class="footer-spacing"></div>
+    </div>
+</body>
+</html>
