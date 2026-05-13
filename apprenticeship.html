@@ -5,192 +5,641 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-ui-ux-member-preview-20260512-v8 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-ui-ux-access-gate-20260512-v9 -->
+
+  <script>
+    window.LTN_APP_VERSION = "20260512apprenticeshipv9";
+    window.LTN_FRONT_GATE_URL = "front.html?v=20260512apprenticeshipgate9";
+
+    (function () {
+      function parseJson(raw) {
+        if (!raw) return null;
+        try {
+          var parsed = JSON.parse(raw);
+          return parsed && typeof parsed === "object" ? parsed : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function hasUsefulProfile(profile) {
+        if (!profile || typeof profile !== "object") return false;
+        return Boolean(
+          profile.email ||
+          profile.userEmail ||
+          profile.profileEmail ||
+          profile.name ||
+          profile.fullName ||
+          profile.displayName ||
+          profile.userName
+        );
+      }
+
+      window.ltnHasLocalAccess = function () {
+        if (localStorage.getItem("ltn_access_granted") === "true") return true;
+
+        var profileKeys = [
+          "ltn_current_profile",
+          "ltnUserProfile",
+          "ltn_profile",
+          "currentUserProfile",
+          "userProfile",
+          "ltn_user"
+        ];
+
+        for (var i = 0; i < profileKeys.length; i++) {
+          if (hasUsefulProfile(parseJson(localStorage.getItem(profileKeys[i])))) return true;
+        }
+
+        var simpleKeys = [
+          "userEmail",
+          "profileEmail",
+          "ltn_apprentice_email",
+          "userName",
+          "ltn_user_email"
+        ];
+
+        for (var j = 0; j < simpleKeys.length; j++) {
+          if (localStorage.getItem(simpleKeys[j])) return true;
+        }
+
+        return false;
+      };
+
+      window.ltnGoToAccessGate = function () {
+        window.location.replace(window.LTN_FRONT_GATE_URL);
+      };
+
+      document.documentElement.classList.add(window.ltnHasLocalAccess() ? "gate-ready" : "gate-pending");
+
+      window.__ltnGateTimer = setTimeout(function () {
+        if (
+          document.documentElement.classList.contains("gate-pending") &&
+          !window.__ltnAuthResolved &&
+          !window.ltnHasLocalAccess()
+        ) {
+          window.ltnGoToAccessGate();
+        }
+      }, 4500);
+    })();
+  </script>
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
     html,body{overflow-x:hidden}
+    html.gate-pending body{visibility:hidden}
+    html.gate-ready body{visibility:visible}
+
+    :root{
+      --blue:#2f557a;
+      --blue-dark:#263f5b;
+      --orange:#e96916;
+      --orange-soft:#fff2e8;
+      --orange-border:#ffd1ad;
+      --ink:#172033;
+      --muted:#64748b;
+      --line:#dbe3ee;
+      --soft:#f7f9fc;
+      --white:#ffffff;
+      --danger:#dc2626;
+      --shadow:0 18px 48px rgba(23,32,51,.16);
+      --radius:18px;
+    }
+
     body{
       margin:0;
       font-family:Arial,sans-serif;
-      background:linear-gradient(135deg,#ffa366,#ff8c3a,#ff7e2e);
+      background:
+        radial-gradient(circle at top left,rgba(255,255,255,.34),transparent 34%),
+        linear-gradient(135deg,#ffb06f,#f27b2e 44%,#de641c);
       min-height:100vh;
-      color:#1e293b;
+      color:var(--ink);
     }
+
     .topbar{
-      background:#3d5a80;color:white;padding:16px 24px;
-      display:flex;justify-content:space-between;align-items:center;
-      box-shadow:0 6px 20px rgba(0,0,0,.18);gap:12px;
+      background:rgba(47,85,122,.98);
+      color:white;
+      padding:14px 24px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      box-shadow:0 8px 24px rgba(0,0,0,.18);
+      gap:14px;
+      position:sticky;
+      top:0;
+      z-index:10;
     }
-    .logo{font-size:22px;font-weight:800}
-    .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+    .logo{
+      font-size:21px;
+      font-weight:900;
+      letter-spacing:.2px;
+      line-height:1.2;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
     .logout,.dashbtn,.button{
-      background:#ea6a00;color:white;border:none;padding:10px 18px;
-      border-radius:10px;cursor:pointer;font-weight:700;text-decoration:none;
-      white-space:nowrap;transition:.2s ease;font-family:inherit;
+      background:var(--orange);
+      color:white;
+      border:none;
+      padding:11px 16px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:800;
+      text-decoration:none;
+      white-space:nowrap;
+      transition:.18s ease;
+      font-family:inherit;
+      font-size:14px;
+      min-height:42px;
     }
-    .dashbtn{background:white;color:#3d5a80}
-    .button.secondary{background:#3d5a80}
-    .button.soft{background:#f1f5f9;color:#334155;border:1px solid #cbd5e1}
-    .button.danger{background:#dc2626}
-    .logout:hover,.dashbtn:hover,.button:hover{filter:brightness(.95);transform:translateY(-1px)}
-    .wrap{max-width:1150px;margin:0 auto;padding:32px 20px}
-    .hero,.card{background:white;border-radius:24px;box-shadow:0 15px 40px rgba(0,0,0,.18)}
+
+    .dashbtn{background:white;color:var(--blue)}
+    .button.secondary{background:var(--blue)}
+    .button.soft{background:white;color:var(--blue);border:1px solid var(--line)}
+    .button.danger{background:var(--danger)}
+    .logout:hover,.dashbtn:hover,.button:hover{filter:brightness(.97);transform:translateY(-1px)}
+    .button:active,.logout:active,.dashbtn:active{transform:translateY(0)}
+
+    .wrap{
+      max-width:1180px;
+      margin:0 auto;
+      padding:30px 20px 42px;
+    }
+
+    .hero,.card{
+      background:rgba(255,255,255,.98);
+      border:1px solid rgba(255,255,255,.7);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
     .hero{
-      padding:32px;margin-bottom:22px;display:flex;
-      justify-content:space-between;gap:24px;align-items:center;flex-wrap:wrap;
+      padding:28px;
+      margin-bottom:20px;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:24px;
+      align-items:center;
     }
-    h1{margin:0;font-size:34px;line-height:1.1;overflow-wrap:anywhere}
-    .sub,.small{color:#64748b}
-    .sub{margin-top:8px;font-size:16px;line-height:1.5}
-    .hero-badge{
-      background:#fff4e8;color:#c35700;border:1px solid #ffd3aa;
-      padding:12px 16px;border-radius:14px;font-weight:800;text-align:center;
+
+    h1{
+      margin:0;
+      font-size:34px;
+      line-height:1.08;
+      overflow-wrap:anywhere;
+      letter-spacing:0;
+    }
+
+    .sub,.small{
+      color:var(--muted);
+    }
+
+    .sub{
+      margin-top:9px;
+      font-size:16px;
+      line-height:1.55;
+      max-width:760px;
+    }
+
+    .hero-stack{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:flex-end;
+    }
+
+    .hero-badge,.sync-pill{
+      background:var(--orange-soft);
+      color:#a84b00;
+      border:1px solid var(--orange-border);
+      padding:11px 14px;
+      border-radius:999px;
+      font-weight:900;
+      text-align:center;
       cursor:default;
+      font-size:13px;
+      line-height:1.2;
     }
+
+    .sync-pill{
+      background:#eef6ff;
+      color:#24517b;
+      border-color:#cbe0f4;
+    }
+
     .verified-badge{
-      display:inline-flex;align-items:center;gap:8px;background:#fff4e8;
-      color:#c35700;border:1px solid #ffd3aa;padding:8px 12px;
-      border-radius:999px;font-weight:800;font-size:13px;margin-top:10px;flex-wrap:wrap;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:var(--orange-soft);
+      color:#a84b00;
+      border:1px solid var(--orange-border);
+      padding:8px 12px;
+      border-radius:999px;
+      font-weight:900;
+      font-size:13px;
+      margin-top:12px;
+      flex-wrap:wrap;
     }
+
     .orange-check{
-      display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
-      border-radius:50%;background:#ea6a00;color:white;font-weight:900;font-size:13px;line-height:1;
-      box-shadow:0 4px 10px rgba(234,106,0,.25);flex-shrink:0;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      background:var(--orange);
+      color:white;
+      font-weight:900;
+      font-size:13px;
+      line-height:1;
+      box-shadow:0 4px 10px rgba(233,105,22,.25);
+      flex-shrink:0;
     }
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
-    .card{padding:24px;overflow:hidden}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:18px;
+    }
+
+    .card{
+      padding:22px;
+      overflow:hidden;
+    }
+
     .card.big{grid-column:span 2}
+
     .label{
-      color:#64748b;font-size:13px;font-weight:700;text-transform:uppercase;
-      letter-spacing:.5px;overflow-wrap:anywhere;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      overflow-wrap:anywhere;
     }
+
     .value{
-      font-size:30px;font-weight:800;margin-top:8px;line-height:1.1;
-      overflow-wrap:anywhere;word-break:break-word;
+      font-size:29px;
+      font-weight:900;
+      margin-top:8px;
+      line-height:1.1;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      letter-spacing:0;
     }
-    .value.small-value{font-size:22px;line-height:1.25}
+
+    .value.small-value{
+      font-size:21px;
+      line-height:1.25;
+    }
+
     .section-title{
-      color:white;font-size:24px;font-weight:800;margin:28px 0 14px;
-      text-shadow:0 2px 8px rgba(0,0,0,.15);overflow-wrap:anywhere;
+      color:white;
+      font-size:23px;
+      font-weight:900;
+      margin:28px 0 14px;
+      text-shadow:0 2px 8px rgba(0,0,0,.15);
+      overflow-wrap:anywhere;
+      letter-spacing:0;
     }
-    .progress-bar{height:16px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-top:16px}
+
+    .progress-bar{
+      height:16px;
+      background:#e7edf5;
+      border-radius:99px;
+      overflow:hidden;
+      margin-top:16px;
+      border:1px solid #dce5ef;
+    }
+
     .progress-fill{
-      height:100%;width:0%;background:linear-gradient(90deg,#ea6a00,#ff9a3c);
-      border-radius:99px;transition:width .4s ease;
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,var(--orange),#ff9a3c);
+      border-radius:99px;
+      transition:width .4s ease;
     }
+
     .metric-row{
-      display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-      gap:14px;margin-top:18px;
-    }
-    .metric{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:16px}
-    .metric strong{display:block;font-size:24px;color:#1e293b}
-    .metric span{font-size:13px;color:#64748b;font-weight:700;text-transform:uppercase}
-    .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:14px}
-    .form-control{
-      width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px;
-      font-size:16px;font-family:inherit;min-width:0;
-    }
-    .save-status{margin-top:12px;font-size:13px;font-weight:800;color:#3d5a80}
-    .accomplishment-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-top:18px}
-    .accomplishment-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:18px}
-    .accomplishment-card strong{display:block;font-size:26px;color:#1e293b;margin-bottom:5px}
-    .accomplishment-card span{color:#64748b;font-size:13px;font-weight:800;text-transform:uppercase}
-    .badge-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-    .badge{
-      display:inline-flex;align-items:center;gap:6px;background:#fff4e8;color:#c35700;
-      border:1px solid #ffd3aa;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:800;
-      max-width:100%;word-break:break-word;
-    }
-    .list-box{margin-top:14px;display:grid;gap:10px}
-    .list-item{
-      background:#f8fafc;border:1px solid #e2e8f0;padding:12px 14px;border-radius:12px;
-      display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;
-    }
-    .list-item strong{display:block;font-size:15px;word-break:break-word}
-    .list-item span{display:block;color:#64748b;font-size:13px;margin-top:3px;line-height:1.4}
-    .delete-small{
-      background:#ef4444;color:white;border:none;border-radius:8px;padding:7px 10px;
-      cursor:pointer;font-weight:700;white-space:nowrap;flex-shrink:0;
-    }
-    .profile-details{margin-top:14px;display:grid;gap:8px}
-    .profile-detail{
-      background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;
-      font-size:14px;color:#475569;word-break:break-word;line-height:1.5;
-    }
-    .profile-detail b{color:#1e293b}
-    .empty{
-      color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;padding:14px;
-      border-radius:12px;margin-top:14px;font-size:14px;line-height:1.5;
-    }
-    .preview-card{
-      background:linear-gradient(135deg,#f8fafc,#ffffff);
-      border:2px solid #ffd3aa;
-      border-radius:20px;
-      padding:20px;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+      gap:12px;
       margin-top:18px;
     }
-    .preview-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-    .preview-avatar{
-      width:62px;height:62px;border-radius:50%;background:#3d5a80;color:white;
-      display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;
+
+    .metric{
+      background:var(--soft);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:14px;
+      min-width:0;
     }
-    .preview-name{font-size:22px;font-weight:900;color:#1e293b}
-    .preview-trade{font-weight:800;color:#ea6a00;margin-top:3px}
-    .preview-note{
-      background:#fff4e8;border:1px solid #ffd3aa;color:#9a4a00;
-      border-radius:14px;padding:12px;margin-top:14px;font-size:14px;line-height:1.45;
+
+    .metric strong{
+      display:block;
+      font-size:23px;
+      color:var(--ink);
+      overflow-wrap:anywhere;
+      letter-spacing:0;
     }
-    .danger-zone{
-      background:#fff1f2;
-      border:1px solid #fecdd3;
-      border-radius:18px;
+
+    .metric span{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+      text-transform:uppercase;
+    }
+
+    .form-row{
+      display:grid;
+      grid-template-columns:180px minmax(220px,1fr);
+      gap:12px;
+      margin-top:16px;
+      margin-bottom:12px;
+    }
+
+    .form-control{
+      width:100%;
+      border:1px solid #cbd5e1;
+      border-radius:8px;
+      padding:12px;
+      font-size:16px;
+      font-family:inherit;
+      min-width:0;
+      outline:none;
+      background:white;
+      color:var(--ink);
+    }
+
+    .form-control:focus{
+      border-color:var(--orange);
+      box-shadow:0 0 0 3px rgba(233,105,22,.14);
+    }
+
+    .save-status{
+      margin-top:12px;
+      font-size:13px;
+      font-weight:900;
+      color:var(--blue);
+      line-height:1.4;
+      min-height:18px;
+    }
+
+    .accomplishment-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+      gap:14px;
+      margin-top:18px;
+    }
+
+    .accomplishment-card{
+      background:var(--soft);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+    }
+
+    .accomplishment-card strong{
+      display:block;
+      font-size:26px;
+      color:var(--ink);
+      margin-bottom:5px;
+    }
+
+    .accomplishment-card span{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+    }
+
+    .badge-list{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:14px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:var(--orange-soft);
+      color:#a84b00;
+      border:1px solid var(--orange-border);
+      border-radius:999px;
+      padding:7px 11px;
+      font-size:13px;
+      font-weight:900;
+      max-width:100%;
+      word-break:break-word;
+    }
+
+    .list-box{
+      margin-top:14px;
+      display:grid;
+      gap:10px;
+    }
+
+    .list-item{
+      background:var(--soft);
+      border:1px solid var(--line);
+      padding:12px 14px;
+      border-radius:12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .list-item strong{
+      display:block;
+      font-size:15px;
+      word-break:break-word;
+    }
+
+    .list-item span{
+      display:block;
+      color:var(--muted);
+      font-size:13px;
+      margin-top:3px;
+      line-height:1.4;
+    }
+
+    .delete-small{
+      background:#ef4444;
+      color:white;
+      border:none;
+      border-radius:8px;
+      padding:8px 10px;
+      cursor:pointer;
+      font-weight:800;
+      white-space:nowrap;
+      flex-shrink:0;
+      font-family:inherit;
+    }
+
+    .profile-details{
+      margin-top:14px;
+      display:grid;
+      gap:8px;
+    }
+
+    .profile-detail{
+      background:var(--soft);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:14px;
+      color:#475569;
+      word-break:break-word;
+      line-height:1.5;
+    }
+
+    .profile-detail b{color:var(--ink)}
+
+    .empty{
+      color:var(--muted);
+      background:var(--soft);
+      border:1px dashed #cbd5e1;
+      padding:14px;
+      border-radius:12px;
+      margin-top:14px;
+      font-size:14px;
+      line-height:1.5;
+      width:100%;
+    }
+
+    .preview-card{
+      background:linear-gradient(135deg,#f8fafc,#ffffff);
+      border:2px solid var(--orange-border);
+      border-radius:16px;
       padding:18px;
       margin-top:18px;
     }
-    .danger-zone .label{color:#be123c}
-    @media(max-width:900px){.hero{flex-direction:column;align-items:flex-start}.card.big{grid-column:span 1}}
-    @media(max-width:750px){
-      .topbar{padding:14px 16px;flex-direction:column;align-items:flex-start}
-      .top-actions{width:100%}.logo{font-size:18px}.wrap{padding:20px 14px}
-      .hero{padding:24px}h1{font-size:28px}.grid{grid-template-columns:1fr}
-      .metric-row{grid-template-columns:1fr}.button{width:100%}.list-item{flex-direction:column}
-      .delete-small{width:100%}
+
+    .preview-top{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
     }
+
+    .preview-avatar{
+      width:62px;
+      height:62px;
+      border-radius:50%;
+      background:var(--blue);
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:22px;
+      font-weight:900;
+      flex-shrink:0;
+    }
+
+    .preview-name{
+      font-size:22px;
+      font-weight:900;
+      color:var(--ink);
+      overflow-wrap:anywhere;
+    }
+
+    .preview-trade{
+      font-weight:900;
+      color:var(--orange);
+      margin-top:3px;
+      overflow-wrap:anywhere;
+    }
+
+    .preview-note{
+      background:var(--orange-soft);
+      border:1px solid var(--orange-border);
+      color:#884000;
+      border-radius:12px;
+      padding:12px;
+      margin-top:14px;
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    .danger-zone{
+      background:#fff1f2;
+      border:1px solid #fecdd3;
+      border-radius:14px;
+      padding:16px;
+      margin-top:18px;
+    }
+
+    .danger-zone .label{color:#be123c}
+
+    .inline-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    @media(max-width:900px){
+      .hero{grid-template-columns:1fr}
+      .hero-stack{align-items:flex-start}
+      .card.big{grid-column:span 1}
+      .form-row{grid-template-columns:1fr}
+    }
+
+    @media(max-width:750px){
+      .topbar{
+        padding:14px 16px;
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .top-actions{width:100%}
+      .dashbtn,.logout{flex:1;text-align:center}
+      .logo{font-size:18px}
+      .wrap{padding:20px 14px 34px}
+      .hero{padding:22px}
+      h1{font-size:27px}
+      .grid{grid-template-columns:1fr}
+      .metric-row{grid-template-columns:1fr 1fr}
+      .button{width:100%}
+      .list-item{flex-direction:column}
+      .delete-small{width:100%}
+      .inline-actions{display:grid}
+    }
+
     @media(max-width:480px){
-      .hero{padding:20px}.card{padding:18px}h1{font-size:24px}
-      .value{font-size:26px}.value.small-value{font-size:20px}.section-title{font-size:22px}
+      .hero{padding:18px}
+      .card{padding:17px}
+      h1{font-size:24px}
+      .value{font-size:25px}
+      .value.small-value{font-size:19px}
+      .section-title{font-size:21px}
+      .metric-row{grid-template-columns:1fr}
+      .top-actions{display:grid;grid-template-columns:1fr;width:100%}
     }
   </style>
 </head>
 
 <body>
 
-<script>
-  (function () {
-    const hasProfile =
-      localStorage.getItem("ltn_access_granted") === "true" ||
-      localStorage.getItem("ltn_current_profile") ||
-      localStorage.getItem("ltnUserProfile") ||
-      localStorage.getItem("ltn_profile") ||
-      localStorage.getItem("currentUserProfile") ||
-      localStorage.getItem("userProfile") ||
-      localStorage.getItem("userEmail") ||
-      localStorage.getItem("profileEmail") ||
-      localStorage.getItem("ltn_apprentice_email");
-
-    if (!hasProfile) {
-      window.location.replace("front.html?v=20260512apprenticeshipgate8");
-    }
-  })();
-</script>
-
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512apprentice8'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='members.html?v=20260512apprentice8'">Members</button>
-    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512apprentice8'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512apprentice9'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='members.html?v=20260512apprentice9'">Members</button>
+    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512apprentice9'">Back</button>
   </div>
 </div>
 
@@ -200,15 +649,17 @@
     <div>
       <h1 id="welcome">Welcome, Trade Worker</h1>
       <div class="sub">
-        Track your hours, skills, certifications, projects, and jobsite proof.
-        Your accomplishment snapshot can appear in the Members section.
+        Track hours, skills, certifications, projects, and jobsite proof. Your accomplishment snapshot can appear in the Members section after your progress saves.
       </div>
       <div id="verificationBadge" class="verified-badge" style="display:none">
         <span class="orange-check">✓</span>
         <span>Verified LTN Profile</span>
       </div>
     </div>
-    <div class="hero-badge" id="heroRoleBadge">Progress Snapshot Saves to Members</div>
+    <div class="hero-stack">
+      <div class="hero-badge" id="heroRoleBadge">Progress Snapshot Saves to Members</div>
+      <div class="sync-pill" id="syncStatus">Checking access...</div>
+    </div>
   </div>
 
   <div class="grid">
@@ -262,7 +713,6 @@
     <div class="value small-value">Accomplishment Snapshot</div>
     <div class="small">
       This preview shows how your apprenticeship progress can appear inside the LTN Members section.
-      Use the Members button at the top-right to view the full members page.
     </div>
 
     <div class="preview-card">
@@ -314,7 +764,7 @@
       <div class="value small-value">Add Certification</div>
       <div class="small">Example: OSHA 10, OSHA 30, CPR, Forklift, NCCER</div>
       <input id="certInput" class="form-control" style="margin-top:14px" type="text" placeholder="Certification name">
-      <button class="button" onclick="addCertification()">+ Add Certification</button>
+      <button class="button" onclick="addCertification()" style="margin-top:12px">+ Add Certification</button>
       <div id="certList" class="list-box"></div>
     </div>
 
@@ -323,7 +773,7 @@
       <div class="value small-value">Add Skill Learned</div>
       <div class="small">Example: conduit bending, pipe fitting, wiring, blueprint reading</div>
       <input id="skillInput" class="form-control" style="margin-top:14px" type="text" placeholder="Skill learned">
-      <button class="button" onclick="addSkill()">+ Add Skill</button>
+      <button class="button" onclick="addSkill()" style="margin-top:12px">+ Add Skill</button>
       <div id="skillList" class="list-box"></div>
     </div>
 
@@ -332,7 +782,7 @@
       <div class="value small-value">Add Project Completed</div>
       <div class="small">Example: commercial rough-in, panel install, HVAC changeout</div>
       <input id="projectInput" class="form-control" style="margin-top:14px" type="text" placeholder="Project completed">
-      <button class="button" onclick="addProject()">+ Add Project</button>
+      <button class="button" onclick="addProject()" style="margin-top:12px">+ Add Project</button>
       <div id="projectList" class="list-box"></div>
     </div>
 
@@ -342,7 +792,7 @@
       <div class="small">
         This counts jobsite proof items. It does not upload actual files yet.
       </div>
-      <button class="button" onclick="addJobsiteProof()">+ Add Jobsite Proof Count</button>
+      <button class="button" onclick="addJobsiteProof()" style="margin-top:14px">+ Add Jobsite Proof Count</button>
     </div>
   </div>
 
@@ -361,8 +811,10 @@
       <div class="small">
         Use these only if you need to clear progress. You will be asked to confirm first.
       </div>
-      <button class="button soft" onclick="resetHours()">Reset Hours</button>
-      <button class="button soft" onclick="resetJobsiteProof()">Reset Jobsite Proof Count</button>
+      <div class="inline-actions">
+        <button class="button soft" onclick="resetHours()">Reset Hours</button>
+        <button class="button soft" onclick="resetJobsiteProof()">Reset Jobsite Proof Count</button>
+      </div>
     </div>
   </div>
 
@@ -400,6 +852,21 @@
     updatedAt:""
   };
 
+  function unlockPage(message){
+    window.__ltnAuthResolved = true;
+    clearTimeout(window.__ltnGateTimer);
+    document.documentElement.classList.remove("gate-pending");
+    document.documentElement.classList.add("gate-ready");
+    const sync = document.getElementById("syncStatus");
+    if(sync) sync.textContent = message || "Access confirmed";
+  }
+
+  function denyPage(){
+    window.__ltnAuthResolved = true;
+    clearTimeout(window.__ltnGateTimer);
+    if(!window.ltnHasLocalAccess()) window.ltnGoToAccessGate();
+  }
+
   function safe(value){
     return String(value || "")
       .replaceAll("&","&amp;")
@@ -409,24 +876,33 @@
       .replaceAll("'","&#039;");
   }
 
+  function readJson(key){
+    const raw = localStorage.getItem(key);
+    if(!raw) return null;
+    try{
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? parsed : null;
+    }catch(e){
+      return null;
+    }
+  }
+
   function getStoredProfile(){
     const keys=["ltn_current_profile","ltnUserProfile","ltn_profile","currentUserProfile","userProfile","ltn_user"];
+
     for(const key of keys){
-      const raw=localStorage.getItem(key);
-      if(!raw) continue;
-      try{
-        const parsed=JSON.parse(raw);
-        if(parsed && typeof parsed==="object") return parsed;
-      }catch(e){}
+      const parsed = readJson(key);
+      if(parsed) return parsed;
     }
+
     return {
       name:localStorage.getItem("userName") || "",
-      email:localStorage.getItem("userEmail") || localStorage.getItem("profileEmail") || localStorage.getItem("ltn_apprentice_email") || ""
+      email:localStorage.getItem("userEmail") || localStorage.getItem("profileEmail") || localStorage.getItem("ltn_apprentice_email") || localStorage.getItem("ltn_user_email") || ""
     };
   }
 
   function getProfileName(data){return data.fullName || data.name || data.displayName || data.userName || "Trade Worker"}
-  function getProfileEmail(data){return data.email || data.userEmail || data.profileEmail || localStorage.getItem("userEmail") || "Guest User"}
+  function getProfileEmail(data){return data.email || data.userEmail || data.profileEmail || localStorage.getItem("userEmail") || localStorage.getItem("profileEmail") || localStorage.getItem("ltn_apprentice_email") || "Guest User"}
   function getProfileRole(data){return data.role || data.profileType || "Apprentice"}
   function getProfileTrade(data){return data.trade || data.specialty || data.tradePath || "Not selected"}
   function getTradeSchool(data){return data.tradeSchool || data.school || data.trainingCenter || data.instructorSchool || "Not added"}
@@ -473,7 +949,11 @@
   }
 
   function loadLocalProgress(){
-    const raw=localStorage.getItem("ltn_apprenticeship_progress_v8") || localStorage.getItem("ltn_apprenticeship_progress_v7");
+    const raw =
+      localStorage.getItem("ltn_apprenticeship_progress_v9") ||
+      localStorage.getItem("ltn_apprenticeship_progress_v8") ||
+      localStorage.getItem("ltn_apprenticeship_progress_v7");
+
     if(raw){
       try{
         const saved=JSON.parse(raw);
@@ -489,11 +969,12 @@
         };
       }catch(e){}
     }
+
     buildBadges();
   }
 
   function saveLocalProgress(){
-    localStorage.setItem("ltn_apprenticeship_progress_v8", JSON.stringify(state));
+    localStorage.setItem("ltn_apprenticeship_progress_v9", JSON.stringify(state));
   }
 
   async function saveToFirebase(){
@@ -520,12 +1001,14 @@
       verifiedPhotos:state.jobsiteUploads,
       badgesEarned:state.badgesEarned,
       badges:state.badgesEarned,
+      updatedAt:state.updatedAt,
       apprenticeshipProgress:{
         hoursCompleted:state.hoursCompleted,
         totalHours:state.hoursCompleted,
         progressPercent:progressPercent,
         apprenticeLevel:currentLevel,
         currentLevel:currentLevel,
+        hourLogs:state.hourLogs,
         certifications:state.certifications,
         skillsLearned:state.skillsLearned,
         projectsCompleted:state.projects.length,
@@ -543,12 +1026,15 @@
       if(currentUserId){
         await setDoc(doc(db,"users",currentUserId),payload,{merge:true});
         document.getElementById("saveStatus").textContent="Saved. Your accomplishment snapshot can now appear in the Members section.";
+        document.getElementById("syncStatus").textContent="Online save complete";
       }else{
         document.getElementById("saveStatus").textContent="Saved on this device. Sign in to publish this to Members.";
+        document.getElementById("syncStatus").textContent="Saved on this device";
       }
     }catch(error){
       console.error(error);
       document.getElementById("saveStatus").textContent="Saved on this device. Online save did not complete.";
+      document.getElementById("syncStatus").textContent="Device save complete";
     }
   }
 
@@ -570,7 +1056,7 @@
     document.getElementById("previewTrade").textContent=trade;
     document.getElementById("previewLocation").textContent=location;
 
-    if(isVerified(profile)) document.getElementById("verificationBadge").style.display="inline-flex";
+    document.getElementById("verificationBadge").style.display=isVerified(profile) ? "inline-flex" : "none";
 
     document.getElementById("profileDetails").innerHTML=`
       <div class="profile-detail"><b>Trade:</b> ${safe(trade)}</div>
@@ -626,6 +1112,7 @@
       box.innerHTML=`<div class="empty">No hours logged yet.</div>`;
       return;
     }
+
     box.innerHTML=state.hourLogs.slice().reverse().map((log,reverseIndex)=>{
       const realIndex=state.hourLogs.length-1-reverseIndex;
       return `
@@ -766,10 +1253,12 @@
     try{
       const ref=doc(db,"users",uid);
       const snap=await getDoc(ref);
+
       if(snap.exists()){
         const firebaseProfile=snap.data();
         profile={...profile,...firebaseProfile};
         const p=firebaseProfile.apprenticeshipProgress || {};
+
         state.hoursCompleted=Number(firebaseProfile.hoursCompleted ?? firebaseProfile.totalHours ?? p.hoursCompleted ?? state.hoursCompleted ?? 0) || 0;
         state.hourLogs=Array.isArray(p.hourLogs) ? p.hourLogs : state.hourLogs;
         state.certifications=Array.isArray(firebaseProfile.certifications) ? firebaseProfile.certifications : Array.isArray(p.certifications) ? p.certifications : state.certifications;
@@ -779,32 +1268,53 @@
         state.badgesEarned=Array.isArray(firebaseProfile.badgesEarned) ? firebaseProfile.badgesEarned : Array.isArray(p.badgesEarned) ? p.badgesEarned : state.badgesEarned;
         state.updatedAt=state.updatedAt || firebaseProfile.updatedAt || "";
       }
-    }catch(error){console.error(error);}
+    }catch(error){
+      console.error(error);
+    }
   }
 
   async function init(){
     profile=getStoredProfile();
     loadLocalProgress();
+
+    if(window.ltnHasLocalAccess()){
+      unlockPage("Access confirmed");
+    }
+
     renderProfile();
     renderProgress();
 
     onAuthStateChanged(auth, async function(user){
+      window.__ltnAuthResolved = true;
+      clearTimeout(window.__ltnGateTimer);
+
       if(user){
         currentUserId=user.uid;
         profile.email=profile.email || user.email;
         profile.name=profile.name || user.displayName;
+
+        localStorage.setItem("ltn_access_granted","true");
+        if(user.email) localStorage.setItem("userEmail",user.email);
+
+        unlockPage("Signed in and synced");
         await loadFirebaseProfile(user.uid);
         renderProfile();
         renderProgress();
         await saveToFirebase();
         renderProgress();
+      }else if(window.ltnHasLocalAccess()){
+        unlockPage("Device access confirmed");
+        document.getElementById("saveStatus").textContent="Progress saves on this device. Sign in to publish updates to Members.";
+      }else{
+        denyPage();
       }
     });
   }
 
   init();
-  console.log("LTN Apprenticeship UI UX Member Preview Loaded v8");
+  console.log("LTN Apprenticeship UI UX Access Gate Loaded v9");
 </script>
 
 </body>
 </html>
+
