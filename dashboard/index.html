@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
 
-<!-- LTN FORCE UPDATE 2026-05-13: DASHBOARD NETWORK CENTER NAV CLEANUP v12 -->
-<!-- LTN VERSION: dashboard-network-center-nav-cleanup-20260513-v12 -->
+<!-- LTN FORCE UPDATE 2026-05-13: CLEAN URL ROOT NAVIGATION FIX v14 -->
+<!-- LTN VERSION: dashboard-clean-url-root-navigation-20260513-v14 -->
 
 <style>
 :root{
@@ -809,14 +809,14 @@ textarea.form-control{min-height:104px;resize:vertical}
   line-height:1.45;
 }
 
-a[href^="apprentiship.html"],a[href^="apprenticeship.html"]{
+a[href^="/apprenticeship/"],a[href^="/find-apprenticeships/"]{
   border-radius:999px!important;
   background:linear-gradient(135deg,var(--accent),#1e293b)!important;
   box-shadow:0 14px 28px rgba(30,41,59,.22)!important;
   transition:all .2s ease!important;
 }
 
-a[href^="apprentiship.html"]:hover,a[href^="apprenticeship.html"]:hover{
+a[href^="/apprenticeship/"]:hover,a[href^="/find-apprenticeships/"]:hover{
   transform:translateY(-2px);
   box-shadow:0 18px 34px rgba(30,41,59,.28)!important;
 }
@@ -898,7 +898,7 @@ a[href^="apprentiship.html"]:hover,a[href^="apprenticeship.html"]:hover{
 (function () {
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "front.html?v=20260513networkcenterdashboard12";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260513cleanurlrootnav14";
 
   window.LTNClearLocalSession = function () {
     [
@@ -953,12 +953,12 @@ a[href^="apprentiship.html"]:hover,a[href^="apprenticeship.html"]:hover{
     </div>
 
     <nav class="nav" id="main-nav">
-      <a href="dashboard.html?v=20260513networkcenterdashboard12" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
-      <a href="members.html?v=20260513networkcenterdashboard12" data-nav="members" onclick="setActiveNav(this)">Members</a>
-      <a href="find-apprenticeships.html?v=20260513networkcenterdashboard12" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
-      <a href="apprenticeship.html?v=20260513networkcenterdashboard12" data-nav="track-progress" onclick="prepareApprenticeTrackerFromDashboard(); setActiveNav(this)" class="btn nav-action">Track My Progress</a>
+      <a href="/dashboard/?v=20260513cleanurlrootnav14" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
+      <a href="/members/?v=20260513cleanurlrootnav14" data-nav="members" onclick="setActiveNav(this)">Members</a>
+      <a href="/find-apprenticeships/?v=20260513cleanurlrootnav14" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
+      <a href="/apprenticeship/?v=20260513cleanurlrootnav14" data-nav="track-progress" onclick="prepareApprenticeTrackerFromDashboard(); setActiveNav(this)" class="btn nav-action">Track My Progress</a>
       <a href="#jobs" data-nav="jobs" onclick="setActiveNav(this)">Jobs</a>
-      <a href="network-center.html?v=20260513networkcenterdashboard12" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
+      <a href="/network-center/?v=20260513cleanurlrootnav14" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
         Network Center
         <span id="network-badge" class="notification-badge" style="display:none">0</span>
         <span id="messages-badge" class="notification-badge" style="display:none;right:-14px">0</span>
@@ -1165,7 +1165,7 @@ a[href^="apprentiship.html"]:hover,a[href^="apprenticeship.html"]:hover{
           <li style="margin-bottom:8px">Showcase your skills and certifications</li>
           <li>Get matched with projects in your area</li>
         </ul>
-        <a class="btn-primary" style="width:100%" href="network-center.html?v=20260513networkcenterdashboard12">Open Network Center</a>
+        <a class="btn-primary" style="width:100%" href="/network-center/?v=20260513cleanurlrootnav14">Open Network Center</a>
       </div>
     </section>
 
@@ -4100,7 +4100,7 @@ const NetworkManager = {
       for (const id of unique) {
         const u = await getUserById(id);
         if (u) {
-          cards.push(firebasePersonCard(u, `<button class="btn btn-secondary" onclick="MessageManager.startChat('${getRealFirebaseUserId(u)}')">Message</button><button class="btn btn-primary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
+          cards.push(firebasePersonCard(u, `<button class="btn btn-secondary" onclick="MessageManager.startChat('${getRealFirebaseUserId(u)}')">Message</button><button class="btn btn-primary" onclick="window.location.href='/profile/?id=${u.id}'">View Profile</button>`));
         }
       }
 
@@ -4141,7 +4141,7 @@ const NetworkManager = {
         const u = await getUserById(req.fromUserId);
 
         if (u) {
-          cards.push(firebasePersonCard(u, `<button class="btn btn-success" onclick="NetworkManager.acceptConnection('${docSnap.id}')">Accept</button><button class="btn btn-danger" onclick="NetworkManager.declineConnection('${docSnap.id}')">Decline</button><button class="btn btn-primary" onclick="window.location.href='profile.html?id=${u.id}'">View</button>`));
+          cards.push(firebasePersonCard(u, `<button class="btn btn-success" onclick="NetworkManager.acceptConnection('${docSnap.id}')">Accept</button><button class="btn btn-danger" onclick="NetworkManager.declineConnection('${docSnap.id}')">Decline</button><button class="btn btn-primary" onclick="window.location.href='/profile/?id=${u.id}'">View</button>`));
         }
       }
 
@@ -4170,7 +4170,7 @@ const NetworkManager = {
       users.forEach(function(d) {
         if (d.id !== current.id) {
           const u = { id: d.id, ...d.data() };
-          cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="NetworkManager.sendConnectionById('${getRealFirebaseUserId(u)}')">Connect</button><button class="btn btn-secondary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
+          cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="NetworkManager.sendConnectionById('${getRealFirebaseUserId(u)}')">Connect</button><button class="btn btn-secondary" onclick="window.location.href='/profile/?id=${u.id}'">View Profile</button>`));
         }
       });
 
@@ -4205,7 +4205,7 @@ const NetworkManager = {
         const text = `${u.name || ""} ${u.fullName || ""} ${u.trade || ""} ${u.city || ""} ${u.state || ""} ${u.bio || ""}`.toLowerCase();
 
         if (text.includes(q)) {
-          cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="NetworkManager.sendConnectionById('${getRealFirebaseUserId(u)}')">Connect</button><button class="btn btn-secondary" onclick="window.location.href='profile.html?id=${u.id}'">View Profile</button>`));
+          cards.push(firebasePersonCard(u, `<button class="btn btn-primary" onclick="NetworkManager.sendConnectionById('${getRealFirebaseUserId(u)}')">Connect</button><button class="btn btn-secondary" onclick="window.location.href='/profile/?id=${u.id}'">View Profile</button>`));
         }
       });
 
