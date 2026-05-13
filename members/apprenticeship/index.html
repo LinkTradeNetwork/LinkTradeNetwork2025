@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprentiship-remove-timestamp-20260513-v11 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-clean-url-root-20260513-v17 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -425,9 +425,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='dashboard.html?v=20260512secureapprentiship10'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='members.html?v=20260512secureapprentiship10'">Members</button>
-    <button class="logout" onclick="window.location.href='dashboard.html?v=20260512secureapprentiship10'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260513cleanurlv17'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260513cleanurlv17'">Members</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260513cleanurlv17'">Back</button>
   </div>
 </div>
 
@@ -640,7 +640,7 @@
   }
 
   function progressKey(){
-    return currentUserId ? `ltn_apprenticeship_progress_${currentUserId}_v10` : "";
+    return currentUserId ? `ltn_apprenticeship_progress_${currentUserId}_v17` : "";
   }
 
   function saveLocalProgress(){
@@ -649,7 +649,10 @@
   }
 
   function loadLocalProgressForUser(uid){
-    const raw = localStorage.getItem(`ltn_apprenticeship_progress_${uid}_v10`);
+    const raw =
+      localStorage.getItem(`ltn_apprenticeship_progress_${uid}_v17`) ||
+      localStorage.getItem(`ltn_apprenticeship_progress_${uid}_v10`);
+
     if(!raw){
       buildBadges();
       return;
@@ -721,7 +724,7 @@
 
   async function saveToFirebase(){
     if(!currentUserId){
-      window.location.replace("front.html?v=secureauth20260512v10");
+      window.location.replace("/front.html?v=secureauth20260513v17");
       return;
     }
 
@@ -1021,7 +1024,7 @@
 
   onAuthStateChanged(auth, async function(user){
     if(!user){
-      window.location.replace("front.html?v=secureauth20260512v10");
+      window.location.replace("/front.html?v=secureauth20260513v17");
       return;
     }
 
@@ -1049,8 +1052,9 @@
     showPage();
   });
 
-  console.log("LTN Apprentiship Secure Firebase Auth Loaded v10");
+  console.log("LTN Apprenticeship Clean URL Root Navigation Loaded v17");
 </script>
 
 </body>
 </html>
+
