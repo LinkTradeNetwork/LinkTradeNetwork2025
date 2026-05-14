@@ -18,7 +18,7 @@
 
 <title>LinkTradeNetwork • Sign In</title>
 
-<!-- LTN FORCE UPDATE VERSION: signin-clean-url-v25 -->
+<!-- LTN FORCE UPDATE VERSION: signin-login-counter-v26 -->
 
 <style>
 :root{
@@ -624,6 +624,15 @@ import {
   httpsCallable
 }
 from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
+
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  serverTimestamp,
+  increment
+}
+from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
   const firebaseConfig = {
   apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
   authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
@@ -636,6 +645,26 @@ from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const functions = getFunctions(app, "us-central1");
+const db = getFirestore(app);
+
+async function trackUserSignIn(user){
+  if(!user || !user.uid) return;
+
+  try{
+    const userRef = doc(db, "users", user.uid);
+
+    await setDoc(userRef, {
+      email:user.email || "",
+      displayName:user.displayName || "",
+      signInCount:increment(1),
+      lastLoginAt:serverTimestamp(),
+      updatedAt:serverTimestamp()
+    }, { merge:true });
+
+  }catch(error){
+    console.error("Sign in tracking failed:", error);
+  }
+}
 
 const requestVerificationCode =
   httpsCallable(functions, "requestVerificationCode");
@@ -978,11 +1007,14 @@ document.getElementById("setPasswordBtn").onclick = async () => {
       throw new Error((result.data && result.data.error) || "Could not create account");
     }
 
-    await signInWithEmailAndPassword(
-      auth,
-      currentEmail,
-      pw
-    );
+    const newUserCred =
+      await signInWithEmailAndPassword(
+        auth,
+        currentEmail,
+        pw
+      );
+
+    await trackUserSignIn(newUserCred.user);
 
     grantLTNAccess(
       currentEmail,
@@ -1077,6 +1109,8 @@ signinBtn.onclick = async () => {
         email,
         password
       );
+
+    await trackUserSignIn(cred.user);
 
     const userName =
       cred.user.displayName || "";
