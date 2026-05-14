@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-clean-url-root-20260513-v17 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-signed-proof-upload-v18 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -235,6 +235,35 @@
       box-shadow:0 0 0 3px rgba(233,105,22,.14);
     }
 
+    .file-control{
+      width:100%;
+      border:1px dashed #f3b37f;
+      border-radius:12px;
+      padding:12px;
+      font-size:14px;
+      font-family:inherit;
+      background:#fff7ed;
+      color:var(--ink);
+      margin-top:10px;
+    }
+
+    .file-help{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      margin-top:8px;
+      line-height:1.35;
+    }
+
+    .proof-link{
+      display:inline-flex;
+      margin-top:6px;
+      color:var(--orange);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+    }
+
     .save-status{
       margin-top:12px;
       font-size:13px;
@@ -425,9 +454,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260513cleanurlv17'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260513cleanurlv17'">Members</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260513cleanurlv17'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260513cleanurlv18'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260513cleanurlv18'">Members</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260513cleanurlv18'">Back</button>
   </div>
 </div>
 
@@ -437,7 +466,7 @@
     <div>
       <h1 id="welcome">Welcome, Trade Worker</h1>
       <div class="sub">
-        Track hours, skills, certifications, projects, and jobsite proof. Your accomplishment snapshot can appear in the Members section after your progress saves.
+        Track hours, skills, certifications, projects, and signed work proof. Your accomplishment snapshot can appear in the Members section after your progress saves.
       </div>
       <div id="verificationBadge" class="verified-badge" style="display:none">
         <span class="orange-check">✓</span>
@@ -512,7 +541,7 @@
         <div class="metric"><strong id="previewHours">0</strong><span>Hours</span></div>
         <div class="metric"><strong id="previewCerts">0</strong><span>Certifications</span></div>
         <div class="metric"><strong id="previewSkills">0</strong><span>Skills</span></div>
-        <div class="metric"><strong id="previewProof">0</strong><span>Jobsite Proof</span></div>
+        <div class="metric"><strong id="previewProof">0</strong><span>Signed Proof</span></div>
       </div>
 
       <div class="badge-list" id="previewBadges"></div>
@@ -533,7 +562,7 @@
       <div class="accomplishment-card"><strong id="certCount">0</strong><span>Certifications Earned</span></div>
       <div class="accomplishment-card"><strong id="skillCount">0</strong><span>Skills Learned</span></div>
       <div class="accomplishment-card"><strong id="projectCount">0</strong><span>Projects Completed</span></div>
-      <div class="accomplishment-card"><strong id="photoCount">0</strong><span>Jobsite Proof Count</span></div>
+      <div class="accomplishment-card"><strong id="photoCount">0</strong><span>Signed Proof Uploaded</span></div>
     </div>
 
     <div class="badge-list" id="badgeList"></div>
@@ -547,7 +576,9 @@
       <div class="value small-value">Add Certification</div>
       <div class="small">Example: OSHA 10, OSHA 30, CPR, Forklift, NCCER</div>
       <input id="certInput" class="form-control" style="margin-top:14px" type="text" placeholder="Certification name">
-      <button class="button" onclick="addCertification()" style="margin-top:12px">+ Add Certification</button>
+      <input id="certFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
+      <div class="file-help">Upload certificate, signed document, PDF, or photo proof.</div>
+      <button class="button" onclick="addCertification()" style="margin-top:12px">+ Add Certification Proof</button>
       <div id="certList" class="list-box"></div>
     </div>
 
@@ -556,7 +587,9 @@
       <div class="value small-value">Add Skill Learned</div>
       <div class="small">Example: conduit bending, pipe fitting, wiring, blueprint reading</div>
       <input id="skillInput" class="form-control" style="margin-top:14px" type="text" placeholder="Skill learned">
-      <button class="button" onclick="addSkill()" style="margin-top:12px">+ Add Skill</button>
+      <input id="skillFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
+      <div class="file-help">Upload instructor proof, employer sign-off, worksheet, PDF, or photo.</div>
+      <button class="button" onclick="addSkill()" style="margin-top:12px">+ Add Skill Proof</button>
       <div id="skillList" class="list-box"></div>
     </div>
 
@@ -565,15 +598,21 @@
       <div class="value small-value">Add Project Completed</div>
       <div class="small">Example: commercial rough-in, panel install, HVAC changeout</div>
       <input id="projectInput" class="form-control" style="margin-top:14px" type="text" placeholder="Project completed">
-      <button class="button" onclick="addProject()" style="margin-top:12px">+ Add Project</button>
+      <input id="projectFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
+      <div class="file-help">Upload signed project paperwork, employer verification, PDF, or job proof.</div>
+      <button class="button" onclick="addProject()" style="margin-top:12px">+ Add Project Proof</button>
       <div id="projectList" class="list-box"></div>
     </div>
 
     <div class="card">
-      <div class="label">Jobsite Proof Count</div>
-      <div class="value small-value">Track Work Photos / Videos</div>
-      <div class="small">This counts jobsite proof items. It does not upload actual files yet.</div>
-      <button class="button" onclick="addJobsiteProof()" style="margin-top:14px">+ Add Jobsite Proof Count</button>
+      <div class="label">Signed Work Proof</div>
+      <div class="value small-value">Upload Signed Paperwork</div>
+      <div class="small">Upload signed timesheets, instructor approval, employer verification, or jobsite documents.</div>
+      <input id="signedProofTitleInput" class="form-control" style="margin-top:14px" type="text" placeholder="Proof description">
+      <input id="signedProofFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
+      <div class="file-help">Accepted: PDF, JPG, PNG, HEIC. This replaces the old photo/video count.</div>
+      <button class="button" onclick="addSignedProof()" style="margin-top:12px">+ Upload Signed Work Proof</button>
+      <div id="signedProofList" class="list-box"></div>
     </div>
   </div>
 
@@ -590,7 +629,7 @@
       <div class="small">Use these only if you need to clear progress. You will be asked to confirm first.</div>
       <div class="inline-actions">
         <button class="button soft" onclick="resetHours()">Reset Hours</button>
-        <button class="button soft" onclick="resetJobsiteProof()">Reset Jobsite Proof Count</button>
+        <button class="button soft" onclick="resetJobsiteProof()">Reset Signed Proof Uploads</button>
       </div>
     </div>
   </div>
@@ -601,6 +640,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
@@ -614,6 +654,7 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const storage = getStorage(app);
   const BENCHMARK_HOURS = 8000;
 
   let currentUserId = null;
@@ -625,6 +666,10 @@
     certifications:[],
     skillsLearned:[],
     projects:[],
+    certificationProofs:[],
+    skillProofs:[],
+    projectProofs:[],
+    signedWorkProofs:[],
     jobsiteUploads:0,
     badgesEarned:[],
     updatedAt:""
@@ -666,7 +711,11 @@
         certifications:Array.isArray(saved.certifications) ? saved.certifications : [],
         skillsLearned:Array.isArray(saved.skillsLearned) ? saved.skillsLearned : [],
         projects:Array.isArray(saved.projects) ? saved.projects : [],
-        jobsiteUploads:Number(saved.jobsiteUploads || 0),
+        certificationProofs:Array.isArray(saved.certificationProofs) ? saved.certificationProofs : [],
+        skillProofs:Array.isArray(saved.skillProofs) ? saved.skillProofs : [],
+        projectProofs:Array.isArray(saved.projectProofs) ? saved.projectProofs : [],
+        signedWorkProofs:Array.isArray(saved.signedWorkProofs) ? saved.signedWorkProofs : [],
+        jobsiteUploads:Number(saved.jobsiteUploads || (Array.isArray(saved.signedWorkProofs) ? saved.signedWorkProofs.length : 0)),
         badgesEarned:Array.isArray(saved.badgesEarned) ? saved.badgesEarned : [],
         updatedAt:saved.updatedAt || ""
       };
@@ -718,13 +767,52 @@
     if(state.certifications.length>0) badges.push("Certification Uploaded");
     if(state.skillsLearned.length>0) badges.push("Skills Added");
     if(state.projects.length>0) badges.push("Project Proof Added");
-    if(state.jobsiteUploads>0) badges.push("Jobsite Proof Added");
+    if(state.jobsiteUploads>0) badges.push("Signed Proof Added");
     state.badgesEarned=badges;
+  }
+
+
+  function proofCount(){
+    return state.signedWorkProofs.length || Number(state.jobsiteUploads || 0);
+  }
+
+  function fileMeta(file,url){
+    if(!file) return null;
+
+    return {
+      fileName:file.name,
+      fileType:file.type || "",
+      fileSize:file.size || 0,
+      fileUrl:url || "",
+      uploadedAt:new Date().toISOString()
+    };
+  }
+
+  async function uploadProofFile(category,file){
+    if(!file) return null;
+
+    if(!currentUserId){
+      throw new Error("You must be signed in to upload proof.");
+    }
+
+    const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+    const storagePath = `apprenticeship-proof/${currentUserId}/${category}/${Date.now()}_${cleanName}`;
+    const fileRef = ref(storage, storagePath);
+
+    await uploadBytes(fileRef, file);
+
+    const url = await getDownloadURL(fileRef);
+    return fileMeta(file,url);
+  }
+
+  function proofLinkHtml(proof){
+    if(!proof || !proof.fileUrl) return "";
+    return `<a class="proof-link" href="${safe(proof.fileUrl)}" target="_blank" rel="noopener">View uploaded proof</a>`;
   }
 
   async function saveToFirebase(){
     if(!currentUserId){
-      window.location.replace("/front.html?v=secureauth20260513v17");
+      window.location.replace("/front/?v=secureauth20260513v18");
       return;
     }
 
@@ -749,8 +837,13 @@
       skills:state.skillsLearned,
       projectsCompleted:state.projects.length,
       projects:state.projects,
-      jobsiteUploads:state.jobsiteUploads,
-      verifiedPhotos:state.jobsiteUploads,
+      certificationProofs:state.certificationProofs,
+      skillProofs:state.skillProofs,
+      projectProofs:state.projectProofs,
+      signedWorkProofs:state.signedWorkProofs,
+      jobsiteUploads:proofCount(),
+      signedProofCount:proofCount(),
+      verifiedPhotos:proofCount(),
       badgesEarned:state.badgesEarned,
       badges:state.badgesEarned,
       updatedAt:state.updatedAt,
@@ -765,8 +858,13 @@
         skillsLearned:state.skillsLearned,
         projectsCompleted:state.projects.length,
         projects:state.projects,
-        jobsiteUploads:state.jobsiteUploads,
-        verifiedPhotos:state.jobsiteUploads,
+        certificationProofs:state.certificationProofs,
+        skillProofs:state.skillProofs,
+        projectProofs:state.projectProofs,
+        signedWorkProofs:state.signedWorkProofs,
+        jobsiteUploads:proofCount(),
+        signedProofCount:proofCount(),
+        verifiedPhotos:proofCount(),
         badgesEarned:state.badgesEarned,
         updatedAt:new Date().toISOString()
       }
@@ -830,12 +928,12 @@
     document.getElementById("certCount").textContent=state.certifications.length;
     document.getElementById("skillCount").textContent=state.skillsLearned.length;
     document.getElementById("projectCount").textContent=state.projects.length;
-    document.getElementById("photoCount").textContent=state.jobsiteUploads;
+    document.getElementById("photoCount").textContent=proofCount();
 
     document.getElementById("previewHours").textContent=hours.toLocaleString();
     document.getElementById("previewCerts").textContent=state.certifications.length;
     document.getElementById("previewSkills").textContent=state.skillsLearned.length;
-    document.getElementById("previewProof").textContent=state.jobsiteUploads;
+    document.getElementById("previewProof").textContent=proofCount();
 
     const badgeHtml=state.badgesEarned.length
       ? state.badgesEarned.map(b=>`<span class="badge"><span class="orange-check">✓</span>${safe(b)}</span>`).join("")
@@ -848,6 +946,7 @@
     renderCerts();
     renderSkills();
     renderProjects();
+    renderSignedProofs();
   }
 
   function renderHourLog(){
@@ -869,23 +968,45 @@
 
   function renderCerts(){
     const box=document.getElementById("certList");
-    box.innerHTML=state.certifications.length ? state.certifications.map((item,index)=>`
-      <div class="list-item"><div><strong>${safe(item)}</strong><span>Certification earned</span></div><button class="delete-small" onclick="deleteCertification(${index})">Delete</button></div>
-    `).join("") : `<div class="empty">No certifications added yet.</div>`;
+    box.innerHTML=state.certifications.length ? state.certifications.map((item,index)=>{
+      const proof=state.certificationProofs[index] || null;
+      const fileText=proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Certification earned</span>`;
+      return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteCertification(${index})">Delete</button></div>`;
+    }).join("") : `<div class="empty">No certifications added yet.</div>`;
   }
 
   function renderSkills(){
     const box=document.getElementById("skillList");
-    box.innerHTML=state.skillsLearned.length ? state.skillsLearned.map((item,index)=>`
-      <div class="list-item"><div><strong>${safe(item)}</strong><span>Skill learned</span></div><button class="delete-small" onclick="deleteSkill(${index})">Delete</button></div>
-    `).join("") : `<div class="empty">No skills added yet.</div>`;
+    box.innerHTML=state.skillsLearned.length ? state.skillsLearned.map((item,index)=>{
+      const proof=state.skillProofs[index] || null;
+      const fileText=proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Skill learned</span>`;
+      return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteSkill(${index})">Delete</button></div>`;
+    }).join("") : `<div class="empty">No skills added yet.</div>`;
   }
 
   function renderProjects(){
     const box=document.getElementById("projectList");
-    box.innerHTML=state.projects.length ? state.projects.map((item,index)=>`
-      <div class="list-item"><div><strong>${safe(item)}</strong><span>Project completed</span></div><button class="delete-small" onclick="deleteProject(${index})">Delete</button></div>
-    `).join("") : `<div class="empty">No projects added yet.</div>`;
+    box.innerHTML=state.projects.length ? state.projects.map((item,index)=>{
+      const proof=state.projectProofs[index] || null;
+      const fileText=proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Project completed</span>`;
+      return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteProject(${index})">Delete</button></div>`;
+    }).join("") : `<div class="empty">No projects added yet.</div>`;
+  }
+
+  function renderSignedProofs(){
+    const box=document.getElementById("signedProofList");
+    if(!box) return;
+
+    box.innerHTML=state.signedWorkProofs.length ? state.signedWorkProofs.map((proof,index)=>`
+      <div class="list-item">
+        <div>
+          <strong>${safe(proof.title || "Signed work proof")}</strong>
+          <span>${safe(proof.fileName || "Uploaded document")}</span>
+          ${proofLinkHtml(proof)}
+        </div>
+        <button class="delete-small" onclick="deleteSignedProof(${index})">Delete</button>
+      </div>
+    `).join("") : `<div class="empty">No signed work proof uploaded yet.</div>`;
   }
 
   async function loadFirebaseProfile(uid){
@@ -902,7 +1023,11 @@
         state.certifications=Array.isArray(firebaseProfile.certifications) ? firebaseProfile.certifications : Array.isArray(p.certifications) ? p.certifications : state.certifications;
         state.skillsLearned=Array.isArray(firebaseProfile.skillsLearned) ? firebaseProfile.skillsLearned : Array.isArray(firebaseProfile.skills) ? firebaseProfile.skills : Array.isArray(p.skillsLearned) ? p.skillsLearned : state.skillsLearned;
         state.projects=Array.isArray(firebaseProfile.projects) ? firebaseProfile.projects : Array.isArray(p.projects) ? p.projects : state.projects;
-        state.jobsiteUploads=Number(firebaseProfile.jobsiteUploads ?? firebaseProfile.verifiedPhotos ?? p.jobsiteUploads ?? p.verifiedPhotos ?? state.jobsiteUploads ?? 0) || 0;
+        state.certificationProofs=Array.isArray(firebaseProfile.certificationProofs) ? firebaseProfile.certificationProofs : Array.isArray(p.certificationProofs) ? p.certificationProofs : state.certificationProofs;
+        state.skillProofs=Array.isArray(firebaseProfile.skillProofs) ? firebaseProfile.skillProofs : Array.isArray(p.skillProofs) ? p.skillProofs : state.skillProofs;
+        state.projectProofs=Array.isArray(firebaseProfile.projectProofs) ? firebaseProfile.projectProofs : Array.isArray(p.projectProofs) ? p.projectProofs : state.projectProofs;
+        state.signedWorkProofs=Array.isArray(firebaseProfile.signedWorkProofs) ? firebaseProfile.signedWorkProofs : Array.isArray(p.signedWorkProofs) ? p.signedWorkProofs : state.signedWorkProofs;
+        state.jobsiteUploads=Number(firebaseProfile.signedProofCount ?? firebaseProfile.jobsiteUploads ?? firebaseProfile.verifiedPhotos ?? p.signedProofCount ?? p.jobsiteUploads ?? p.verifiedPhotos ?? state.jobsiteUploads ?? state.signedWorkProofs.length ?? 0) || 0;
         state.badgesEarned=Array.isArray(firebaseProfile.badgesEarned) ? firebaseProfile.badgesEarned : Array.isArray(p.badgesEarned) ? p.badgesEarned : state.badgesEarned;
         state.updatedAt=state.updatedAt || firebaseProfile.updatedAt || "";
       }
@@ -950,17 +1075,34 @@
 
   window.addCertification=async function(){
     const input=document.getElementById("certInput");
+    const fileInput=document.getElementById("certFileInput");
     const value=input.value.trim();
+    const file=fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
     if(!value){alert("Please enter a certification.");return;}
-    if(!state.certifications.includes(value)) state.certifications.push(value);
-    input.value="";
-    renderProgress();
-    await saveToFirebase();
-    renderProgress();
+    if(!file){alert("Please upload the certification proof document.");return;}
+
+    document.getElementById("saveStatus").textContent="Uploading certification proof...";
+
+    try{
+      const proof=await uploadProofFile("certifications",file);
+      state.certifications.push(value);
+      state.certificationProofs.push(proof);
+      input.value="";
+      if(fileInput) fileInput.value="";
+      renderProgress();
+      await saveToFirebase();
+      renderProgress();
+    }catch(error){
+      console.error(error);
+      alert("Upload failed. Check Firebase Storage rules and try again.");
+      document.getElementById("saveStatus").textContent="Certification proof upload failed.";
+    }
   };
 
   window.deleteCertification=async function(index){
     state.certifications.splice(index,1);
+    state.certificationProofs.splice(index,1);
     renderProgress();
     await saveToFirebase();
     renderProgress();
@@ -968,17 +1110,34 @@
 
   window.addSkill=async function(){
     const input=document.getElementById("skillInput");
+    const fileInput=document.getElementById("skillFileInput");
     const value=input.value.trim();
+    const file=fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
     if(!value){alert("Please enter a skill.");return;}
-    if(!state.skillsLearned.includes(value)) state.skillsLearned.push(value);
-    input.value="";
-    renderProgress();
-    await saveToFirebase();
-    renderProgress();
+    if(!file){alert("Please upload the skill proof document.");return;}
+
+    document.getElementById("saveStatus").textContent="Uploading skill proof...";
+
+    try{
+      const proof=await uploadProofFile("skills",file);
+      state.skillsLearned.push(value);
+      state.skillProofs.push(proof);
+      input.value="";
+      if(fileInput) fileInput.value="";
+      renderProgress();
+      await saveToFirebase();
+      renderProgress();
+    }catch(error){
+      console.error(error);
+      alert("Upload failed. Check Firebase Storage rules and try again.");
+      document.getElementById("saveStatus").textContent="Skill proof upload failed.";
+    }
   };
 
   window.deleteSkill=async function(index){
     state.skillsLearned.splice(index,1);
+    state.skillProofs.splice(index,1);
     renderProgress();
     await saveToFirebase();
     renderProgress();
@@ -986,31 +1145,84 @@
 
   window.addProject=async function(){
     const input=document.getElementById("projectInput");
+    const fileInput=document.getElementById("projectFileInput");
     const value=input.value.trim();
+    const file=fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
     if(!value){alert("Please enter a project.");return;}
-    if(!state.projects.includes(value)) state.projects.push(value);
-    input.value="";
+    if(!file){alert("Please upload signed project paperwork.");return;}
+
+    document.getElementById("saveStatus").textContent="Uploading project proof...";
+
+    try{
+      const proof=await uploadProofFile("projects",file);
+      state.projects.push(value);
+      state.projectProofs.push(proof);
+      input.value="";
+      if(fileInput) fileInput.value="";
+      renderProgress();
+      await saveToFirebase();
+      renderProgress();
+    }catch(error){
+      console.error(error);
+      alert("Upload failed. Check Firebase Storage rules and try again.");
+      document.getElementById("saveStatus").textContent="Project proof upload failed.";
+    }
+  };
+
+  window.deleteProject=async function(index){
+    state.projects.splice(index,1);
+    state.projectProofs.splice(index,1);
     renderProgress();
     await saveToFirebase();
     renderProgress();
   };
 
-  window.deleteProject=async function(index){
-    state.projects.splice(index,1);
+  window.addSignedProof=async function(){
+    const titleInput=document.getElementById("signedProofTitleInput");
+    const fileInput=document.getElementById("signedProofFileInput");
+    const title=(titleInput.value || "").trim();
+    const file=fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
+    if(!title){alert("Please enter a proof description.");return;}
+    if(!file){alert("Please upload signed paperwork.");return;}
+
+    document.getElementById("saveStatus").textContent="Uploading signed work proof...";
+
+    try{
+      const proof=await uploadProofFile("signed-work-proof",file);
+      state.signedWorkProofs.push({
+        title,
+        ...proof
+      });
+      state.jobsiteUploads=state.signedWorkProofs.length;
+      titleInput.value="";
+      if(fileInput) fileInput.value="";
+      renderProgress();
+      await saveToFirebase();
+      renderProgress();
+    }catch(error){
+      console.error(error);
+      alert("Upload failed. Check Firebase Storage rules and try again.");
+      document.getElementById("saveStatus").textContent="Signed work proof upload failed.";
+    }
+  };
+
+  window.deleteSignedProof=async function(index){
+    state.signedWorkProofs.splice(index,1);
+    state.jobsiteUploads=state.signedWorkProofs.length;
     renderProgress();
     await saveToFirebase();
     renderProgress();
   };
 
   window.addJobsiteProof=async function(){
-    state.jobsiteUploads+=1;
-    renderProgress();
-    await saveToFirebase();
-    renderProgress();
+    alert("This old proof count button has been replaced by signed work proof uploads.");
   };
 
   window.resetJobsiteProof=async function(){
-    if(!confirm("Reset jobsite proof count?")) return;
+    if(!confirm("Reset signed proof uploads?")) return;
+    state.signedWorkProofs=[];
     state.jobsiteUploads=0;
     renderProgress();
     await saveToFirebase();
@@ -1024,7 +1236,7 @@
 
   onAuthStateChanged(auth, async function(user){
     if(!user){
-      window.location.replace("/front.html?v=secureauth20260513v17");
+      window.location.replace("/front/?v=secureauth20260513v18");
       return;
     }
 
@@ -1052,7 +1264,7 @@
     showPage();
   });
 
-  console.log("LTN Apprenticeship Clean URL Root Navigation Loaded v17");
+  console.log("LTN Apprenticeship Signed Proof Upload Loaded v18");
 </script>
 
 </body>
