@@ -7,8 +7,8 @@
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-6CYFMPH84F');
+  gtag("js", new Date());
+  gtag("config", "G-6CYFMPH84F");
 </script>
 
 <meta charset="utf-8" />
@@ -18,7 +18,7 @@
 
 <title>LinkTradeNetwork • Sign In</title>
 
-<!-- LTN FORCE UPDATE VERSION: signin-login-counter-v26 -->
+<!-- LTN FORCE UPDATE VERSION: signin-login-counter-v27-no-referral -->
 
 <style>
 :root{
@@ -169,7 +169,8 @@ body{
   max-width:480px;
   box-shadow:0 24px 70px rgba(49,24,10,0.28);
 }
-  h1{
+
+h1{
   text-align:center;
   margin:0 0 8px;
   color:var(--ink);
@@ -199,6 +200,19 @@ p.sub{
   margin:0 0 20px;
   font-size:14px;
   line-height:1.5;
+}
+
+.video-note{
+  background:#fff7ed;
+  border:1px solid rgba(234,106,0,0.25);
+  border-radius:14px;
+  padding:12px 14px;
+  margin:0 0 18px;
+  text-align:center;
+  font-size:13px;
+  font-weight:750;
+  color:#1e293b;
+  line-height:1.45;
 }
 
 label{
@@ -320,6 +334,17 @@ button:disabled{
   display:block;
 }
 
+.otp-box > div:first-child{
+  text-align:center;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.5;
+}
+
+.otp-box b{
+  color:var(--brand);
+}
+
 .otp-inputs{
   display:flex;
   gap:8px;
@@ -414,6 +439,10 @@ button:disabled{
     gap:0;
   }
 
+  .otp-inputs{
+    gap:5px;
+  }
+
   .otp-inputs input{
     width:44px;
     height:54px;
@@ -436,7 +465,7 @@ button:disabled{
     <h2 class="hero-title">Built for trade workers on the rise</h2>
 
     <p class="hero-sub">
-      Connect with apprentices, trade schools, contractors, employers, and skilled trade professionals.
+      Track progress, show proof of your work, connect with trade schools, contractors, employers, and skilled trade professionals.
     </p>
 
     <div class="trades">
@@ -465,7 +494,12 @@ button:disabled{
     <p class="sub" id="cardSub">
       Create your account and join the skilled trades network
     </p>
-        <div id="joinStep">
+
+    <div class="video-note">
+      🎥 After you sign up, you can upload a <b>10-second video clip</b>, post accomplishments, and build proof of your trade growth.
+    </div>
+
+    <div id="joinStep">
 
       <div class="name-grid">
         <div>
@@ -633,7 +667,8 @@ import {
   increment
 }
 from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-  const firebaseConfig = {
+
+const firebaseConfig = {
   apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
   authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
   projectId: "linktradenetwork-2dcd1",
@@ -646,6 +681,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const functions = getFunctions(app, "us-central1");
 const db = getFirestore(app);
+
+const DASHBOARD_URL = "/dashboard/?v=accessgranted";
 
 async function trackUserSignIn(user){
   if(!user || !user.uid) return;
@@ -691,11 +728,13 @@ function grantLTNAccess(email, name, uid){
 }
 
 function showMsg(el, text, type){
+  if(!el) return;
   el.textContent = text;
   el.className = `msg ${type} show`;
 }
 
 function hideMsg(el){
+  if(!el) return;
   el.className = "msg";
 }
 
@@ -815,7 +854,7 @@ let currentLastName = "";
 let currentFullName = "";
 let codeVerified = false;
 
-["newPassword", "confirmPassword"].forEach(id => {
+["newPassword", "confirmPassword", "signinPassword"].forEach(id => {
   const el = document.getElementById(id);
 
   if(el){
@@ -861,7 +900,8 @@ codeInputs.forEach((inp, i) => {
     }
   });
 });
-  joinBtn.onclick = async () => {
+
+joinBtn.onclick = async () => {
   const firstName = (firstNameInput.value || "").trim();
   const lastName = (lastNameInput.value || "").trim();
   const email = (emailInput.value || "").trim().toLowerCase();
@@ -1019,7 +1059,7 @@ document.getElementById("setPasswordBtn").onclick = async () => {
     grantLTNAccess(
       currentEmail,
       currentFullName,
-      result.data.uid
+      result.data.uid || newUserCred.user.uid
     );
 
     showMsg(msg, "✅ Password saved! Entering LTN...", "ok");
@@ -1029,7 +1069,7 @@ document.getElementById("setPasswordBtn").onclick = async () => {
     doneStep.classList.add("show");
 
     setTimeout(() => {
-      window.location.replace("/dashboard/?v=accessgranted");
+      window.location.replace(DASHBOARD_URL);
     }, 900);
 
   }catch(e){
@@ -1097,6 +1137,11 @@ signinBtn.onclick = async () => {
     return;
   }
 
+  if(!/^\d{6}$/.test(password)){
+    showMsg(signinMsg, "Password must be exactly 6 numbers.", "err");
+    return;
+  }
+
   signinBtn.disabled = true;
   signinBtn.textContent = "Signing in...";
 
@@ -1124,7 +1169,7 @@ signinBtn.onclick = async () => {
     showMsg(signinMsg, "Success! Redirecting...", "ok");
 
     setTimeout(() => {
-      window.location.replace("/dashboard/?v=accessgranted");
+      window.location.replace(DASHBOARD_URL);
     }, 700);
 
   }catch(e){
