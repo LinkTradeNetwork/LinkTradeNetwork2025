@@ -1,1 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- VERSION: INDEX-LTN-CLEAN-URL-FULL-2026-05-14-V3 -->
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6CYFMPH84F"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-6CYFMPH84F');
+  </script>
 
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="description" content="LinkTradeNetwork — Built for trade workers on the rise. Build your profile, track apprenticeship progress, showcase real work, and connect with trade companies."/>
+  <meta property="og:title" content="LinkTradeNetwork — Built for Trade Workers on the Rise"/>
+  <meta property="og:description" content="A technology platform for apprentices, trade schools, instructors, skilled trade workers, and trade companies."/>
+  <meta name="theme-color" content="#ea6a00"/>
+  <title>LinkTradeNetwork — Built for Trade Workers on the Rise</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --brand:#ea6a00;
+      --brand-dark:#b95500;
+      --brand-soft:#fff3e8;
+      --navy:#172033;
+      --navy-2:#24324d;
+      --ink:#111827;
+      --text:#334155;
+      --muted:#64748b;
+      --line:#e2e8f0;
+      --bg:#f8fafc;
+      --panel:#ffffff;
+      --panel-soft:#f1f5f9;
+      --white:#ffffff;
+      --success:#16a34a;
+      --focus:#111827;
+      --shadow-sm:0 8px 22px rgba(15,23,42,.08);
+      --shadow-md:0 18px 48px rgba(15,23,42,.14);
+      --shadow-lg:0 28px 70px rgba(15,23,42,.22);
+      --radius-sm:14px;
+      --radius-md:22px;
+      --radius-lg:34px;
+      --max:1180px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:'Barlow',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      font-size:16px;
+      line-height:1.6;
+      overflow-x:hidden;
+      text-rendering:optimizeLegibility;
+      -webkit-font-smoothing:antialiased;
+    }
+    a{color:inherit}
+    img,svg{display:block;max-width:100%}
+    button,input,select,textarea{font:inherit}
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    .btn:focus-visible,
+    .ai-demo-pill:focus-visible{
+      outline:4px solid #111827;
+      outline-offset:4px;
+      box-shadow:0 0 0 6px rgba(255,255,255,.85);
+    }
+
+    .page-shell{position:relative;overflow:hidden;background:linear-gradient(180deg,#fff7ef 0%,#ffffff 38%,#f8fafc 100%)}
+    .page-shell::before{
+      content:"";
+      position:absolute;
+      inset:0 0 auto 0;
+      height:760px;
+      background:
+        radial-gradient(circle at 16% 16%,rgba(255,255,255,.46),transparent 30%),
+        radial-gradient(circle at 84% 20%,rgba(255,214,166,.42),transparent 32%),
+        linear-gradient(135deg,#ffb36b 0%,#f5861f 48%,#d96a00 100%);
+      z-index:0;
+    }
+    .page-shell::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      height:760px;
+      background-image:
+        linear-gradient(rgba(255,255,255,.13) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.13) 1px,transparent 1px);
+      background-size:42px 42px;
+      opacity:.22;
+      pointer-events:none;
+      z-index:0;
+    }
+    .content-layer{position:relative;z-index:2}
+
+    .container{width:min(var(--max),calc(100% - 40px));margin-inline:auto}
+    .section{padding:96px 0}
+    .section.tight{padding:72px 0}
+    .section-head{max-width:760px;margin-bottom:42px}
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      color:var(--brand);
+      background:var(--brand-soft);
+      border:1px solid #fed7aa;
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      margin-bottom:16px;
+    }
+    .eyebrow.light{
+      background:rgba(255,255,255,.22);
+      border-color:rgba(255,255,255,.46);
+      color:#fff;
+    }
+    .eyebrow-dot{width:7px;height:7px;border-radius:999px;background:currentColor;box-shadow:0 0 0 5px rgba(234,106,0,.15)}
+    .eyebrow.light .eyebrow-dot{box-shadow:0 0 0 5px rgba(255,255,255,.20)}
+
+    h1,h2,h3{font-family:'Barlow Condensed',sans-serif;letter-spacing:-.02em;line-height:.98;color:var(--ink)}
+    h1{
+      font-size:clamp(42px,9vw,96px);
+      font-weight:900;
+      text-transform:uppercase;
+      color:#fff;
+      text-shadow:0 12px 36px rgba(70,31,0,.24);
+      max-width:100%;
+    }
+
+    .hero-title{
+      white-space:nowrap;
+      word-break:keep-all;
+      overflow-wrap:normal;
+      font-size:clamp(34px,6.1vw,82px);
+      line-height:.90;
+      letter-spacing:-.05em;
+      max-width:100%;
+      position:relative;
+      z-index:3;
+    }
+
+    h2{font-size:clamp(36px,5vw,64px);font-weight:900;text-transform:uppercase}
+    h3{font-size:28px;font-weight:900;text-transform:uppercase}
+    .section-copy{font-size:18px;color:var(--text);max-width:680px;line-height:1.75}
+    .white-copy{color:#fff}
+
+    .btn-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      min-height:52px;
+      padding:15px 24px;
+      border-radius:999px;
+      text-decoration:none;
+      border:1px solid transparent;
+      font-weight:900;
+      line-height:1.15;
+      cursor:pointer;
+      transition:transform .2s ease,box-shadow .2s ease,background .2s ease,border-color .2s ease,color .2s ease;
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:transparent;
+      white-space:nowrap;
+    }
+    .btn-primary{background:var(--navy);color:#fff;box-shadow:0 16px 34px rgba(15,23,42,.22)}
+    .btn-primary.orange{background:linear-gradient(135deg,var(--brand),var(--brand-dark));box-shadow:0 18px 36px rgba(234,106,0,.28)}
+    .btn-secondary{
+      background:rgba(255,255,255,.24);
+      border-color:rgba(255,255,255,.46);
+      color:#fff;
+      backdrop-filter:blur(12px);
+    }
+    .btn-light{background:#fff;color:var(--navy);box-shadow:0 16px 34px rgba(15,23,42,.15)}
+    .btn-outline{background:#fff;border-color:var(--line);color:var(--navy)}
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:40;
+      backdrop-filter:blur(18px);
+      background:rgba(255,255,255,.88);
+      border-bottom:1px solid rgba(255,255,255,.7);
+      box-shadow:0 12px 30px rgba(15,23,42,.06);
+    }
+    .topbar-inner{
+      width:min(var(--max),calc(100% - 40px));
+      min-height:76px;
+      margin:auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+    }
+    .brand-lockup{display:flex;align-items:center;gap:12px;text-decoration:none;min-width:0}
+    .brand-mark{
+      width:52px;height:52px;
+      display:grid;place-items:center;
+      border-radius:16px;
+      background:linear-gradient(135deg,var(--brand),#ff9a2f);
+      color:white;
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:24px;
+      font-weight:900;
+      letter-spacing:.04em;
+      box-shadow:0 12px 28px rgba(234,106,0,.30);
+      flex:0 0 auto;
+    }
+    .brand-name{display:flex;flex-direction:column;line-height:1;min-width:0}
+    .brand-name strong{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:var(--navy);letter-spacing:.01em}
+    .brand-name span{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+    .nav-links{display:flex;align-items:center;gap:8px}
+    .nav-links a{
+      color:var(--navy);
+      text-decoration:none;
+      font-weight:800;
+      font-size:14px;
+      padding:10px 12px;
+      border-radius:999px;
+      transition:background .2s ease,color .2s ease;
+    }
+    .nav-links .nav-login{background:var(--navy);color:#fff;padding:13px 20px;box-shadow:0 10px 24px rgba(15,23,42,.18)}
+
+    .hero{padding:68px 0 42px;color:#fff;position:relative}
+    .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center;min-height:610px}
+    .hero-text{max-width:720px;min-width:0}
+    .hero h1{margin-bottom:18px}
+    .hero-sub{font-size:clamp(19px,2.2vw,25px);line-height:1.45;color:#fff;max-width:680px;margin-bottom:28px;font-weight:700}
+    .hero-note{display:flex;gap:12px;align-items:flex-start;margin:24px 0 30px;color:#fff;font-weight:800;font-size:18px}
+    .orange-check{
+      width:34px;height:34px;border-radius:999px;background:#fff;color:var(--brand);
+      display:grid;place-items:center;font-weight:900;box-shadow:0 12px 26px rgba(0,0,0,.16);flex:0 0 auto;
+    }
+    .hero-trades{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+    .trade-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid rgba(255,255,255,.46);
+      background:rgba(255,255,255,.22);
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:13px;
+      font-weight:900;
+      backdrop-filter:blur(12px);
+      color:#fff;
+    }
+
+    .hero-visual{position:relative;min-width:0}
+    .visual-card{
+      background:rgba(255,255,255,.94);
+      color:var(--ink);
+      border:1px solid rgba(255,255,255,.7);
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-lg);
+      padding:22px;
+      transform:rotate(1deg);
+    }
+    .mock-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .mock-user{display:flex;align-items:center;gap:12px}
+    .mock-avatar{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,var(--brand),#ffb26a);display:grid;place-items:center;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900}
+    .mock-name{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;line-height:1;color:var(--navy)}
+    .mock-trade{font-size:13px;color:var(--muted);font-weight:700;margin-top:4px}
+    .status-pill{font-size:12px;font-weight:900;color:var(--brand);background:var(--brand-soft);border:1px solid #fed7aa;border-radius:999px;padding:8px 12px;white-space:nowrap}
+    .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+    .metric-box{background:var(--panel-soft);border:1px solid var(--line);border-radius:18px;padding:16px}
+    .metric-box strong{display:block;font-family:'Barlow Condensed',sans-serif;font-size:34px;line-height:1;color:var(--navy)}
+    .metric-box span{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    .progress-stack{display:grid;gap:14px;margin-top:16px}
+    .progress-line{display:grid;gap:7px}
+    .progress-label{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:900;color:var(--navy)}
+    .bar{height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+    .bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--brand),#ffb36b)}
+    .floating-chip{
+      position:absolute;
+      right:-18px;
+      bottom:38px;
+      background:var(--navy);
+      color:#fff;
+      border-radius:20px;
+      padding:16px 18px;
+      box-shadow:var(--shadow-md);
+      font-weight:900;
+      max-width:210px;
+    }
+    .floating-chip small{display:block;color:#e2e8f0;font-size:12px;font-weight:700;margin-top:3px}
+
+    .stats-band{margin-top:28px}
+    .stats-inner{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:14px;
+      background:rgba(255,255,255,.22);
+      border:1px solid rgba(255,255,255,.40);
+      border-radius:var(--radius-md);
+      padding:16px;
+      backdrop-filter:blur(16px);
+      box-shadow:0 18px 40px rgba(117,48,0,.12);
+    }
+    .stat-item{padding:14px;text-align:center;border-radius:18px;background:rgba(255,255,255,.20)}
+    .stat-item strong{display:block;font-family:'Barlow Condensed',sans-serif;font-size:31px;font-weight:900;line-height:1;color:#fff}
+    .stat-item span{display:block;margin-top:6px;color:#fff;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+
+    .ai-strip{margin:18px 0 0}
+    .ai-panel{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      justify-content:space-between;
+      background:rgba(23,32,51,.96);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:var(--radius-md);
+      padding:18px;
+      box-shadow:var(--shadow-md);
+    }
+    .ai-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:900;text-transform:uppercase;line-height:1}
+    .ai-copy{color:#e2e8f0;font-size:14px;font-weight:700;margin-top:5px}
+    .ai-search{display:flex;gap:10px;flex:0 1 540px}
+    .ai-demo-pill{
+      width:100%;
+      border-radius:999px;
+      padding:14px 16px;
+      background:#fff;
+      color:var(--ink);
+      font-weight:800;
+      text-decoration:none;
+      border:2px solid transparent;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      line-height:1.2;
+    }
+    .ai-demo-pill span:last-child{
+      color:var(--brand);
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .ai-search a.ai-action{
+      border-radius:999px;
+      background:var(--brand);
+      color:#fff;
+      text-decoration:none;
+      padding:14px 18px;
+      font-weight:900;
+      white-space:nowrap;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+    .feature-card,.who-card,.path-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius-md);
+      padding:26px;
+      box-shadow:var(--shadow-sm);
+      transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+    }
+    .icon-badge{width:54px;height:54px;border-radius:18px;background:var(--brand-soft);display:grid;place-items:center;font-size:27px;margin-bottom:18px;border:1px solid #fed7aa}
+    .feature-card h3,.who-card h3,.path-card h3{font-size:27px;margin-bottom:10px;color:var(--navy)}
+    .feature-card p,.who-card p,.path-card p{color:var(--text);font-size:15px;line-height:1.7}
+
+    .apprentice-block{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .split-grid{display:grid;grid-template-columns:1fr 1fr;gap:46px;align-items:center}
+    .dashboard-preview{background:var(--navy);border-radius:var(--radius-lg);padding:28px;color:#fff;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+    .dashboard-preview::before{content:"";position:absolute;inset:-80px -100px auto auto;width:260px;height:260px;border-radius:999px;background:rgba(234,106,0,.24)}
+    .preview-head{position:relative;display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}
+    .preview-title{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:900;line-height:1;text-transform:uppercase}
+    .preview-tag{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.30);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900}
+    .preview-row{position:relative;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.20);border-radius:20px;padding:16px;margin-top:12px}
+    .preview-row .progress-label{color:#fff}
+    .preview-row .bar{background:rgba(255,255,255,.22)}
+    .preview-row .bar span{background:#fff}
+    .proof-grid{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+    .proof-box{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.20);border-radius:18px;padding:16px}
+    .proof-box strong{font-family:'Barlow Condensed',sans-serif;font-size:34px;line-height:1;display:block}
+    .proof-box span{font-size:12px;color:#e2e8f0;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+
+    .orange-section{background:linear-gradient(135deg,#fff7ed 0%,#ffffff 65%)}
+    .who-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+    .who-card{text-align:left;padding:24px}
+    .who-card .icon-badge{margin-bottom:14px}
+    .who-card h3{font-size:24px}
+
+    .school-box{
+      background:linear-gradient(135deg,var(--navy),#24324d);
+      color:#fff;
+      border-radius:var(--radius-lg);
+      padding:44px;
+      box-shadow:var(--shadow-lg);
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:36px;
+      align-items:center;
+      overflow:hidden;
+      position:relative;
+    }
+    .school-box::before{content:"";position:absolute;right:-80px;top:-100px;width:300px;height:300px;background:rgba(234,106,0,.34);border-radius:999px}
+    .school-box h2,.school-box p,.school-box .btn-row,.school-list{position:relative}
+    .school-box h2{color:#fff}
+    .school-box p{color:#f1f5f9;font-size:18px;line-height:1.72;margin:18px 0 26px;font-weight:600}
+    .school-list{display:grid;gap:12px}
+    .school-list div{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:18px;padding:16px;font-weight:900}
+
+    .path-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:path}
+    .path-card{position:relative;padding-top:30px}
+    .path-card::before{counter-increment:path;content:counter(path);position:absolute;top:-18px;left:22px;width:42px;height:42px;border-radius:999px;background:var(--brand);color:#fff;display:grid;place-items:center;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;box-shadow:0 12px 24px rgba(234,106,0,.24)}
+
+    .contractor-band{background:var(--navy);color:#fff}
+    .contractor-band h2{color:#fff}
+    .contractor-band .section-copy{color:#f1f5f9;font-weight:600}
+    .contractor-card{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);border-radius:var(--radius-lg);padding:34px;box-shadow:var(--shadow-md)}
+    .check-list{display:grid;gap:13px;margin-top:18px}
+    .check-item{display:flex;gap:12px;align-items:flex-start;color:#fff;font-weight:800;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);padding:14px;border-radius:16px}
+    .check-icon{width:24px;height:24px;display:grid;place-items:center;border-radius:999px;background:var(--brand);color:#fff;flex:0 0 auto;font-size:14px;font-weight:900}
+
+    .final-cta{padding:110px 0;text-align:center;background:linear-gradient(135deg,#ffb36b 0%,#f5861f 48%,#d96a00 100%);color:#fff;position:relative;overflow:hidden}
+    .final-cta::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px);background-size:44px 44px;opacity:.20}
+    .final-cta .container{position:relative;z-index:2}
+    .final-cta h2{font-size:clamp(44px,7vw,86px);color:#fff;margin-bottom:20px;text-shadow:0 12px 32px rgba(70,31,0,.18)}
+    .final-cta p{max-width:680px;margin:0 auto 34px;color:#fff;font-size:20px;font-weight:700;line-height:1.55}
+    .final-cta .btn-row{justify-content:center}
+
+    footer{background:#0f172a;color:#fff;padding:34px 0}
+    .footer-inner{display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap}
+    .footer-brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+    .footer-brand .brand-mark{width:42px;height:42px;border-radius:13px;font-size:18px}
+    .footer-brand strong{font-family:'Barlow Condensed',sans-serif;font-size:25px;font-weight:900}
+    .footer-links{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+    .footer-links a{color:#cbd5e1;text-decoration:none;font-size:14px;font-weight:700}
+    .footer-copy{color:#cbd5e1;font-size:13px;font-weight:600}
+
+    @media (hover:hover) and (pointer:fine){
+      .btn:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+      .nav-links a:hover{background:#fff3e8;color:var(--brand)}
+      .nav-links .nav-login:hover{background:var(--brand);color:#fff}
+      .feature-card:hover,.who-card:hover,.path-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:#fed7aa}
+      .footer-links a:hover{color:#fff}
+    }
+
+    @media(max-width:1100px){
+      .card-grid{grid-template-columns:repeat(2,1fr)}
+      .who-grid{grid-template-columns:repeat(2,1fr)}
+      .path-grid{grid-template-columns:repeat(2,1fr);gap:30px 18px}
+    }
+
+    @media(max-width:980px){
+      .nav-links a:not(.nav-login){display:none}
+      .hero-grid,.split-grid,.school-box{grid-template-columns:1fr;gap:34px}
+      .hero{padding-top:42px}
+      .hero-grid{min-height:auto}
+      .hero-visual{max-width:620px;margin-inline:auto;width:100%}
+      .stats-inner{grid-template-columns:repeat(2,1fr)}
+      .ai-panel{align-items:flex-start;flex-direction:column}
+      .ai-search{width:100%;flex:auto}
+      .hero-title{font-size:clamp(30px,7vw,62px)}
+    }
+
+    @media(max-width:760px){
+      .card-grid,.who-grid,.path-grid{grid-template-columns:1fr}
+      .stats-inner{grid-template-columns:1fr}
+    }
+
+    @media(max-width:640px){
+      .container,.topbar-inner{width:min(100% - 28px,var(--max))}
+      .topbar-inner{min-height:70px}
+      .brand-mark{width:46px;height:46px;border-radius:14px;font-size:20px}
+      .brand-name strong{font-size:22px}
+      .brand-name span{display:none}
+      .nav-links .nav-login{padding:12px 15px;font-size:13px}
+      .hero{padding:34px 0 34px}
+      .hero h1{letter-spacing:-.05em}
+      .hero-title{
+        white-space:nowrap;
+        font-size:clamp(24px,7vw,36px);
+        line-height:.92;
+        letter-spacing:-.04em;
+      }
+      .hero-text{text-align:left}
+      .hero-sub{font-size:18px;line-height:1.45}
+      .hero-note{font-size:16px}
+      .btn-row{width:100%;gap:10px}
+      .btn{
+        width:100%;
+        white-space:normal;
+        text-align:center;
+        padding:14px 18px;
+        min-height:50px;
+        border-radius:18px;
+      }
+      .hero-trades{gap:8px}
+      .trade-pill{font-size:12px;padding:7px 11px}
+      .visual-card{padding:18px;border-radius:26px;transform:none}
+      .mock-top{align-items:flex-start;flex-direction:column}
+      .metric-grid,.proof-grid{grid-template-columns:1fr}
+      .floating-chip{position:relative;right:auto;bottom:auto;margin-top:14px;max-width:none}
+      .section{padding:66px 0}
+      .section.tight{padding:56px 0}
+      .school-box{padding:30px 22px;border-radius:26px}
+      .dashboard-preview,.contractor-card{padding:24px;border-radius:26px}
+      .ai-search{flex-direction:column}
+      .ai-demo-pill{
+        border-radius:18px;
+        align-items:flex-start;
+        flex-direction:column;
+      }
+      .ai-search a.ai-action{border-radius:18px;width:100%}
+      .preview-head{align-items:flex-start;flex-direction:column}
+      .final-cta{padding:78px 0}
+      .footer-inner{flex-direction:column;align-items:flex-start}
+    }
+
+    @media(max-width:380px){
+      .container,.topbar-inner{width:min(100% - 22px,var(--max))}
+      .brand-name strong{font-size:19px}
+      .nav-links .nav-login{padding:10px 12px;font-size:12px}
+      .hero-title{font-size:25px}
+      h2{font-size:34px}
+      .hero-sub{font-size:17px}
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <div class="content-layer">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <a href="/" class="brand-lockup" aria-label="LinkTradeNetwork home">
+            <div class="brand-mark">LTN</div>
+            <div class="brand-name">
+              <strong>LinkTradeNetwork</strong>
+              <span>Technology Platform for the Trades</span>
+            </div>
+          </a>
+
+          <nav class="nav-links" aria-label="Main navigation">
+            <a href="#why-ltn">Platform</a>
+            <a href="#apprentice-progress">Apprenticeships</a>
+            <a href="#trade-schools">Trade Schools</a>
+            <a href="#contractors">Contractors</a>
+            <a href="/front/" class="nav-login">Sign In Here →</a>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="container">
+            <div class="hero-grid">
+              <div class="hero-text">
+                <div class="eyebrow light"><span class="eyebrow-dot"></span> Built for trade workers on the rise</div>
+                <h1 class="hero-title">LINKTRADENETWORK</h1>
+                <p class="hero-sub">
+                  A technology platform for apprentices, trade schools, instructors, skilled trade workers, and trade companies.
+                </p>
+                <div class="hero-note">
+                  <span class="orange-check">✓</span>
+                  <span>Build your profile, track real progress, showcase your skills, and earn your Orange Check.</span>
+                </div>
+                <div class="btn-row">
+                  <a href="/front/" class="btn btn-primary">Create Your Free Profile</a>
+                  <a href="/front/" class="btn btn-secondary">Find Apprenticeships</a>
+                  <a href="/front/" class="btn btn-secondary">Sign In Here →</a>
+                </div>
+
+                <div class="hero-trades" aria-label="Trades supported">
+                  <span class="trade-pill">⚡ Electrical</span>
+                  <span class="trade-pill">📡 Low Voltage</span>
+                  <span class="trade-pill">❄️ HVAC</span>
+                  <span class="trade-pill">🔧 Plumbing</span>
+                  <span class="trade-pill">🔒 Physical Security</span>
+                </div>
+              </div>
+
+              <div class="hero-visual" aria-label="Apprenticeship dashboard preview">
+                <div class="visual-card">
+                  <div class="mock-top">
+                    <div class="mock-user">
+                      <div class="mock-avatar">LTN</div>
+                      <div>
+                        <div class="mock-name">Apprentice Profile</div>
+                        <div class="mock-trade">Low Voltage · Electrical · HVAC · Plumbing</div>
+                      </div>
+                    </div>
+                    <div class="status-pill">Orange Check Ready</div>
+                  </div>
+
+                  <div class="metric-grid">
+                    <div class="metric-box">
+                      <strong>1,250</strong>
+                      <span>Hours Tracked</span>
+                    </div>
+                    <div class="metric-box">
+                      <strong>12</strong>
+                      <span>Work Photos</span>
+                    </div>
+                    <div class="metric-box">
+                      <strong>4</strong>
+                      <span>Skills Completed</span>
+                    </div>
+                    <div class="metric-box">
+                      <strong>2</strong>
+                      <span>Certifications</span>
+                    </div>
+                  </div>
+
+                  <div class="progress-stack">
+                    <div class="progress-line">
+                      <div class="progress-label"><span>Apprenticeship Hours</span><span>16%</span></div>
+                      <div class="bar"><span style="width:16%"></span></div>
+                    </div>
+                    <div class="progress-line">
+                      <div class="progress-label"><span>Skills Completed</span><span>67%</span></div>
+                      <div class="bar"><span style="width:67%"></span></div>
+                    </div>
+                    <div class="progress-line">
+                      <div class="progress-label"><span>Profile Strength</span><span>82%</span></div>
+                      <div class="bar"><span style="width:82%"></span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="floating-chip">
+                  LTN AI Agent
+                  <small>Ask about trades, apprenticeship paths, skills, tools, and jobs.</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="stats-band">
+              <div class="stats-inner">
+                <div class="stat-item"><strong>Track</strong><span>Hours, Skills & Certs</span></div>
+                <div class="stat-item"><strong>Show</strong><span>Real Work Proof</span></div>
+                <div class="stat-item"><strong>$0</strong><span>Cost to Join</span></div>
+                <div class="stat-item"><strong>Connect</strong><span>Schools & Companies</span></div>
+              </div>
+            </div>
+
+            <div class="ai-strip">
+              <div class="ai-panel">
+                <div>
+                  <div class="ai-title">LTN AI Agent</div>
+                  <div class="ai-copy">Demo preview — sign in to use the AI Agent inside LinkTradeNetwork.</div>
+                </div>
+                <div class="ai-search">
+                  <a href="/front/" class="ai-demo-pill" aria-label="Open LTN AI Agent demo by signing in">
+                    <span>Ask LTN AI about apprenticeship paths...</span>
+                    <span>Demo Preview</span>
+                  </a>
+                  <a href="/front/" class="ai-action">Try It →</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section apprentice-block" id="apprentice-progress">
+          <div class="container split-grid">
+            <div>
+              <div class="eyebrow"><span class="eyebrow-dot"></span> Apprenticeship Progress Tracking</div>
+              <h2>Do Not Just Say You Are Learning. Show What You Have Done.</h2>
+              <p class="section-copy">
+                LinkTradeNetwork gives apprentices and young trade workers a place to track hours, completed skills, certifications, and real work experience. Your profile becomes proof of what you can actually do.
+              </p>
+              <div class="btn-row" style="margin-top:28px">
+                <a href="/front/" class="btn btn-primary orange">Track My Progress</a>
+                <a href="/front/" class="btn btn-outline">Find Apprenticeships</a>
+              </div>
+            </div>
+
+            <div class="dashboard-preview">
+              <div class="preview-head">
+                <div>
+                  <div class="preview-title">Progress Dashboard</div>
+                  <div style="color:#e2e8f0;font-weight:700;margin-top:6px">Built for apprentices and instructors</div>
+                </div>
+                <div class="preview-tag">Live Tracker</div>
+              </div>
+
+              <div class="preview-row">
+                <div class="progress-label"><span>Hours Completed</span><span>1,250 / 8,000</span></div>
+                <div class="bar"><span style="width:16%"></span></div>
+              </div>
+              <div class="preview-row">
+                <div class="progress-label"><span>Skills Completed</span><span>4 / 6</span></div>
+                <div class="bar"><span style="width:67%"></span></div>
+              </div>
+              <div class="preview-row">
+                <div class="progress-label"><span>Profile Completion</span><span>82%</span></div>
+                <div class="bar"><span style="width:82%"></span></div>
+              </div>
+
+              <div class="proof-grid">
+                <div class="proof-box"><strong>2</strong><span>Certifications</span></div>
+                <div class="proof-box"><strong>12</strong><span>Work Photos</span></div>
+                <div class="proof-box"><strong>4</strong><span>Verified Skills</span></div>
+                <div class="proof-box"><strong>1</strong><span>Career Path</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="why-ltn">
+          <div class="container">
+            <div class="section-head">
+              <div class="eyebrow"><span class="eyebrow-dot"></span> Why LinkTradeNetwork</div>
+              <h2>Not Just a Job Board. A Career System for the Trades.</h2>
+              <p class="section-copy">
+                LinkedIn shows where someone worked. LinkTradeNetwork shows what they have accomplished, what skills they have built, and where they are going next.
+              </p>
+            </div>
+
+            <div class="card-grid">
+              <article class="feature-card">
+                <div class="icon-badge">📊</div>
+                <h3>Apprentice Progress</h3>
+                <p>Track hours, skills, certifications, and real job experience so companies can see what you have actually completed.</p>
+              </article>
+              <article class="feature-card">
+                <div class="icon-badge">💼</div>
+                <h3>Trade Job Board</h3>
+                <p>Browse trade jobs and opportunities by trade, location, experience level, and career path.</p>
+              </article>
+              <article class="feature-card">
+                <div class="icon-badge">🤝</div>
+                <h3>Professional Network</h3>
+                <p>Connect with contractors, instructors, trade schools, apprentices, and skilled trade professionals.</p>
+              </article>
+              <article class="feature-card">
+                <div class="icon-badge">🛠️</div>
+                <h3>Work Proof</h3>
+                <p>Upload photos of completed work, tools used, panels, racks, terminations, installs, and jobsite experience.</p>
+              </article>
+              <article class="feature-card">
+                <div class="icon-badge">🎓</div>
+                <h3>Trade School Friendly</h3>
+                <p>Schools and instructors can help students build professional profiles before they enter the workforce.</p>
+              </article>
+              <article class="feature-card">
+                <div class="icon-badge">🤖</div>
+                <h3>LTN AI Agent</h3>
+                <p>Users can ask about trades, apprenticeship paths, tools, skills, and how to get started.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section orange-section">
+          <div class="container">
+            <div class="section-head">
+              <div class="eyebrow"><span class="eyebrow-dot"></span> Built For</div>
+              <h2>Every Corner of the Trades.</h2>
+              <p class="section-copy">
+                Whether you are in school, starting an apprenticeship, working in the field, hiring crews, or running jobs, LTN was built for you.
+              </p>
+            </div>
+
+            <div class="who-grid">
+              <article class="who-card"><div class="icon-badge">🎓</div><h3>Apprentices</h3><p>Track hours, skills, certifications, and completed work while you grow into the trade.</p></article>
+              <article class="who-card"><div class="icon-badge">🏫</div><h3>Trade Students</h3><p>Start building your professional trade profile before your first full-time job.</p></article>
+              <article class="who-card"><div class="icon-badge">⚡</div><h3>Electricians</h3><p>Build your reputation, showcase your skills, and get found faster.</p></article>
+              <article class="who-card"><div class="icon-badge">❄️</div><h3>HVAC</h3><p>Residential, commercial, service, or install — connect with companies that need your skillset.</p></article>
+              <article class="who-card"><div class="icon-badge">🔧</div><h3>Plumbers</h3><p>From apprentice to experienced plumber — find work and build your professional presence.</p></article>
+              <article class="who-card"><div class="icon-badge">📡</div><h3>Low Voltage</h3><p>Structured cabling, access control, IP cameras, fiber, and field experience.</p></article>
+              <article class="who-card"><div class="icon-badge">🔒</div><h3>Security</h3><p>Access control, cameras, fire alarm, and security systems — prove specialized skills.</p></article>
+              <article class="who-card"><div class="icon-badge">🏗️</div><h3>Contractors</h3><p>Post jobs, find qualified workers, and see what applicants have actually accomplished.</p></article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section tight" id="trade-schools">
+          <div class="container">
+            <div class="school-box">
+              <div>
+                <div class="eyebrow light"><span class="eyebrow-dot"></span> Trade Schools & Instructors</div>
+                <h2>Help Students Build Their Trade Profile Early.</h2>
+                <p>
+                  LinkTradeNetwork is working with trade schools and instructors to help students sign in, build profiles, track accomplishments, document skills, and create visibility before they enter the workforce.
+                </p>
+                <div class="btn-row">
+                  <a href="/front/" class="btn btn-light">Start Free →</a>
+                  <a href="mailto:Team@LinkTradeNetwork.com" class="btn btn-secondary">Contact LTN</a>
+                </div>
+              </div>
+              <div class="school-list">
+                <div>✅ Student profile building</div>
+                <div>✅ Apprentice progress tracking</div>
+                <div>✅ Skills and certification proof</div>
+                <div>✅ Trade company visibility</div>
+                <div>✅ Free to use while the platform grows</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="container">
+            <div class="section-head">
+              <div class="eyebrow"><span class="eyebrow-dot"></span> How It Works</div>
+              <h2>A Clear Path From Student to Skilled Worker.</h2>
+              <p class="section-copy">
+                LTN gives young trade workers a simple path: create a profile, document progress, show proof, and connect with opportunities.
+              </p>
+            </div>
+            <div class="path-grid">
+              <article class="path-card"><h3>Create Profile</h3><p>Sign in and build a professional profile with your trade, location, experience, and goals.</p></article>
+              <article class="path-card"><h3>Track Progress</h3><p>Add apprenticeship hours, completed skills, certifications, and training achievements.</p></article>
+              <article class="path-card"><h3>Show Proof</h3><p>Upload work photos, documents, jobsite examples, and real accomplishments.</p></article>
+              <article class="path-card"><h3>Get Seen</h3><p>Connect with schools, instructors, companies, contractors, and trade opportunities.</p></article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section contractor-band" id="contractors">
+          <div class="container split-grid">
+            <div>
+              <div class="eyebrow light"><span class="eyebrow-dot"></span> For Trade Companies</div>
+              <h2>See More Than a Resume.</h2>
+              <p class="section-copy">
+                Contractors do not just need names. They need to know who has real experience, who is learning fast, and who is worth bringing onto a jobsite.
+              </p>
+              <div class="btn-row" style="margin-top:28px">
+                <a href="/front/" class="btn btn-light">Find Trade Workers →</a>
+                <a href="/front/" class="btn btn-secondary">Post a Job</a>
+              </div>
+            </div>
+            <div class="contractor-card">
+              <h3 style="color:#fff;margin-bottom:12px">What Companies Can See</h3>
+              <div class="check-list">
+                <div class="check-item"><span class="check-icon">✓</span><span>Hours completed and progress over time</span></div>
+                <div class="check-item"><span class="check-icon">✓</span><span>Skills learned and certifications earned</span></div>
+                <div class="check-item"><span class="check-icon">✓</span><span>Work photos and real jobsite proof</span></div>
+                <div class="check-item"><span class="check-icon">✓</span><span>Trade, location, and experience level</span></div>
+                <div class="check-item"><span class="check-icon">✓</span><span>Professional profile built for the skilled trades</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="final-cta">
+          <div class="container">
+            <h2>Start Building Your Trade Profile Today.</h2>
+            <p>
+              Track what you have learned, show what you have completed, and get seen by trade companies looking for the next generation of skilled workers.
+            </p>
+            <div class="btn-row">
+              <a href="/front/" class="btn btn-primary">Join LinkTradeNetwork Free →</a>
+              <a href="/front/" class="btn btn-secondary">Find Apprenticeships</a>
+            </div>
+            <p style="font-size:14px;margin-top:22px;margin-bottom:0">Already a member? <a href="/front/" style="color:#fff;font-weight:900;text-decoration:none">Sign In Here</a></p>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div class="container footer-inner">
+          <a href="/" class="footer-brand" aria-label="LinkTradeNetwork home">
+            <div class="brand-mark">LTN</div>
+            <strong>LinkTradeNetwork</strong>
+          </a>
+          <div class="footer-links">
+            <a href="/front/">Sign Up</a>
+            <a href="/front/">Sign In</a>
+            <a href="/front/">Find Apprenticeships</a>
+            <a href="/terms/">Terms & Conditions</a>
+            <a href="mailto:Team@LinkTradeNetwork.com">Contact Us</a>
+          </div>
+          <div class="footer-copy">© 2026 LinkTradeNetwork · All rights reserved</div>
+        </div>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
