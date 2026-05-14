@@ -1,1 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LTN Profile</title>
 
+<style>
+:root{
+  --brand:#ea6a00;
+  --brand2:#c35700;
+  --navy:#243b53;
+  --blue:#3d5a80;
+  --bg:#f3f6fb;
+  --panel:#ffffff;
+  --ink:#172033;
+  --muted:#64748b;
+  --line:#e2e8f0;
+  --ok:#16a34a;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Inter,Arial,system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+}
+
+.topbar{
+  background:linear-gradient(135deg,#243b53,#3d5a80);
+  color:white;
+  padding:16px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+}
+
+.brand{
+  font-weight:900;
+  letter-spacing:.2px;
+}
+
+.nav{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.nav a{
+  color:white;
+  text-decoration:none;
+  font-weight:800;
+  font-size:14px;
+}
+
+.wrap{
+  max-width:980px;
+  margin:32px auto;
+  padding:18px;
+}
+
+.card{
+  background:var(--panel);
+  padding:28px;
+  border-radius:24px;
+  box-shadow:0 14px 40px rgba(15,23,42,.10);
+  border:1px solid var(--line);
+}
+
+.header{
+  text-align:center;
+  margin-bottom:22px;
+}
+
+.avatar{
+  width:140px;
+  height:140px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#3d5a80,#243b53);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:46px;
+  font-weight:900;
+  margin:0 auto 15px;
+  overflow:hidden;
+  border:5px solid #fff7ed;
+  box-shadow:0 10px 24px rgba(15,23,42,.18);
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.name{
+  font-size:30px;
+  font-weight:900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.verify-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background:#fff7ed;
+  color:var(--brand);
+  border:1px solid #fed7aa;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:12px;
+  font-weight:900;
+}
+
+.trade{
+  color:var(--brand);
+  font-weight:900;
+  margin-top:6px;
+}
+
+.location{
+  color:var(--muted);
+  margin-top:5px;
+  font-weight:650;
+}
+
+.profile-strength{
+  margin:20px auto 0;
+  max-width:420px;
+  background:#f8fafc;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px;
+  text-align:left;
+}
+
+.profile-strength-top{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  font-weight:900;
+  margin-bottom:8px;
+}
+
+.profile-bar{
+  height:10px;
+  background:#e2e8f0;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.profile-bar-fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  border-radius:999px;
+}
+
+.actions{
+  margin-top:24px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+.btn{
+  padding:11px 20px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:900;
+  font-size:14px;
+}
+
+.btn-primary{
+  background:var(--brand);
+  color:white;
+}
+
+.btn-secondary{
+  background:var(--blue);
+  color:white;
+}
+
+.btn-disabled{
+  background:#94a3b8;
+  color:white;
+  cursor:not-allowed;
+}
+
+.status{
+  text-align:center;
+  margin-top:12px;
+  color:var(--muted);
+  font-size:14px;
+  font-weight:700;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin-top:24px;
+}
+
+.section{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:18px;
+}
+
+.section.full{
+  grid-column:1 / -1;
+}
+
+.section-title{
+  font-weight:900;
+  margin-bottom:12px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:8px;
+  color:var(--ink);
+}
+
+.bio{
+  color:#475569;
+  line-height:1.6;
+  font-size:14px;
+}
+
+.tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.tag{
+  background:#f1f5f9;
+  color:#334155;
+  padding:7px 12px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:800;
+}
+
+.placeholder{
+  background:#f8fafc;
+  border:1px dashed #cbd5e1;
+  color:#64748b;
+  border-radius:14px;
+  padding:14px;
+  font-size:14px;
+  line-height:1.5;
+}
+
+.stat-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.stat{
+  background:#f8fafc;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:14px;
+  text-align:center;
+}
+
+.stat-number{
+  font-size:22px;
+  font-weight:950;
+  color:var(--brand);
+}
+
+.stat-label{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:800;
+  margin-top:4px;
+}
+
+@media(max-width:760px){
+  .topbar{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .wrap{
+    margin:18px auto;
+    padding:14px;
+  }
+
+  .card{
+    padding:22px 16px;
+    border-radius:20px;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .section.full{
+    grid-column:auto;
+  }
+
+  .name{
+    font-size:25px;
+  }
+
+  .stat-row{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div class="brand">LTN • LinkTradeNetwork</div>
+  <div class="nav">
+    <a href="/dashboard/">Dashboard</a>
+    <a href="/members/">Members</a>
+    <a href="/front/">Sign Out</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+
+    <div class="header">
+      <div id="avatar" class="avatar">LT</div>
+
+      <div id="name" class="name"></div>
+
+      <div id="trade" class="trade"></div>
+      <div id="location" class="location"></div>
+
+      <div class="profile-strength">
+        <div class="profile-strength-top">
+          <span>Profile Strength</span>
+          <span id="profilePercent">0%</span>
+        </div>
+        <div class="profile-bar">
+          <div id="profileBarFill" class="profile-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="connectBtn" class="btn btn-primary" onclick="sendConnectionRequest()">Connect</button>
+      <button id="messageBtn" class="btn btn-secondary" onclick="goToMessage()">Message</button>
+    </div>
+
+    <div id="connectStatus" class="status"></div>
+
+    <div class="grid">
+
+      <div class="section full">
+        <div class="section-title">About</div>
+        <div id="bio" class="bio"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Skills</div>
+        <div id="skills" class="tags"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Certifications</div>
+        <div id="certs" class="bio"></div>
+      </div>
+
+      <div class="section full">
+        <div class="section-title">Trade Stats</div>
+        <div class="stat-row">
+          <div class="stat">
+            <div id="hoursStat" class="stat-number">0</div>
+            <div class="stat-label">Tracked Hours</div>
+          </div>
+          <div class="stat">
+            <div id="accomplishmentStat" class="stat-number">0</div>
+            <div class="stat-label">Accomplishments</div>
+          </div>
+          <div class="stat">
+            <div id="certStat" class="stat-number">0</div>
+            <div class="stat-label">Certifications</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section full">
+        <div class="section-title">Accomplishments</div>
+        <div id="accomplishments" class="placeholder">
+          Accomplishment previews will show here as members upload work photos, progress updates, project videos, and completed trade milestones.
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+if(localStorage.getItem("ltn_access_granted") !== "true"){
+  window.location.replace("/front/");
+}
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp,
+  collection,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
+  authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
+  projectId: "linktradenetwork-2dcd1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const params = new URLSearchParams(window.location.search);
+const profileUserId = params.get("id");
+
+let currentUserId = null;
+let currentUserEmail = "";
+let currentUserData = null;
+let profileUserData = null;
+
+function setButton(text, disabled=false){
+  const btn = document.getElementById("connectBtn");
+  btn.innerText = text;
+  btn.disabled = disabled;
+  btn.className = disabled ? "btn btn-disabled" : "btn btn-primary";
+}
+
+function getStoredUser(){
+  let email = localStorage.getItem("userEmail") || "";
+  let name = localStorage.getItem("userName") || "";
+
+  try{
+    const u = JSON.parse(localStorage.getItem("ltn_user") || "{}");
+
+    if(!email && u.email) email = u.email;
+    if(!name && u.name) name = u.name;
+  }catch(e){}
+
+  return {
+    email: email.trim().toLowerCase(),
+    name: name.trim()
+  };
+}
+
+async function findCurrentUser(){
+  const stored = getStoredUser();
+  currentUserEmail = stored.email;
+
+  if(!currentUserEmail) return;
+
+  const q = query(
+    collection(db,"users"),
+    where("email","==",currentUserEmail)
+  );
+
+  const snap = await getDocs(q);
+
+  if(!snap.empty){
+    const docu = snap.docs[0];
+    currentUserId = docu.id;
+    currentUserData = docu.data();
+  }
+}
+
+function calculateProfileStrength(u){
+  let score = 0;
+
+  if(u.fullName || u.name) score += 15;
+  if(u.trade) score += 15;
+  if(u.city || u.state) score += 10;
+  if(u.bio) score += 20;
+  if(u.profileImageUrl || u.profileImage) score += 15;
+
+  const skills = Array.isArray(u.skills)
+    ? u.skills
+    : String(u.skills || "").split(",").map(s => s.trim()).filter(Boolean);
+
+  if(skills.length) score += 15;
+  if(u.certifications) score += 10;
+
+  return Math.min(score,100);
+}
+
+function updateProfileStrength(u){
+  const percent = calculateProfileStrength(u);
+  document.getElementById("profilePercent").innerText = percent + "%";
+  document.getElementById("profileBarFill").style.width = percent + "%";
+}
+
+function countCertifications(value){
+  if(!value) return 0;
+
+  if(Array.isArray(value)){
+    return value.length;
+  }
+
+  return String(value)
+    .split(",")
+    .map(x => x.trim())
+    .filter(Boolean)
+    .length;
+}
+
+async function loadProfile(){
+  if(!profileUserId){
+    document.getElementById("name").innerText = "No profile selected";
+    setButton("No Profile",true);
+    return;
+  }
+
+  const snap = await getDoc(doc(db,"users",profileUserId));
+
+  if(!snap.exists()){
+    document.getElementById("name").innerText = "Profile not found";
+    setButton("No Profile",true);
+    return;
+  }
+
+  const u = snap.data();
+  profileUserData = u;
+
+  const displayName = u.fullName || u.name || "Trade Member";
+  const verifiedBadge = u.ltnVerified
+    ? `<span class="verify-badge">✔ LTN Verified</span>`
+    : "";
+
+  document.getElementById("name").innerHTML =
+    `${displayName} ${verifiedBadge}`;
+
+  document.getElementById("trade").innerText =
+    u.trade || "Trade not added yet";
+
+  const locationText =
+    `${u.city || ""} ${u.state || ""}`.trim();
+
+  document.getElementById("location").innerText =
+    locationText || "Location not added yet";
+
+  document.getElementById("bio").innerText =
+    u.bio || "No bio added yet.";
+
+  document.getElementById("certs").innerText =
+    u.certifications || "No certifications added yet.";
+
+  const avatar = document.getElementById("avatar");
+  const profilePhoto = u.profileImageUrl || u.profileImage || "";
+
+  if(profilePhoto){
+    avatar.innerHTML = `<img src="${profilePhoto}" alt="${displayName}">`;
+  }else{
+    avatar.innerText = displayName.substring(0,2).toUpperCase();
+  }
+
+  const skillsBox = document.getElementById("skills");
+  skillsBox.innerHTML = "";
+
+  const skills = Array.isArray(u.skills)
+    ? u.skills
+    : String(u.skills || "").split(",").map(s => s.trim()).filter(Boolean);
+
+  if(skills.length){
+    skills.forEach(s => {
+      const el = document.createElement("div");
+      el.className = "tag";
+      el.innerText = s.trim();
+      skillsBox.appendChild(el);
+    });
+  }else{
+    skillsBox.innerHTML = "<div class='bio'>No skills added yet.</div>";
+  }
+
+  document.getElementById("hoursStat").innerText =
+    u.totalHours || u.hours || 0;
+
+  document.getElementById("certStat").innerText =
+    countCertifications(u.certifications);
+
+  document.getElementById("accomplishmentStat").innerText =
+    u.accomplishmentCount || 0;
+
+  updateProfileStrength(u);
+}
+
+async function checkConnection(){
+  setButton("Connect",false);
+
+  if(!currentUserEmail) return;
+
+  if(currentUserId === profileUserId){
+    setButton("Your Profile",true);
+    document.getElementById("connectStatus").innerText =
+      "This is your public trade profile.";
+    return;
+  }
+
+  if(!currentUserId || !profileUserId) return;
+
+  const id = currentUserId + "_" + profileUserId;
+  const snap = await getDoc(doc(db,"connections",id));
+
+  if(snap.exists()){
+    setButton("Connection Sent",true);
+    document.getElementById("connectStatus").innerText =
+      "Connection request already sent.";
+  }
+}
+
+window.sendConnectionRequest = async function(){
+  if(!currentUserEmail || !currentUserId){
+    alert("Go back to dashboard first.");
+    return;
+  }
+
+  if(currentUserId === profileUserId){
+    return;
+  }
+
+  const id = currentUserId + "_" + profileUserId;
+
+  await setDoc(doc(db,"connections",id),{
+    fromUserId:currentUserId,
+    toUserId:profileUserId,
+    status:"pending",
+    createdAt:serverTimestamp()
+  });
+
+  setButton("Connection Sent",true);
+
+  document.getElementById("connectStatus").innerText =
+    "Connection request sent.";
+};
+
+window.goToMessage = function(){
+  if(!profileUserId){
+    alert("No profile selected.");
+    return;
+  }
+
+  window.location.href = "/messages/?user=" + encodeURIComponent(profileUserId);
+};
+
+async function init(){
+  await loadProfile();
+  await findCurrentUser();
+  await checkConnection();
+}
+
+init();
+</script>
+
+</body>
+</html>
