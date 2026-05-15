@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
-<!-- LTN PROFILE ROLE SYSTEM v19 -->
-<!-- Instructor / Apprentice profile separation enabled -->
+<!-- LTN PROFILE ROLE SYSTEM v20 -->
+<!-- Instructor / Apprentice display routing + school linking enabled -->
 
 <html lang="en">
 <head>
@@ -336,9 +336,11 @@ body{
 <div class="topbar">
   <div class="brand">LTN • LinkTradeNetwork</div>
   <div class="nav">
-    <a href="/dashboard/">Dashboard</a>
-    <a href="/members/">Members</a>
-    <a href="/front/">Sign Out</a>
+    <a href="/dashboard/?v=20260515profilev20">Dashboard</a>
+    <a href="/members/?v=20260515profilev20">Members</a>
+    <a href="/apprenticeship/?v=20260515profilev20" onclick="return ltnRouteTrackProgressFromProfile(event, this.href)">Track My Progress</a>
+    <a href="/instructor/?v=20260515profilev20" onclick="return ltnRouteInstructorCenterFromProfile(event, this.href)">Instructor Center</a>
+    <a href="/front/?v=20260515profilev20">Sign Out</a>
   </div>
 </div>
 
@@ -352,6 +354,9 @@ body{
 
       <div id="trade" class="trade"></div>
       <div id="location" class="location"></div>
+      <div id="roleBadge" class="trade"></div>
+      <div id="schoolInfo" class="location"></div>
+      <div id="instructorInfo" class="location"></div>
 
       <div class="profile-strength">
         <div class="profile-strength-top">
@@ -406,6 +411,14 @@ body{
         </div>
       </div>
 
+      <div id="roleSection" class="section full">
+        <div class="section-title">Instructor / Apprenticeship Information</div>
+
+        <div id="roleSectionContent" class="placeholder">
+          Instructor, school, apprenticeship, and training information will appear here.
+        </div>
+      </div>
+
       <div class="section full">
         <div class="section-title">Accomplishments</div>
         <div id="accomplishments" class="placeholder">
@@ -453,6 +466,91 @@ let currentUserId = null;
 let currentUserEmail = "";
 let currentUserData = null;
 let profileUserData = null;
+
+function readStoredProfile(){
+  const keys = [
+    "ltn_current_profile",
+    "ltnUserProfile",
+    "ltn_profile",
+    "currentUserProfile",
+    "userProfile",
+    "ltn_user",
+    "ltn_instructor_center_profile"
+  ];
+
+  for(const key of keys){
+    try{
+      const raw = localStorage.getItem(key);
+      if(!raw) continue;
+      const parsed = JSON.parse(raw);
+      if(parsed && typeof parsed === "object") return parsed;
+    }catch(e){}
+  }
+
+  return {};
+}
+
+function isInstructorProfile(profile){
+  const type = String(profile.profileType || profile.role || "").toLowerCase();
+  const instructor = profile.instructor || {};
+
+  return (
+    profile.isInstructor === true ||
+    instructor.isInstructor === true ||
+    type.includes("instructor") ||
+    type.includes("teacher") ||
+    type.includes("training center") ||
+    type.includes("trade school")
+  );
+}
+
+function isApprenticeProfile(profile){
+  const type = String(profile.profileType || profile.role || "").toLowerCase();
+  const apprenticeship = profile.apprenticeship || {};
+
+  return (
+    profile.isApprentice === true ||
+    apprenticeship.isApprentice === true ||
+    type.includes("apprentice") ||
+    type.includes("student")
+  );
+}
+
+window.ltnRouteTrackProgressFromProfile = async function(event, href){
+  if(event) event.preventDefault();
+
+  const profile = readStoredProfile();
+
+  if(isInstructorProfile(profile)){
+    alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
+    window.location.href = "/instructor/?v=20260515profilev20";
+    return false;
+  }
+
+  if(!isApprenticeProfile(profile)){
+    alert("Track My Progress is for apprentices and students.");
+    window.location.href = "/dashboard/?v=20260515profilev20";
+    return false;
+  }
+
+  window.location.href = href || "/apprenticeship/?v=20260515profilev20";
+  return false;
+};
+
+window.ltnRouteInstructorCenterFromProfile = async function(event, href){
+  if(event) event.preventDefault();
+
+  const profile = readStoredProfile();
+
+  if(!isInstructorProfile(profile)){
+    alert("Instructor Center is only for instructor or school accounts.");
+    window.location.href = "/dashboard/?v=20260515profilev20";
+    return false;
+  }
+
+  window.location.href = href || "/instructor/?v=20260515profilev20";
+  return false;
+};
 
 function setButton(text, disabled=false){
   const btn = document.getElementById("connectBtn");
@@ -572,6 +670,79 @@ async function loadProfile(){
   document.getElementById("location").innerText =
     locationText || "Location not added yet";
 
+  const roleBadge = document.getElementById("roleBadge");
+  const schoolInfo = document.getElementById("schoolInfo");
+  const instructorInfo = document.getElementById("instructorInfo");
+  const roleSectionContent = document.getElementById("roleSectionContent");
+
+  const apprenticeship = u.apprenticeship || {};
+  const instructor = u.instructor || {};
+
+  const profileType =
+    u.profileType ||
+    u.role ||
+    (instructor.isInstructor ? "Instructor / Teacher" : "Apprentice");
+
+  roleBadge.innerText = profileType;
+
+  const school =
+    u.school ||
+    u.studentSchool ||
+    apprenticeship.school ||
+    apprenticeship.program ||
+    instructor.school ||
+    "";
+
+  const instructorName =
+    u.instructorName ||
+    u.assignedInstructorName ||
+    apprenticeship.instructorName ||
+    "";
+
+  const instructorEmail =
+    u.instructorEmail ||
+    u.assignedInstructorEmail ||
+    apprenticeship.instructorEmail ||
+    "";
+
+  if(school){
+    schoolInfo.innerHTML = "<strong>School / Training Center:</strong> " + school;
+  }else{
+    schoolInfo.innerText = "";
+  }
+
+  if(instructorName || instructorEmail){
+    instructorInfo.innerHTML =
+      "<strong>Instructor:</strong> " +
+      [instructorName, instructorEmail].filter(Boolean).join(" • ");
+  }else{
+    instructorInfo.innerText = "";
+  }
+
+  if(isInstructorProfile(u)){
+    roleSectionContent.innerHTML = `
+      <div class="bio">
+        <strong>Instructor / Teacher Profile</strong><br><br>
+        This member is registered as an instructor, teacher, school, or training center account on LinkTradeNetwork.<br><br>
+        ${school ? `<strong>School:</strong> ${school}<br>` : ""}
+        ${u.trade ? `<strong>Trade Specialty:</strong> ${u.trade}<br>` : ""}
+        ${u.coursesTaught || instructor.courses
+          ? `<strong>Courses:</strong> ${u.coursesTaught || instructor.courses}<br>`
+          : ""}
+      </div>
+    `;
+  }else{
+    roleSectionContent.innerHTML = `
+      <div class="bio">
+        <strong>Apprentice / Student Profile</strong><br><br>
+        ${school ? `<strong>School / Program:</strong> ${school}<br>` : ""}
+        ${instructorName ? `<strong>Instructor:</strong> ${instructorName}<br>` : ""}
+        ${u.trade ? `<strong>Trade:</strong> ${u.trade}<br>` : ""}
+        ${apprenticeship.program ? `<strong>Program:</strong> ${apprenticeship.program}<br>` : ""}
+      </div>
+    `;
+  }
+
   document.getElementById("bio").innerText =
     u.bio || "No bio added yet.";
 
@@ -619,6 +790,14 @@ async function loadProfile(){
 
 async function checkConnection(){
   setButton("Connect",false);
+
+  if(profileUserData && isInstructorProfile(profileUserData)){
+    const msgBtn = document.getElementById("messageBtn");
+    msgBtn.innerText = "Instructor Center";
+    msgBtn.onclick = function(){
+      window.location.href = "/instructor/?v=20260515profilev20";
+    };
+  }
 
   if(!currentUserEmail) return;
 
