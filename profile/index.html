@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
-<!-- LTN PROFILE ROLE SYSTEM v20 -->
-<!-- Instructor / Apprentice display routing + school linking enabled -->
+<!-- LTN PROFILE ROLE SYSTEM v21 -->
+<!-- Instructor / Apprentice display routing + automatic school code linking enabled -->
 
 <html lang="en">
 <head>
@@ -21,11 +21,10 @@
   --muted:#64748b;
   --line:#e2e8f0;
   --ok:#16a34a;
+  --bad:#dc2626;
 }
 
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box;}
 
 body{
   margin:0;
@@ -44,16 +43,9 @@ body{
   gap:16px;
 }
 
-.brand{
-  font-weight:900;
-  letter-spacing:.2px;
-}
+.brand{font-weight:900;letter-spacing:.2px;}
 
-.nav{
-  display:flex;
-  gap:14px;
-  flex-wrap:wrap;
-}
+.nav{display:flex;gap:14px;flex-wrap:wrap;}
 
 .nav a{
   color:white;
@@ -76,10 +68,7 @@ body{
   border:1px solid var(--line);
 }
 
-.header{
-  text-align:center;
-  margin-bottom:22px;
-}
+.header{text-align:center;margin-bottom:22px;}
 
 .avatar{
   width:140px;
@@ -98,11 +87,7 @@ body{
   box-shadow:0 10px 24px rgba(15,23,42,.18);
 }
 
-.avatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
+.avatar img{width:100%;height:100%;object-fit:cover;}
 
 .name{
   font-size:30px;
@@ -188,21 +173,9 @@ body{
   font-size:14px;
 }
 
-.btn-primary{
-  background:var(--brand);
-  color:white;
-}
-
-.btn-secondary{
-  background:var(--blue);
-  color:white;
-}
-
-.btn-disabled{
-  background:#94a3b8;
-  color:white;
-  cursor:not-allowed;
-}
+.btn-primary{background:var(--brand);color:white;}
+.btn-secondary{background:var(--blue);color:white;}
+.btn-disabled{background:#94a3b8;color:white;cursor:not-allowed;}
 
 .status{
   text-align:center;
@@ -226,9 +199,7 @@ body{
   padding:18px;
 }
 
-.section.full{
-  grid-column:1 / -1;
-}
+.section.full{grid-column:1 / -1;}
 
 .section-title{
   font-weight:900;
@@ -269,6 +240,60 @@ body{
   line-height:1.5;
 }
 
+.school-code-box{
+  margin-top:16px;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  border-radius:16px;
+  padding:16px;
+}
+
+.school-code-title{
+  font-weight:950;
+  color:#9a3412;
+  margin-bottom:6px;
+}
+
+.school-code-text{
+  color:#7c2d12;
+  font-size:14px;
+  line-height:1.5;
+  margin-bottom:12px;
+}
+
+.school-code-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.school-code-input{
+  flex:1;
+  min-width:230px;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1px solid #fdba74;
+  font-size:14px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+
+.school-code-input:focus{
+  outline:none;
+  border-color:var(--brand);
+  box-shadow:0 0 0 3px rgba(234,106,0,.15);
+}
+
+.school-status{
+  margin-top:10px;
+  font-size:14px;
+  font-weight:850;
+}
+
+.school-status.ok{color:var(--ok);}
+.school-status.bad{color:var(--bad);}
+.school-status.info{color:var(--muted);}
+
 .stat-row{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -297,36 +322,13 @@ body{
 }
 
 @media(max-width:760px){
-  .topbar{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-
-  .wrap{
-    margin:18px auto;
-    padding:14px;
-  }
-
-  .card{
-    padding:22px 16px;
-    border-radius:20px;
-  }
-
-  .grid{
-    grid-template-columns:1fr;
-  }
-
-  .section.full{
-    grid-column:auto;
-  }
-
-  .name{
-    font-size:25px;
-  }
-
-  .stat-row{
-    grid-template-columns:1fr;
-  }
+  .topbar{flex-direction:column;align-items:flex-start;}
+  .wrap{margin:18px auto;padding:14px;}
+  .card{padding:22px 16px;border-radius:20px;}
+  .grid{grid-template-columns:1fr;}
+  .section.full{grid-column:auto;}
+  .name{font-size:25px;}
+  .stat-row{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -336,11 +338,11 @@ body{
 <div class="topbar">
   <div class="brand">LTN • LinkTradeNetwork</div>
   <div class="nav">
-    <a href="/dashboard/?v=20260515profilev20">Dashboard</a>
-    <a href="/members/?v=20260515profilev20">Members</a>
-    <a href="/apprenticeship/?v=20260515profilev20" onclick="return ltnRouteTrackProgressFromProfile(event, this.href)">Track My Progress</a>
-    <a href="/instructor/?v=20260515profilev20" onclick="return ltnRouteInstructorCenterFromProfile(event, this.href)">Instructor Center</a>
-    <a href="/front/?v=20260515profilev20">Sign Out</a>
+    <a href="/dashboard/?v=20260515profilev21">Dashboard</a>
+    <a href="/members/?v=20260515profilev21">Members</a>
+    <a href="/apprenticeship/?v=20260515profilev21" onclick="return ltnRouteTrackProgressFromProfile(event, this.href)">Track My Progress</a>
+    <a href="/instructor/?v=20260515profilev21" onclick="return ltnRouteInstructorCenterFromProfile(event, this.href)">Instructor Center</a>
+    <a href="/front/?v=20260515profilev21">Sign Out</a>
   </div>
 </div>
 
@@ -417,6 +419,26 @@ body{
         <div id="roleSectionContent" class="placeholder">
           Instructor, school, apprenticeship, and training information will appear here.
         </div>
+
+        <div id="schoolCodeBox" class="school-code-box" style="display:none;">
+          <div class="school-code-title">Join School / Instructor Cohort</div>
+          <div class="school-code-text">
+            If your instructor gave you a code, enter it here to connect your LinkTradeNetwork profile to your school, instructor, and class.
+          </div>
+
+          <div class="school-code-row">
+            <input
+              id="schoolCodeInput"
+              class="school-code-input"
+              type="text"
+              placeholder="Example: STC-ELECTRICAL-2026"
+              autocomplete="off"
+            />
+            <button id="schoolCodeBtn" class="btn btn-primary" onclick="connectSchoolCode()">Connect School</button>
+          </div>
+
+          <div id="schoolCodeStatus" class="school-status info"></div>
+        </div>
       </div>
 
       <div class="section full">
@@ -460,7 +482,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const params = new URLSearchParams(window.location.search);
-const profileUserId = params.get("id");
+let profileUserId = params.get("id");
 
 let currentUserId = null;
 let currentUserEmail = "";
@@ -523,17 +545,17 @@ window.ltnRouteTrackProgressFromProfile = async function(event, href){
 
   if(isInstructorProfile(profile)){
     alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-    window.location.href = "/instructor/?v=20260515profilev20";
+    window.location.href = "/instructor/?v=20260515profilev21";
     return false;
   }
 
   if(!isApprenticeProfile(profile)){
     alert("Track My Progress is for apprentices and students.");
-    window.location.href = "/dashboard/?v=20260515profilev20";
+    window.location.href = "/dashboard/?v=20260515profilev21";
     return false;
   }
 
-  window.location.href = href || "/apprenticeship/?v=20260515profilev20";
+  window.location.href = href || "/apprenticeship/?v=20260515profilev21";
   return false;
 };
 
@@ -544,11 +566,11 @@ window.ltnRouteInstructorCenterFromProfile = async function(event, href){
 
   if(!isInstructorProfile(profile)){
     alert("Instructor Center is only for instructor or school accounts.");
-    window.location.href = "/dashboard/?v=20260515profilev20";
+    window.location.href = "/dashboard/?v=20260515profilev21";
     return false;
   }
 
-  window.location.href = href || "/instructor/?v=20260515profilev20";
+  window.location.href = href || "/instructor/?v=20260515profilev21";
   return false;
 };
 
@@ -593,13 +615,17 @@ async function findCurrentUser(){
     const docu = snap.docs[0];
     currentUserId = docu.id;
     currentUserData = docu.data();
+
+    if(!profileUserId){
+      profileUserId = currentUserId;
+    }
   }
 }
 
 function calculateProfileStrength(u){
   let score = 0;
 
-  if(u.fullName || u.name) score += 15;
+  if(u.fullName || u.name || u.displayName) score += 15;
   if(u.trade) score += 15;
   if(u.city || u.state) score += 10;
   if(u.bio) score += 20;
@@ -635,6 +661,96 @@ function countCertifications(value){
     .length;
 }
 
+function getSchoolFromProfile(u){
+  const apprenticeship = u.apprenticeship || {};
+  const instructor = u.instructor || {};
+
+  return (
+    apprenticeship.schoolName ||
+    apprenticeship.school ||
+    u.schoolName ||
+    u.school ||
+    u.studentSchool ||
+    apprenticeship.program ||
+    instructor.school ||
+    ""
+  );
+}
+
+function getInstructorNameFromProfile(u){
+  const apprenticeship = u.apprenticeship || {};
+
+  return (
+    apprenticeship.instructorName ||
+    u.instructorName ||
+    u.assignedInstructorName ||
+    ""
+  );
+}
+
+function getInstructorEmailFromProfile(u){
+  const apprenticeship = u.apprenticeship || {};
+
+  return (
+    apprenticeship.instructorEmail ||
+    u.instructorEmail ||
+    u.assignedInstructorEmail ||
+    ""
+  );
+}
+
+function updateSchoolCodeBoxVisibility(u){
+  const box = document.getElementById("schoolCodeBox");
+
+  if(!box) return;
+
+  const isOwnProfile = currentUserId && profileUserId && currentUserId === profileUserId;
+  const instructorAccount = isInstructorProfile(u);
+
+  if(isOwnProfile && !instructorAccount){
+    box.style.display = "block";
+  }else{
+    box.style.display = "none";
+  }
+}
+
+function renderRoleSection(u){
+  const roleSectionContent = document.getElementById("roleSectionContent");
+  const apprenticeship = u.apprenticeship || {};
+  const instructor = u.instructor || {};
+
+  const school = getSchoolFromProfile(u);
+  const instructorName = getInstructorNameFromProfile(u);
+  const instructorEmail = getInstructorEmailFromProfile(u);
+  const cohortName = apprenticeship.cohortName || u.cohortName || "";
+  const schoolCode = apprenticeship.schoolCode || u.schoolCode || "";
+
+  if(isInstructorProfile(u)){
+    roleSectionContent.innerHTML = `
+      <div class="bio">
+        <strong>Instructor / Teacher Profile</strong><br><br>
+        This member is registered as an instructor, teacher, school, or training center account on LinkTradeNetwork.<br><br>
+        ${school ? `<strong>School:</strong> ${school}<br>` : ""}
+        ${u.trade ? `<strong>Trade Specialty:</strong> ${u.trade}<br>` : ""}
+        ${u.coursesTaught || instructor.courses ? `<strong>Courses:</strong> ${u.coursesTaught || instructor.courses}<br>` : ""}
+      </div>
+    `;
+  }else{
+    roleSectionContent.innerHTML = `
+      <div class="bio">
+        <strong>Apprentice / Student Profile</strong><br><br>
+        ${school ? `<strong>School / Training Center:</strong> ${school}<br>` : ""}
+        ${instructorName ? `<strong>Instructor:</strong> ${instructorName}<br>` : ""}
+        ${instructorEmail ? `<strong>Instructor Email:</strong> ${instructorEmail}<br>` : ""}
+        ${cohortName ? `<strong>Cohort / Class:</strong> ${cohortName}<br>` : ""}
+        ${schoolCode ? `<strong>School Code:</strong> ${schoolCode}<br>` : ""}
+        ${u.trade ? `<strong>Trade:</strong> ${u.trade}<br>` : ""}
+        ${apprenticeship.program ? `<strong>Program:</strong> ${apprenticeship.program}<br>` : ""}
+      </div>
+    `;
+  }
+}
+
 async function loadProfile(){
   if(!profileUserId){
     document.getElementById("name").innerText = "No profile selected";
@@ -653,7 +769,7 @@ async function loadProfile(){
   const u = snap.data();
   profileUserData = u;
 
-  const displayName = u.fullName || u.name || "Trade Member";
+  const displayName = u.fullName || u.name || u.displayName || "Trade Member";
   const verifiedBadge = u.ltnVerified
     ? `<span class="verify-badge">✔ LTN Verified</span>`
     : "";
@@ -673,7 +789,6 @@ async function loadProfile(){
   const roleBadge = document.getElementById("roleBadge");
   const schoolInfo = document.getElementById("schoolInfo");
   const instructorInfo = document.getElementById("instructorInfo");
-  const roleSectionContent = document.getElementById("roleSectionContent");
 
   const apprenticeship = u.apprenticeship || {};
   const instructor = u.instructor || {};
@@ -685,25 +800,10 @@ async function loadProfile(){
 
   roleBadge.innerText = profileType;
 
-  const school =
-    u.school ||
-    u.studentSchool ||
-    apprenticeship.school ||
-    apprenticeship.program ||
-    instructor.school ||
-    "";
-
-  const instructorName =
-    u.instructorName ||
-    u.assignedInstructorName ||
-    apprenticeship.instructorName ||
-    "";
-
-  const instructorEmail =
-    u.instructorEmail ||
-    u.assignedInstructorEmail ||
-    apprenticeship.instructorEmail ||
-    "";
+  const school = getSchoolFromProfile(u);
+  const instructorName = getInstructorNameFromProfile(u);
+  const instructorEmail = getInstructorEmailFromProfile(u);
+  const cohortName = apprenticeship.cohortName || u.cohortName || "";
 
   if(school){
     schoolInfo.innerHTML = "<strong>School / Training Center:</strong> " + school;
@@ -711,37 +811,16 @@ async function loadProfile(){
     schoolInfo.innerText = "";
   }
 
-  if(instructorName || instructorEmail){
+  if(instructorName || instructorEmail || cohortName){
     instructorInfo.innerHTML =
-      "<strong>Instructor:</strong> " +
-      [instructorName, instructorEmail].filter(Boolean).join(" • ");
+      "<strong>Instructor / Cohort:</strong> " +
+      [instructorName, instructorEmail, cohortName].filter(Boolean).join(" • ");
   }else{
     instructorInfo.innerText = "";
   }
 
-  if(isInstructorProfile(u)){
-    roleSectionContent.innerHTML = `
-      <div class="bio">
-        <strong>Instructor / Teacher Profile</strong><br><br>
-        This member is registered as an instructor, teacher, school, or training center account on LinkTradeNetwork.<br><br>
-        ${school ? `<strong>School:</strong> ${school}<br>` : ""}
-        ${u.trade ? `<strong>Trade Specialty:</strong> ${u.trade}<br>` : ""}
-        ${u.coursesTaught || instructor.courses
-          ? `<strong>Courses:</strong> ${u.coursesTaught || instructor.courses}<br>`
-          : ""}
-      </div>
-    `;
-  }else{
-    roleSectionContent.innerHTML = `
-      <div class="bio">
-        <strong>Apprentice / Student Profile</strong><br><br>
-        ${school ? `<strong>School / Program:</strong> ${school}<br>` : ""}
-        ${instructorName ? `<strong>Instructor:</strong> ${instructorName}<br>` : ""}
-        ${u.trade ? `<strong>Trade:</strong> ${u.trade}<br>` : ""}
-        ${apprenticeship.program ? `<strong>Program:</strong> ${apprenticeship.program}<br>` : ""}
-      </div>
-    `;
-  }
+  renderRoleSection(u);
+  updateSchoolCodeBoxVisibility(u);
 
   document.getElementById("bio").innerText =
     u.bio || "No bio added yet.";
@@ -777,7 +856,7 @@ async function loadProfile(){
   }
 
   document.getElementById("hoursStat").innerText =
-    u.totalHours || u.hours || 0;
+    apprenticeship.hours || u.totalHours || u.hours || 0;
 
   document.getElementById("certStat").innerText =
     countCertifications(u.certifications);
@@ -795,7 +874,7 @@ async function checkConnection(){
     const msgBtn = document.getElementById("messageBtn");
     msgBtn.innerText = "Instructor Center";
     msgBtn.onclick = function(){
-      window.location.href = "/instructor/?v=20260515profilev20";
+      window.location.href = "/instructor/?v=20260515profilev21";
     };
   }
 
@@ -819,6 +898,132 @@ async function checkConnection(){
       "Connection request already sent.";
   }
 }
+
+window.connectSchoolCode = async function(){
+  const input = document.getElementById("schoolCodeInput");
+  const status = document.getElementById("schoolCodeStatus");
+  const btn = document.getElementById("schoolCodeBtn");
+
+  if(!input || !status || !btn) return;
+
+  const code = input.value.trim().toUpperCase();
+
+  if(!code){
+    status.className = "school-status bad";
+    status.innerText = "Please enter your school / instructor code.";
+    return;
+  }
+
+  if(!currentUserId){
+    status.className = "school-status bad";
+    status.innerText = "Unable to find your user profile. Go back to dashboard and try again.";
+    return;
+  }
+
+  if(currentUserId !== profileUserId){
+    status.className = "school-status bad";
+    status.innerText = "You can only connect a school code to your own profile.";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.className = "btn btn-disabled";
+  btn.innerText = "Checking...";
+  status.className = "school-status info";
+  status.innerText = "Checking school code...";
+
+  try{
+    let codeSnap = await getDoc(doc(db,"schoolCodes",code));
+
+    if(!codeSnap.exists()){
+      codeSnap = await getDoc(doc(db,code,code));
+    }
+
+    if(!codeSnap.exists()){
+      status.className = "school-status bad";
+      status.innerText = "Code not found. Please check the code and try again.";
+      btn.disabled = false;
+      btn.className = "btn btn-primary";
+      btn.innerText = "Connect School";
+      return;
+    }
+
+    const codeData = codeSnap.data();
+
+    if(codeData.active !== true){
+      status.className = "school-status bad";
+      status.innerText = "This school code is not active. Please contact your instructor.";
+      btn.disabled = false;
+      btn.className = "btn btn-primary";
+      btn.innerText = "Connect School";
+      return;
+    }
+
+    const existingApprenticeship =
+      currentUserData && currentUserData.apprenticeship && typeof currentUserData.apprenticeship === "object"
+        ? currentUserData.apprenticeship
+        : {};
+
+    const updatedApprenticeship = {
+      ...existingApprenticeship,
+      isApprentice: existingApprenticeship.isApprentice === false ? false : true,
+      schoolId: codeData.schoolId || "",
+      schoolName: codeData.schoolName || "",
+      instructorId: codeData.instructorId || "",
+      instructorName: codeData.instructorName || "",
+      cohortId: codeData.cohortId || "",
+      cohortName: codeData.cohortName || "",
+      schoolCode: code
+    };
+
+    await setDoc(doc(db,"users",currentUserId),{
+      apprenticeship: updatedApprenticeship,
+      updatedAt: serverTimestamp()
+    },{merge:true});
+
+    currentUserData = {
+      ...(currentUserData || {}),
+      apprenticeship: updatedApprenticeship
+    };
+
+    profileUserData = {
+      ...(profileUserData || {}),
+      apprenticeship: updatedApprenticeship
+    };
+
+    try{
+      const stored = JSON.parse(localStorage.getItem("ltn_user") || "{}");
+      stored.apprenticeship = updatedApprenticeship;
+      localStorage.setItem("ltn_user", JSON.stringify(stored));
+      localStorage.setItem("ltn_current_profile", JSON.stringify({
+        ...(profileUserData || {}),
+        apprenticeship: updatedApprenticeship
+      }));
+    }catch(e){}
+
+    input.value = "";
+    status.className = "school-status ok";
+    status.innerText =
+      "Connected to " + (codeData.schoolName || "school") +
+      " • " + (codeData.cohortName || "cohort") +
+      " • " + (codeData.instructorName || "instructor");
+
+    await loadProfile();
+
+    btn.disabled = false;
+    btn.className = "btn btn-primary";
+    btn.innerText = "Connect School";
+
+  }catch(error){
+    console.error("School code connection error:", error);
+    status.className = "school-status bad";
+    status.innerText = "Something went wrong connecting this code. Please try again.";
+
+    btn.disabled = false;
+    btn.className = "btn btn-primary";
+    btn.innerText = "Connect School";
+  }
+};
 
 window.sendConnectionRequest = async function(){
   if(!currentUserEmail || !currentUserId){
@@ -855,8 +1060,8 @@ window.goToMessage = function(){
 };
 
 async function init(){
-  await loadProfile();
   await findCurrentUser();
+  await loadProfile();
   await checkConnection();
 }
 
