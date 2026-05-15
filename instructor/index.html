@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-15: INSTRUCTOR CENTER AUTO STUDENT LINKING v2 -->
-<!-- LTN VERSION: instructor-center-auto-student-linking-v2 -->
+<!-- LTN FORCE UPDATE 2026-05-15: INSTRUCTOR CENTER SCHOOL CODE STUDENT ROSTER v3 -->
+<!-- LTN VERSION: instructor-center-school-code-roster-v3 -->
 
 <style>
 :root{
@@ -699,7 +699,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515instructorv2";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515instructorv3";
 
   window.LTNClearLocalSession = function(){
     [
@@ -742,11 +742,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260515instructorv2">Dashboard</a>
-      <a href="/members/?v=20260515instructorv2">Members</a>
-      <a href="/instructor/?v=20260515instructorv2" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260515instructorv2" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260515instructorv2">Network Center</a>
+      <a href="/dashboard/?v=20260515instructorv3">Dashboard</a>
+      <a href="/members/?v=20260515instructorv3">Members</a>
+      <a href="/instructor/?v=20260515instructorv3" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260515instructorv3" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260515instructorv3">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -794,7 +794,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260515instructorv2">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260515instructorv3">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -841,7 +841,7 @@ textarea.form-control{min-height:106px;resize:vertical}
         </div>
         <div class="bd">
           <div class="notice">
-            Students can be added manually here, and this page will also automatically pull apprentice/student profiles that saved this instructor email in their dashboard profile.
+            Students can be added manually here, and this page now automatically pulls apprentice/student profiles connected with school code STC-ELECTRICAL-2026.
           </div>
 
           <div class="search-row">
@@ -1190,6 +1190,8 @@ async function findCurrentUser(){
       city:u.city || "",
       state:u.state || "",
       bio:u.bio || "",
+      schoolCode:(u.instructor && u.instructor.schoolCode) || u.schoolCode || "STC-ELECTRICAL-2026",
+      cohortName:(u.instructor && u.instructor.cohortName) || u.cohortName || "Electrical Level 1",
       profileImage:u.profileImageUrl || u.profileImage || "",
       profileType:u.profileType || "Instructor / Teacher",
       isInstructor:true
@@ -1223,9 +1225,14 @@ function normalizeEmail(value){
 
 function normalizeStudentFromUserDoc(id, u){
   const apprenticeship = u.apprenticeship || {};
+  const progress = u.apprenticeshipProgress || {};
+
   const hours = Number(
     u.totalHours ||
-    u.hours ||
+    u.hoursCompleted ||
+    u.apprenticeshipHours ||
+    progress.totalHours ||
+    progress.hoursCompleted ||
     apprenticeship.hours ||
     apprenticeship.currentHours ||
     apprenticeship.completedHours ||
@@ -1243,14 +1250,17 @@ function normalizeStudentFromUserDoc(id, u){
     id:"firebase_" + id,
     source:"firebase",
     userId:id,
-    name:u.fullName || u.name || "Student",
+    name:u.fullName || u.name || u.displayName || "Student",
     email:normalizeEmail(u.email || ""),
     trade:u.trade || u.specialty || "Trade not added",
     status:u.studentStatus || apprenticeship.status || "active",
     hours,
     goal:goal || 8000,
-    notes:u.bio || apprenticeship.notes || "Auto-linked from student profile.",
-    school:u.studentSchool || apprenticeship.school || u.school || apprenticeship.program || "",
+    notes:u.bio || apprenticeship.notes || "Connected through school code.",
+    school:apprenticeship.schoolName || u.studentSchool || apprenticeship.school || u.school || apprenticeship.program || "",
+    schoolCode:apprenticeship.schoolCode || u.schoolCode || "",
+    cohortName:apprenticeship.cohortName || u.cohortName || "",
+    instructorId:apprenticeship.instructorId || "",
     instructorEmail:normalizeEmail(u.assignedInstructorEmail || u.instructorEmail || apprenticeship.instructorEmail || ""),
     instructorName:u.assignedInstructorName || u.instructorName || apprenticeship.instructorName || "",
     createdAt:u.createdAt || ""
@@ -1364,31 +1374,11 @@ function emptyState(title, text){
 async function loadAutoLinkedStudents(){
   autoLinkedStudents = [];
 
+  const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
   const instructorEmail = normalizeEmail(currentProfile.email || currentUserEmail);
-  if(!instructorEmail) return;
-
   const results = new Map();
 
-  async function runUserQuery(fieldName){
-    try{
-      const qRef = query(collection(db,"users"), where(fieldName,"==",instructorEmail), limit(50));
-      const snap = await getDocs(qRef);
-      snap.forEach(docSnap => {
-        const student = normalizeStudentFromUserDoc(docSnap.id, docSnap.data());
-        if(student.email !== instructorEmail){
-          results.set(student.email || student.userId || student.id, student);
-        }
-      });
-    }catch(e){
-      console.warn("Auto student query failed for " + fieldName, e);
-    }
-  }
-
-  await runUserQuery("assignedInstructorEmail");
-  await runUserQuery("instructorEmail");
-
-  try{
-    const qRef = query(collection(db,"users"), where("apprenticeship.instructorEmail","==",instructorEmail), limit(50));
+  async function addQueryResults(qRef){
     const snap = await getDocs(qRef);
     snap.forEach(docSnap => {
       const student = normalizeStudentFromUserDoc(docSnap.id, docSnap.data());
@@ -1396,8 +1386,42 @@ async function loadAutoLinkedStudents(){
         results.set(student.email || student.userId || student.id, student);
       }
     });
-  }catch(e){
-    console.warn("Nested apprenticeship instructor query failed", e);
+  }
+
+  if(schoolCode){
+    try{
+      await addQueryResults(
+        query(collection(db,"users"), where("apprenticeship.schoolCode","==",schoolCode), limit(100))
+      );
+    }catch(e){
+      console.warn("School code student query failed", e);
+    }
+  }
+
+  if(instructorEmail){
+    try{
+      await addQueryResults(
+        query(collection(db,"users"), where("apprenticeship.instructorEmail","==",instructorEmail), limit(50))
+      );
+    }catch(e){
+      console.warn("Nested apprenticeship instructor query failed", e);
+    }
+
+    try{
+      await addQueryResults(
+        query(collection(db,"users"), where("assignedInstructorEmail","==",instructorEmail), limit(50))
+      );
+    }catch(e){
+      console.warn("Assigned instructor email query failed", e);
+    }
+
+    try{
+      await addQueryResults(
+        query(collection(db,"users"), where("instructorEmail","==",instructorEmail), limit(50))
+      );
+    }catch(e){
+      console.warn("Instructor email query failed", e);
+    }
   }
 
   autoLinkedStudents = Array.from(results.values());
@@ -1427,6 +1451,8 @@ window.InstructorCenter = {
       city:document.getElementById("input-city").value.trim(),
       state:document.getElementById("input-state").value.trim(),
       bio:document.getElementById("input-bio").value.trim(),
+      schoolCode:currentProfile.schoolCode || "STC-ELECTRICAL-2026",
+      cohortName:currentProfile.cohortName || "Electrical Level 1",
       profileType:"Instructor / Teacher",
       isInstructor:true,
       updatedAt:new Date().toISOString()
@@ -1450,6 +1476,11 @@ window.InstructorCenter = {
           city:currentProfile.city,
           state:currentProfile.state,
           bio:currentProfile.bio,
+          schoolCode:currentProfile.schoolCode || "STC-ELECTRICAL-2026",
+          instructor:{
+            schoolCode:currentProfile.schoolCode || "STC-ELECTRICAL-2026",
+            cohortName:currentProfile.cohortName || "Electrical Level 1"
+          },
           updatedAt:serverTimestamp()
         });
       }catch(e){
@@ -1539,7 +1570,7 @@ window.InstructorCenter = {
     }
 
     if(!students.length){
-      list.innerHTML = emptyState("No students yet", "Students will appear here when they add your instructor email in Edit Profile, or you can add them manually.");
+      list.innerHTML = emptyState("No students yet", "Students will appear here when they connect with school code STC-ELECTRICAL-2026, or you can add them manually.");
       return;
     }
 
@@ -1554,11 +1585,13 @@ window.InstructorCenter = {
             <div>
               <div class="person-name">${escapeHtml(s.name)}</div>
               <div class="person-meta">${escapeHtml(s.trade || "Trade not added")} • ${escapeHtml(s.email || "No email added")}</div>
+              <div class="person-meta">${escapeHtml(s.school || "School not added")} ${s.cohortName ? "• " + escapeHtml(s.cohortName) : ""} ${s.schoolCode ? "• " + escapeHtml(s.schoolCode) : ""}</div>
               <div class="person-meta">${escapeHtml(s.notes || "No notes added yet.")}</div>
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
-              ${s.source === "firebase" ? '<span class="badge">Auto Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
+              ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260515instructorv3">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -1737,7 +1770,7 @@ document.addEventListener("click", function(e){
 window.ltnInstructorBlockTrackProgress = function(event){
   event.preventDefault();
   alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-  window.location.href = "/instructor/?v=20260515instructorv2";
+  window.location.href = "/instructor/?v=20260515instructorv3";
   return false;
 };
 
@@ -1753,6 +1786,12 @@ async function init(){
   }
 
   currentProfile.isInstructor = true;
+  if(!currentProfile.schoolCode){
+    currentProfile.schoolCode = "STC-ELECTRICAL-2026";
+  }
+  if(!currentProfile.cohortName){
+    currentProfile.cohortName = "Electrical Level 1";
+  }
   localStorage.setItem(LOCAL_KEYS.instructor, JSON.stringify(currentProfile));
 
   updateProfileDisplay();
