@@ -1,1 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en" class="auth-checking">
+<head>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6CYFMPH84F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-6CYFMPH84F");
+</script>
 
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Instructor Center • LinkTradeNetwork</title>
+
+<!-- LTN FORCE UPDATE 2026-05-15: INSTRUCTOR CENTER v1 -->
+<!-- LTN VERSION: instructor-center-students-accomplishments-school-v1 -->
+
+<style>
+:root{
+  --bg:#f4f7fb;
+  --ink:#182230;
+  --muted:#64748b;
+  --line:#dde5ef;
+  --panel:#ffffff;
+  --panel2:#f8fafc;
+  --brand:#ea6a00;
+  --brand2:#c95700;
+  --brand-soft:#fff3e8;
+  --accent:#243b5a;
+  --success:#10b981;
+  --danger:#ef4444;
+  --warning:#f59e0b;
+  --shadow-sm:0 1px 2px rgba(15,23,42,.06);
+  --shadow-md:0 10px 25px rgba(15,23,42,.08);
+  --shadow-lg:0 18px 45px rgba(15,23,42,.12);
+  --radius:16px;
+  --radius-lg:22px;
+  --max:1240px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html.auth-checking body{visibility:hidden}
+html.auth-ready body{visibility:visible}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at top left,rgba(234,106,0,.10),transparent 32rem),
+    linear-gradient(180deg,#f9fbfe 0%,var(--bg) 45%,#eef3f8 100%);
+  color:var(--ink);
+  font-family:Inter,'Poppins',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+a{color:inherit}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.55}
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:100;
+  color:white;
+  background:rgba(36,59,90,.96);
+  border-bottom:1px solid rgba(255,255,255,.10);
+  box-shadow:0 10px 30px rgba(15,23,42,.16);
+  backdrop-filter:blur(14px);
+}
+
+.topbar-inner{
+  max-width:var(--max);
+  margin:0 auto;
+  padding:14px 20px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  justify-content:space-between;
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:max-content;
+}
+
+.logo-badge{
+  width:46px;
+  height:46px;
+  border-radius:15px;
+  background:linear-gradient(135deg,#ff7e00,#ffb347);
+  display:grid;
+  place-items:center;
+  color:white;
+  font-weight:950;
+  font-size:18px;
+  letter-spacing:.5px;
+  box-shadow:0 12px 28px rgba(234,106,0,.32),inset 0 1px 0 rgba(255,255,255,.35);
+}
+
+.logo-text{
+  font-size:18px;
+  font-weight:850;
+  letter-spacing:-.02em;
+  white-space:nowrap;
+}
+
+.mobile-menu-btn{
+  display:none;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.16);
+  color:white;
+  border-radius:12px;
+  padding:8px;
+  width:44px;
+  height:44px;
+  align-items:center;
+  justify-content:center;
+}
+
+.nav{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.nav a,.nav button{
+  color:white;
+  text-decoration:none;
+  font-weight:750;
+  padding:10px 14px;
+  border-radius:999px;
+  font-size:14px;
+  line-height:1;
+  transition:all .2s ease;
+  white-space:nowrap;
+  border:1px solid transparent;
+  background:transparent;
+  min-height:40px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.nav a:hover,.nav button:hover{
+  background:rgba(255,255,255,.12);
+  border-color:rgba(255,255,255,.12);
+  transform:translateY(-1px);
+}
+
+.nav a.active,.nav button.active{
+  background:var(--brand)!important;
+  color:white!important;
+  border-color:rgba(255,255,255,.12)!important;
+  box-shadow:0 10px 20px rgba(234,106,0,.22);
+}
+
+.nav .btn-secondary{
+  background:rgba(255,255,255,.14);
+  border-color:rgba(255,255,255,.12);
+}
+
+.shell{
+  max-width:var(--max);
+  margin:0 auto;
+  padding:26px 20px 44px;
+}
+
+.hero{
+  background:
+    linear-gradient(135deg,rgba(36,59,90,.98),rgba(61,90,128,.92)),
+    radial-gradient(circle at top right,rgba(234,106,0,.38),transparent 28rem);
+  color:white;
+  border-radius:28px;
+  padding:28px;
+  box-shadow:var(--shadow-lg);
+  display:grid;
+  grid-template-columns:minmax(0,1.4fr) minmax(280px,.6fr);
+  gap:22px;
+  align-items:stretch;
+  overflow:hidden;
+  position:relative;
+}
+
+.hero h1{
+  margin:0 0 10px;
+  font-size:34px;
+  line-height:1.1;
+  letter-spacing:-.04em;
+}
+
+.hero p{
+  margin:0;
+  color:rgba(255,255,255,.82);
+  font-size:16px;
+  max-width:760px;
+}
+
+.hero-actions{
+  margin-top:20px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.hero-panel{
+  background:rgba(255,255,255,.11);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:24px;
+  padding:20px;
+  backdrop-filter:blur(12px);
+}
+
+.instructor-name{
+  font-size:22px;
+  font-weight:950;
+  margin-bottom:6px;
+}
+
+.instructor-meta{
+  color:rgba(255,255,255,.82);
+  font-size:14px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:320px minmax(0,1fr);
+  gap:24px;
+  margin-top:24px;
+  align-items:start;
+}
+
+.card{
+  background:rgba(255,255,255,.94);
+  border:1px solid rgba(221,229,239,.95);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-md);
+  overflow:hidden;
+}
+
+.card .hd{
+  padding:18px 20px;
+  font-weight:900;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+  font-size:16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  letter-spacing:-.01em;
+}
+
+.card .bd{padding:20px}
+.card + .card{margin-top:22px}
+.small{font-size:14px;color:var(--muted);line-height:1.55}
+
+.btn,.btn-primary,.btn-secondary,.btn-success,.btn-danger{
+  border:0;
+  border-radius:999px;
+  min-height:44px;
+  padding:11px 18px;
+  font-weight:850;
+  transition:all .2s ease;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  line-height:1;
+  color:white;
+}
+
+.btn-primary{
+  background:linear-gradient(135deg,var(--brand),#ff8b21);
+  color:white;
+  box-shadow:0 10px 22px rgba(234,106,0,.20);
+}
+
+.btn-primary:hover{
+  background:linear-gradient(135deg,var(--brand2),var(--brand));
+  transform:translateY(-1px);
+}
+
+.btn-secondary{
+  background:#eef3f8!important;
+  color:var(--accent)!important;
+  border:1px solid var(--line)!important;
+  box-shadow:none!important;
+}
+
+.btn-success{background:var(--success)}
+.btn-danger{background:var(--danger)}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px 11px;
+  font-size:12px;
+  font-weight:850;
+  border-radius:999px;
+  background:#e9f8ef;
+  color:#17834c;
+  white-space:nowrap;
+}
+
+.badge-warning{background:#fff4dd;color:#a05a00}
+.badge-blue{background:#eaf2ff;color:#1d4ed8}
+
+.profile-box{
+  text-align:center;
+}
+
+.avatar{
+  width:132px;
+  height:132px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),#1e293b);
+  color:white;
+  display:grid;
+  place-items:center;
+  font-size:42px;
+  font-weight:950;
+  margin:0 auto 14px;
+  overflow:hidden;
+  border:5px solid #fff7ed;
+  box-shadow:0 10px 24px rgba(15,23,42,.18);
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.profile-title{
+  font-size:22px;
+  font-weight:950;
+  letter-spacing:-.02em;
+  margin-bottom:4px;
+}
+
+.profile-subtitle{
+  color:var(--brand);
+  font-weight:900;
+  margin-bottom:6px;
+}
+
+.profile-detail{
+  color:var(--muted);
+  font-size:14px;
+  font-weight:650;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.stat-card{
+  background:linear-gradient(180deg,#ffffff,#f8fafc);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:16px 10px;
+  text-align:center;
+  box-shadow:var(--shadow-sm);
+}
+
+.stat-number{
+  font-size:28px;
+  font-weight:950;
+  color:var(--accent);
+  line-height:1;
+}
+
+.stat-label{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:750;
+  margin-top:5px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.form-group{margin-bottom:16px}
+
+.form-group label{
+  display:block;
+  margin-bottom:7px;
+  font-weight:850;
+  font-size:14px;
+  color:#26364a;
+}
+
+.form-control{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid #c8d3e2;
+  border-radius:14px;
+  background:var(--panel);
+  font-size:15px;
+  color:var(--ink);
+  min-height:46px;
+  transition:border-color .18s,box-shadow .18s,background .18s;
+}
+
+.form-control:focus{
+  outline:none;
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px rgba(234,106,0,.12);
+  background:white;
+}
+
+textarea.form-control{min-height:106px;resize:vertical}
+
+.two-col{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+
+.list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.person-card,.accomplishment-card,.document-card{
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:white;
+  padding:16px;
+  box-shadow:var(--shadow-sm);
+}
+
+.person-top{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+}
+
+.person-name{
+  font-weight:950;
+  font-size:16px;
+  margin-bottom:4px;
+}
+
+.person-meta{
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
+}
+
+.progress-line{
+  margin-top:12px;
+  height:10px;
+  background:#e2e8f0;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.progress-fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  border-radius:999px;
+}
+
+.progress-note{
+  margin-top:7px;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+}
+
+.empty-state{
+  text-align:center;
+  padding:34px 18px;
+  color:var(--muted);
+  background:#fbfdff;
+  border:1px dashed #cbd5e1;
+  border-radius:18px;
+}
+
+.empty-state h3{
+  margin:0 0 6px;
+  color:var(--ink);
+  font-size:17px;
+  font-weight:950;
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+
+.tab{
+  padding:9px 15px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:white;
+  color:var(--muted);
+  font-size:13px;
+  cursor:pointer;
+  transition:all .2s;
+  font-weight:850;
+}
+
+.tab.active{
+  background:var(--brand);
+  color:white;
+  border-color:var(--brand);
+  box-shadow:0 8px 18px rgba(234,106,0,.18);
+}
+
+.notice{
+  background:var(--brand-soft);
+  border:1px solid #fed7aa;
+  color:#8a3f00;
+  padding:14px 16px;
+  border-radius:16px;
+  font-size:14px;
+  font-weight:750;
+  margin-bottom:16px;
+}
+
+.modal-backdrop{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.58);
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  backdrop-filter:blur(5px);
+}
+
+.modal-backdrop.active{display:flex}
+
+.modal{
+  background:var(--panel);
+  border-radius:24px;
+  max-width:620px;
+  width:100%;
+  max-height:90vh;
+  overflow-y:auto;
+  box-shadow:0 30px 70px rgba(15,23,42,.28);
+  border:1px solid rgba(255,255,255,.55);
+}
+
+.modal-header{
+  padding:20px 22px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:linear-gradient(180deg,#fff,#f8fafc);
+}
+
+.modal-header h2{
+  margin:0;
+  font-size:21px;
+  font-weight:950;
+  letter-spacing:-.02em;
+}
+
+.modal-close{
+  background:#f1f5f9;
+  border:1px solid var(--line);
+  font-size:24px;
+  cursor:pointer;
+  color:var(--muted);
+  line-height:1;
+  padding:0;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+}
+
+.modal-body{padding:22px}
+
+.modal-footer{
+  padding:18px 22px;
+  border-top:1px solid var(--line);
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  background:#fbfdff;
+}
+
+.upload-area{
+  border:1.5px dashed #c8d3e2;
+  border-radius:18px;
+  padding:20px;
+  text-align:center;
+  cursor:pointer;
+  margin-bottom:18px;
+  transition:all .2s;
+  min-height:122px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  background:#fbfdff;
+}
+
+.upload-area:hover{
+  border-color:var(--brand);
+  background:var(--brand-soft);
+}
+
+.search-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+
+.search-row .form-control{flex:1;min-width:220px}
+
+@media(max-width:980px){
+  .hero{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr}
+}
+
+@media(max-width:768px){
+  .topbar-inner{padding:12px 14px;gap:10px;flex-wrap:wrap}
+  .logo-text{font-size:16px}
+  .logo-badge{width:42px;height:42px;font-size:16px}
+  .mobile-menu-btn{display:flex;margin-left:auto}
+  .nav{
+    position:fixed;
+    top:66px;
+    left:12px;
+    right:12px;
+    background:rgba(36,59,90,.98);
+    border:1px solid rgba(255,255,255,.13);
+    border-radius:22px;
+    flex-direction:column;
+    align-items:stretch;
+    padding:12px;
+    gap:8px;
+    transform:translateY(-18px);
+    opacity:0;
+    pointer-events:none;
+    transition:all .22s ease;
+    box-shadow:var(--shadow-lg);
+    max-height:calc(100vh - 82px);
+    overflow-y:auto;
+    z-index:999;
+  }
+  .nav.open{transform:translateY(0);opacity:1;pointer-events:auto}
+  .nav a,.nav button{width:100%;text-align:center;justify-content:center;padding:14px 18px;border-radius:16px}
+  .hero{padding:22px;border-radius:22px}
+  .hero h1{font-size:28px}
+  .two-col{grid-template-columns:1fr}
+  .modal-footer{flex-direction:column}
+  .modal-footer .btn,.modal-footer button{width:100%}
+}
+
+@media(max-width:520px){
+  .shell{padding:16px 10px 32px}
+  .card .bd{padding:15px}
+  .card .hd{padding:14px 15px;font-size:15px;align-items:flex-start;gap:8px;flex-wrap:wrap}
+  .stats{grid-template-columns:1fr 1fr;gap:8px}
+  .person-top{flex-direction:column}
+  .hero-actions .btn{width:100%}
+}
+
+@media(max-width:370px){
+  .logo-text{display:none}
+  .stats{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<!-- LTN SECURE FIREBASE AUTH ACCESS GATE -->
+<script>
+(function(){
+  document.documentElement.classList.add("auth-checking");
+
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515instructorv1";
+
+  window.LTNClearLocalSession = function(){
+    [
+      "userEmail","profileEmail","ltn_user_email","ltn_auth_uid",
+      "ltn_current_profile","ltnUserProfile","ltn_profile",
+      "ltn_profile_data","currentUserProfile","userProfile","ltn_user"
+    ].forEach(function(key){
+      try{ localStorage.removeItem(key); }catch(e){}
+    });
+  };
+
+  window.LTNLogout = function(){
+    window.LTNClearLocalSession();
+
+    try{
+      if(window.firebase && firebase.auth){
+        firebase.auth().signOut().finally(function(){
+          window.location.href = window.LTN_FRONT_GATE_URL;
+        });
+        return;
+      }
+    }catch(e){}
+
+    window.location.href = window.LTN_FRONT_GATE_URL;
+  };
+})();
+</script>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">
+      <div class="logo-badge">LTN</div>
+      <div class="logo-text">LinkTradeNetwork</div>
+    </div>
+
+    <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+
+    <nav class="nav" id="main-nav">
+      <a href="/dashboard/?v=20260515instructorv1">Dashboard</a>
+      <a href="/members/?v=20260515instructorv1">Members</a>
+      <a href="/instructor/?v=20260515instructorv1" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260515instructorv1">Track My Progress</a>
+      <a href="/network-center/?v=20260515instructorv1">Network Center</a>
+      <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+
+  <section class="hero">
+    <div>
+      <h1>Instructor Center</h1>
+      <p>
+        Manage your instructor profile, school information, student roster, student progress,
+        accomplishments, and uploaded instructor documents from one place.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="InstructorCenter.openStudentModal()">Add Student</button>
+        <button class="btn btn-secondary" onclick="InstructorCenter.openAccomplishmentModal()">Add Accomplishment</button>
+        <button class="btn btn-secondary" onclick="InstructorCenter.openDocumentModal()">Upload Instructor Document</button>
+      </div>
+    </div>
+
+    <div class="hero-panel">
+      <div class="instructor-name" id="hero-name">Instructor</div>
+      <div class="instructor-meta" id="hero-school">School / Training Center not added yet</div>
+      <div class="instructor-meta" id="hero-courses" style="margin-top:6px">Courses taught not added yet</div>
+      <div style="margin-top:14px">
+        <span class="badge">Instructor / Teacher</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <aside>
+      <section class="card">
+        <div class="hd">
+          <span>Instructor Profile</span>
+          <span class="badge badge-blue">Role</span>
+        </div>
+        <div class="bd profile-box">
+          <div id="profile-avatar" class="avatar">LT</div>
+          <div class="profile-title" id="profile-name">Your Name</div>
+          <div class="profile-subtitle" id="profile-trade">Instructor / Teacher</div>
+          <div class="profile-detail" id="profile-location">Location not added yet</div>
+          <div class="profile-detail" id="profile-school" style="margin-top:8px">School not added yet</div>
+
+          <div style="margin-top:18px;display:grid;gap:10px">
+            <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260515instructorv1">Back to Dashboard</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd">Instructor Stats</div>
+        <div class="bd">
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-number" id="students-count">0</div>
+              <div class="stat-label">Students</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="accomplishments-count">0</div>
+              <div class="stat-label">Accomplishments</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="documents-count">0</div>
+              <div class="stat-label">Documents</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="avg-progress">0%</div>
+              <div class="stat-label">Avg Progress</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd">School / Program</div>
+        <div class="bd">
+          <div class="small" id="school-summary">
+            Add your school, training center, or apprenticeship program so students can be organized under you and your school.
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <section>
+      <div class="card">
+        <div class="hd">
+          <span>Student Roster</span>
+          <button class="btn btn-primary" style="min-height:34px;padding:8px 12px;font-size:13px" onclick="InstructorCenter.openStudentModal()">Add Student</button>
+        </div>
+        <div class="bd">
+          <div class="notice">
+            Students added here are tied to this instructor view. Later, this can be connected directly to Firestore student accounts and school admin approval.
+          </div>
+
+          <div class="search-row">
+            <input type="text" id="student-search" class="form-control" placeholder="Search students by name, trade, school, or status..." oninput="InstructorCenter.renderStudents()">
+            <select id="student-filter" class="form-control" onchange="InstructorCenter.renderStudents()" style="max-width:220px">
+              <option value="all">All Students</option>
+              <option value="active">Active</option>
+              <option value="needs-review">Needs Review</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+
+          <div id="students-list" class="list"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd">
+          <span>Student Accomplishments</span>
+          <button class="btn btn-primary" style="min-height:34px;padding:8px 12px;font-size:13px" onclick="InstructorCenter.openAccomplishmentModal()">Add</button>
+        </div>
+        <div class="bd">
+          <div class="tabs">
+            <button class="tab active" onclick="InstructorCenter.setAccomplishmentFilter('all', this)">All</button>
+            <button class="tab" onclick="InstructorCenter.setAccomplishmentFilter('photos', this)">Photos</button>
+            <button class="tab" onclick="InstructorCenter.setAccomplishmentFilter('hours', this)">Hours</button>
+            <button class="tab" onclick="InstructorCenter.setAccomplishmentFilter('certification', this)">Certifications</button>
+            <button class="tab" onclick="InstructorCenter.setAccomplishmentFilter('project', this)">Projects</button>
+          </div>
+          <div id="accomplishments-list" class="list"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd">
+          <span>Instructor Documents</span>
+          <button class="btn btn-primary" style="min-height:34px;padding:8px 12px;font-size:13px" onclick="InstructorCenter.openDocumentModal()">Upload</button>
+        </div>
+        <div class="bd">
+          <div id="documents-list" class="list"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- Edit Instructor Modal -->
+<div class="modal-backdrop" id="profile-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Edit Instructor Info</h2>
+      <button class="modal-close" onclick="InstructorCenter.closeModal('profile-modal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="input-name" class="form-control" placeholder="Instructor name">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="input-email" class="form-control" placeholder="instructor@email.com">
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="form-group">
+          <label>School / Training Center</label>
+          <input type="text" id="input-school" class="form-control" placeholder="Superior Training Centre">
+        </div>
+        <div class="form-group">
+          <label>Trade Specialty</label>
+          <input type="text" id="input-trade" class="form-control" placeholder="Electrical, HVAC, Low Voltage">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Courses / Trades Taught</label>
+        <input type="text" id="input-courses" class="form-control" placeholder="Electrical Level 1, Safety, Blueprint Reading">
+      </div>
+
+      <div class="two-col">
+        <div class="form-group">
+          <label>City</label>
+          <input type="text" id="input-city" class="form-control" placeholder="City">
+        </div>
+        <div class="form-group">
+          <label>State / Region</label>
+          <input type="text" id="input-state" class="form-control" placeholder="State / Region">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Instructor Bio</label>
+        <textarea id="input-bio" class="form-control" placeholder="Tell students and schools about your background..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="InstructorCenter.closeModal('profile-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="InstructorCenter.saveProfile()">Save Instructor Info</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal-backdrop" id="student-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add Student</h2>
+      <button class="modal-close" onclick="InstructorCenter.closeModal('student-modal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group">
+          <label>Student Name *</label>
+          <input type="text" id="student-name" class="form-control" placeholder="Student full name">
+        </div>
+        <div class="form-group">
+          <label>Student Email</label>
+          <input type="email" id="student-email" class="form-control" placeholder="student@email.com">
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="form-group">
+          <label>Trade / Program</label>
+          <input type="text" id="student-trade" class="form-control" placeholder="Electrical, HVAC, Plumbing">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="student-status" class="form-control">
+            <option value="active">Active</option>
+            <option value="needs-review">Needs Review</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="form-group">
+          <label>Hours Completed</label>
+          <input type="number" id="student-hours" class="form-control" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>Goal Hours</label>
+          <input type="number" id="student-goal" class="form-control" placeholder="8000" min="1">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="student-notes" class="form-control" placeholder="Progress notes, attendance, accomplishments, or next steps..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="InstructorCenter.closeModal('student-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="InstructorCenter.saveStudent()">Save Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Accomplishment Modal -->
+<div class="modal-backdrop" id="accomplishment-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add Accomplishment</h2>
+      <button class="modal-close" onclick="InstructorCenter.closeModal('accomplishment-modal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group">
+          <label>Student Name</label>
+          <input type="text" id="acc-student" class="form-control" placeholder="Student name">
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="acc-type" class="form-control">
+            <option value="project">Project</option>
+            <option value="photos">Photo / Work Evidence</option>
+            <option value="hours">Hours Logged</option>
+            <option value="certification">Certification</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Title *</label>
+        <input type="text" id="acc-title" class="form-control" placeholder="Completed conduit layout, passed safety module, uploaded jobsite photo...">
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="acc-desc" class="form-control" placeholder="Describe the work, milestone, skill, or accomplishment..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="InstructorCenter.closeModal('accomplishment-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="InstructorCenter.saveAccomplishment()">Save Accomplishment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Document Modal -->
+<div class="modal-backdrop" id="document-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Upload Instructor Document</h2>
+      <button class="modal-close" onclick="InstructorCenter.closeModal('document-modal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="upload-area" onclick="document.getElementById('document-file').click()">
+        <strong>Click to select document</strong>
+        <div class="small">Certifications, teaching credentials, licenses, school forms, PDFs, photos</div>
+        <input type="file" id="document-file" style="display:none" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+      </div>
+
+      <div class="form-group">
+        <label>Document Name *</label>
+        <input type="text" id="document-name" class="form-control" placeholder="OSHA Instructor Certification">
+      </div>
+
+      <div class="form-group">
+        <label>Document Type</label>
+        <select id="document-type" class="form-control">
+          <option value="Certification">Certification</option>
+          <option value="License">License</option>
+          <option value="Training Credential">Training Credential</option>
+          <option value="School Document">School Document</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div id="selected-document-name" class="small"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="InstructorCenter.closeModal('document-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="InstructorCenter.saveDocument()">Save Document</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+if(localStorage.getItem("ltn_access_granted") !== "true"){
+  window.location.replace("/front/");
+}
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  serverTimestamp,
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  limit
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
+  authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
+  projectId: "linktradenetwork-2dcd1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+document.documentElement.classList.remove("auth-checking");
+document.documentElement.classList.add("auth-ready");
+
+const LOCAL_KEYS = {
+  instructor:"ltn_instructor_center_profile",
+  students:"ltn_instructor_students",
+  accomplishments:"ltn_instructor_accomplishments",
+  documents:"ltn_instructor_documents"
+};
+
+let currentUserEmail = "";
+let currentUserId = "";
+let currentProfile = {};
+let currentAccomplishmentFilter = "all";
+
+function safeJsonParse(value, fallback){
+  try{return JSON.parse(value || "");}catch(e){return fallback;}
+}
+
+function getStoredUser(){
+  let email = localStorage.getItem("userEmail") || localStorage.getItem("profileEmail") || localStorage.getItem("ltn_user_email") || "";
+  let name = localStorage.getItem("userName") || "";
+
+  const possible = [
+    "ltn_user",
+    "ltn_current_profile",
+    "ltnUserProfile",
+    "ltn_profile",
+    "ltn_profile_data",
+    "currentUserProfile",
+    "userProfile"
+  ];
+
+  possible.forEach(key => {
+    const data = safeJsonParse(localStorage.getItem(key), null);
+    if(data){
+      if(!email && data.email) email = data.email;
+      if(!name && (data.fullName || data.name)) name = data.fullName || data.name;
+    }
+  });
+
+  return {
+    email:String(email || "").trim().toLowerCase(),
+    name:String(name || "").trim()
+  };
+}
+
+async function findCurrentUser(){
+  const stored = getStoredUser();
+  currentUserEmail = stored.email;
+
+  if(!currentUserEmail){
+    currentProfile = safeJsonParse(localStorage.getItem(LOCAL_KEYS.instructor), {}) || {};
+    if(!currentProfile.name && stored.name) currentProfile.name = stored.name;
+    return;
+  }
+
+  const q = query(collection(db,"users"), where("email","==",currentUserEmail), limit(1));
+  const snap = await getDocs(q);
+
+  if(!snap.empty){
+    const docu = snap.docs[0];
+    currentUserId = docu.id;
+    const u = docu.data();
+
+    currentProfile = {
+      id:currentUserId,
+      name:u.fullName || u.name || stored.name || "Instructor",
+      email:u.email || currentUserEmail,
+      school:u.instructorSchool || u.school || u.apprenticeProgram || "",
+      trade:u.trade || u.specialty || "Instructor / Teacher",
+      courses:u.instructorCourses || u.coursesTaught || "",
+      city:u.city || "",
+      state:u.state || "",
+      bio:u.bio || "",
+      profileImage:u.profileImageUrl || u.profileImage || "",
+      profileType:u.profileType || "Instructor / Teacher",
+      isInstructor:true
+    };
+
+    localStorage.setItem(LOCAL_KEYS.instructor, JSON.stringify(currentProfile));
+  }else{
+    currentProfile = safeJsonParse(localStorage.getItem(LOCAL_KEYS.instructor), {}) || {};
+    currentProfile.email = currentUserEmail;
+    if(!currentProfile.name) currentProfile.name = stored.name || "Instructor";
+  }
+}
+
+function getInitials(name){
+  const parts = String(name || "LT").trim().split(/\s+/).filter(Boolean);
+  if(parts.length === 1) return parts[0].substring(0,2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function getStudents(){
+  return safeJsonParse(localStorage.getItem(LOCAL_KEYS.students), []) || [];
+}
+
+function saveStudents(students){
+  localStorage.setItem(LOCAL_KEYS.students, JSON.stringify(students));
+}
+
+function getAccomplishments(){
+  return safeJsonParse(localStorage.getItem(LOCAL_KEYS.accomplishments), []) || [];
+}
+
+function saveAccomplishments(items){
+  localStorage.setItem(LOCAL_KEYS.accomplishments, JSON.stringify(items));
+}
+
+function getDocuments(){
+  return safeJsonParse(localStorage.getItem(LOCAL_KEYS.documents), []) || [];
+}
+
+function saveDocuments(items){
+  localStorage.setItem(LOCAL_KEYS.documents, JSON.stringify(items));
+}
+
+function escapeHtml(value){
+  return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function formatStatus(status){
+  if(status === "needs-review") return "Needs Review";
+  if(status === "completed") return "Completed";
+  return "Active";
+}
+
+function statusBadge(status){
+  if(status === "completed") return '<span class="badge">Completed</span>';
+  if(status === "needs-review") return '<span class="badge badge-warning">Needs Review</span>';
+  return '<span class="badge badge-blue">Active</span>';
+}
+
+function updateProfileDisplay(){
+  const name = currentProfile.name || currentProfile.fullName || "Instructor";
+  const trade = currentProfile.trade || "Instructor / Teacher";
+  const school = currentProfile.school || "School / Training Center not added yet";
+  const courses = currentProfile.courses || "Courses taught not added yet";
+  const location = [currentProfile.city,currentProfile.state].filter(Boolean).join(", ") || "Location not added yet";
+
+  document.getElementById("hero-name").innerText = name;
+  document.getElementById("hero-school").innerText = school;
+  document.getElementById("hero-courses").innerText = courses;
+
+  document.getElementById("profile-name").innerText = name;
+  document.getElementById("profile-trade").innerText = trade;
+  document.getElementById("profile-location").innerText = location;
+  document.getElementById("profile-school").innerText = school;
+
+  const avatar = document.getElementById("profile-avatar");
+  if(currentProfile.profileImage){
+    avatar.innerHTML = `<img src="${escapeHtml(currentProfile.profileImage)}" alt="${escapeHtml(name)}">`;
+  }else{
+    avatar.innerText = getInitials(name);
+  }
+
+  document.getElementById("school-summary").innerHTML = `
+    <strong>${escapeHtml(school)}</strong><br>
+    <span>${escapeHtml(courses)}</span><br>
+    <span>${escapeHtml(currentProfile.bio || "Instructor bio not added yet.")}</span>
+  `;
+}
+
+function updateStats(){
+  const students = getStudents();
+  const accomplishments = getAccomplishments();
+  const documents = getDocuments();
+
+  const avg = students.length
+    ? Math.round(students.reduce((sum,s) => {
+        const hours = Number(s.hours || 0);
+        const goal = Math.max(Number(s.goal || 8000),1);
+        return sum + Math.min(Math.round((hours / goal) * 100),100);
+      },0) / students.length)
+    : 0;
+
+  document.getElementById("students-count").innerText = students.length;
+  document.getElementById("accomplishments-count").innerText = accomplishments.length;
+  document.getElementById("documents-count").innerText = documents.length;
+  document.getElementById("avg-progress").innerText = avg + "%";
+}
+
+function emptyState(title, text){
+  return `<div class="empty-state"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div>`;
+}
+
+window.InstructorCenter = {
+  openProfileModal(){
+    document.getElementById("input-name").value = currentProfile.name || "";
+    document.getElementById("input-email").value = currentProfile.email || currentUserEmail || "";
+    document.getElementById("input-school").value = currentProfile.school || "";
+    document.getElementById("input-trade").value = currentProfile.trade || "";
+    document.getElementById("input-courses").value = currentProfile.courses || "";
+    document.getElementById("input-city").value = currentProfile.city || "";
+    document.getElementById("input-state").value = currentProfile.state || "";
+    document.getElementById("input-bio").value = currentProfile.bio || "";
+    this.openModal("profile-modal");
+  },
+
+  async saveProfile(){
+    currentProfile = {
+      ...currentProfile,
+      name:document.getElementById("input-name").value.trim() || "Instructor",
+      email:document.getElementById("input-email").value.trim().toLowerCase() || currentUserEmail,
+      school:document.getElementById("input-school").value.trim(),
+      trade:document.getElementById("input-trade").value.trim() || "Instructor / Teacher",
+      courses:document.getElementById("input-courses").value.trim(),
+      city:document.getElementById("input-city").value.trim(),
+      state:document.getElementById("input-state").value.trim(),
+      bio:document.getElementById("input-bio").value.trim(),
+      profileType:"Instructor / Teacher",
+      isInstructor:true,
+      updatedAt:new Date().toISOString()
+    };
+
+    localStorage.setItem(LOCAL_KEYS.instructor, JSON.stringify(currentProfile));
+
+    if(currentUserId){
+      try{
+        await updateDoc(doc(db,"users",currentUserId),{
+          fullName:currentProfile.name,
+          name:currentProfile.name,
+          email:currentProfile.email,
+          profileType:"Instructor / Teacher",
+          isInstructor:true,
+          instructorSchool:currentProfile.school,
+          school:currentProfile.school,
+          trade:currentProfile.trade,
+          instructorCourses:currentProfile.courses,
+          coursesTaught:currentProfile.courses,
+          city:currentProfile.city,
+          state:currentProfile.state,
+          bio:currentProfile.bio,
+          updatedAt:serverTimestamp()
+        });
+      }catch(e){
+        try{
+          await setDoc(doc(db,"users",currentUserId),{
+            ...currentProfile,
+            updatedAt:serverTimestamp()
+          },{merge:true});
+        }catch(err){
+          console.warn("Instructor profile saved locally only:", err);
+        }
+      }
+    }
+
+    updateProfileDisplay();
+    this.closeModal("profile-modal");
+    alert("Instructor information saved.");
+  },
+
+  openStudentModal(){
+    document.getElementById("student-name").value = "";
+    document.getElementById("student-email").value = "";
+    document.getElementById("student-trade").value = "";
+    document.getElementById("student-status").value = "active";
+    document.getElementById("student-hours").value = "";
+    document.getElementById("student-goal").value = "8000";
+    document.getElementById("student-notes").value = "";
+    this.openModal("student-modal");
+  },
+
+  async saveStudent(){
+    const name = document.getElementById("student-name").value.trim();
+    if(!name){
+      alert("Student name is required.");
+      return;
+    }
+
+    const students = getStudents();
+    const student = {
+      id:"student_" + Date.now(),
+      name,
+      email:document.getElementById("student-email").value.trim().toLowerCase(),
+      trade:document.getElementById("student-trade").value.trim(),
+      status:document.getElementById("student-status").value,
+      hours:Number(document.getElementById("student-hours").value || 0),
+      goal:Number(document.getElementById("student-goal").value || 8000),
+      notes:document.getElementById("student-notes").value.trim(),
+      school:currentProfile.school || "",
+      instructorEmail:currentProfile.email || currentUserEmail || "",
+      createdAt:new Date().toISOString()
+    };
+
+    students.unshift(student);
+    saveStudents(students);
+
+    if(currentUserId){
+      try{
+        await addDoc(collection(db,"instructorStudents"),{
+          ...student,
+          instructorId:currentUserId,
+          createdAt:serverTimestamp()
+        });
+      }catch(e){
+        console.warn("Student saved locally only:", e);
+      }
+    }
+
+    this.closeModal("student-modal");
+    this.renderStudents();
+    updateStats();
+  },
+
+  renderStudents(){
+    const list = document.getElementById("students-list");
+    const search = document.getElementById("student-search").value.trim().toLowerCase();
+    const filter = document.getElementById("student-filter").value;
+    let students = getStudents();
+
+    if(filter !== "all"){
+      students = students.filter(s => s.status === filter);
+    }
+
+    if(search){
+      students = students.filter(s => {
+        return [s.name,s.email,s.trade,s.status,s.school,s.notes].join(" ").toLowerCase().includes(search);
+      });
+    }
+
+    if(!students.length){
+      list.innerHTML = emptyState("No students yet", "Add students under your instructor profile to track progress and accomplishments.");
+      return;
+    }
+
+    list.innerHTML = students.map(s => {
+      const hours = Number(s.hours || 0);
+      const goal = Math.max(Number(s.goal || 8000),1);
+      const pct = Math.min(Math.round((hours / goal) * 100),100);
+
+      return `
+        <div class="person-card">
+          <div class="person-top">
+            <div>
+              <div class="person-name">${escapeHtml(s.name)}</div>
+              <div class="person-meta">${escapeHtml(s.trade || "Trade not added")} • ${escapeHtml(s.email || "No email added")}</div>
+              <div class="person-meta">${escapeHtml(s.notes || "No notes added yet.")}</div>
+            </div>
+            <div>${statusBadge(s.status)}</div>
+          </div>
+          <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <div class="progress-note">
+            <span>${hours.toLocaleString()} / ${goal.toLocaleString()} hours</span>
+            <span>${pct}%</span>
+          </div>
+        </div>
+      `;
+    }).join("");
+  },
+
+  openAccomplishmentModal(){
+    document.getElementById("acc-student").value = "";
+    document.getElementById("acc-type").value = "project";
+    document.getElementById("acc-title").value = "";
+    document.getElementById("acc-desc").value = "";
+    this.openModal("accomplishment-modal");
+  },
+
+  async saveAccomplishment(){
+    const title = document.getElementById("acc-title").value.trim();
+    if(!title){
+      alert("Accomplishment title is required.");
+      return;
+    }
+
+    const items = getAccomplishments();
+    const item = {
+      id:"acc_" + Date.now(),
+      student:document.getElementById("acc-student").value.trim(),
+      type:document.getElementById("acc-type").value,
+      title,
+      desc:document.getElementById("acc-desc").value.trim(),
+      instructorEmail:currentProfile.email || currentUserEmail || "",
+      school:currentProfile.school || "",
+      createdAt:new Date().toISOString()
+    };
+
+    items.unshift(item);
+    saveAccomplishments(items);
+
+    if(currentUserId){
+      try{
+        await addDoc(collection(db,"instructorAccomplishments"),{
+          ...item,
+          instructorId:currentUserId,
+          createdAt:serverTimestamp()
+        });
+      }catch(e){
+        console.warn("Accomplishment saved locally only:", e);
+      }
+    }
+
+    this.closeModal("accomplishment-modal");
+    this.renderAccomplishments();
+    updateStats();
+  },
+
+  setAccomplishmentFilter(filter, btn){
+    currentAccomplishmentFilter = filter;
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    btn.classList.add("active");
+    this.renderAccomplishments();
+  },
+
+  renderAccomplishments(){
+    const list = document.getElementById("accomplishments-list");
+    let items = getAccomplishments();
+
+    if(currentAccomplishmentFilter !== "all"){
+      items = items.filter(i => i.type === currentAccomplishmentFilter);
+    }
+
+    if(!items.length){
+      list.innerHTML = emptyState("No accomplishments yet", "Add student milestones, uploaded work evidence, certifications, and project progress.");
+      return;
+    }
+
+    list.innerHTML = items.map(i => `
+      <div class="accomplishment-card">
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <div class="person-name">${escapeHtml(i.title)}</div>
+            <div class="person-meta">${escapeHtml(i.student || "Student not assigned")} • ${escapeHtml(i.type || "Accomplishment")}</div>
+          </div>
+          <span class="badge badge-blue">${escapeHtml(i.type || "Item")}</span>
+        </div>
+        <div class="small" style="margin-top:10px">${escapeHtml(i.desc || "No description added.")}</div>
+      </div>
+    `).join("");
+  },
+
+  openDocumentModal(){
+    document.getElementById("document-file").value = "";
+    document.getElementById("document-name").value = "";
+    document.getElementById("document-type").value = "Certification";
+    document.getElementById("selected-document-name").innerText = "";
+    this.openModal("document-modal");
+  },
+
+  saveDocument(){
+    const name = document.getElementById("document-name").value.trim();
+    if(!name){
+      alert("Document name is required.");
+      return;
+    }
+
+    const file = document.getElementById("document-file").files[0];
+    const docs = getDocuments();
+
+    docs.unshift({
+      id:"doc_" + Date.now(),
+      name,
+      type:document.getElementById("document-type").value,
+      fileName:file ? file.name : "",
+      fileSize:file ? file.size : 0,
+      createdAt:new Date().toISOString()
+    });
+
+    saveDocuments(docs);
+    this.closeModal("document-modal");
+    this.renderDocuments();
+    updateStats();
+  },
+
+  renderDocuments(){
+    const list = document.getElementById("documents-list");
+    const docs = getDocuments();
+
+    if(!docs.length){
+      list.innerHTML = emptyState("No documents uploaded yet", "Upload instructor certifications, licenses, credentials, or school documents.");
+      return;
+    }
+
+    list.innerHTML = docs.map(d => `
+      <div class="document-card">
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <div class="person-name">${escapeHtml(d.name)}</div>
+            <div class="person-meta">${escapeHtml(d.fileName || "File saved locally")} • ${escapeHtml(d.type || "Document")}</div>
+          </div>
+          <span class="badge">${escapeHtml(d.type || "Document")}</span>
+        </div>
+      </div>
+    `).join("");
+  },
+
+  openModal(id){
+    document.getElementById(id).classList.add("active");
+  },
+
+  closeModal(id){
+    document.getElementById(id).classList.remove("active");
+  }
+};
+
+document.getElementById("document-file").addEventListener("change", function(){
+  const file = this.files[0];
+  document.getElementById("selected-document-name").innerText = file ? "Selected: " + file.name : "";
+  if(file && !document.getElementById("document-name").value.trim()){
+    document.getElementById("document-name").value = file.name.replace(/\.[^/.]+$/, "");
+  }
+});
+
+document.getElementById("mobile-menu-toggle").addEventListener("click", function(){
+  document.getElementById("main-nav").classList.toggle("open");
+});
+
+document.addEventListener("click", function(e){
+  if(e.target.classList && e.target.classList.contains("modal-backdrop")){
+    e.target.classList.remove("active");
+  }
+});
+
+async function init(){
+  await findCurrentUser();
+
+  if(!currentProfile.name){
+    currentProfile.name = "Instructor";
+  }
+
+  if(!currentProfile.profileType){
+    currentProfile.profileType = "Instructor / Teacher";
+  }
+
+  currentProfile.isInstructor = true;
+  localStorage.setItem(LOCAL_KEYS.instructor, JSON.stringify(currentProfile));
+
+  updateProfileDisplay();
+  InstructorCenter.renderStudents();
+  InstructorCenter.renderAccomplishments();
+  InstructorCenter.renderDocuments();
+  updateStats();
+}
+
+init();
+</script>
+
+</body>
+</html>
