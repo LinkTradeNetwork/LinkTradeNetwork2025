@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-role-gate-signed-proof-upload-v19 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-school-code-v20 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -23,6 +23,7 @@
       --line:#dbe3ee;
       --soft:#f7f9fc;
       --danger:#dc2626;
+      --ok:#16a34a;
       --shadow:0 18px 48px rgba(23,32,51,.16);
       --radius:18px;
     }
@@ -234,6 +235,44 @@
       border-color:var(--orange);
       box-shadow:0 0 0 3px rgba(233,105,22,.14);
     }
+
+    .school-code-area{
+      margin-top:18px;
+      background:var(--orange-soft);
+      border:1px solid var(--orange-border);
+      border-radius:14px;
+      padding:14px;
+    }
+
+    .school-code-area .label{
+      color:#9a3412;
+      margin-bottom:8px;
+    }
+
+    .school-code-help{
+      color:#7c2d12;
+      font-size:13px;
+      font-weight:700;
+      line-height:1.4;
+      margin-bottom:10px;
+    }
+
+    .school-code-input{
+      text-transform:uppercase;
+      font-weight:900;
+    }
+
+    .school-code-status{
+      margin-top:10px;
+      font-size:13px;
+      font-weight:900;
+      min-height:18px;
+      line-height:1.4;
+    }
+
+    .school-code-status.ok{color:var(--ok)}
+    .school-code-status.bad{color:var(--danger)}
+    .school-code-status.info{color:var(--blue)}
 
     .file-control{
       width:100%;
@@ -454,9 +493,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260515apprenticerolegatev19'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260515apprenticerolegatev19'">Members</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260515apprenticerolegatev19'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260515apprenticeschoolcodev20'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260515apprenticeschoolcodev20'">Members</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260515apprenticeschoolcodev20'">Back</button>
   </div>
 </div>
 
@@ -483,7 +522,39 @@
     <div class="card"><div class="label">Name</div><div class="value" id="userName">Trade Worker</div><div class="small" id="userEmail">Guest User</div></div>
     <div class="card"><div class="label">Role</div><div class="value small-value" id="userRole">Apprentice</div><div class="small">LTN profile type</div></div>
     <div class="card"><div class="label">Trade</div><div class="value small-value" id="userTrade">Not selected</div><div class="small">Selected trade path</div></div>
-    <div class="card"><div class="label">Trade School / Training Center</div><div class="value small-value" id="userTradeSchool">Not added</div><div class="small">Connected to your progress profile</div></div>
+
+    <div class="card">
+      <div class="label">Trade School / Training Center</div>
+      <div class="value small-value" id="userTradeSchool">Not added</div>
+      <div class="small">Connected to your progress profile</div>
+
+      <div class="school-code-area">
+        <div class="label">Join School / Instructor Cohort</div>
+        <div class="school-code-help">
+          If your instructor gave you a code, enter it here to connect your profile to your school, instructor, and class.
+        </div>
+
+        <input
+          id="schoolCodeInput"
+          class="form-control school-code-input"
+          type="text"
+          placeholder="STC-ELECTRICAL-2026"
+          autocomplete="off"
+        >
+
+        <button
+          id="schoolCodeBtn"
+          class="button"
+          style="margin-top:10px;width:100%"
+          onclick="connectSchoolCode()"
+        >
+          Connect School
+        </button>
+
+        <div id="schoolCodeStatus" class="school-code-status info"></div>
+      </div>
+    </div>
+
     <div class="card"><div class="label">Current Level</div><div class="value small-value" id="currentLevel">New Apprentice</div><div class="small">Based on hours logged</div></div>
     <div class="card"><div class="label">Location</div><div class="value small-value" id="userLocation">Not added</div><div class="small">City, state, and country</div></div>
   </div>
@@ -728,7 +799,29 @@
   function getProfileEmail(data){return data.email || data.userEmail || data.profileEmail || currentUserEmail || "Signed In User"}
   function getProfileRole(data){return data.role || data.profileType || (data.apprenticeship && data.apprenticeship.isApprentice ? "Apprentice" : "Apprentice")}
   function getProfileTrade(data){return data.trade || data.specialty || data.tradePath || "Not selected"}
-  function getTradeSchool(data){return data.tradeSchool || data.school || data.trainingCenter || data.instructorSchool || (data.apprenticeship && data.apprenticeship.program) || "Not added"}
+
+  function getTradeSchool(data){
+    const apprenticeship = data.apprenticeship || {};
+    return (
+      apprenticeship.schoolName ||
+      data.tradeSchool ||
+      data.school ||
+      data.trainingCenter ||
+      data.instructorSchool ||
+      apprenticeship.program ||
+      "Not added"
+    );
+  }
+
+  function getInstructorName(data){
+    const apprenticeship = data.apprenticeship || {};
+    return apprenticeship.instructorName || data.instructorName || data.assignedInstructorName || "";
+  }
+
+  function getCohortName(data){
+    const apprenticeship = data.apprenticeship || {};
+    return apprenticeship.cohortName || data.cohortName || "";
+  }
 
   function getLocation(data){
     const city=data.city || "";
@@ -777,13 +870,13 @@
   function enforceApprenticeAccess(data){
     if(isInstructorProfile(data)){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260515apprenticerolegatev19");
+      window.location.replace("/instructor/?v=20260515apprenticeschoolcodev20");
       return false;
     }
 
     if(!isApprenticeProfile(data)){
       alert("Track My Progress is for apprentices and students. Open Edit Profile on the dashboard and mark yourself as an apprentice/student first.");
-      window.location.replace("/dashboard/?v=20260515apprenticerolegatev19");
+      window.location.replace("/dashboard/?v=20260515apprenticeschoolcodev20");
       return false;
     }
 
@@ -816,7 +909,6 @@
     if(state.jobsiteUploads>0) badges.push("Signed Proof Added");
     state.badgesEarned=badges;
   }
-
 
   function proofCount(){
     return state.signedWorkProofs.length || Number(state.jobsiteUploads || 0);
@@ -856,9 +948,117 @@
     return `<a class="proof-link" href="${safe(proof.fileUrl)}" target="_blank" rel="noopener">View uploaded proof</a>`;
   }
 
+  window.connectSchoolCode = async function(){
+    const input = document.getElementById("schoolCodeInput");
+    const status = document.getElementById("schoolCodeStatus");
+    const btn = document.getElementById("schoolCodeBtn");
+
+    if(!input || !status || !btn) return;
+
+    const code = input.value.trim().toUpperCase();
+
+    if(!code){
+      status.className = "school-code-status bad";
+      status.textContent = "Please enter your school / instructor code.";
+      return;
+    }
+
+    if(!currentUserId){
+      status.className = "school-code-status bad";
+      status.textContent = "You must be signed in to connect a school code.";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Checking...";
+    status.className = "school-code-status info";
+    status.textContent = "Checking school code...";
+
+    try{
+      let codeSnap = await getDoc(doc(db,"schoolCodes",code));
+
+      if(!codeSnap.exists()){
+        codeSnap = await getDoc(doc(db,code,code));
+      }
+
+      if(!codeSnap.exists()){
+        status.className = "school-code-status bad";
+        status.textContent = "Code not found. Please check the code and try again.";
+        btn.disabled = false;
+        btn.textContent = "Connect School";
+        return;
+      }
+
+      const codeData = codeSnap.data();
+
+      if(codeData.active !== true){
+        status.className = "school-code-status bad";
+        status.textContent = "This school code is not active. Please contact your instructor.";
+        btn.disabled = false;
+        btn.textContent = "Connect School";
+        return;
+      }
+
+      const existingApprenticeship =
+        profile && profile.apprenticeship && typeof profile.apprenticeship === "object"
+          ? profile.apprenticeship
+          : {};
+
+      const updatedApprenticeship = {
+        ...existingApprenticeship,
+        isApprentice: true,
+        schoolId: codeData.schoolId || "",
+        schoolName: codeData.schoolName || "",
+        instructorId: codeData.instructorId || "",
+        instructorName: codeData.instructorName || "",
+        cohortId: codeData.cohortId || "",
+        cohortName: codeData.cohortName || "",
+        schoolCode: code
+      };
+
+      await setDoc(doc(db,"users",currentUserId),{
+        apprenticeship: updatedApprenticeship,
+        updatedAt: new Date().toISOString()
+      },{merge:true});
+
+      profile = {
+        ...profile,
+        apprenticeship: updatedApprenticeship
+      };
+
+      try{
+        const stored = JSON.parse(localStorage.getItem("ltn_user") || "{}");
+        stored.apprenticeship = updatedApprenticeship;
+        localStorage.setItem("ltn_user", JSON.stringify(stored));
+      }catch(e){}
+
+      input.value = "";
+      status.className = "school-code-status ok";
+      status.textContent =
+        "Connected to " +
+        (codeData.schoolName || "school") +
+        " • " +
+        (codeData.cohortName || "cohort") +
+        " • " +
+        (codeData.instructorName || "instructor");
+
+      renderProfile();
+
+      btn.disabled = false;
+      btn.textContent = "Connect School";
+
+    }catch(error){
+      console.error("School code error:", error);
+      status.className = "school-code-status bad";
+      status.textContent = "Something went wrong connecting this code. Please try again.";
+      btn.disabled = false;
+      btn.textContent = "Connect School";
+    }
+  };
+
   async function saveToFirebase(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260515apprenticerolegatev19");
+      window.location.replace("/front/?v=secureauth20260515apprenticeschoolcodev20");
       return;
     }
 
@@ -933,13 +1133,16 @@
     const name=getProfileName(profile);
     const trade=getProfileTrade(profile);
     const location=getLocation(profile);
+    const school=getTradeSchool(profile);
+    const instructorName=getInstructorName(profile);
+    const cohortName=getCohortName(profile);
 
     document.getElementById("welcome").textContent=`Welcome, ${name}`;
     document.getElementById("userName").textContent=name;
     document.getElementById("userEmail").textContent=getProfileEmail(profile);
     document.getElementById("userRole").textContent=getProfileRole(profile);
     document.getElementById("userTrade").textContent=trade;
-    document.getElementById("userTradeSchool").textContent=getTradeSchool(profile);
+    document.getElementById("userTradeSchool").textContent=school;
     document.getElementById("userLocation").textContent=location;
     document.getElementById("previewInitials").textContent=getInitials(name);
     document.getElementById("previewName").textContent=name;
@@ -949,7 +1152,9 @@
 
     document.getElementById("profileDetails").innerHTML=`
       <div class="profile-detail"><b>Trade:</b> ${safe(trade)}</div>
-      <div class="profile-detail"><b>School / Training Center:</b> ${safe(getTradeSchool(profile))}</div>
+      <div class="profile-detail"><b>School / Training Center:</b> ${safe(school)}</div>
+      ${instructorName ? `<div class="profile-detail"><b>Instructor:</b> ${safe(instructorName)}</div>` : ""}
+      ${cohortName ? `<div class="profile-detail"><b>Cohort / Class:</b> ${safe(cohortName)}</div>` : ""}
       <div class="profile-detail"><b>Location:</b> ${safe(location)}</div>
       <div class="profile-detail"><b>Secure Access:</b> This page only loads data for the signed-in Firebase user.</div>
     `;
@@ -1282,7 +1487,7 @@
 
   onAuthStateChanged(auth, async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260515apprenticerolegatev19");
+      window.location.replace("/front/?v=secureauth20260515apprenticeschoolcodev20");
       return;
     }
 
@@ -1314,7 +1519,7 @@
     showPage();
   });
 
-  console.log("LTN Apprenticeship Signed Proof Upload Loaded v19");
+  console.log("LTN Apprenticeship School Code Loaded v20");
 </script>
 
 </body>
