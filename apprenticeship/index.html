@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-signed-proof-upload-v18 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-role-gate-signed-proof-upload-v19 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -454,9 +454,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260513cleanurlv18'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260513cleanurlv18'">Members</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260513cleanurlv18'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260515apprenticerolegatev19'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260515apprenticerolegatev19'">Members</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260515apprenticerolegatev19'">Back</button>
   </div>
 </div>
 
@@ -726,7 +726,7 @@
 
   function getProfileName(data){return data.fullName || data.name || data.displayName || data.userName || "Trade Worker"}
   function getProfileEmail(data){return data.email || data.userEmail || data.profileEmail || currentUserEmail || "Signed In User"}
-  function getProfileRole(data){return data.role || data.profileType || "Apprentice"}
+  function getProfileRole(data){return data.role || data.profileType || (data.apprenticeship && data.apprenticeship.isApprentice ? "Apprentice" : "Apprentice")}
   function getProfileTrade(data){return data.trade || data.specialty || data.tradePath || "Not selected"}
   function getTradeSchool(data){return data.tradeSchool || data.school || data.trainingCenter || data.instructorSchool || (data.apprenticeship && data.apprenticeship.program) || "Not added"}
 
@@ -742,6 +742,52 @@
 
   function isVerified(data){
     return data.ltnVerified===true || data.ltnVerified==="true" || data.verified===true || data.verified==="true" || data.orangeVerified===true || data.orangeVerified==="true";
+  }
+
+  function normalizeRoleText(value){
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function isInstructorProfile(data){
+    const roleText = normalizeRoleText(`${data.profileType || ""} ${data.role || ""} ${data.type || ""} ${data.trade || ""}`);
+    const instructor = data.instructor || {};
+
+    return (
+      data.isInstructor === true ||
+      instructor.isInstructor === true ||
+      roleText.includes("instructor") ||
+      roleText.includes("teacher") ||
+      roleText.includes("trade school") ||
+      roleText.includes("training center")
+    );
+  }
+
+  function isApprenticeProfile(data){
+    const roleText = normalizeRoleText(`${data.profileType || ""} ${data.role || ""} ${data.type || ""}`);
+    const apprenticeship = data.apprenticeship || {};
+
+    return (
+      data.isApprentice === true ||
+      apprenticeship.isApprentice === true ||
+      roleText.includes("apprentice") ||
+      roleText.includes("student")
+    );
+  }
+
+  function enforceApprenticeAccess(data){
+    if(isInstructorProfile(data)){
+      alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
+      window.location.replace("/instructor/?v=20260515apprenticerolegatev19");
+      return false;
+    }
+
+    if(!isApprenticeProfile(data)){
+      alert("Track My Progress is for apprentices and students. Open Edit Profile on the dashboard and mark yourself as an apprentice/student first.");
+      window.location.replace("/dashboard/?v=20260515apprenticerolegatev19");
+      return false;
+    }
+
+    return true;
   }
 
   function getInitials(name){
@@ -812,7 +858,7 @@
 
   async function saveToFirebase(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260513v18");
+      window.location.replace("/front/?v=secureauth20260515apprenticerolegatev19");
       return;
     }
 
@@ -1236,7 +1282,7 @@
 
   onAuthStateChanged(auth, async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260513v18");
+      window.location.replace("/front/?v=secureauth20260515apprenticerolegatev19");
       return;
     }
 
@@ -1255,6 +1301,10 @@
     loadLocalProgressForUser(user.uid);
     await loadFirebaseProfile(user.uid);
 
+    if(!enforceApprenticeAccess(profile)){
+      return;
+    }
+
     renderProfile();
     renderProgress();
 
@@ -1264,7 +1314,7 @@
     showPage();
   });
 
-  console.log("LTN Apprenticeship Signed Proof Upload Loaded v18");
+  console.log("LTN Apprenticeship Signed Proof Upload Loaded v19");
 </script>
 
 </body>
