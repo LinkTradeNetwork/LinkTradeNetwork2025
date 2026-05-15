@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- LTN FULL DASHBOARD EXPORT 2026-05-15: ROLE ROUTING + INSTRUCTOR CENTER -->
+<!-- LTN FULL DASHBOARD EXPORT 2026-05-15: STUDENT INSTRUCTOR LINKING + ROLE ROUTING v19 -->
 
 <html lang="en" class="auth-checking">
 <head>
@@ -16,8 +16,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
 
-<!-- LTN FORCE UPDATE 2026-05-15: DASHBOARD PROFILE ROLE ROUTING v18 -->
-<!-- LTN VERSION: dashboard-apprentice-instructor-routing-fix-v18 -->
+<!-- LTN FORCE UPDATE 2026-05-15: DASHBOARD STUDENT INSTRUCTOR LINKING v19 -->
+<!-- LTN VERSION: dashboard-student-instructor-linking-role-routing-v19 -->
 
 <style>
 :root{
@@ -900,7 +900,7 @@ a[href^="/apprenticeship/"]:hover,a[href^="/find-apprenticeships/"]:hover{
 (function () {
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260513cleanurlrootnav14";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515studentlinkv19";
 
   window.LTNClearLocalSession = function () {
     [
@@ -955,13 +955,13 @@ a[href^="/apprenticeship/"]:hover,a[href^="/find-apprenticeships/"]:hover{
     </div>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260513cleanurlrootnav14" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
-      <a href="/members/?v=20260513cleanurlrootnav14" data-nav="members" onclick="setActiveNav(this)">Members</a>
-      <a href="/find-apprenticeships/?v=20260513cleanurlrootnav14" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
-      <a href="/apprenticeship/?v=20260515rolefixv18" data-nav="track-progress" onclick="return ltnRouteTrackProgressFromDashboard(event, this.href)" class="btn nav-action">Track My Progress</a>
-      <a href="/instructor/?v=20260515rolefixv18" data-nav="instructor-center" onclick="return ltnRouteInstructorCenterFromDashboard(event, this.href)" class="btn nav-action">Instructor Center</a>
+      <a href="/dashboard/?v=20260515studentlinkv19" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
+      <a href="/members/?v=20260515studentlinkv19" data-nav="members" onclick="setActiveNav(this)">Members</a>
+      <a href="/find-apprenticeships/?v=20260515studentlinkv19" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
+      <a href="/apprenticeship/?v=20260515studentlinkv19" data-nav="track-progress" onclick="return ltnRouteTrackProgressFromDashboard(event, this.href)" class="btn nav-action">Track My Progress</a>
+      <a href="/instructor/?v=20260515studentlinkv19" data-nav="instructor-center" onclick="return ltnRouteInstructorCenterFromDashboard(event, this.href)" class="btn nav-action">Instructor Center</a>
       <a href="#jobs" data-nav="jobs" onclick="setActiveNav(this)">Jobs</a>
-      <a href="/network-center/?v=20260513cleanurlrootnav14" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
+      <a href="/network-center/?v=20260515studentlinkv19" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
         Network Center
         <span id="network-badge" class="notification-badge" style="display:none">0</span>
         <span id="messages-badge" class="notification-badge" style="display:none;right:-14px">0</span>
@@ -1168,7 +1168,7 @@ a[href^="/apprenticeship/"]:hover,a[href^="/find-apprenticeships/"]:hover{
           <li style="margin-bottom:8px">Showcase your skills and certifications</li>
           <li>Get matched with projects in your area</li>
         </ul>
-        <a class="btn-primary" style="width:100%" href="/network-center/?v=20260513cleanurlrootnav14">Open Network Center</a>
+        <a class="btn-primary" style="width:100%" href="/network-center/?v=20260515studentlinkv19">Open Network Center</a>
       </div>
     </section>
 
@@ -1252,6 +1252,9 @@ a[href^="/apprenticeship/"]:hover,a[href^="/find-apprenticeships/"]:hover{
           </label>
           <div id="apprentice-fields" style="display:none;margin-top:14px">
             <div class="form-group"><label>Apprenticeship Program / School</label><input type="text" id="input-apprentice-program" class="form-control" placeholder="Detroit Trade School, IBEW, company program, etc."></div>
+            <div class="form-group"><label>School / Training Center</label><input type="text" id="input-student-school" class="form-control" placeholder="Superior Training Centre, trade school, union program, etc."></div>
+            <div class="form-group"><label>Instructor Name</label><input type="text" id="input-student-instructor-name" class="form-control" placeholder="Instructor / teacher name"></div>
+            <div class="form-group"><label>Instructor Email</label><input type="email" id="input-student-instructor-email" class="form-control" placeholder="instructor@email.com"></div>
             <div class="form-group"><label>Employer / Contractor</label><input type="text" id="input-apprentice-employer" class="form-control" placeholder="Company or contractor name"></div>
             <div class="form-group"><label>Apprenticeship Start Date</label><input type="date" id="input-apprentice-start-date" class="form-control"></div>
             <div class="form-group"><label>Current Hours Completed</label><input type="number" id="input-apprentice-hours" class="form-control" placeholder="0" min="0" max="8000"></div>
@@ -2341,6 +2344,9 @@ function ltnProfileFromOpenFormOrSaved() {
       ...(saved.apprenticeship || {}),
       isApprentice: !!(document.getElementById("input-is-apprentice") && document.getElementById("input-is-apprentice").checked),
       program: ((document.getElementById("input-apprentice-program") || {}).value || (saved.apprenticeship || {}).program || "").trim(),
+      school: ((document.getElementById("input-student-school") || {}).value || (saved.apprenticeship || {}).school || saved.studentSchool || saved.school || "").trim(),
+      instructorName: ((document.getElementById("input-student-instructor-name") || {}).value || (saved.apprenticeship || {}).instructorName || saved.instructorName || saved.assignedInstructorName || "").trim(),
+      instructorEmail: (((document.getElementById("input-student-instructor-email") || {}).value || (saved.apprenticeship || {}).instructorEmail || saved.instructorEmail || saved.assignedInstructorEmail || "").trim()).toLowerCase(),
       employer: ((document.getElementById("input-apprentice-employer") || {}).value || (saved.apprenticeship || {}).employer || "").trim(),
       startDate: (document.getElementById("input-apprentice-start-date") || {}).value || (saved.apprenticeship || {}).startDate || "",
       hours: Number((document.getElementById("input-apprentice-hours") || {}).value || (saved.apprenticeship || {}).hours || saved.hoursCompleted || saved.totalHours || 0) || 0
@@ -2452,7 +2458,7 @@ window.ltnRouteTrackProgressFromDashboard = async function(event, targetUrl) {
   ltnSaveProfileEverywhere(profile);
   try { await saveProfileToFirestore(profile); } catch (e) { console.warn("Apprenticeship handoff Firebase save failed:", e); }
 
-  window.location.href = targetUrl || "/apprenticeship/?v=20260515rolefixv18";
+  window.location.href = targetUrl || "/apprenticeship/?v=20260515studentlinkv19";
   return false;
 };
 
@@ -2473,7 +2479,7 @@ window.ltnRouteInstructorCenterFromDashboard = async function(event, targetUrl) 
   ltnSaveInstructorEverywhere(profile);
   try { await saveProfileToFirestore(profile); } catch (e) { console.warn("Instructor handoff Firebase save failed:", e); }
 
-  window.location.href = targetUrl || "/instructor/?v=20260515rolefixv18";
+  window.location.href = targetUrl || "/instructor/?v=20260515studentlinkv19";
   return false;
 };
 
@@ -2849,6 +2855,7 @@ const ProfileManager = {
         const merged = { ...local, ...firebaseProfile };
 
         if (firebaseProfile.apprenticeship) merged.apprenticeship = firebaseProfile.apprenticeship;
+        if (firebaseProfile.instructor) merged.instructor = firebaseProfile.instructor;
         if (firebaseProfile.profileImageUrl || firebaseProfile.profileImage || firebaseProfile.photoURL) {
           merged.profileImageUrl = firebaseProfile.profileImageUrl || firebaseProfile.profileImage || firebaseProfile.photoURL;
         }
@@ -2905,6 +2912,9 @@ const ProfileManager = {
 
     if (byId("input-is-apprentice")) byId("input-is-apprentice").checked = !!app.isApprentice;
     if (byId("input-apprentice-program")) byId("input-apprentice-program").value = app.program || "";
+    if (byId("input-student-school")) byId("input-student-school").value = app.school || p.school || p.studentSchool || "";
+    if (byId("input-student-instructor-name")) byId("input-student-instructor-name").value = app.instructorName || p.instructorName || p.assignedInstructorName || "";
+    if (byId("input-student-instructor-email")) byId("input-student-instructor-email").value = app.instructorEmail || p.instructorEmail || p.assignedInstructorEmail || "";
     if (byId("input-apprentice-employer")) byId("input-apprentice-employer").value = app.employer || "";
     if (byId("input-apprentice-start-date")) byId("input-apprentice-start-date").value = app.startDate || "";
     if (byId("input-apprentice-hours")) byId("input-apprentice-hours").value = app.hours || 0;
@@ -2955,6 +2965,9 @@ const ProfileManager = {
       apprenticeship: {
         isApprentice: !!(document.getElementById("input-is-apprentice") && document.getElementById("input-is-apprentice").checked),
         program: (document.getElementById("input-apprentice-program") || {}).value ? document.getElementById("input-apprentice-program").value.trim() : "",
+        school: (document.getElementById("input-student-school") || {}).value ? document.getElementById("input-student-school").value.trim() : "",
+        instructorName: (document.getElementById("input-student-instructor-name") || {}).value ? document.getElementById("input-student-instructor-name").value.trim() : "",
+        instructorEmail: (document.getElementById("input-student-instructor-email") || {}).value ? document.getElementById("input-student-instructor-email").value.trim().toLowerCase() : "",
         employer: (document.getElementById("input-apprentice-employer") || {}).value ? document.getElementById("input-apprentice-employer").value.trim() : "",
         startDate: (document.getElementById("input-apprentice-start-date") || {}).value || "",
         hours: Number((document.getElementById("input-apprentice-hours") || {}).value || 0)
@@ -2969,6 +2982,13 @@ const ProfileManager = {
     if (profile.profileType === "Instructor / Teacher" || profile.profileType === "Trade School / Training Center") profile.instructor.isInstructor = true;
     if (profile.profileType === "Apprentice") profile.apprenticeship.isApprentice = true;
     if (profile.instructor.isInstructor && profile.profileType !== "Apprentice") profile.apprenticeship.isApprentice = false;
+
+    profile.school = profile.instructor.isInstructor ? profile.instructor.school : (profile.apprenticeship.school || profile.apprenticeship.program || "");
+    profile.studentSchool = profile.apprenticeship.school || profile.apprenticeship.program || "";
+    profile.instructorName = profile.apprenticeship.instructorName || "";
+    profile.instructorEmail = profile.apprenticeship.instructorEmail || "";
+    profile.assignedInstructorEmail = profile.apprenticeship.instructorEmail || "";
+    profile.assignedInstructorName = profile.apprenticeship.instructorName || "";
 
     profile.apprenticeship.hours = Math.max(0, Number(profile.apprenticeship.hours || 0) || 0);
     profile.hoursCompleted = profile.apprenticeship.hours;
@@ -3050,6 +3070,7 @@ const ProfileManager = {
         const merged = { ...local, ...firebaseProfile };
 
         if (firebaseProfile.apprenticeship) merged.apprenticeship = firebaseProfile.apprenticeship;
+        if (firebaseProfile.instructor) merged.instructor = firebaseProfile.instructor;
         if (firebaseProfile.profileImageUrl || firebaseProfile.profileImage || firebaseProfile.photoURL) {
           merged.profileImageUrl = firebaseProfile.profileImageUrl || firebaseProfile.profileImage || firebaseProfile.photoURL;
         }
