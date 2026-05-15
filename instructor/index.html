@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-15: INSTRUCTOR CENTER CLEAN ROSTER VERIFIED SKILLS v5 -->
-<!-- LTN VERSION: instructor-center-clean-roster-verified-skills-v5 -->
+<!-- LTN FORCE UPDATE 2026-05-15: INSTRUCTOR CENTER CLASS ASSIGNMENTS v6 -->
+<!-- LTN VERSION: instructor-center-class-assignments-v6 -->
 
 <style>
 :root{
@@ -735,7 +735,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515instructorv5";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515instructorv6";
 
   window.LTNClearLocalSession = function(){
     [
@@ -778,11 +778,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260515instructorv5">Dashboard</a>
-      <a href="/members/?v=20260515instructorv5">Members</a>
-      <a href="/instructor/?v=20260515instructorv5" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260515instructorv5" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260515instructorv5">Network Center</a>
+      <a href="/dashboard/?v=20260515instructorv6">Dashboard</a>
+      <a href="/members/?v=20260515instructorv6">Members</a>
+      <a href="/instructor/?v=20260515instructorv6" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260515instructorv6" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260515instructorv6">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -795,11 +795,11 @@ textarea.form-control{min-height:106px;resize:vertical}
       <h1>Instructor Center</h1>
       <p>
         Manage your instructor profile, school information, student roster, student progress,
-        verified skills, and uploaded instructor documents from one place.
+        verified skills, and class assignments from one place.
       </p>
       <div class="hero-actions">
         <button class="btn btn-primary" onclick="InstructorCenter.openStudentModal()">Add Student</button>
-        <button class="btn btn-secondary" onclick="InstructorCenter.openDocumentModal()">Upload Instructor Document</button>
+        <button class="btn btn-secondary" onclick="InstructorCenter.openDocumentModal()">Upload Assignment</button>
       </div>
     </div>
 
@@ -829,7 +829,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260515instructorv5">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260515instructorv6">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -848,7 +848,7 @@ textarea.form-control{min-height:106px;resize:vertical}
             </div>
             <div class="stat-card">
               <div class="stat-number" id="documents-count">0</div>
-              <div class="stat-label">Documents</div>
+              <div class="stat-label">Assignments</div>
             </div>
             <div class="stat-card">
               <div class="stat-number" id="avg-progress">0%</div>
@@ -896,7 +896,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
       <div class="card">
         <div class="hd">
-          <span>Instructor Documents</span>
+          <span>Class Assignments</span>
           <button class="btn btn-primary" style="min-height:34px;padding:8px 12px;font-size:13px" onclick="InstructorCenter.openDocumentModal()">Upload</button>
         </div>
         <div class="bd">
@@ -1022,32 +1022,34 @@ textarea.form-control{min-height:106px;resize:vertical}
   </div>
 </div>
 
-<!-- Upload Document Modal -->
+<!-- Upload Class Assignment Modal -->
 <div class="modal-backdrop" id="document-modal">
   <div class="modal">
     <div class="modal-header">
-      <h2>Upload Instructor Document</h2>
+      <h2>Upload Assignment</h2>
       <button class="modal-close" onclick="InstructorCenter.closeModal('document-modal')">&times;</button>
     </div>
     <div class="modal-body">
       <div class="upload-area" onclick="document.getElementById('document-file').click()">
         <strong>Click to select document</strong>
-        <div class="small">Certifications, teaching credentials, licenses, school forms, PDFs, photos</div>
+        <div class="small">Homework, classroom PDFs, safety assignments, worksheets, blueprints, lab instructions</div>
         <input type="file" id="document-file" style="display:none" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
       </div>
 
       <div class="form-group">
-        <label>Document Name *</label>
-        <input type="text" id="document-name" class="form-control" placeholder="OSHA Instructor Certification">
+        <label>Assignment Name *</label>
+        <input type="text" id="document-name" class="form-control" placeholder="Electrical Safety Assignment">
       </div>
 
       <div class="form-group">
-        <label>Document Type</label>
+        <label>Assignment Type</label>
         <select id="document-type" class="form-control">
-          <option value="Certification">Certification</option>
-          <option value="License">License</option>
-          <option value="Training Credential">Training Credential</option>
-          <option value="School Document">School Document</option>
+          <option value="Homework">Homework</option>
+          <option value="Lab Assignment">Lab Assignment</option>
+          <option value="Safety Assignment">Safety Assignment</option>
+          <option value="Blueprint Exercise">Blueprint Exercise</option>
+          <option value="Worksheet">Worksheet</option>
+          <option value="Class PDF">Class PDF</option>
           <option value="Other">Other</option>
         </select>
       </div>
@@ -1098,7 +1100,7 @@ document.documentElement.classList.add("auth-ready");
 const LOCAL_KEYS = {
   instructor:"ltn_instructor_center_profile",
   students:"ltn_instructor_students",
-  documents:"ltn_instructor_documents"
+  documents:"ltn_class_assignments"
 };
 
 let currentUserEmail = "";
@@ -1631,7 +1633,7 @@ window.InstructorCenter = {
             <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260515instructorv5">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260515instructorv6">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -1648,7 +1650,7 @@ window.InstructorCenter = {
   openDocumentModal(){
     document.getElementById("document-file").value = "";
     document.getElementById("document-name").value = "";
-    document.getElementById("document-type").value = "Certification";
+    document.getElementById("document-type").value = "Homework";
     document.getElementById("selected-document-name").innerText = "";
     this.openModal("document-modal");
   },
@@ -1683,7 +1685,7 @@ window.InstructorCenter = {
     const docs = getDocuments();
 
     if(!docs.length){
-      list.innerHTML = emptyState("No documents uploaded yet", "Upload instructor certifications, licenses, credentials, or school documents.");
+      list.innerHTML = emptyState("No class assignments uploaded yet", "Upload homework, lab sheets, classroom PDFs, blueprint exercises, and apprenticeship assignments.");
       return;
     }
 
@@ -1692,7 +1694,7 @@ window.InstructorCenter = {
         <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
           <div>
             <div class="person-name">${escapeHtml(d.name)}</div>
-            <div class="person-meta">${escapeHtml(d.fileName || "File saved locally")} • ${escapeHtml(d.type || "Document")}</div>
+            <div class="person-meta">${escapeHtml(d.fileName || "Assignment file saved locally")} • ${escapeHtml(d.type || "Document")}</div>
           </div>
           <span class="badge">${escapeHtml(d.type || "Document")}</span>
         </div>
@@ -1711,7 +1713,7 @@ window.InstructorCenter = {
 
 document.getElementById("document-file").addEventListener("change", function(){
   const file = this.files[0];
-  document.getElementById("selected-document-name").innerText = file ? "Selected: " + file.name : "";
+  document.getElementById("selected-document-name").innerText = file ? "Selected assignment: " + file.name : "";
   if(file && !document.getElementById("document-name").value.trim()){
     document.getElementById("document-name").value = file.name.replace(/\.[^/.]+$/, "");
   }
@@ -1730,7 +1732,7 @@ document.addEventListener("click", function(e){
 window.ltnInstructorBlockTrackProgress = function(event){
   event.preventDefault();
   alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-  window.location.href = "/instructor/?v=20260515instructorv5";
+  window.location.href = "/instructor/?v=20260515instructorv6";
   return false;
 };
 
