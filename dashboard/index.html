@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- LTN FULL DASHBOARD EXPORT 2026-05-15: WORKING SYNTAX FIX v25B -->
+<!-- LTN FULL DASHBOARD EXPORT 2026-05-15: ROLE SWITCH SAVE FIX v26 -->
 
 <html lang="en" class="auth-checking">
 <head>
@@ -16,8 +16,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
 
-<!-- LTN FORCE UPDATE 2026-05-15: DASHBOARD WORKING SYNTAX FIX v25B -->
-<!-- LTN VERSION: dashboard-working-syntax-fix-v25b -->
+<!-- LTN FORCE UPDATE 2026-05-15: DASHBOARD ROLE SWITCH SAVE FIX v26 -->
+<!-- LTN VERSION: dashboard-role-switch-save-fix-v26 -->
 
 <style>
 :root{
@@ -900,7 +900,7 @@ a[href^="/apprenticeship/"]:hover,a[href^="/find-apprenticeships/"]:hover{
 (function () {
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515dashboardworkingv25b";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515roleswitchv26";
 
   window.LTNClearLocalSession = function () {
     [
@@ -955,13 +955,13 @@ a[href^="/apprenticeship/"]:hover,a[href^="/find-apprenticeships/"]:hover{
     </div>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260515dashboardworkingv25b" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
-      <a href="/members/?v=20260515dashboardworkingv25b" data-nav="members" onclick="setActiveNav(this)">Members</a>
-      <a href="/find-apprenticeships/?v=20260515dashboardworkingv25b" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
-      <a href="/apprenticeship/?v=20260515dashboardworkingv25b" data-nav="track-progress" onclick="return ltnRouteTrackProgressFromDashboard(event, this.href)" class="btn nav-action">Track My Progress</a>
-      <a href="/instructor/?v=20260515dashboardworkingv25b" data-nav="instructor-center" onclick="return ltnRouteInstructorCenterFromDashboard(event, this.href)" class="btn nav-action">Instructor Center</a>
+      <a href="/dashboard/?v=20260515roleswitchv26" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
+      <a href="/members/?v=20260515roleswitchv26" data-nav="members" onclick="setActiveNav(this)">Members</a>
+      <a href="/find-apprenticeships/?v=20260515roleswitchv26" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
+      <a href="/apprenticeship/?v=20260515roleswitchv26" data-nav="track-progress" onclick="return ltnRouteTrackProgressFromDashboard(event, this.href)" class="btn nav-action">Track My Progress</a>
+      <a href="/instructor/?v=20260515roleswitchv26" data-nav="instructor-center" onclick="return ltnRouteInstructorCenterFromDashboard(event, this.href)" class="btn nav-action">Instructor Center</a>
       <a href="#jobs" data-nav="jobs" onclick="setActiveNav(this)">Jobs</a>
-      <a href="/network-center/?v=20260515dashboardworkingv25b" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
+      <a href="/network-center/?v=20260515roleswitchv26" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
         Network Center
         <span id="network-badge" class="notification-badge" style="display:none">0</span>
         <span id="messages-badge" class="notification-badge" style="display:none;right:-14px">0</span>
@@ -1168,7 +1168,7 @@ a[href^="/apprenticeship/"]:hover,a[href^="/find-apprenticeships/"]:hover{
           <li style="margin-bottom:8px">Showcase your skills and certifications</li>
           <li>Get matched with projects in your area</li>
         </ul>
-        <a class="btn-primary" style="width:100%" href="/network-center/?v=20260515dashboardworkingv25b">Open Network Center</a>
+        <a class="btn-primary" style="width:100%" href="/network-center/?v=20260515roleswitchv26">Open Network Center</a>
       </div>
     </section>
 
@@ -2464,7 +2464,7 @@ window.ltnRouteTrackProgressFromDashboard = async function(event, targetUrl) {
 
   if (ltnIsInstructorProfile(profile)) {
     alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-    window.location.href = "/instructor/?v=20260515dashboardworkingv25b";
+    window.location.href = "/instructor/?v=20260515roleswitchv26";
     return false;
   }
 
@@ -2490,7 +2490,7 @@ window.ltnRouteTrackProgressFromDashboard = async function(event, targetUrl) {
   ltnSaveProfileEverywhere(profile);
   try { await saveProfileToFirestore(profile); } catch (e) { console.warn("Apprenticeship handoff Firebase save failed:", e); }
 
-  window.location.href = targetUrl || "/apprenticeship/?v=20260515dashboardworkingv25b";
+  window.location.href = targetUrl || "/apprenticeship/?v=20260515roleswitchv26";
   return false;
 };
 
@@ -2512,7 +2512,7 @@ window.ltnRouteInstructorCenterFromDashboard = async function(event, targetUrl) 
     console.warn("Instructor route save skipped:", e);
   }
 
-  window.location.href = targetUrl || "/instructor/?v=20260515dashboardworkingv25b";
+  window.location.href = targetUrl || "/instructor/?v=20260515roleswitchv26";
   return false;
 };
 
@@ -3012,9 +3012,25 @@ const ProfileManager = {
       }
     };
 
-    if (profile.profileType === "Instructor / Teacher" || profile.profileType === "Trade School / Training Center") profile.instructor.isInstructor = true;
-    if (profile.profileType === "Apprentice") profile.apprenticeship.isApprentice = true;
-    if (profile.instructor.isInstructor && profile.profileType !== "Apprentice") profile.apprenticeship.isApprentice = false;
+    /*
+      ROLE SWITCH FIX v26:
+      A user may switch from Instructor to Apprentice or Apprentice to Instructor.
+      The old opposite flag must be cleared or routing will keep treating the account
+      as the previous role.
+    */
+    if (profile.profileType === "Apprentice") {
+      profile.apprenticeship.isApprentice = true;
+      profile.instructor.isInstructor = false;
+    } else if (profile.profileType === "Instructor / Teacher" || profile.profileType === "Trade School / Training Center") {
+      profile.instructor.isInstructor = true;
+      profile.apprenticeship.isApprentice = false;
+    } else {
+      profile.instructor.isInstructor = false;
+      profile.apprenticeship.isApprentice = false;
+    }
+
+    profile.isApprentice = profile.apprenticeship.isApprentice === true;
+    profile.isInstructor = profile.instructor.isInstructor === true;
 
     profile.school = profile.instructor.isInstructor ? profile.instructor.school : (profile.apprenticeship.school || profile.apprenticeship.program || "");
     profile.studentSchool = profile.apprenticeship.school || profile.apprenticeship.program || "";
@@ -5346,6 +5362,75 @@ function restoreActiveNav() {
     }
   }
 }
+</script>
+
+
+<script>
+/* LTN ROLE SWITCH UI FIX v26 */
+(function(){
+  function byId(id){ return document.getElementById(id); }
+
+  function syncRoleUI(){
+    var type = byId("input-profile-type");
+    var app = byId("input-is-apprentice");
+    var inst = byId("input-is-instructor");
+    var appFields = byId("apprentice-fields");
+    var instFields = byId("instructor-fields");
+
+    if(!type || !app || !inst) return;
+
+    if(type.value === "Apprentice"){
+      app.checked = true;
+      inst.checked = false;
+    }
+
+    if(type.value === "Instructor / Teacher" || type.value === "Trade School / Training Center"){
+      inst.checked = true;
+      app.checked = false;
+    }
+
+    if(type.value !== "Apprentice" && type.value !== "Instructor / Teacher" && type.value !== "Trade School / Training Center"){
+      app.checked = false;
+      inst.checked = false;
+    }
+
+    if(appFields) appFields.style.display = app.checked ? "block" : "none";
+    if(instFields) instFields.style.display = inst.checked ? "block" : "none";
+  }
+
+  document.addEventListener("change", function(e){
+    var target = e.target;
+    if(!target) return;
+
+    var type = byId("input-profile-type");
+    var app = byId("input-is-apprentice");
+    var inst = byId("input-is-instructor");
+
+    if(target.id === "input-profile-type"){
+      syncRoleUI();
+    }
+
+    if(target.id === "input-is-apprentice" && target.checked){
+      if(type) type.value = "Apprentice";
+      if(inst) inst.checked = false;
+      syncRoleUI();
+    }
+
+    if(target.id === "input-is-instructor" && target.checked){
+      if(type) type.value = "Instructor / Teacher";
+      if(app) app.checked = false;
+      syncRoleUI();
+    }
+  });
+
+  document.addEventListener("click", function(e){
+    if(e.target && e.target.id === "edit-profile-btn"){
+      setTimeout(syncRoleUI, 120);
+    }
+  });
+
+  window.LTNSyncRoleUI = syncRoleUI;
+})();
 </script>
 
 </body>
