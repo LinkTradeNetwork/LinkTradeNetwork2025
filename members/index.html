@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LTN Members</title>
 
-  <!-- LTN FORCE UPDATE VERSION: members-achievements-display-20260512-v5 -->
+  <!-- LTN FORCE UPDATE VERSION: members-role-routing-instructor-center-20260515-v6 -->
 
   <style>
     *{
@@ -392,7 +392,7 @@
   const accessGranted = localStorage.getItem("ltn_access_granted") === "true";
 
   if (!accessGranted) {
-    window.location.replace("/front.html?v=membersblocked-achievements-v16");
+    window.location.replace("/front.html?v=membersblocked-rolefix-v6");
     return;
   }
 })();
@@ -402,8 +402,10 @@
   <div class="logo">LTN • LinkTradeNetwork</div>
 
   <div class="nav">
-    <a href="/dashboard/?v=20260513cleanurlv16">Dashboard</a>
-    <a href="/members/?v=20260513cleanurlv16">Members</a>
+    <a href="/dashboard/?v=20260515membersrolefixv6">Dashboard</a>
+    <a href="/members/?v=20260515membersrolefixv6">Members</a>
+    <a href="/apprenticeship/?v=20260515membersrolefixv6" onclick="return ltnRouteTrackProgressFromMembers(event, this.href)">Track My Progress</a>
+    <a href="/instructor/?v=20260515membersrolefixv6" onclick="return ltnRouteInstructorCenterFromMembers(event, this.href)">Instructor Center</a>
     <button onclick="logoutUser()">Logout</button>
   </div>
 </div>
@@ -445,6 +447,91 @@
 
   let members = [];
 
+  function readLTNProfile(){
+    const keys = [
+      "ltn_current_profile",
+      "ltnUserProfile",
+      "ltn_profile",
+      "currentUserProfile",
+      "userProfile",
+      "ltn_user",
+      "ltn_instructor_center_profile"
+    ];
+
+    for(const key of keys){
+      try{
+        const raw = localStorage.getItem(key);
+        if(!raw) continue;
+        const parsed = JSON.parse(raw);
+        if(parsed && typeof parsed === "object") return parsed;
+      }catch(e){}
+    }
+
+    return {};
+  }
+
+  function isInstructorProfile(profile){
+    const type = String(profile.profileType || profile.role || "").toLowerCase();
+    const instructor = profile.instructor || {};
+
+    return (
+      profile.isInstructor === true ||
+      instructor.isInstructor === true ||
+      type.includes("instructor") ||
+      type.includes("teacher") ||
+      type.includes("training center") ||
+      type.includes("trade school")
+    );
+  }
+
+  function isApprenticeProfile(profile){
+    const type = String(profile.profileType || profile.role || "").toLowerCase();
+    const apprenticeship = profile.apprenticeship || {};
+
+    return (
+      profile.isApprentice === true ||
+      apprenticeship.isApprentice === true ||
+      type.includes("apprentice") ||
+      type.includes("student")
+    );
+  }
+
+  window.ltnRouteTrackProgressFromMembers = async function(event, href){
+    if(event) event.preventDefault();
+
+    const profile = readLTNProfile();
+
+    if(isInstructorProfile(profile)){
+      alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
+      window.location.href = "/instructor/?v=20260515membersrolefixv6";
+      return false;
+    }
+
+    if(!isApprenticeProfile(profile)){
+      alert("Track My Progress is for apprentices and students. Open Edit Profile and mark yourself as an apprentice/student first.");
+      window.location.href = "/dashboard/?v=20260515membersrolefixv6";
+      return false;
+    }
+
+    window.location.href = href || "/apprenticeship/?v=20260515membersrolefixv6";
+    return false;
+  };
+
+  window.ltnRouteInstructorCenterFromMembers = async function(event, href){
+    if(event) event.preventDefault();
+
+    const profile = readLTNProfile();
+
+    if(!isInstructorProfile(profile)){
+      alert("Instructor Center is for Instructor / Teacher or Trade School accounts.");
+      window.location.href = "/dashboard/?v=20260515membersrolefixv6";
+      return false;
+    }
+
+    window.location.href = href || "/instructor/?v=20260515membersrolefixv6";
+    return false;
+  };
+
   window.logoutUser = async function () {
     try{
       await signOut(auth);
@@ -462,7 +549,7 @@
     localStorage.removeItem("userName");
     localStorage.removeItem("ltn_apprentice_email");
 
-    window.location.replace("/front.html?v=loggedoutmembers-achievements-v16");
+    window.location.replace("/front.html?v=loggedoutmembers-rolefix-v6");
   };
 
   function safe(value){
@@ -725,7 +812,7 @@
 
         ${renderAchievements(member)}
 
-        <button class="btn" onclick="window.location.href='/profile.html?id=${safeUrl(member.id)}&v=20260513cleanurlv16'">
+        <button class="btn" onclick="window.location.href='/profile.html?id=${safeUrl(member.id)}&v=20260515membersrolefixv6'">
           View Profile
         </button>
       `;
