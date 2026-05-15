@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
 
-<!-- LTN FORCE UPDATE 2026-05-15: DASHBOARD MOBILE APP COMING 2026 v16 -->
-<!-- LTN VERSION: dashboard-mobile-app-coming-2026-v16 -->
+<!-- LTN FORCE UPDATE 2026-05-15: DASHBOARD PROFILE UX PRIORITY v17 -->
+<!-- LTN VERSION: dashboard-profile-edit-first-upload-docs-second-v17 -->
 
 <style>
 :root{
@@ -997,20 +997,20 @@ a[href^="/apprenticeship/"]:hover,a[href^="/find-apprenticeships/"]:hover{
 
         <div class="documents-list" id="documents-list"></div>
 
-        <div class="upload-area" id="profile-upload">
-          <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"/></svg>
-          <div class="small">Click to upload documents</div>
-          <div class="small">(Resume, certifications, licenses)</div>
-          <input type="file" id="file-upload" style="display:none" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-        </div>
-
         <div class="stats">
           <div class="stat-card"><div class="stat-number" id="connections-count">0</div><div class="stat-label">Connections</div></div>
           <div class="stat-card"><div class="stat-number" id="applications-count">0</div><div class="stat-label">Applications</div></div>
         </div>
 
         <p class="small">Complete your profile to improve visibility with contractors and employers.</p>
-        <button class="btn-primary" id="edit-profile-btn" style="width:100%;margin-top:10px">Edit Profile</button>
+        <button class="btn-primary" id="edit-profile-btn" style="width:100%;margin-top:10px;margin-bottom:18px">Edit Profile</button>
+
+        <div class="upload-area" id="profile-upload">
+          <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"/></svg>
+          <div class="small">Click to upload documents</div>
+          <div class="small">(Resume, certifications, licenses)</div>
+          <input type="file" id="file-upload" style="display:none" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+        </div>
       </div>
     </section>
 
