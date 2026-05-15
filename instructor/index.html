@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-15: INSTRUCTOR CENTER VERIFIED SKILLS v4 -->
-<!-- LTN VERSION: instructor-center-verified-skills-v4 -->
+<!-- LTN FORCE UPDATE 2026-05-15: INSTRUCTOR CENTER CLEAN ROSTER VERIFIED SKILLS v5 -->
+<!-- LTN VERSION: instructor-center-clean-roster-verified-skills-v5 -->
 
 <style>
 :root{
@@ -735,7 +735,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515instructorv4";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515instructorv5";
 
   window.LTNClearLocalSession = function(){
     [
@@ -778,11 +778,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260515instructorv4">Dashboard</a>
-      <a href="/members/?v=20260515instructorv4">Members</a>
-      <a href="/instructor/?v=20260515instructorv4" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260515instructorv4" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260515instructorv4">Network Center</a>
+      <a href="/dashboard/?v=20260515instructorv5">Dashboard</a>
+      <a href="/members/?v=20260515instructorv5">Members</a>
+      <a href="/instructor/?v=20260515instructorv5" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260515instructorv5" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260515instructorv5">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -795,11 +795,10 @@ textarea.form-control{min-height:106px;resize:vertical}
       <h1>Instructor Center</h1>
       <p>
         Manage your instructor profile, school information, student roster, student progress,
-        accomplishments, and uploaded instructor documents from one place.
+        verified skills, and uploaded instructor documents from one place.
       </p>
       <div class="hero-actions">
         <button class="btn btn-primary" onclick="InstructorCenter.openStudentModal()">Add Student</button>
-        <button class="btn btn-secondary" onclick="InstructorCenter.openAccomplishmentModal()">Add Accomplishment</button>
         <button class="btn btn-secondary" onclick="InstructorCenter.openDocumentModal()">Upload Instructor Document</button>
       </div>
     </div>
@@ -830,7 +829,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260515instructorv4">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260515instructorv5">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -844,8 +843,8 @@ textarea.form-control{min-height:106px;resize:vertical}
               <div class="stat-label">Students</div>
             </div>
             <div class="stat-card">
-              <div class="stat-number" id="accomplishments-count">0</div>
-              <div class="stat-label">Accomplishments</div>
+              <div class="stat-number" id="verified-skills-count">0</div>
+              <div class="stat-label">Verified Skills</div>
             </div>
             <div class="stat-card">
               <div class="stat-number" id="documents-count">0</div>
@@ -894,22 +893,6 @@ textarea.form-control{min-height:106px;resize:vertical}
         </div>
       </div>
 
-      <div class="card">
-        <div class="hd">
-          <span>Student Accomplishments</span>
-          <button class="btn btn-primary" style="min-height:34px;padding:8px 12px;font-size:13px" onclick="InstructorCenter.openAccomplishmentModal()">Add</button>
-        </div>
-        <div class="bd">
-          <div class="tabs">
-            <button class="tab active" onclick="InstructorCenter.setAccomplishmentFilter('all', this)">All</button>
-            <button class="tab" onclick="InstructorCenter.setAccomplishmentFilter('photos', this)">Photos</button>
-            <button class="tab" onclick="InstructorCenter.setAccomplishmentFilter('hours', this)">Hours</button>
-            <button class="tab" onclick="InstructorCenter.setAccomplishmentFilter('certification', this)">Certifications</button>
-            <button class="tab" onclick="InstructorCenter.setAccomplishmentFilter('project', this)">Projects</button>
-          </div>
-          <div id="accomplishments-list" class="list"></div>
-        </div>
-      </div>
 
       <div class="card">
         <div class="hd">
@@ -1039,47 +1022,6 @@ textarea.form-control{min-height:106px;resize:vertical}
   </div>
 </div>
 
-<!-- Add Accomplishment Modal -->
-<div class="modal-backdrop" id="accomplishment-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>Add Accomplishment</h2>
-      <button class="modal-close" onclick="InstructorCenter.closeModal('accomplishment-modal')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="two-col">
-        <div class="form-group">
-          <label>Student Name</label>
-          <input type="text" id="acc-student" class="form-control" placeholder="Student name">
-        </div>
-        <div class="form-group">
-          <label>Type</label>
-          <select id="acc-type" class="form-control">
-            <option value="project">Project</option>
-            <option value="photos">Photo / Work Evidence</option>
-            <option value="hours">Hours Logged</option>
-            <option value="certification">Certification</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Title *</label>
-        <input type="text" id="acc-title" class="form-control" placeholder="Completed conduit layout, passed safety module, uploaded jobsite photo...">
-      </div>
-
-      <div class="form-group">
-        <label>Description</label>
-        <textarea id="acc-desc" class="form-control" placeholder="Describe the work, milestone, skill, or accomplishment..."></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="InstructorCenter.closeModal('accomplishment-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="InstructorCenter.saveAccomplishment()">Save Accomplishment</button>
-    </div>
-  </div>
-</div>
-
 <!-- Upload Document Modal -->
 <div class="modal-backdrop" id="document-modal">
   <div class="modal">
@@ -1156,14 +1098,12 @@ document.documentElement.classList.add("auth-ready");
 const LOCAL_KEYS = {
   instructor:"ltn_instructor_center_profile",
   students:"ltn_instructor_students",
-  accomplishments:"ltn_instructor_accomplishments",
   documents:"ltn_instructor_documents"
 };
 
 let currentUserEmail = "";
 let currentUserId = "";
 let currentProfile = {};
-let currentAccomplishmentFilter = "all";
 let autoLinkedStudents = [];
 let studentSkillsByUserId = {};
 
@@ -1318,13 +1258,6 @@ function mergeStudents(manualStudents, linkedStudents){
   return merged;
 }
 
-function getAccomplishments(){
-  return safeJsonParse(localStorage.getItem(LOCAL_KEYS.accomplishments), []) || [];
-}
-
-function saveAccomplishments(items){
-  localStorage.setItem(LOCAL_KEYS.accomplishments, JSON.stringify(items));
-}
 
 function getDocuments(){
   return safeJsonParse(localStorage.getItem(LOCAL_KEYS.documents), []) || [];
@@ -1387,8 +1320,8 @@ function updateProfileDisplay(){
 
 function updateStats(){
   const students = mergeStudents(getStudents(), autoLinkedStudents);
-  const accomplishments = getAccomplishments();
   const documents = getDocuments();
+  const verifiedSkillCount = Object.values(studentSkillsByUserId).reduce((total, skills) => total + skills.length, 0);
 
   const avg = students.length
     ? Math.round(students.reduce((sum,s) => {
@@ -1399,7 +1332,7 @@ function updateStats(){
     : 0;
 
   document.getElementById("students-count").innerText = students.length;
-  document.getElementById("accomplishments-count").innerText = accomplishments.length;
+  document.getElementById("verified-skills-count").innerText = verifiedSkillCount;
   document.getElementById("documents-count").innerText = documents.length;
   document.getElementById("avg-progress").innerText = avg + "%";
 }
@@ -1698,7 +1631,7 @@ window.InstructorCenter = {
             <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260515instructorv4">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260515instructorv5">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -1710,87 +1643,6 @@ window.InstructorCenter = {
         </div>
       `;
     }).join("");
-  },
-
-  openAccomplishmentModal(){
-    document.getElementById("acc-student").value = "";
-    document.getElementById("acc-type").value = "project";
-    document.getElementById("acc-title").value = "";
-    document.getElementById("acc-desc").value = "";
-    this.openModal("accomplishment-modal");
-  },
-
-  async saveAccomplishment(){
-    const title = document.getElementById("acc-title").value.trim();
-    if(!title){
-      alert("Accomplishment title is required.");
-      return;
-    }
-
-    const items = getAccomplishments();
-    const item = {
-      id:"acc_" + Date.now(),
-      student:document.getElementById("acc-student").value.trim(),
-      type:document.getElementById("acc-type").value,
-      title,
-      desc:document.getElementById("acc-desc").value.trim(),
-      instructorEmail:currentProfile.email || currentUserEmail || "",
-      school:currentProfile.school || "",
-      createdAt:new Date().toISOString()
-    };
-
-    items.unshift(item);
-    saveAccomplishments(items);
-
-    if(currentUserId){
-      try{
-        await addDoc(collection(db,"instructorAccomplishments"),{
-          ...item,
-          instructorId:currentUserId,
-          createdAt:serverTimestamp()
-        });
-      }catch(e){
-        console.warn("Accomplishment saved locally only:", e);
-      }
-    }
-
-    this.closeModal("accomplishment-modal");
-    this.renderAccomplishments();
-    updateStats();
-  },
-
-  setAccomplishmentFilter(filter, btn){
-    currentAccomplishmentFilter = filter;
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    btn.classList.add("active");
-    this.renderAccomplishments();
-  },
-
-  renderAccomplishments(){
-    const list = document.getElementById("accomplishments-list");
-    let items = getAccomplishments();
-
-    if(currentAccomplishmentFilter !== "all"){
-      items = items.filter(i => i.type === currentAccomplishmentFilter);
-    }
-
-    if(!items.length){
-      list.innerHTML = emptyState("No accomplishments yet", "Add student milestones, uploaded work evidence, certifications, and project progress.");
-      return;
-    }
-
-    list.innerHTML = items.map(i => `
-      <div class="accomplishment-card">
-        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
-          <div>
-            <div class="person-name">${escapeHtml(i.title)}</div>
-            <div class="person-meta">${escapeHtml(i.student || "Student not assigned")} • ${escapeHtml(i.type || "Accomplishment")}</div>
-          </div>
-          <span class="badge badge-blue">${escapeHtml(i.type || "Item")}</span>
-        </div>
-        <div class="small" style="margin-top:10px">${escapeHtml(i.desc || "No description added.")}</div>
-      </div>
-    `).join("");
   },
 
   openDocumentModal(){
@@ -1878,7 +1730,7 @@ document.addEventListener("click", function(e){
 window.ltnInstructorBlockTrackProgress = function(event){
   event.preventDefault();
   alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-  window.location.href = "/instructor/?v=20260515instructorv4";
+  window.location.href = "/instructor/?v=20260515instructorv5";
   return false;
 };
 
@@ -1906,7 +1758,6 @@ async function init(){
   await loadAutoLinkedStudents();
   await loadVerifiedSkills();
   InstructorCenter.renderStudents();
-  InstructorCenter.renderAccomplishments();
   InstructorCenter.renderDocuments();
   updateStats();
 }
