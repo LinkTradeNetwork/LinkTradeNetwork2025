@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-16: INSTRUCTOR CENTER VERIFICATION RECORDS ACTIVE HERO BUTTONS v12 -->
-<!-- LTN VERSION: instructor-center-verification-records-active-buttons-v12 -->
+<!-- LTN FORCE UPDATE 2026-05-16: INSTRUCTOR CENTER APTITUDE SCORES v13 -->
+<!-- LTN VERSION: instructor-center-aptitude-scores-v13 -->
 
 <style>
 :root{
@@ -590,6 +590,64 @@ textarea.form-control{min-height:106px;resize:vertical}
   font-weight:750;
 }
 
+
+.aptitude-results{
+  margin-top:12px;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  border-radius:14px;
+  padding:12px;
+}
+
+.aptitude-title{
+  color:#9a3412;
+  font-size:12px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-bottom:8px;
+}
+
+.aptitude-score-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:8px;
+}
+
+.aptitude-score{
+  background:white;
+  border:1px solid #fed7aa;
+  border-radius:10px;
+  padding:8px 9px;
+}
+
+.aptitude-score span{
+  display:block;
+  color:#9a3412;
+  font-size:10px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.aptitude-score b{
+  display:block;
+  color:#182230;
+  font-size:14px;
+  margin-top:2px;
+}
+
+.aptitude-empty{
+  margin-top:12px;
+  background:#f8fafc;
+  border:1px dashed #cbd5e1;
+  border-radius:12px;
+  padding:10px 12px;
+  color:#64748b;
+  font-size:12px;
+  font-weight:800;
+}
+
 .empty-state{
   text-align:center;
   padding:34px 18px;
@@ -802,7 +860,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260516instructorv11";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260516instructorv13";
 
   window.LTNClearLocalSession = function(){
     [
@@ -845,11 +903,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260516instructorv11">Dashboard</a>
-      <a href="/members/?v=20260516instructorv11">Members</a>
-      <a href="/instructor/?v=20260516instructorv11" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260516instructorv11" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260516instructorv11">Network Center</a>
+      <a href="/dashboard/?v=20260516instructorv13">Dashboard</a>
+      <a href="/members/?v=20260516instructorv13">Members</a>
+      <a href="/instructor/?v=20260516instructorv13" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260516instructorv13" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260516instructorv13">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -865,9 +923,9 @@ textarea.form-control{min-height:106px;resize:vertical}
         verified skills, and class assignments from one place.
       </p>
       <div class="hero-actions">
-        <button class="btn btn-primary" onclick="InstructorCenter.openStudentModal(this)">Add Student</button>
-        <button class="btn btn-secondary" onclick="InstructorCenter.openSkillApprovalModal(null, this)">Approve Skill</button>
-        <button class="btn btn-secondary" onclick="InstructorCenter.openDocumentModal(this)">Upload Assignment</button>
+        <button class="btn btn-secondary hero-action-btn" onclick="InstructorCenter.openStudentModal(this)">Add Student</button>
+        <button class="btn btn-secondary hero-action-btn" onclick="InstructorCenter.openSkillApprovalModal(null, this)">Approve Skill</button>
+        <button class="btn btn-secondary hero-action-btn" onclick="InstructorCenter.openDocumentModal(this)">Upload Assignment</button>
       </div>
     </div>
 
@@ -897,7 +955,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260516instructorv11">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260516instructorv13">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1256,6 +1314,7 @@ let currentProfile = {};
 let autoLinkedStudents = [];
 let studentSkillsByUserId = {};
 let allVerifiedSkills = [];
+let aptitudeTestsByUserId = {};
 
 function safeJsonParse(value, fallback){
   try{return JSON.parse(value || "");}catch(e){return fallback;}
@@ -1547,6 +1606,101 @@ async function loadAutoLinkedStudents(){
 
   autoLinkedStudents = Array.from(results.values());
 }
+
+
+function normalizeAptitudeTest(id, data){
+  return {
+    id,
+    authUid:String(data.authUid || data.userId || data.studentId || id || "").trim(),
+    studentName:String(data.studentName || "").trim(),
+    studentEmail:normalizeEmail(data.studentEmail || ""),
+    schoolCode:String(data.schoolCode || "").trim().toUpperCase(),
+    cohortName:String(data.cohortName || "").trim(),
+    status:String(data.status || "Not Started").trim(),
+    totalScore:Number(data.totalScore || 0),
+    mathScore:Number(data.mathScore || 0),
+    readingScore:Number(data.readingScore || 0),
+    mechanicalScore:Number(data.mechanicalScore || 0),
+    safetyScore:Number(data.safetyScore || 0),
+    toolScore:Number(data.toolScore || 0),
+    blueprintScore:Number(data.blueprintScore || 0),
+    completedDate:String(data.completedDate || "").trim(),
+    completedAt:data.completedAt || ""
+  };
+}
+
+async function loadAptitudeTests(){
+  aptitudeTestsByUserId = {};
+
+  const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
+
+  async function addAptitudeResults(qRef){
+    const snap = await getDocs(qRef);
+    snap.forEach(docSnap => {
+      const test = normalizeAptitudeTest(docSnap.id, docSnap.data());
+      if(test.authUid){
+        aptitudeTestsByUserId[test.authUid] = test;
+      }
+    });
+  }
+
+  if(schoolCode){
+    try{
+      await addAptitudeResults(
+        query(collection(db,"aptitudeTests"), where("schoolCode","==",schoolCode), limit(200))
+      );
+    }catch(e){
+      console.warn("Aptitude test school query failed", e);
+    }
+  }
+
+  const students = mergeStudents(getStudents(), autoLinkedStudents);
+  for(const student of students){
+    const uid = String(student.authUid || student.userId || "").trim();
+    if(!uid || aptitudeTestsByUserId[uid]) continue;
+
+    try{
+      const snap = await getDoc(doc(db,"aptitudeTests",uid));
+      if(snap.exists()){
+        aptitudeTestsByUserId[uid] = normalizeAptitudeTest(snap.id, snap.data());
+      }
+    }catch(e){
+      console.warn("Aptitude direct lookup failed for", uid, e);
+    }
+  }
+}
+
+function aptitudeHtml(student){
+  if(!student) return "";
+
+  const authUid = String(student.authUid || student.userId || student.id || "").trim();
+  const test = authUid ? aptitudeTestsByUserId[authUid] : null;
+
+  if(!test || test.status !== "Completed"){
+    return `
+      <div class="aptitude-empty">
+        Aptitude Test: Not completed yet.
+      </div>
+    `;
+  }
+
+  return `
+    <div class="aptitude-results">
+      <div class="aptitude-title">Aptitude Test Completed</div>
+      <div class="aptitude-score-grid">
+        <div class="aptitude-score"><span>Total</span><b>${Number(test.totalScore || 0)}%</b></div>
+        <div class="aptitude-score"><span>Math</span><b>${Number(test.mathScore || 0)}%</b></div>
+        <div class="aptitude-score"><span>Reading</span><b>${Number(test.readingScore || 0)}%</b></div>
+        <div class="aptitude-score"><span>Mechanical</span><b>${Number(test.mechanicalScore || 0)}%</b></div>
+        <div class="aptitude-score"><span>Safety</span><b>${Number(test.safetyScore || 0)}%</b></div>
+        <div class="aptitude-score"><span>Tools</span><b>${Number(test.toolScore || 0)}%</b></div>
+        <div class="aptitude-score"><span>Blueprint</span><b>${Number(test.blueprintScore || 0)}%</b></div>
+        <div class="aptitude-score"><span>Date</span><b>${escapeHtml(test.completedDate || "Saved")}</b></div>
+      </div>
+    </div>
+  `;
+}
+
 
 function normalizeSkillDoc(id, data){
   const authUid = String(data.authUid || data.studentId || data.userId || "").trim();
@@ -1886,7 +2040,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260516instructorv11">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260516instructorv13">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -1894,6 +2048,7 @@ window.InstructorCenter = {
             <span>${hours.toLocaleString()} / ${goal.toLocaleString()} hours</span>
             <span>${pct}%</span>
           </div>
+          ${aptitudeHtml(s)}
           ${verifiedSkillsHtml(s, students.length)}
         </div>
       `;
@@ -2125,7 +2280,7 @@ document.addEventListener("click", function(e){
 window.ltnInstructorBlockTrackProgress = function(event){
   event.preventDefault();
   alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-  window.location.href = "/instructor/?v=20260516instructorv11";
+  window.location.href = "/instructor/?v=20260516instructorv13";
   return false;
 };
 
@@ -2151,6 +2306,7 @@ async function init(){
 
   updateProfileDisplay();
   await loadAutoLinkedStudents();
+  await loadAptitudeTests();
   await loadVerifiedSkills();
   InstructorCenter.renderStudents();
   console.log("LTN verified skills loaded", allVerifiedSkills);
