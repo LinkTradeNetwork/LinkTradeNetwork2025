@@ -1058,7 +1058,7 @@ textarea.form-control{min-height:106px;resize:vertical}
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="InstructorCenter.closeModal('document-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="InstructorCenter.saveDocument()">Save Document</button>
+      <button class="btn btn-primary" onclick="InstructorCenter.saveDocument()">Save Assignment</button>
     </div>
   </div>
 </div>
@@ -1453,25 +1453,8 @@ async function loadVerifiedSkills(){
   }
 }
 
-function verifiedSkillsHtml(student){
-  if(!student) return "";
-
-  const authUid = String(student.authUid || student.userId || student.id || "").trim();
-  const studentName = String(student.name || "").trim().toLowerCase();
-
-  let skills = authUid ? (studentSkillsByUserId[authUid] || []) : [];
-
-  /* Fallback match: keeps verified skills visible even if older student records
-     were created before authUid was standardized. */
-  if(!skills.length && studentName){
-    skills = allVerifiedSkills.filter(skill => {
-      return String(skill.studentName || "").trim().toLowerCase() === studentName;
-    });
-  }
-
-  if(!skills.length){
-    return "";
-  }
+function buildVerifiedSkillsBlock(skills){
+  if(!Array.isArray(skills) || !skills.length) return "";
 
   const uniqueSkills = [];
   const seen = new Set();
@@ -1482,6 +1465,8 @@ function verifiedSkillsHtml(student){
     seen.add(key);
     uniqueSkills.push(skill);
   });
+
+  if(!uniqueSkills.length) return "";
 
   return `
     <div class="verified-skills">
@@ -1495,6 +1480,40 @@ function verifiedSkillsHtml(student){
       </div>
     </div>
   `;
+}
+
+function verifiedSkillsHtml(student, totalVisibleStudents){
+  if(!student) return "";
+
+  const authUid = String(student.authUid || student.userId || student.id || "").trim();
+  const studentName = String(student.name || "").trim().toLowerCase();
+  const studentEmail = String(student.email || "").trim().toLowerCase();
+
+  let skills = [];
+
+  if(authUid && studentSkillsByUserId[authUid]){
+    skills = studentSkillsByUserId[authUid];
+  }
+
+  if(!skills.length && studentName){
+    skills = allVerifiedSkills.filter(skill => {
+      return String(skill.studentName || "").trim().toLowerCase() === studentName;
+    });
+  }
+
+  if(!skills.length && studentEmail){
+    skills = allVerifiedSkills.filter(skill => {
+      return String(skill.studentEmail || "").trim().toLowerCase() === studentEmail;
+    });
+  }
+
+  /* Safety fallback: if the instructor has one visible student and one or more verified skills loaded,
+     show those skills on that one student card instead of hiding them because of an old ID mismatch. */
+  if(!skills.length && Number(totalVisibleStudents || 0) === 1 && allVerifiedSkills.length){
+    skills = allVerifiedSkills;
+  }
+
+  return buildVerifiedSkillsBlock(skills);
 }
 
 window.InstructorCenter = {
@@ -1669,7 +1688,7 @@ window.InstructorCenter = {
             <span>${hours.toLocaleString()} / ${goal.toLocaleString()} hours</span>
             <span>${pct}%</span>
           </div>
-          ${verifiedSkillsHtml(s)}
+          ${verifiedSkillsHtml(s, students.length)}
         </div>
       `;
     }).join("");
@@ -1788,6 +1807,7 @@ async function init(){
   await loadAutoLinkedStudents();
   await loadVerifiedSkills();
   InstructorCenter.renderStudents();
+  console.log("LTN verified skills loaded", allVerifiedSkills);
   InstructorCenter.renderDocuments();
   updateStats();
 }
