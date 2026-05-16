@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-15: INSTRUCTOR CENTER CLASS ASSIGNMENTS v6 -->
-<!-- LTN VERSION: instructor-center-class-assignments-v6 -->
+<!-- LTN FORCE UPDATE 2026-05-15: INSTRUCTOR CENTER CLASS ASSIGNMENTS AUTHUID v7 -->
+<!-- LTN VERSION: instructor-center-class-assignments-authuid-v7 -->
 
 <style>
 :root{
@@ -735,7 +735,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515instructorv6";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515instructorv7";
 
   window.LTNClearLocalSession = function(){
     [
@@ -778,11 +778,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260515instructorv6">Dashboard</a>
-      <a href="/members/?v=20260515instructorv6">Members</a>
-      <a href="/instructor/?v=20260515instructorv6" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260515instructorv6" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260515instructorv6">Network Center</a>
+      <a href="/dashboard/?v=20260515instructorv7">Dashboard</a>
+      <a href="/members/?v=20260515instructorv7">Members</a>
+      <a href="/instructor/?v=20260515instructorv7" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260515instructorv7" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260515instructorv7">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -829,7 +829,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260515instructorv6">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260515instructorv7">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1229,6 +1229,7 @@ function normalizeStudentFromUserDoc(id, u){
     id:"firebase_" + id,
     source:"firebase",
     userId:id,
+    authUid:u.authUid || id,
     name:u.fullName || u.name || u.displayName || "Student",
     email:normalizeEmail(u.email || ""),
     trade:u.trade || u.specialty || "Trade not added",
@@ -1400,9 +1401,12 @@ async function loadAutoLinkedStudents(){
 }
 
 function normalizeSkillDoc(id, data){
+  const authUid = String(data.authUid || data.studentId || data.userId || "").trim();
+
   return {
     id,
-    studentId:String(data.studentId || "").trim(),
+    authUid,
+    studentId:authUid,
     studentName:String(data.studentName || "").trim(),
     skillName:String(data.skillName || "").trim(),
     schoolCode:String(data.schoolCode || "").trim().toUpperCase(),
@@ -1431,15 +1435,15 @@ async function loadVerifiedSkills(){
     snap.forEach(docSnap => {
       const skill = normalizeSkillDoc(docSnap.id, docSnap.data());
 
-      if(!skill.studentId || !skill.skillName || skill.approved !== true){
+      if(!skill.authUid || !skill.skillName || skill.approved !== true){
         return;
       }
 
-      if(!studentSkillsByUserId[skill.studentId]){
-        studentSkillsByUserId[skill.studentId] = [];
+      if(!studentSkillsByUserId[skill.authUid]){
+        studentSkillsByUserId[skill.authUid] = [];
       }
 
-      studentSkillsByUserId[skill.studentId].push(skill);
+      studentSkillsByUserId[skill.authUid].push(skill);
     });
   }catch(e){
     console.warn("Verified skills query failed", e);
@@ -1447,9 +1451,12 @@ async function loadVerifiedSkills(){
 }
 
 function verifiedSkillsHtml(student){
-  if(!student || !student.userId) return "";
+  if(!student) return "";
 
-  const skills = studentSkillsByUserId[student.userId] || [];
+  const authUid = String(student.authUid || student.userId || student.id || "").trim();
+  if(!authUid) return "";
+
+  const skills = studentSkillsByUserId[authUid] || [];
 
   if(!skills.length){
     return "";
@@ -1633,7 +1640,7 @@ window.InstructorCenter = {
             <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260515instructorv6">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260515instructorv7">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -1732,7 +1739,7 @@ document.addEventListener("click", function(e){
 window.ltnInstructorBlockTrackProgress = function(event){
   event.preventDefault();
   alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-  window.location.href = "/instructor/?v=20260515instructorv6";
+  window.location.href = "/instructor/?v=20260515instructorv7";
   return false;
 };
 
