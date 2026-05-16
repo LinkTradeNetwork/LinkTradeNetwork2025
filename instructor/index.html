@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-16: INSTRUCTOR CENTER REVIEW COMMENTS v15 -->
-<!-- LTN VERSION: instructor-center-review-comments-v15 -->
+<!-- LTN FORCE UPDATE 2026-05-16: INSTRUCTOR CENTER ANALYTICS v16 -->
+<!-- LTN VERSION: instructor-center-analytics-v16 -->
 
 <style>
 :root{
@@ -367,6 +367,47 @@ button:disabled{cursor:not-allowed;opacity:.55}
   color:var(--muted);
   font-size:14px;
   font-weight:650;
+}
+
+
+.analytics-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:14px;
+}
+
+.analytics-card{
+  background:linear-gradient(180deg,#ffffff,#f8fafc);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:var(--shadow-sm);
+}
+
+.analytics-card strong{
+  display:block;
+  font-size:34px;
+  line-height:1;
+  color:var(--accent);
+  font-weight:950;
+  margin-bottom:8px;
+}
+
+.analytics-card span{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.analytics-card small{
+  display:block;
+  margin-top:6px;
+  color:#64748b;
+  font-size:12px;
+  font-weight:700;
 }
 
 .stats{
@@ -908,14 +949,96 @@ textarea.form-control{min-height:106px;resize:vertical}
   .shell{padding:16px 10px 32px}
   .card .bd{padding:15px}
   .card .hd{padding:14px 15px;font-size:15px;align-items:flex-start;gap:8px;flex-wrap:wrap}
-  .stats{grid-template-columns:1fr 1fr;gap:8px}
+  
+.analytics-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:14px;
+}
+
+.analytics-card{
+  background:linear-gradient(180deg,#ffffff,#f8fafc);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:var(--shadow-sm);
+}
+
+.analytics-card strong{
+  display:block;
+  font-size:34px;
+  line-height:1;
+  color:var(--accent);
+  font-weight:950;
+  margin-bottom:8px;
+}
+
+.analytics-card span{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.analytics-card small{
+  display:block;
+  margin-top:6px;
+  color:#64748b;
+  font-size:12px;
+  font-weight:700;
+}
+
+.stats{grid-template-columns:1fr 1fr;gap:8px}
   .person-top{flex-direction:column}
   .hero-actions .btn{width:100%}
 }
 
 @media(max-width:370px){
   .logo-text{display:none}
-  .stats{grid-template-columns:1fr}
+  
+.analytics-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:14px;
+}
+
+.analytics-card{
+  background:linear-gradient(180deg,#ffffff,#f8fafc);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:var(--shadow-sm);
+}
+
+.analytics-card strong{
+  display:block;
+  font-size:34px;
+  line-height:1;
+  color:var(--accent);
+  font-weight:950;
+  margin-bottom:8px;
+}
+
+.analytics-card span{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.analytics-card small{
+  display:block;
+  margin-top:6px;
+  color:#64748b;
+  font-size:12px;
+  font-weight:700;
+}
+
+.stats{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -927,7 +1050,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260516instructorv15";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260516instructorv16";
 
   window.LTNClearLocalSession = function(){
     [
@@ -970,11 +1093,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260516instructorv15">Dashboard</a>
-      <a href="/members/?v=20260516instructorv15">Members</a>
-      <a href="/instructor/?v=20260516instructorv15" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260516instructorv15" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260516instructorv15">Network Center</a>
+      <a href="/dashboard/?v=20260516instructorv16">Dashboard</a>
+      <a href="/members/?v=20260516instructorv16">Members</a>
+      <a href="/instructor/?v=20260516instructorv16" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260516instructorv16" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260516instructorv16">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1022,7 +1145,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260516instructorv15">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260516instructorv16">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1062,6 +1185,50 @@ textarea.form-control{min-height:106px;resize:vertical}
     </aside>
 
     <section>
+      <div class="card">
+        <div class="hd">
+          <span>Instructor Analytics Dashboard</span>
+          <span class="badge badge-blue">Live Stats</span>
+        </div>
+
+        <div class="bd">
+          <div class="analytics-grid">
+
+            <div class="analytics-card">
+              <strong id="analytics-pending">0</strong>
+              <span>Pending Reviews</span>
+              <small>Uploads waiting for instructor review</small>
+            </div>
+
+            <div class="analytics-card">
+              <strong id="analytics-approved">0</strong>
+              <span>Approved Proofs</span>
+              <small>Instructor approved uploads</small>
+            </div>
+
+            <div class="analytics-card">
+              <strong id="analytics-rejected">0</strong>
+              <span>Rejected Proofs</span>
+              <small>Needs correction uploads</small>
+            </div>
+
+            <div class="analytics-card">
+              <strong id="analytics-aptitude">0</strong>
+              <span>Aptitude Completed</span>
+              <small>Students who completed aptitude tests</small>
+            </div>
+
+            <div class="analytics-card">
+              <strong id="analytics-hours">0</strong>
+              <span>Total Verified Hours</span>
+              <small>Hours approved across all students</small>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
       <div class="card">
         <div class="hd">
           <span>Student Roster</span>
@@ -1605,6 +1772,40 @@ function updateProfileDisplay(){
     <span>${escapeHtml(currentProfile.bio || "Instructor bio not added yet.")}</span>
   `;
 }
+
+
+function updateAnalytics(){
+  const approved = allVerifiedSkills.length;
+
+  const rejected = pendingReviews.filter(item => {
+    return String(item.status || "").toLowerCase() === "rejected";
+  }).length;
+
+  const pending = pendingReviews.filter(item => {
+    return String(item.status || "").toLowerCase() === "pending";
+  }).length;
+
+  const aptitudeCompleted = Object.values(aptitudeTestsByUserId).filter(test => {
+    return String(test.status || "").toLowerCase() === "completed";
+  }).length;
+
+  const verifiedHours = allVerifiedSkills.reduce((sum, skill) => {
+    return sum + Number(skill.hoursVerified || 0);
+  }, 0);
+
+  const pendingEl = document.getElementById("analytics-pending");
+  const approvedEl = document.getElementById("analytics-approved");
+  const rejectedEl = document.getElementById("analytics-rejected");
+  const aptitudeEl = document.getElementById("analytics-aptitude");
+  const hoursEl = document.getElementById("analytics-hours");
+
+  if(pendingEl) pendingEl.innerText = pending.toLocaleString();
+  if(approvedEl) approvedEl.innerText = approved.toLocaleString();
+  if(rejectedEl) rejectedEl.innerText = rejected.toLocaleString();
+  if(aptitudeEl) aptitudeEl.innerText = aptitudeCompleted.toLocaleString();
+  if(hoursEl) hoursEl.innerText = verifiedHours.toLocaleString();
+}
+
 
 function updateStats(){
   const students = mergeStudents(getStudents(), autoLinkedStudents);
@@ -2259,7 +2460,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260516instructorv15">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260516instructorv16">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -2499,7 +2700,7 @@ document.addEventListener("click", function(e){
 window.ltnInstructorBlockTrackProgress = function(event){
   event.preventDefault();
   alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-  window.location.href = "/instructor/?v=20260516instructorv15";
+  window.location.href = "/instructor/?v=20260516instructorv16";
   return false;
 };
 
