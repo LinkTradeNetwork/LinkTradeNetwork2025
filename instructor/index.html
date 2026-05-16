@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-16: INSTRUCTOR CENTER ANALYTICS v16 -->
-<!-- LTN VERSION: instructor-center-analytics-v16 -->
+<!-- LTN FORCE UPDATE 2026-05-16: INSTRUCTOR CENTER COHORT FILTER v17 -->
+<!-- LTN VERSION: instructor-center-cohort-filter-v17 -->
 
 <style>
 :root{
@@ -369,6 +369,44 @@ button:disabled{cursor:not-allowed;opacity:.55}
   font-weight:650;
 }
 
+
+
+.cohort-filter-panel{
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:18px;
+}
+
+.cohort-filter-panel label{
+  display:block;
+  color:#9a3412;
+  font-size:12px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-bottom:8px;
+}
+
+.cohort-filter-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.cohort-filter-row select{
+  flex:1;
+  min-width:240px;
+}
+
+.cohort-filter-note{
+  color:#7c2d12;
+  font-size:12px;
+  font-weight:800;
+  margin-top:8px;
+}
 
 .analytics-grid{
   display:grid;
@@ -950,6 +988,44 @@ textarea.form-control{min-height:106px;resize:vertical}
   .card .bd{padding:15px}
   .card .hd{padding:14px 15px;font-size:15px;align-items:flex-start;gap:8px;flex-wrap:wrap}
   
+
+.cohort-filter-panel{
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:18px;
+}
+
+.cohort-filter-panel label{
+  display:block;
+  color:#9a3412;
+  font-size:12px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-bottom:8px;
+}
+
+.cohort-filter-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.cohort-filter-row select{
+  flex:1;
+  min-width:240px;
+}
+
+.cohort-filter-note{
+  color:#7c2d12;
+  font-size:12px;
+  font-weight:800;
+  margin-top:8px;
+}
+
 .analytics-grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
@@ -998,6 +1074,44 @@ textarea.form-control{min-height:106px;resize:vertical}
 @media(max-width:370px){
   .logo-text{display:none}
   
+
+.cohort-filter-panel{
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:18px;
+}
+
+.cohort-filter-panel label{
+  display:block;
+  color:#9a3412;
+  font-size:12px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-bottom:8px;
+}
+
+.cohort-filter-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.cohort-filter-row select{
+  flex:1;
+  min-width:240px;
+}
+
+.cohort-filter-note{
+  color:#7c2d12;
+  font-size:12px;
+  font-weight:800;
+  margin-top:8px;
+}
+
 .analytics-grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
@@ -1050,7 +1164,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260516instructorv16";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260516instructorv17";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1093,11 +1207,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260516instructorv16">Dashboard</a>
-      <a href="/members/?v=20260516instructorv16">Members</a>
-      <a href="/instructor/?v=20260516instructorv16" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260516instructorv16" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260516instructorv16">Network Center</a>
+      <a href="/dashboard/?v=20260516instructorv17">Dashboard</a>
+      <a href="/members/?v=20260516instructorv17">Members</a>
+      <a href="/instructor/?v=20260516instructorv17" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260516instructorv17" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260516instructorv17">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1145,7 +1259,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260516instructorv16">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260516instructorv17">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1185,6 +1299,27 @@ textarea.form-control{min-height:106px;resize:vertical}
     </aside>
 
     <section>
+      <div class="card">
+        <div class="hd">
+          <span>Cohort / Class Filter</span>
+          <span class="badge badge-blue">Filter View</span>
+        </div>
+        <div class="bd">
+          <div class="cohort-filter-panel">
+            <label for="cohort-filter">Show class / cohort</label>
+            <div class="cohort-filter-row">
+              <select id="cohort-filter" class="form-control" onchange="InstructorCenter.applyCohortFilter()">
+                <option value="all">All Cohorts / Classes</option>
+              </select>
+              <button class="btn btn-secondary" onclick="InstructorCenter.resetCohortFilter()">Reset</button>
+            </div>
+            <div class="cohort-filter-note">
+              This filter updates analytics, student roster, and pending student reviews.
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="hd">
           <span>Instructor Analytics Dashboard</span>
@@ -1560,6 +1695,7 @@ let studentSkillsByUserId = {};
 let allVerifiedSkills = [];
 let aptitudeTestsByUserId = {};
 let pendingReviews = [];
+let selectedCohortFilter = "all";
 
 function safeJsonParse(value, fallback){
   try{return JSON.parse(value || "");}catch(e){return fallback;}
@@ -1774,22 +1910,93 @@ function updateProfileDisplay(){
 }
 
 
-function updateAnalytics(){
-  const approved = allVerifiedSkills.length;
 
-  const rejected = pendingReviews.filter(item => {
+function getSelectedCohort(){
+  return selectedCohortFilter || "all";
+}
+
+function itemMatchesSelectedCohort(item){
+  const selected = getSelectedCohort();
+  if(selected === "all") return true;
+
+  const cohort = String(item.cohortName || item.cohort || item.className || "").trim();
+  return cohort === selected;
+}
+
+function getFilteredStudents(){
+  return getVisibleStudents().filter(itemMatchesSelectedCohort);
+}
+
+function getFilteredPendingReviews(){
+  return pendingReviews.filter(itemMatchesSelectedCohort);
+}
+
+function getFilteredVerifiedSkills(){
+  return allVerifiedSkills.filter(itemMatchesSelectedCohort);
+}
+
+function getFilteredAptitudeTests(){
+  return Object.values(aptitudeTestsByUserId).filter(itemMatchesSelectedCohort);
+}
+
+function populateCohortFilter(){
+  const select = document.getElementById("cohort-filter");
+  if(!select) return;
+
+  const cohorts = new Set();
+
+  mergeStudents(getStudents(), autoLinkedStudents).forEach(item => {
+    const value = String(item.cohortName || item.cohort || item.className || "").trim();
+    if(value) cohorts.add(value);
+  });
+
+  pendingReviews.forEach(item => {
+    const value = String(item.cohortName || item.cohort || item.className || "").trim();
+    if(value) cohorts.add(value);
+  });
+
+  allVerifiedSkills.forEach(item => {
+    const value = String(item.cohortName || item.cohort || item.className || "").trim();
+    if(value) cohorts.add(value);
+  });
+
+  Object.values(aptitudeTestsByUserId).forEach(item => {
+    const value = String(item.cohortName || item.cohort || item.className || "").trim();
+    if(value) cohorts.add(value);
+  });
+
+  const sorted = Array.from(cohorts).sort((a,b) => a.localeCompare(b));
+  const current = selectedCohortFilter || "all";
+
+  select.innerHTML = '<option value="all">All Cohorts / Classes</option>' + sorted.map(value => {
+    return `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`;
+  }).join("");
+
+  select.value = sorted.includes(current) ? current : "all";
+  selectedCohortFilter = select.value;
+}
+
+
+function updateAnalytics(){
+  const filteredPendingReviews = getFilteredPendingReviews();
+  const filteredVerifiedSkills = getFilteredVerifiedSkills();
+  const filteredAptitudeTests = getFilteredAptitudeTests();
+
+  const approved = filteredVerifiedSkills.length;
+
+  const rejected = filteredPendingReviews.filter(item => {
     return String(item.status || "").toLowerCase() === "rejected";
   }).length;
 
-  const pending = pendingReviews.filter(item => {
+  const pending = filteredPendingReviews.filter(item => {
     return String(item.status || "").toLowerCase() === "pending";
   }).length;
 
-  const aptitudeCompleted = Object.values(aptitudeTestsByUserId).filter(test => {
+  const aptitudeCompleted = filteredAptitudeTests.filter(test => {
     return String(test.status || "").toLowerCase() === "completed";
   }).length;
 
-  const verifiedHours = allVerifiedSkills.reduce((sum, skill) => {
+  const verifiedHours = filteredVerifiedSkills.reduce((sum, skill) => {
     return sum + Number(skill.hoursVerified || 0);
   }, 0);
 
@@ -1808,9 +2015,9 @@ function updateAnalytics(){
 
 
 function updateStats(){
-  const students = mergeStudents(getStudents(), autoLinkedStudents);
+  const students = mergeStudents(getStudents(), autoLinkedStudents).filter(itemMatchesSelectedCohort);
   const documents = getDocuments();
-  const verifiedSkillCount = Object.values(studentSkillsByUserId).reduce((total, skills) => total + skills.length, 0);
+  const verifiedSkillCount = getFilteredVerifiedSkills().length;
 
   const avg = students.length
     ? Math.round(students.reduce((sum,s) => {
@@ -2188,12 +2395,14 @@ function renderPendingReviews(){
   const badge = document.getElementById("pending-review-count");
 
   if(badge){
-    badge.innerText = `${pendingReviews.length} Pending`;
+    badge.innerText = `${getFilteredPendingReviews().length} Pending`;
   }
 
   if(!wrap) return;
 
-  if(!pendingReviews.length){
+  const filteredReviews = getFilteredPendingReviews();
+
+  if(!filteredReviews.length){
     wrap.innerHTML = emptyState(
       "No pending reviews",
       "Student uploads waiting for instructor approval will appear here."
@@ -2201,7 +2410,7 @@ function renderPendingReviews(){
     return;
   }
 
-  wrap.innerHTML = pendingReviews.map(item => {
+  wrap.innerHTML = filteredReviews.map(item => {
     const submitted = item.submittedAtIso
       ? new Date(item.submittedAtIso).toLocaleDateString()
       : "Recently";
@@ -2247,6 +2456,25 @@ window.InstructorCenter = {
     button.classList.add('btn-primary');
   },
 
+  applyCohortFilter(){
+    const select = document.getElementById("cohort-filter");
+    selectedCohortFilter = select ? select.value : "all";
+    updateStats();
+    updateAnalytics();
+    renderPendingReviews();
+    this.renderStudents();
+  },
+
+  resetCohortFilter(){
+    selectedCohortFilter = "all";
+    const select = document.getElementById("cohort-filter");
+    if(select) select.value = "all";
+    updateStats();
+    updateAnalytics();
+    renderPendingReviews();
+    this.renderStudents();
+  },
+
 
 
   getReviewComment(reviewId){
@@ -2272,6 +2500,9 @@ window.InstructorCenter = {
       });
 
       pendingReviews = pendingReviews.filter(r => r.id !== reviewId);
+      populateCohortFilter();
+      updateStats();
+      updateAnalytics();
       renderPendingReviews();
 
       alert("Student upload approved with instructor comment.");
@@ -2299,6 +2530,9 @@ window.InstructorCenter = {
       });
 
       pendingReviews = pendingReviews.filter(r => r.id !== reviewId);
+      populateCohortFilter();
+      updateStats();
+      updateAnalytics();
       renderPendingReviews();
 
       alert("Student upload rejected with instructor comment.");
@@ -2435,7 +2669,7 @@ window.InstructorCenter = {
 
   renderStudents(){
     const list = document.getElementById("students-list");
-    let students = getVisibleStudents();
+    let students = getFilteredStudents();
 
     if(!students.length){
       list.innerHTML = emptyState("No students yet", "Students will appear here when they connect with school code STC-ELECTRICAL-2026, or you can add them manually.");
@@ -2460,7 +2694,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260516instructorv16">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260516instructorv17">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -2700,7 +2934,7 @@ document.addEventListener("click", function(e){
 window.ltnInstructorBlockTrackProgress = function(event){
   event.preventDefault();
   alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-  window.location.href = "/instructor/?v=20260516instructorv16";
+  window.location.href = "/instructor/?v=20260516instructorv17";
   return false;
 };
 
