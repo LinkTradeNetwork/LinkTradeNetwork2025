@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-15: INSTRUCTOR CENTER CLASS ASSIGNMENTS AUTHUID v7 -->
-<!-- LTN VERSION: instructor-center-class-assignments-authuid-v7 -->
+<!-- LTN FORCE UPDATE 2026-05-15: INSTRUCTOR CENTER VERIFICATION RECORDS v11 -->
+<!-- LTN VERSION: instructor-center-verification-records-v11 -->
 
 <style>
 :root{
@@ -523,6 +523,65 @@ textarea.form-control{min-height:106px;resize:vertical}
   font-weight:900;
 }
 
+.verified-record-card{
+  background:white;
+  border:1px solid #bbf7d0;
+  border-radius:14px;
+  padding:12px;
+  margin-top:8px;
+}
+
+.verified-record-card strong{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:#14532d;
+  font-size:14px;
+  font-weight:950;
+}
+
+.verified-record-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(135px,1fr));
+  gap:8px;
+  margin-top:10px;
+}
+
+.verified-record-metric{
+  background:#f8fafc;
+  border:1px solid #dbe3ee;
+  border-radius:10px;
+  padding:8px;
+}
+
+.verified-record-metric span{
+  display:block;
+  font-size:10px;
+  color:#64748b;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.verified-record-metric b{
+  display:block;
+  color:#182230;
+  font-size:13px;
+  margin-top:2px;
+  word-break:break-word;
+}
+
+.verified-comment{
+  margin-top:10px;
+  background:#f0fdf4;
+  border:1px solid #bbf7d0;
+  color:#166534;
+  border-radius:10px;
+  padding:9px 10px;
+  font-size:12px;
+  font-weight:750;
+}
+
 .empty-state{
   text-align:center;
   padding:34px 18px;
@@ -735,7 +794,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515instructorv10";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260516instructorv11";
 
   window.LTNClearLocalSession = function(){
     [
@@ -778,11 +837,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260515instructorv10">Dashboard</a>
-      <a href="/members/?v=20260515instructorv10">Members</a>
-      <a href="/instructor/?v=20260515instructorv10" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260515instructorv10" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260515instructorv10">Network Center</a>
+      <a href="/dashboard/?v=20260516instructorv11">Dashboard</a>
+      <a href="/members/?v=20260516instructorv11">Members</a>
+      <a href="/instructor/?v=20260516instructorv11" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260516instructorv11" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260516instructorv11">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -830,7 +889,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260515instructorv10">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260516instructorv11">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1061,13 +1120,38 @@ textarea.form-control{min-height:106px;resize:vertical}
         <input type="text" id="custom-skill-name" class="form-control" placeholder="Enter skill name">
       </div>
 
+      <div class="two-col">
+        <div class="form-group">
+          <label>Verified Hours</label>
+          <input type="number" id="skill-hours-verified" class="form-control" placeholder="42" min="0" step="1">
+        </div>
+        <div class="form-group">
+          <label>Signed Proof Count</label>
+          <input type="number" id="skill-signed-proof-count" class="form-control" placeholder="3" min="0" step="1">
+        </div>
+      </div>
+
       <div class="form-group">
-        <label>Approval Notes</label>
-        <textarea id="skill-notes" class="form-control" placeholder="Optional notes about what the student demonstrated..."></textarea>
+        <label>Assignment / Lab Title</label>
+        <input type="text" id="skill-assignment-title" class="form-control" placeholder="EMT Bending Lab">
+      </div>
+
+      <div class="form-group">
+        <label>Verification Level</label>
+        <select id="skill-verification-level" class="form-control">
+          <option value="Instructor Verified">Instructor Verified</option>
+          <option value="School Verified">School Verified</option>
+          <option value="Employer Verified">Employer Verified</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Instructor Comment</label>
+        <textarea id="skill-notes" class="form-control" placeholder="Strong understanding of conduit offsets and EMT bending techniques..."></textarea>
       </div>
 
       <div class="notice" style="margin-bottom:0">
-        This will create an instructor-verified skill record and show it on the student roster.
+        This will create a full verification record with hours, proof count, assignment title, and instructor comments.
       </div>
     </div>
     <div class="modal-footer">
@@ -1471,7 +1555,13 @@ function normalizeSkillDoc(id, data){
     approved:data.approved === true,
     approvedBy:String(data.approvedBy || "").trim(),
     approvedAt:data.approvedAt || "",
-    notes:String(data.notes || "").trim()
+    approvedDate:String(data.approvedDate || "").trim(),
+    hoursVerified:Number(data.hoursVerified || 0),
+    signedProofCount:Number(data.signedProofCount || 0),
+    assignmentTitle:String(data.assignmentTitle || "").trim(),
+    verificationLevel:String(data.verificationLevel || "Instructor Verified").trim(),
+    instructorComment:String(data.instructorComment || data.notes || "").trim(),
+    notes:String(data.notes || data.instructorComment || "").trim()
   };
 }
 
@@ -1528,14 +1618,21 @@ function buildVerifiedSkillsBlock(skills){
 
   return `
     <div class="verified-skills">
-      <div class="verified-skills-title">Verified Skills</div>
-      <div class="verified-skill-list">
-        ${uniqueSkills.map(skill => `
-          <span class="verified-skill-pill">
-            ✓ ${escapeHtml(skill.skillName)}
-          </span>
-        `).join("")}
-      </div>
+      <div class="verified-skills-title">Verified Skill Records</div>
+      ${uniqueSkills.map(skill => `
+        <div class="verified-record-card">
+          <strong>✓ ${escapeHtml(skill.skillName)}</strong>
+          <div class="verified-record-grid">
+            <div class="verified-record-metric"><span>Level</span><b>${escapeHtml(skill.verificationLevel || "Instructor Verified")}</b></div>
+            <div class="verified-record-metric"><span>Hours</span><b>${Number(skill.hoursVerified || 0).toLocaleString()} verified</b></div>
+            <div class="verified-record-metric"><span>Proof</span><b>${Number(skill.signedProofCount || 0).toLocaleString()} uploads</b></div>
+            <div class="verified-record-metric"><span>Assignment</span><b>${escapeHtml(skill.assignmentTitle || "Not linked yet")}</b></div>
+            <div class="verified-record-metric"><span>Approved By</span><b>${escapeHtml(skill.approvedBy || "Instructor")}</b></div>
+            <div class="verified-record-metric"><span>Date</span><b>${escapeHtml(skill.approvedDate || "Saved")}</b></div>
+          </div>
+          ${skill.instructorComment || skill.notes ? `<div class="verified-comment"><b>Instructor Comment:</b> ${escapeHtml(skill.instructorComment || skill.notes)}</div>` : ""}
+        </div>
+      `).join("")}
     </div>
   `;
 }
@@ -1771,7 +1868,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260515instructorv10">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260516instructorv11">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -1809,6 +1906,10 @@ window.InstructorCenter = {
     document.getElementById("skill-name").value = "Conduit Bending";
     document.getElementById("custom-skill-name").value = "";
     document.getElementById("skill-notes").value = "";
+    document.getElementById("skill-hours-verified").value = "";
+    document.getElementById("skill-signed-proof-count").value = "";
+    document.getElementById("skill-assignment-title").value = "";
+    document.getElementById("skill-verification-level").value = "Instructor Verified";
     document.getElementById("custom-skill-wrap").style.display = "none";
 
     if(preselectedStudentValue){
@@ -1852,6 +1953,11 @@ window.InstructorCenter = {
     const cohortName = String(selectedStudent.cohortName || currentProfile.cohortName || "Electrical Level 1").trim();
     const instructorName = currentProfile.name || currentProfile.fullName || "Instructor";
     const notes = document.getElementById("skill-notes").value.trim();
+    const hoursVerified = Math.max(0, Number(document.getElementById("skill-hours-verified").value || 0));
+    const signedProofCount = Math.max(0, Number(document.getElementById("skill-signed-proof-count").value || 0));
+    const assignmentTitle = document.getElementById("skill-assignment-title").value.trim();
+    const verificationLevel = document.getElementById("skill-verification-level").value || "Instructor Verified";
+    const approvedDate = new Date().toISOString().slice(0,10);
 
     try{
       await addDoc(collection(db,"studentSkills"),{
@@ -1866,6 +1972,12 @@ window.InstructorCenter = {
         schoolCode,
         cohortName,
         notes,
+        instructorComment:notes,
+        hoursVerified,
+        signedProofCount,
+        assignmentTitle,
+        verificationLevel,
+        approvedDate,
         source:"instructor_center",
         approvedAt:serverTimestamp(),
         createdAt:serverTimestamp()
@@ -1880,7 +1992,7 @@ window.InstructorCenter = {
     this.renderStudents();
     updateStats();
     this.closeModal("skill-modal");
-    alert("Skill approved and added to the student profile.");
+    alert("Skill verification record saved and added to the student profile.");
   },
 
   openDocumentModal(){
@@ -1968,7 +2080,7 @@ document.addEventListener("click", function(e){
 window.ltnInstructorBlockTrackProgress = function(event){
   event.preventDefault();
   alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-  window.location.href = "/instructor/?v=20260515instructorv10";
+  window.location.href = "/instructor/?v=20260516instructorv11";
   return false;
 };
 
