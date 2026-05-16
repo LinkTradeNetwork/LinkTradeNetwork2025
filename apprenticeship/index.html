@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-verified-skills-clean-v22 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-clean-v23 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -15,7 +15,9 @@
 
     :root{
       --blue:#2f557a;
+      --blue-dark:#213e5b;
       --orange:#e96916;
+      --orange-dark:#c7500d;
       --orange-soft:#fff2e8;
       --orange-border:#ffd1ad;
       --ink:#172033;
@@ -23,20 +25,26 @@
       --line:#dbe3ee;
       --soft:#f7f9fc;
       --danger:#dc2626;
+      --danger-soft:#fff1f2;
       --ok:#16a34a;
+      --ok-soft:#f0fdf4;
       --shadow:0 18px 48px rgba(23,32,51,.16);
-      --radius:18px;
+      --radius:16px;
     }
 
     body{
       margin:0;
       font-family:Arial,sans-serif;
       background:
-        radial-gradient(circle at top left,rgba(255,255,255,.34),transparent 34%),
+        radial-gradient(circle at top left,rgba(255,255,255,.28),transparent 34%),
         linear-gradient(135deg,#ffb06f,#f27b2e 44%,#de641c);
       min-height:100vh;
       color:var(--ink);
     }
+
+    button,input{font:inherit}
+    button:disabled{opacity:.62;cursor:not-allowed;transform:none!important}
+    a{color:inherit}
 
     .topbar{
       background:rgba(47,85,122,.98);
@@ -66,16 +74,21 @@
       text-decoration:none;
       white-space:nowrap;
       transition:.18s ease;
-      font-family:inherit;
       font-size:14px;
       min-height:42px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
     }
 
     .dashbtn{background:white;color:var(--blue)}
     .button.soft{background:white;color:var(--blue);border:1px solid var(--line)}
+    .button.danger{background:var(--danger)}
     .logout:hover,.dashbtn:hover,.button:hover{filter:brightness(.97);transform:translateY(-1px)}
 
     .wrap{max-width:1180px;margin:0 auto;padding:30px 20px 42px}
+
     .hero,.card{
       background:rgba(255,255,255,.98);
       border:1px solid rgba(255,255,255,.7);
@@ -97,19 +110,27 @@
     .sub{margin-top:9px;font-size:16px;line-height:1.55;max-width:760px}
     .hero-stack{display:flex;flex-direction:column;gap:10px;align-items:flex-end}
 
-    .hero-badge,.sync-pill{
+    .hero-badge,.sync-pill,.verified-badge{
+      border-radius:999px;
+      font-weight:900;
+      font-size:13px;
+      line-height:1.2;
+      text-align:center;
+    }
+
+    .hero-badge{
       background:var(--orange-soft);
       color:#a84b00;
       border:1px solid var(--orange-border);
       padding:11px 14px;
-      border-radius:999px;
-      font-weight:900;
-      text-align:center;
-      font-size:13px;
-      line-height:1.2;
     }
 
-    .sync-pill{background:#eef6ff;color:#24517b;border-color:#cbe0f4}
+    .sync-pill{
+      background:#eef6ff;
+      color:#24517b;
+      border:1px solid #cbe0f4;
+      padding:11px 14px;
+    }
 
     .verified-badge{
       display:inline-flex;
@@ -119,9 +140,6 @@
       color:#a84b00;
       border:1px solid var(--orange-border);
       padding:8px 12px;
-      border-radius:999px;
-      font-weight:900;
-      font-size:13px;
       margin-top:12px;
       flex-wrap:wrap;
     }
@@ -224,7 +242,6 @@
       border-radius:8px;
       padding:12px;
       font-size:16px;
-      font-family:inherit;
       min-width:0;
       outline:none;
       background:white;
@@ -244,10 +261,7 @@
       padding:14px;
     }
 
-    .school-code-area .label{
-      color:#9a3412;
-      margin-bottom:8px;
-    }
+    .school-code-area .label{color:#9a3412;margin-bottom:8px}
 
     .school-code-help{
       color:#7c2d12;
@@ -257,12 +271,9 @@
       margin-bottom:10px;
     }
 
-    .school-code-input{
-      text-transform:uppercase;
-      font-weight:900;
-    }
+    .school-code-input{text-transform:uppercase;font-weight:900}
 
-    .school-code-status{
+    .school-code-status,.save-status{
       margin-top:10px;
       font-size:13px;
       font-weight:900;
@@ -270,9 +281,9 @@
       line-height:1.4;
     }
 
-    .school-code-status.ok{color:var(--ok)}
-    .school-code-status.bad{color:var(--danger)}
-    .school-code-status.info{color:var(--blue)}
+    .school-code-status.ok,.save-status.ok{color:var(--ok)}
+    .school-code-status.bad,.save-status.bad{color:var(--danger)}
+    .school-code-status.info,.save-status.info{color:var(--blue)}
 
     .file-control{
       width:100%;
@@ -280,7 +291,6 @@
       border-radius:12px;
       padding:12px;
       font-size:14px;
-      font-family:inherit;
       background:#fff7ed;
       color:var(--ink);
       margin-top:10px;
@@ -297,20 +307,13 @@
     .proof-link{
       display:inline-flex;
       margin-top:6px;
-      color:var(--orange);
+      color:var(--orange-dark);
       font-size:13px;
       font-weight:900;
       text-decoration:none;
     }
 
-    .save-status{
-      margin-top:12px;
-      font-size:13px;
-      font-weight:900;
-      color:var(--blue);
-      line-height:1.4;
-      min-height:18px;
-    }
+    .proof-link:hover{text-decoration:underline}
 
     .accomplishment-grid{
       display:grid;
@@ -373,7 +376,6 @@
       font-weight:800;
       white-space:nowrap;
       flex-shrink:0;
-      font-family:inherit;
     }
 
     .profile-details{margin-top:14px;display:grid;gap:8px}
@@ -391,16 +393,15 @@
 
     .profile-detail b{color:var(--ink)}
 
-
     .verified-skills-card{
-      background:#f0fdf4;
+      background:var(--ok-soft);
       border:1px solid #bbf7d0;
       border-radius:14px;
       padding:16px;
       margin-top:14px;
     }
 
-    .verified-skills-card .verified-title{
+    .verified-title{
       color:#166534;
       font-size:13px;
       font-weight:900;
@@ -420,7 +421,9 @@
     .verified-skill-row strong{
       color:#14532d;
       font-size:16px;
-      display:block;
+      display:flex;
+      align-items:center;
+      gap:8px;
       word-break:break-word;
     }
 
@@ -470,7 +473,7 @@
     }
 
     .preview-name{font-size:22px;font-weight:900;color:var(--ink);overflow-wrap:anywhere}
-    .preview-trade{font-weight:900;color:var(--orange);margin-top:3px;overflow-wrap:anywhere}
+    .preview-trade{font-weight:900;color:var(--orange-dark);margin-top:3px;overflow-wrap:anywhere}
 
     .preview-note{
       background:var(--orange-soft);
@@ -484,7 +487,7 @@
     }
 
     .danger-zone{
-      background:#fff1f2;
+      background:var(--danger-soft);
       border:1px solid #fecdd3;
       border-radius:14px;
       padding:16px;
@@ -535,9 +538,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260515apprenticeverifiedskillscleanv22'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260515apprenticeverifiedskillscleanv22'">Members</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260515apprenticeverifiedskillscleanv22'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv23'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260516apprenticedashboardv23'">Members</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv23'">Back</button>
   </div>
 </div>
 
@@ -561,9 +564,23 @@
   </div>
 
   <div class="grid">
-    <div class="card"><div class="label">Name</div><div class="value" id="userName">Trade Worker</div><div class="small" id="userEmail">Guest User</div></div>
-    <div class="card"><div class="label">Role</div><div class="value small-value" id="userRole">Apprentice</div><div class="small">LTN profile type</div></div>
-    <div class="card"><div class="label">Trade</div><div class="value small-value" id="userTrade">Not selected</div><div class="small">Selected trade path</div></div>
+    <div class="card">
+      <div class="label">Name</div>
+      <div class="value" id="userName">Trade Worker</div>
+      <div class="small" id="userEmail">Guest User</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Role</div>
+      <div class="value small-value" id="userRole">Apprentice</div>
+      <div class="small">LTN profile type</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Trade</div>
+      <div class="value small-value" id="userTrade">Not selected</div>
+      <div class="small">Selected trade path</div>
+    </div>
 
     <div class="card">
       <div class="label">Trade School / Training Center</div>
@@ -576,29 +593,23 @@
           If your instructor gave you a code, enter it here to connect your profile to your school, instructor, and class.
         </div>
 
-        <input
-          id="schoolCodeInput"
-          class="form-control school-code-input"
-          type="text"
-          placeholder="STC-ELECTRICAL-2026"
-          autocomplete="off"
-        >
-
-        <button
-          id="schoolCodeBtn"
-          class="button"
-          style="margin-top:10px;width:100%"
-          onclick="connectSchoolCode()"
-        >
-          Connect School
-        </button>
-
+        <input id="schoolCodeInput" class="form-control school-code-input" type="text" placeholder="STC-ELECTRICAL-2026" autocomplete="off">
+        <button id="schoolCodeBtn" class="button" style="margin-top:10px;width:100%" onclick="connectSchoolCode()">Connect School</button>
         <div id="schoolCodeStatus" class="school-code-status info"></div>
       </div>
     </div>
 
-    <div class="card"><div class="label">Current Level</div><div class="value small-value" id="currentLevel">New Apprentice</div><div class="small">Based on hours logged</div></div>
-    <div class="card"><div class="label">Location</div><div class="value small-value" id="userLocation">Not added</div><div class="small">City, state, and country</div></div>
+    <div class="card">
+      <div class="label">Current Level</div>
+      <div class="value small-value" id="currentLevel">New Apprentice</div>
+      <div class="small">Based on hours logged</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Location</div>
+      <div class="value small-value" id="userLocation">Not added</div>
+      <div class="small">City, state, and country</div>
+    </div>
   </div>
 
   <div class="section-title">Progress Dashboard</div>
@@ -617,12 +628,12 @@
       </div>
 
       <div class="form-row">
-        <input id="hoursInput" class="form-control" type="number" min="1" placeholder="Hours worked">
-        <input id="hoursNoteInput" class="form-control" type="text" placeholder="What did you work on?">
+        <input id="hoursInput" class="form-control" type="number" min="0.25" step="0.25" placeholder="Hours worked">
+        <input id="hoursNoteInput" class="form-control" type="text" maxlength="120" placeholder="What did you work on?">
       </div>
 
-      <button class="button" onclick="addHours()">+ Add Hours Worked</button>
-      <div id="saveStatus" class="save-status"></div>
+      <button id="addHoursBtn" class="button" onclick="addHours()">+ Add Hours Worked</button>
+      <div id="saveStatus" class="save-status info"></div>
     </div>
 
     <div class="card">
@@ -647,6 +658,8 @@
     </div>
 
     <div class="badge-list" id="badgeList"></div>
+
+    <div class="preview-card" id="memberPreview"></div>
   </div>
 
   <div class="section-title">Instructor Verified Skills</div>
@@ -665,10 +678,10 @@
       <div class="label">Certification</div>
       <div class="value small-value">Add Certification</div>
       <div class="small">Example: OSHA 10, OSHA 30, CPR, Forklift, NCCER</div>
-      <input id="certInput" class="form-control" style="margin-top:14px" type="text" placeholder="Certification name">
+      <input id="certInput" class="form-control" style="margin-top:14px" type="text" maxlength="100" placeholder="Certification name">
       <input id="certFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
-      <div class="file-help">Upload certificate, signed document, PDF, or photo proof.</div>
-      <button class="button" onclick="addCertification()" style="margin-top:12px">+ Add Certification Proof</button>
+      <div class="file-help">Upload certificate, signed document, PDF, or photo proof. Max 10 MB.</div>
+      <button id="certBtn" class="button" onclick="addCertification()" style="margin-top:12px">+ Add Certification Proof</button>
       <div id="certList" class="list-box"></div>
     </div>
 
@@ -676,10 +689,10 @@
       <div class="label">Skill</div>
       <div class="value small-value">Add Skill Learned</div>
       <div class="small">Example: conduit bending, pipe fitting, wiring, blueprint reading</div>
-      <input id="skillInput" class="form-control" style="margin-top:14px" type="text" placeholder="Skill learned">
+      <input id="skillInput" class="form-control" style="margin-top:14px" type="text" maxlength="100" placeholder="Skill learned">
       <input id="skillFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
-      <div class="file-help">Upload instructor proof, employer sign-off, worksheet, PDF, or photo.</div>
-      <button class="button" onclick="addSkill()" style="margin-top:12px">+ Add Skill Proof</button>
+      <div class="file-help">Upload instructor proof, employer sign-off, worksheet, PDF, or photo. Max 10 MB.</div>
+      <button id="skillBtn" class="button" onclick="addSkill()" style="margin-top:12px">+ Add Skill Proof</button>
       <div id="skillList" class="list-box"></div>
     </div>
 
@@ -687,10 +700,10 @@
       <div class="label">Project</div>
       <div class="value small-value">Add Project Completed</div>
       <div class="small">Example: commercial rough-in, panel install, HVAC changeout</div>
-      <input id="projectInput" class="form-control" style="margin-top:14px" type="text" placeholder="Project completed">
+      <input id="projectInput" class="form-control" style="margin-top:14px" type="text" maxlength="100" placeholder="Project completed">
       <input id="projectFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
-      <div class="file-help">Upload signed project paperwork, employer verification, PDF, or job proof.</div>
-      <button class="button" onclick="addProject()" style="margin-top:12px">+ Add Project Proof</button>
+      <div class="file-help">Upload signed project paperwork, employer verification, PDF, or job proof. Max 10 MB.</div>
+      <button id="projectBtn" class="button" onclick="addProject()" style="margin-top:12px">+ Add Project Proof</button>
       <div id="projectList" class="list-box"></div>
     </div>
 
@@ -698,10 +711,10 @@
       <div class="label">Signed Work Proof</div>
       <div class="value small-value">Upload Signed Paperwork</div>
       <div class="small">Upload signed timesheets, instructor approval, employer verification, or jobsite documents.</div>
-      <input id="signedProofTitleInput" class="form-control" style="margin-top:14px" type="text" placeholder="Proof description">
+      <input id="signedProofTitleInput" class="form-control" style="margin-top:14px" type="text" maxlength="100" placeholder="Proof description">
       <input id="signedProofFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
-      <div class="file-help">Accepted: PDF, JPG, PNG, HEIC. This replaces the old photo/video count.</div>
-      <button class="button" onclick="addSignedProof()" style="margin-top:12px">+ Upload Signed Work Proof</button>
+      <div class="file-help">Accepted: PDF, JPG, PNG, HEIC. Max 10 MB.</div>
+      <button id="signedProofBtn" class="button" onclick="addSignedProof()" style="margin-top:12px">+ Upload Signed Work Proof</button>
       <div id="signedProofList" class="list-box"></div>
     </div>
   </div>
@@ -714,6 +727,11 @@
 
   <div class="section-title">Settings</div>
   <div class="card">
+    <div class="inline-actions">
+      <button class="button soft" onclick="exportProgressBackup()">Export Progress Backup</button>
+      <button class="button soft" onclick="saveToFirebase()">Save Now</button>
+    </div>
+
     <div class="danger-zone">
       <div class="label">Reset Options</div>
       <div class="small">Use these only if you need to clear progress. You will be asked to confirm first.</div>
@@ -738,7 +756,8 @@
     query,
     where,
     getDocs,
-    limit
+    limit,
+    serverTimestamp
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
 
@@ -755,29 +774,37 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
   const storage = getStorage(app);
+
   const BENCHMARK_HOURS = 8000;
+  const MAX_FILE_SIZE = 10 * 1024 * 1024;
+  const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
+  const LOCAL_PROGRESS_VERSION = "v23";
 
   let currentUserId = null;
   let currentUserEmail = "";
   let profile = {};
-  let state = {
-    hoursCompleted:0,
-    hourLogs:[],
-    certifications:[],
-    skillsLearned:[],
-    projects:[],
-    certificationProofs:[],
-    skillProofs:[],
-    projectProofs:[],
-    signedWorkProofs:[],
-    verifiedSkills:[],
-    jobsiteUploads:0,
-    badgesEarned:[],
-    updatedAt:""
-  };
+  let state = getEmptyState();
+
+  function getEmptyState(){
+    return {
+      hoursCompleted:0,
+      hourLogs:[],
+      certifications:[],
+      skillsLearned:[],
+      projects:[],
+      certificationProofs:[],
+      skillProofs:[],
+      projectProofs:[],
+      signedWorkProofs:[],
+      verifiedSkills:[],
+      jobsiteUploads:0,
+      badgesEarned:[],
+      updatedAt:""
+    };
+  }
 
   function safe(value){
-    return String(value || "")
+    return String(value ?? "")
       .replaceAll("&","&amp;")
       .replaceAll("<","&lt;")
       .replaceAll(">","&gt;")
@@ -785,8 +812,40 @@
       .replaceAll("'","&#039;");
   }
 
-  function progressKey(){
-    return currentUserId ? `ltn_apprenticeship_progress_${currentUserId}_v17` : "";
+  function $(id){
+    return document.getElementById(id);
+  }
+
+  function setStatus(id,message,type="info"){
+    const el = $(id);
+    if(!el) return;
+    el.className = el.className.replace(/\b(ok|bad|info)\b/g,"").trim() + " " + type;
+    el.textContent = message;
+  }
+
+  function setButtonBusy(button,busy,busyText){
+    if(!button) return;
+    if(busy){
+      button.dataset.originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = busyText || "Working...";
+    }else{
+      button.disabled = false;
+      button.textContent = button.dataset.originalText || button.textContent;
+      delete button.dataset.originalText;
+    }
+  }
+
+  function progressKey(uid=currentUserId){
+    return uid ? `ltn_apprenticeship_progress_${uid}_${LOCAL_PROGRESS_VERSION}` : "";
+  }
+
+  function oldProgressKeys(uid){
+    return [
+      `ltn_apprenticeship_progress_${uid}_v22`,
+      `ltn_apprenticeship_progress_${uid}_v17`,
+      `ltn_apprenticeship_progress_${uid}_v10`
+    ];
   }
 
   function saveLocalProgress(){
@@ -794,10 +853,36 @@
     if(key) localStorage.setItem(key, JSON.stringify(state));
   }
 
+  function normalizeArray(value){
+    return Array.isArray(value) ? value : [];
+  }
+
+  function mergeSavedState(saved){
+    if(!saved || typeof saved !== "object") return;
+
+    state = {
+      ...state,
+      hoursCompleted:Number(saved.hoursCompleted || 0) || 0,
+      hourLogs:normalizeArray(saved.hourLogs),
+      certifications:normalizeArray(saved.certifications),
+      skillsLearned:normalizeArray(saved.skillsLearned),
+      projects:normalizeArray(saved.projects),
+      certificationProofs:normalizeArray(saved.certificationProofs),
+      skillProofs:normalizeArray(saved.skillProofs),
+      projectProofs:normalizeArray(saved.projectProofs),
+      signedWorkProofs:normalizeArray(saved.signedWorkProofs),
+      verifiedSkills:normalizeArray(saved.verifiedSkills),
+      jobsiteUploads:Number(saved.jobsiteUploads || (Array.isArray(saved.signedWorkProofs) ? saved.signedWorkProofs.length : 0)) || 0,
+      badgesEarned:normalizeArray(saved.badgesEarned),
+      updatedAt:saved.updatedAt || ""
+    };
+
+    buildBadges();
+  }
+
   function loadLocalProgressForUser(uid){
-    const raw =
-      localStorage.getItem(`ltn_apprenticeship_progress_${uid}_v17`) ||
-      localStorage.getItem(`ltn_apprenticeship_progress_${uid}_v10`);
+    const keys = [progressKey(uid), ...oldProgressKeys(uid)];
+    const raw = keys.map(key => localStorage.getItem(key)).find(Boolean);
 
     if(!raw){
       buildBadges();
@@ -805,43 +890,21 @@
     }
 
     try{
-      const saved = JSON.parse(raw);
-      state = {
-        hoursCompleted:Number(saved.hoursCompleted || 0),
-        hourLogs:Array.isArray(saved.hourLogs) ? saved.hourLogs : [],
-        certifications:Array.isArray(saved.certifications) ? saved.certifications : [],
-        skillsLearned:Array.isArray(saved.skillsLearned) ? saved.skillsLearned : [],
-        projects:Array.isArray(saved.projects) ? saved.projects : [],
-        certificationProofs:Array.isArray(saved.certificationProofs) ? saved.certificationProofs : [],
-        skillProofs:Array.isArray(saved.skillProofs) ? saved.skillProofs : [],
-        projectProofs:Array.isArray(saved.projectProofs) ? saved.projectProofs : [],
-        signedWorkProofs:Array.isArray(saved.signedWorkProofs) ? saved.signedWorkProofs : [],
-        verifiedSkills:[],
-        jobsiteUploads:Number(saved.jobsiteUploads || (Array.isArray(saved.signedWorkProofs) ? saved.signedWorkProofs.length : 0)),
-        badgesEarned:Array.isArray(saved.badgesEarned) ? saved.badgesEarned : [],
-        updatedAt:saved.updatedAt || ""
-      };
-    }catch(e){}
-
-    buildBadges();
+      mergeSavedState(JSON.parse(raw));
+    }catch(error){
+      console.warn("Could not parse local progress:", error);
+      buildBadges();
+    }
   }
 
   function getProfileName(data){return data.fullName || data.name || data.displayName || data.userName || "Trade Worker"}
   function getProfileEmail(data){return data.email || data.userEmail || data.profileEmail || currentUserEmail || "Signed In User"}
-  function getProfileRole(data){return data.role || data.profileType || (data.apprenticeship && data.apprenticeship.isApprentice ? "Apprentice" : "Apprentice")}
+  function getProfileRole(data){return data.role || data.profileType || "Apprentice"}
   function getProfileTrade(data){return data.trade || data.specialty || data.tradePath || "Not selected"}
 
   function getTradeSchool(data){
     const apprenticeship = data.apprenticeship || {};
-    return (
-      apprenticeship.schoolName ||
-      data.tradeSchool ||
-      data.school ||
-      data.trainingCenter ||
-      data.instructorSchool ||
-      apprenticeship.program ||
-      "Not added"
-    );
+    return apprenticeship.schoolName || data.tradeSchool || data.school || data.trainingCenter || data.instructorSchool || apprenticeship.program || "Not added";
   }
 
   function getInstructorName(data){
@@ -855,17 +918,22 @@
   }
 
   function getLocation(data){
-    const city=data.city || "";
-    const stateValue=data.state || "";
-    const country=data.country || "";
-    const location=city || stateValue || country
+    const city = data.city || "";
+    const stateValue = data.state || "";
+    const country = data.country || "";
+    const location = city || stateValue || country
       ? `${city}${city && stateValue ? ", " : ""}${stateValue}${(city || stateValue) && country ? ", " : ""}${country}`
       : "";
     return location || "Not added";
   }
 
   function isVerified(data){
-    return data.ltnVerified===true || data.ltnVerified==="true" || data.verified===true || data.verified==="true" || data.orangeVerified===true || data.orangeVerified==="true";
+    return data.ltnVerified === true ||
+      data.ltnVerified === "true" ||
+      data.verified === true ||
+      data.verified === "true" ||
+      data.orangeVerified === true ||
+      data.orangeVerified === "true";
   }
 
   function normalizeRoleText(value){
@@ -876,74 +944,104 @@
     const roleText = normalizeRoleText(`${data.profileType || ""} ${data.role || ""} ${data.type || ""} ${data.trade || ""}`);
     const instructor = data.instructor || {};
 
-    return (
-      data.isInstructor === true ||
+    return data.isInstructor === true ||
       instructor.isInstructor === true ||
       roleText.includes("instructor") ||
       roleText.includes("teacher") ||
       roleText.includes("trade school") ||
-      roleText.includes("training center")
-    );
+      roleText.includes("training center");
   }
 
   function isApprenticeProfile(data){
     const roleText = normalizeRoleText(`${data.profileType || ""} ${data.role || ""} ${data.type || ""}`);
     const apprenticeship = data.apprenticeship || {};
 
-    return (
-      data.isApprentice === true ||
+    return data.isApprentice === true ||
       apprenticeship.isApprentice === true ||
       roleText.includes("apprentice") ||
-      roleText.includes("student")
-    );
+      roleText.includes("student");
   }
 
-  function enforceApprenticeAccess(data){
+  async function enforceApprenticeAccess(data){
     if(isInstructorProfile(data)){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260515apprenticeverifiedskillscleanv22");
+      window.location.replace("/instructor/?v=20260516apprenticedashboardv23");
       return false;
     }
 
     if(!isApprenticeProfile(data)){
-      alert("Track My Progress is for apprentices and students. Open Edit Profile on the dashboard and mark yourself as an apprentice/student first.");
-      window.location.replace("/dashboard/?v=20260515apprenticeverifiedskillscleanv22");
-      return false;
+      profile = {
+        ...profile,
+        apprenticeship:{
+          ...(profile.apprenticeship || {}),
+          isApprentice:true
+        }
+      };
+
+      try{
+        await setDoc(doc(db,"users",currentUserId),{
+          apprenticeship:profile.apprenticeship,
+          updatedAt:serverTimestamp()
+        },{merge:true});
+      }catch(error){
+        console.warn("Could not mark profile as apprentice:", error);
+      }
     }
 
     return true;
   }
 
   function getInitials(name){
-    return String(name || "LT").split(" ").filter(Boolean).map(w=>w[0]).join("").substring(0,2).toUpperCase() || "LT";
+    return String(name || "LT")
+      .split(" ")
+      .filter(Boolean)
+      .map(word => word[0])
+      .join("")
+      .substring(0,2)
+      .toUpperCase() || "LT";
   }
 
   function getLevel(hours){
-    if(hours>=8000) return "Journey-Level Ready";
-    if(hours>=6000) return "Advanced Apprentice";
-    if(hours>=4000) return "Level 4 Apprentice";
-    if(hours>=2000) return "Level 3 Apprentice";
-    if(hours>=1000) return "Level 2 Apprentice";
-    if(hours>0) return "Level 1 Apprentice";
+    if(hours >= 8000) return "Journey-Level Ready";
+    if(hours >= 6000) return "Advanced Apprentice";
+    if(hours >= 4000) return "Level 4 Apprentice";
+    if(hours >= 2000) return "Level 3 Apprentice";
+    if(hours >= 1000) return "Level 2 Apprentice";
+    if(hours > 0) return "Level 1 Apprentice";
     return "New Apprentice";
   }
 
   function buildBadges(){
-    const badges=[];
-    if(state.hoursCompleted>=1000) badges.push("1,000 Hour Club");
-    if(state.hoursCompleted>=2000) badges.push("2,000 Hour Club");
-    if(state.hoursCompleted>=4000) badges.push("4,000 Hour Club");
-    if(state.hoursCompleted>=8000) badges.push("8,000 Hour Club");
-    if(state.certifications.length>0) badges.push("Certification Uploaded");
-    if(state.skillsLearned.length>0) badges.push("Skills Added");
-    if(state.verifiedSkills.length>0) badges.push("Instructor Verified Skill");
-    if(state.projects.length>0) badges.push("Project Proof Added");
-    if(state.jobsiteUploads>0) badges.push("Signed Proof Added");
-    state.badgesEarned=badges;
+    const badges = [];
+
+    if(state.hoursCompleted >= 1000) badges.push("1,000 Hour Club");
+    if(state.hoursCompleted >= 2000) badges.push("2,000 Hour Club");
+    if(state.hoursCompleted >= 4000) badges.push("4,000 Hour Club");
+    if(state.hoursCompleted >= 8000) badges.push("8,000 Hour Club");
+    if(state.certifications.length > 0) badges.push("Certification Uploaded");
+    if(state.skillsLearned.length > 0) badges.push("Skills Added");
+    if(state.verifiedSkills.length > 0) badges.push("Instructor Verified Skill");
+    if(state.projects.length > 0) badges.push("Project Proof Added");
+    if(proofCount() > 0) badges.push("Signed Proof Added");
+
+    state.badgesEarned = badges;
   }
 
   function proofCount(){
     return state.signedWorkProofs.length || Number(state.jobsiteUploads || 0);
+  }
+
+  function validateFile(file){
+    if(!file) return "Please choose a file.";
+    if(file.size > MAX_FILE_SIZE) return "File is too large. Please upload a file under 10 MB.";
+
+    const extension = String(file.name || "").split(".").pop().toLowerCase();
+
+    if(!ALLOWED_FILE_EXTENSIONS.includes(extension)){
+      return "Unsupported file type. Please upload PDF, JPG, PNG, or HEIC.";
+    }
+
+    return "";
   }
 
   function fileMeta(file,url){
@@ -959,7 +1057,8 @@
   }
 
   async function uploadProofFile(category,file){
-    if(!file) return null;
+    const validationError = validateFile(file);
+    if(validationError) throw new Error(validationError);
 
     if(!currentUserId){
       throw new Error("You must be signed in to upload proof.");
@@ -969,7 +1068,13 @@
     const storagePath = `apprenticeship-proof/${currentUserId}/${category}/${Date.now()}_${cleanName}`;
     const fileRef = ref(storage, storagePath);
 
-    await uploadBytes(fileRef, file);
+    await uploadBytes(fileRef,file,{
+      contentType:file.type || undefined,
+      customMetadata:{
+        ownerUid:currentUserId,
+        category
+      }
+    });
 
     const url = await getDownloadURL(fileRef);
     return fileMeta(file,url);
@@ -980,54 +1085,54 @@
     return `<a class="proof-link" href="${safe(proof.fileUrl)}" target="_blank" rel="noopener">View uploaded proof</a>`;
   }
 
+  async function findSchoolCode(code){
+    const directSnap = await getDoc(doc(db,"schoolCodes",code));
+    if(directSnap.exists()) return directSnap;
+
+    const qRef = query(
+      collection(db,"schoolCodes"),
+      where("code","==",code),
+      limit(1)
+    );
+
+    const snap = await getDocs(qRef);
+    return snap.empty ? null : snap.docs[0];
+  }
+
   window.connectSchoolCode = async function(){
-    const input = document.getElementById("schoolCodeInput");
-    const status = document.getElementById("schoolCodeStatus");
-    const btn = document.getElementById("schoolCodeBtn");
+    const input = $("schoolCodeInput");
+    const status = $("schoolCodeStatus");
+    const btn = $("schoolCodeBtn");
 
     if(!input || !status || !btn) return;
 
-    const code = input.value.trim().toUpperCase();
+    const code = input.value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g,"");
 
     if(!code){
-      status.className = "school-code-status bad";
-      status.textContent = "Please enter your school / instructor code.";
+      setStatus("schoolCodeStatus","Please enter your school / instructor code.","bad");
       return;
     }
 
     if(!currentUserId){
-      status.className = "school-code-status bad";
-      status.textContent = "You must be signed in to connect a school code.";
+      setStatus("schoolCodeStatus","You must be signed in to connect a school code.","bad");
       return;
     }
 
-    btn.disabled = true;
-    btn.textContent = "Checking...";
-    status.className = "school-code-status info";
-    status.textContent = "Checking school code...";
+    setButtonBusy(btn,true,"Checking...");
+    setStatus("schoolCodeStatus","Checking school code...","info");
 
     try{
-      let codeSnap = await getDoc(doc(db,"schoolCodes",code));
+      const codeSnap = await findSchoolCode(code);
 
-      if(!codeSnap.exists()){
-        codeSnap = await getDoc(doc(db,code,code));
-      }
-
-      if(!codeSnap.exists()){
-        status.className = "school-code-status bad";
-        status.textContent = "Code not found. Please check the code and try again.";
-        btn.disabled = false;
-        btn.textContent = "Connect School";
+      if(!codeSnap || !codeSnap.exists()){
+        setStatus("schoolCodeStatus","Code not found. Please check the code and try again.","bad");
         return;
       }
 
       const codeData = codeSnap.data();
 
       if(codeData.active !== true){
-        status.className = "school-code-status bad";
-        status.textContent = "This school code is not active. Please contact your instructor.";
-        btn.disabled = false;
-        btn.textContent = "Connect School";
+        setStatus("schoolCodeStatus","This school code is not active. Please contact your instructor.","bad");
         return;
       }
 
@@ -1038,59 +1143,59 @@
 
       const updatedApprenticeship = {
         ...existingApprenticeship,
-        isApprentice: true,
-        schoolId: codeData.schoolId || "",
-        schoolName: codeData.schoolName || "",
-        instructorId: codeData.instructorId || "",
-        instructorName: codeData.instructorName || "",
-        cohortId: codeData.cohortId || "",
-        cohortName: codeData.cohortName || "",
-        schoolCode: code
+        isApprentice:true,
+        schoolId:codeData.schoolId || "",
+        schoolName:codeData.schoolName || "",
+        instructorId:codeData.instructorId || "",
+        instructorName:codeData.instructorName || "",
+        cohortId:codeData.cohortId || "",
+        cohortName:codeData.cohortName || "",
+        schoolCode:code
       };
 
       await setDoc(doc(db,"users",currentUserId),{
-        apprenticeship: updatedApprenticeship,
-        updatedAt: new Date().toISOString()
+        apprenticeship:updatedApprenticeship,
+        updatedAt:serverTimestamp()
       },{merge:true});
 
       profile = {
         ...profile,
-        apprenticeship: updatedApprenticeship
+        apprenticeship:updatedApprenticeship
       };
 
       try{
         const stored = JSON.parse(localStorage.getItem("ltn_user") || "{}");
         stored.apprenticeship = updatedApprenticeship;
-        localStorage.setItem("ltn_user", JSON.stringify(stored));
-      }catch(e){}
+        localStorage.setItem("ltn_user",JSON.stringify(stored));
+      }catch(error){
+        console.warn("Could not update local user profile:", error);
+      }
 
       input.value = "";
-      status.className = "school-code-status ok";
-      status.textContent =
+      setStatus(
+        "schoolCodeStatus",
         "Connected to " +
-        (codeData.schoolName || "school") +
-        " • " +
-        (codeData.cohortName || "cohort") +
-        " • " +
-        (codeData.instructorName || "instructor");
+          (codeData.schoolName || "school") +
+          " • " +
+          (codeData.cohortName || "cohort") +
+          " • " +
+          (codeData.instructorName || "instructor"),
+        "ok"
+      );
 
       renderProfile();
-
-      btn.disabled = false;
-      btn.textContent = "Connect School";
-
+      renderProgress();
     }catch(error){
       console.error("School code error:", error);
-      status.className = "school-code-status bad";
-      status.textContent = "Something went wrong connecting this code. Please try again.";
-      btn.disabled = false;
-      btn.textContent = "Connect School";
+      setStatus("schoolCodeStatus","Something went wrong connecting this code. Please try again.","bad");
+    }finally{
+      setButtonBusy(btn,false);
     }
   };
 
-  async function saveToFirebase(){
+  window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260515apprenticeverifiedskillscleanv22");
+      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv23");
       return;
     }
 
@@ -1100,16 +1205,17 @@
 
     const progressPercent = Math.min(100,Math.round((state.hoursCompleted / BENCHMARK_HOURS) * 100));
     const currentLevel = getLevel(state.hoursCompleted);
+    const nowIso = new Date().toISOString();
 
     const payload = {
-      uid: currentUserId,
-      email: currentUserEmail,
+      uid:currentUserId,
+      email:currentUserEmail,
       hoursCompleted:state.hoursCompleted,
       totalHours:state.hoursCompleted,
       apprenticeshipHours:state.hoursCompleted,
-      progressPercent:progressPercent,
+      progressPercent,
       apprenticeLevel:currentLevel,
-      currentLevel:currentLevel,
+      currentLevel,
       certifications:state.certifications,
       skillsLearned:state.skillsLearned,
       skills:state.skillsLearned,
@@ -1126,12 +1232,14 @@
       badgesEarned:state.badgesEarned,
       badges:state.badgesEarned,
       updatedAt:state.updatedAt,
+      updatedAtIso:nowIso,
+      updatedAtServer:serverTimestamp(),
       apprenticeshipProgress:{
         hoursCompleted:state.hoursCompleted,
         totalHours:state.hoursCompleted,
-        progressPercent:progressPercent,
+        progressPercent,
         apprenticeLevel:currentLevel,
-        currentLevel:currentLevel,
+        currentLevel,
         hourLogs:state.hourLogs,
         certifications:state.certifications,
         skillsLearned:state.skillsLearned,
@@ -1146,41 +1254,41 @@
         verifiedPhotos:proofCount(),
         verifiedSkillCount:state.verifiedSkills.length,
         badgesEarned:state.badgesEarned,
-        updatedAt:new Date().toISOString()
+        updatedAt:nowIso
       }
     };
 
-    document.getElementById("saveStatus").textContent="Saving progress...";
+    setStatus("saveStatus","Saving progress...","info");
 
     try{
       await setDoc(doc(db,"users",currentUserId),payload,{merge:true});
-      document.getElementById("saveStatus").textContent="Saved securely to your signed-in profile.";
-      document.getElementById("syncStatus").textContent="Online save complete";
+      setStatus("saveStatus","Saved securely to your signed-in profile.","ok");
+      $("syncStatus").textContent = "Online save complete";
     }catch(error){
       console.error(error);
-      document.getElementById("saveStatus").textContent="Device save complete. Online save did not complete.";
-      document.getElementById("syncStatus").textContent="Device save complete";
+      setStatus("saveStatus","Device save complete. Online save did not complete.","bad");
+      $("syncStatus").textContent = "Device save complete";
     }
-  }
+  };
 
   function renderProfile(){
-    const name=getProfileName(profile);
-    const trade=getProfileTrade(profile);
-    const location=getLocation(profile);
-    const school=getTradeSchool(profile);
-    const instructorName=getInstructorName(profile);
-    const cohortName=getCohortName(profile);
+    const name = getProfileName(profile);
+    const trade = getProfileTrade(profile);
+    const location = getLocation(profile);
+    const school = getTradeSchool(profile);
+    const instructorName = getInstructorName(profile);
+    const cohortName = getCohortName(profile);
 
-    document.getElementById("welcome").textContent=`Welcome, ${name}`;
-    document.getElementById("userName").textContent=name;
-    document.getElementById("userEmail").textContent=getProfileEmail(profile);
-    document.getElementById("userRole").textContent=getProfileRole(profile);
-    document.getElementById("userTrade").textContent=trade;
-    document.getElementById("userTradeSchool").textContent=school;
-    document.getElementById("userLocation").textContent=location;
-    document.getElementById("verificationBadge").style.display=isVerified(profile) ? "inline-flex" : "none";
+    $("welcome").textContent = `Welcome, ${name}`;
+    $("userName").textContent = name;
+    $("userEmail").textContent = getProfileEmail(profile);
+    $("userRole").textContent = getProfileRole(profile);
+    $("userTrade").textContent = trade;
+    $("userTradeSchool").textContent = school;
+    $("userLocation").textContent = location;
+    $("verificationBadge").style.display = isVerified(profile) ? "inline-flex" : "none";
 
-    document.getElementById("profileDetails").innerHTML=`
+    $("profileDetails").innerHTML = `
       <div class="profile-detail"><b>Trade:</b> ${safe(trade)}</div>
       <div class="profile-detail"><b>School / Training Center:</b> ${safe(school)}</div>
       ${instructorName ? `<div class="profile-detail"><b>Instructor:</b> ${safe(instructorName)}</div>` : ""}
@@ -1193,31 +1301,29 @@
   function renderProgress(){
     buildBadges();
 
-    const hours=state.hoursCompleted;
-    const percent=Math.min(100,Math.round((hours / BENCHMARK_HOURS) * 100));
-    const remaining=Math.max(0,BENCHMARK_HOURS-hours);
-    const level=getLevel(hours);
+    const hours = state.hoursCompleted;
+    const percent = Math.min(100,Math.round((hours / BENCHMARK_HOURS) * 100));
+    const remaining = Math.max(0,BENCHMARK_HOURS - hours);
+    const level = getLevel(hours);
 
-    document.getElementById("userHours").textContent=hours.toLocaleString();
-    document.getElementById("hoursBar").style.width=`${percent}%`;
-    document.getElementById("progressText").textContent=`${percent}% toward industry benchmark`;
-    document.getElementById("percentBox").textContent=`${percent}%`;
-    document.getElementById("remainingHours").textContent=remaining.toLocaleString();
-    document.getElementById("loggedCount").textContent=state.hourLogs.length;
-    document.getElementById("currentLevel").textContent=level;
+    $("userHours").textContent = hours.toLocaleString();
+    $("hoursBar").style.width = `${percent}%`;
+    $("progressText").textContent = `${percent}% toward industry benchmark`;
+    $("percentBox").textContent = `${percent}%`;
+    $("remainingHours").textContent = remaining.toLocaleString();
+    $("loggedCount").textContent = state.hourLogs.length;
+    $("currentLevel").textContent = level;
 
-    document.getElementById("certCount").textContent=state.certifications.length;
-    document.getElementById("skillCount").textContent=state.skillsLearned.length + state.verifiedSkills.length;
-    document.getElementById("projectCount").textContent=state.projects.length;
-    document.getElementById("photoCount").textContent=proofCount();
+    $("certCount").textContent = state.certifications.length;
+    $("skillCount").textContent = state.skillsLearned.length + state.verifiedSkills.length;
+    $("projectCount").textContent = state.projects.length;
+    $("photoCount").textContent = proofCount();
 
-
-    const badgeHtml=state.badgesEarned.length
-      ? state.badgesEarned.map(b=>`<span class="badge"><span class="orange-check">✓</span>${safe(b)}</span>`).join("")
+    $("badgeList").innerHTML = state.badgesEarned.length
+      ? state.badgesEarned.map(b => `<span class="badge"><span class="orange-check">✓</span>${safe(b)}</span>`).join("")
       : `<div class="empty">No badges yet. Add progress to earn accomplishment badges.</div>`;
 
-    document.getElementById("badgeList").innerHTML=badgeHtml;
-
+    renderMemberPreview();
     renderHourLog();
     renderCerts();
     renderSkills();
@@ -1226,6 +1332,25 @@
     renderVerifiedSkills();
   }
 
+  function renderMemberPreview(){
+    const name = getProfileName(profile);
+    const trade = getProfileTrade(profile);
+    const level = getLevel(state.hoursCompleted);
+    const percent = Math.min(100,Math.round((state.hoursCompleted / BENCHMARK_HOURS) * 100));
+
+    $("memberPreview").innerHTML = `
+      <div class="preview-top">
+        <div class="preview-avatar">${safe(getInitials(name))}</div>
+        <div>
+          <div class="preview-name">${safe(name)}</div>
+          <div class="preview-trade">${safe(trade)} • ${safe(level)}</div>
+        </div>
+      </div>
+      <div class="preview-note">
+        Members snapshot: ${state.hoursCompleted.toLocaleString()} hours, ${percent}% progress, ${state.certifications.length} certifications, ${state.skillsLearned.length + state.verifiedSkills.length} skills, ${state.projects.length} projects, and ${proofCount()} signed proof uploads.
+      </div>
+    `;
+  }
 
   function normalizeVerifiedSkill(id,data){
     return {
@@ -1243,9 +1368,7 @@
   async function loadVerifiedSkills(){
     state.verifiedSkills = [];
 
-    if(!currentUserId){
-      return;
-    }
+    if(!currentUserId) return;
 
     try{
       const qRef = query(
@@ -1258,7 +1381,7 @@
       const skills = [];
 
       snap.forEach(docSnap => {
-        const skill = normalizeVerifiedSkill(docSnap.id, docSnap.data());
+        const skill = normalizeVerifiedSkill(docSnap.id,docSnap.data());
         if(skill.approved === true && skill.skillName){
           skills.push(skill);
         }
@@ -1272,7 +1395,7 @@
   }
 
   function renderVerifiedSkills(){
-    const box = document.getElementById("verifiedSkillsList");
+    const box = $("verifiedSkillsList");
     if(!box) return;
 
     if(!state.verifiedSkills.length){
@@ -1294,158 +1417,230 @@
   }
 
   function renderHourLog(){
-    const box=document.getElementById("hourLogList");
-    if(state.hourLogs.length===0){
-      box.innerHTML=`<div class="empty">No hours logged yet.</div>`;
+    const box = $("hourLogList");
+
+    if(state.hourLogs.length === 0){
+      box.innerHTML = `<div class="empty">No hours logged yet.</div>`;
       return;
     }
 
-    box.innerHTML=state.hourLogs.slice().reverse().map((log,reverseIndex)=>{
-      const realIndex=state.hourLogs.length-1-reverseIndex;
+    box.innerHTML = state.hourLogs.slice().reverse().map((log,reverseIndex) => {
+      const realIndex = state.hourLogs.length - 1 - reverseIndex;
       return `
         <div class="list-item">
-          <div><strong>${safe(Number(log.hours || 0).toLocaleString())} hours</strong><span>${safe(log.note || "Hours worked")} • ${safe(log.date || "")}</span></div>
+          <div>
+            <strong>${safe(Number(log.hours || 0).toLocaleString())} hours</strong>
+            <span>${safe(log.note || "Hours worked")} • ${safe(log.date || "")}</span>
+          </div>
           <button class="delete-small" onclick="deleteHourLog(${realIndex})">Delete</button>
         </div>`;
     }).join("");
   }
 
   function renderCerts(){
-    const box=document.getElementById("certList");
-    box.innerHTML=state.certifications.length ? state.certifications.map((item,index)=>{
-      const proof=state.certificationProofs[index] || null;
-      const fileText=proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Certification earned</span>`;
-      return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteCertification(${index})">Delete</button></div>`;
-    }).join("") : `<div class="empty">No certifications added yet.</div>`;
+    const box = $("certList");
+
+    box.innerHTML = state.certifications.length
+      ? state.certifications.map((item,index) => {
+          const proof = state.certificationProofs[index] || null;
+          const fileText = proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Certification earned</span>`;
+          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteCertification(${index})">Delete</button></div>`;
+        }).join("")
+      : `<div class="empty">No certifications added yet.</div>`;
   }
 
   function renderSkills(){
-    const box=document.getElementById("skillList");
-    box.innerHTML=state.skillsLearned.length ? state.skillsLearned.map((item,index)=>{
-      const proof=state.skillProofs[index] || null;
-      const fileText=proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Skill learned</span>`;
-      return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteSkill(${index})">Delete</button></div>`;
-    }).join("") : `<div class="empty">No skills added yet.</div>`;
+    const box = $("skillList");
+
+    box.innerHTML = state.skillsLearned.length
+      ? state.skillsLearned.map((item,index) => {
+          const proof = state.skillProofs[index] || null;
+          const fileText = proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Skill learned</span>`;
+          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteSkill(${index})">Delete</button></div>`;
+        }).join("")
+      : `<div class="empty">No skills added yet.</div>`;
   }
 
   function renderProjects(){
-    const box=document.getElementById("projectList");
-    box.innerHTML=state.projects.length ? state.projects.map((item,index)=>{
-      const proof=state.projectProofs[index] || null;
-      const fileText=proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Project completed</span>`;
-      return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteProject(${index})">Delete</button></div>`;
-    }).join("") : `<div class="empty">No projects added yet.</div>`;
+    const box = $("projectList");
+
+    box.innerHTML = state.projects.length
+      ? state.projects.map((item,index) => {
+          const proof = state.projectProofs[index] || null;
+          const fileText = proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Project completed</span>`;
+          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteProject(${index})">Delete</button></div>`;
+        }).join("")
+      : `<div class="empty">No projects added yet.</div>`;
   }
 
   function renderSignedProofs(){
-    const box=document.getElementById("signedProofList");
+    const box = $("signedProofList");
     if(!box) return;
 
-    box.innerHTML=state.signedWorkProofs.length ? state.signedWorkProofs.map((proof,index)=>`
-      <div class="list-item">
-        <div>
-          <strong>${safe(proof.title || "Signed work proof")}</strong>
-          <span>${safe(proof.fileName || "Uploaded document")}</span>
-          ${proofLinkHtml(proof)}
-        </div>
-        <button class="delete-small" onclick="deleteSignedProof(${index})">Delete</button>
-      </div>
-    `).join("") : `<div class="empty">No signed work proof uploaded yet.</div>`;
+    box.innerHTML = state.signedWorkProofs.length
+      ? state.signedWorkProofs.map((proof,index) => `
+          <div class="list-item">
+            <div>
+              <strong>${safe(proof.title || "Signed work proof")}</strong>
+              <span>${safe(proof.fileName || "Uploaded document")}</span>
+              ${proofLinkHtml(proof)}
+            </div>
+            <button class="delete-small" onclick="deleteSignedProof(${index})">Delete</button>
+          </div>
+        `).join("")
+      : `<div class="empty">No signed work proof uploaded yet.</div>`;
+  }
+
+  function mergeFirebaseProgress(firebaseProfile){
+    const p = firebaseProfile.apprenticeshipProgress || {};
+
+    state.hoursCompleted = Number(firebaseProfile.hoursCompleted ?? firebaseProfile.totalHours ?? p.hoursCompleted ?? state.hoursCompleted ?? 0) || 0;
+    state.hourLogs = normalizeArray(p.hourLogs).length ? normalizeArray(p.hourLogs) : state.hourLogs;
+    state.certifications = normalizeArray(firebaseProfile.certifications).length ? normalizeArray(firebaseProfile.certifications) : normalizeArray(p.certifications).length ? normalizeArray(p.certifications) : state.certifications;
+    state.skillsLearned = normalizeArray(firebaseProfile.skillsLearned).length ? normalizeArray(firebaseProfile.skillsLearned) : normalizeArray(firebaseProfile.skills).length ? normalizeArray(firebaseProfile.skills) : normalizeArray(p.skillsLearned).length ? normalizeArray(p.skillsLearned) : state.skillsLearned;
+    state.projects = normalizeArray(firebaseProfile.projects).length ? normalizeArray(firebaseProfile.projects) : normalizeArray(p.projects).length ? normalizeArray(p.projects) : state.projects;
+    state.certificationProofs = normalizeArray(firebaseProfile.certificationProofs).length ? normalizeArray(firebaseProfile.certificationProofs) : normalizeArray(p.certificationProofs).length ? normalizeArray(p.certificationProofs) : state.certificationProofs;
+    state.skillProofs = normalizeArray(firebaseProfile.skillProofs).length ? normalizeArray(firebaseProfile.skillProofs) : normalizeArray(p.skillProofs).length ? normalizeArray(p.skillProofs) : state.skillProofs;
+    state.projectProofs = normalizeArray(firebaseProfile.projectProofs).length ? normalizeArray(firebaseProfile.projectProofs) : normalizeArray(p.projectProofs).length ? normalizeArray(p.projectProofs) : state.projectProofs;
+    state.signedWorkProofs = normalizeArray(firebaseProfile.signedWorkProofs).length ? normalizeArray(firebaseProfile.signedWorkProofs) : normalizeArray(p.signedWorkProofs).length ? normalizeArray(p.signedWorkProofs) : state.signedWorkProofs;
+    state.jobsiteUploads = Number(firebaseProfile.signedProofCount ?? firebaseProfile.jobsiteUploads ?? firebaseProfile.verifiedPhotos ?? p.signedProofCount ?? p.jobsiteUploads ?? p.verifiedPhotos ?? state.jobsiteUploads ?? state.signedWorkProofs.length ?? 0) || 0;
+    state.badgesEarned = normalizeArray(firebaseProfile.badgesEarned).length ? normalizeArray(firebaseProfile.badgesEarned) : normalizeArray(p.badgesEarned).length ? normalizeArray(p.badgesEarned) : state.badgesEarned;
+    state.updatedAt = state.updatedAt || firebaseProfile.updatedAt || "";
   }
 
   async function loadFirebaseProfile(uid){
     try{
-      const snap=await getDoc(doc(db,"users",uid));
+      const snap = await getDoc(doc(db,"users",uid));
 
       if(snap.exists()){
-        const firebaseProfile=snap.data();
-        profile={...profile,...firebaseProfile};
-        const p=firebaseProfile.apprenticeshipProgress || {};
-
-        state.hoursCompleted=Number(firebaseProfile.hoursCompleted ?? firebaseProfile.totalHours ?? p.hoursCompleted ?? state.hoursCompleted ?? 0) || 0;
-        state.hourLogs=Array.isArray(p.hourLogs) ? p.hourLogs : state.hourLogs;
-        state.certifications=Array.isArray(firebaseProfile.certifications) ? firebaseProfile.certifications : Array.isArray(p.certifications) ? p.certifications : state.certifications;
-        state.skillsLearned=Array.isArray(firebaseProfile.skillsLearned) ? firebaseProfile.skillsLearned : Array.isArray(firebaseProfile.skills) ? firebaseProfile.skills : Array.isArray(p.skillsLearned) ? p.skillsLearned : state.skillsLearned;
-        state.projects=Array.isArray(firebaseProfile.projects) ? firebaseProfile.projects : Array.isArray(p.projects) ? p.projects : state.projects;
-        state.certificationProofs=Array.isArray(firebaseProfile.certificationProofs) ? firebaseProfile.certificationProofs : Array.isArray(p.certificationProofs) ? p.certificationProofs : state.certificationProofs;
-        state.skillProofs=Array.isArray(firebaseProfile.skillProofs) ? firebaseProfile.skillProofs : Array.isArray(p.skillProofs) ? p.skillProofs : state.skillProofs;
-        state.projectProofs=Array.isArray(firebaseProfile.projectProofs) ? firebaseProfile.projectProofs : Array.isArray(p.projectProofs) ? p.projectProofs : state.projectProofs;
-        state.signedWorkProofs=Array.isArray(firebaseProfile.signedWorkProofs) ? firebaseProfile.signedWorkProofs : Array.isArray(p.signedWorkProofs) ? p.signedWorkProofs : state.signedWorkProofs;
-        state.verifiedSkills=Array.isArray(state.verifiedSkills) ? state.verifiedSkills : [];
-        state.jobsiteUploads=Number(firebaseProfile.signedProofCount ?? firebaseProfile.jobsiteUploads ?? firebaseProfile.verifiedPhotos ?? p.signedProofCount ?? p.jobsiteUploads ?? p.verifiedPhotos ?? state.jobsiteUploads ?? state.signedWorkProofs.length ?? 0) || 0;
-        state.badgesEarned=Array.isArray(firebaseProfile.badgesEarned) ? firebaseProfile.badgesEarned : Array.isArray(p.badgesEarned) ? p.badgesEarned : state.badgesEarned;
-        state.updatedAt=state.updatedAt || firebaseProfile.updatedAt || "";
+        const firebaseProfile = snap.data();
+        profile = {...profile,...firebaseProfile};
+        mergeFirebaseProgress(firebaseProfile);
       }
     }catch(error){
       console.error(error);
-      document.getElementById("saveStatus").textContent="Could not load online profile. Check Firestore rules and sign-in status.";
+      setStatus("saveStatus","Could not load online profile. Check Firestore rules and sign-in status.","bad");
     }
   }
 
-  window.addHours=async function(){
-    const input=document.getElementById("hoursInput");
-    const noteInput=document.getElementById("hoursNoteInput");
-    const hours=Number(input.value || 0);
-    const note=noteInput.value.trim();
+  window.addHours = async function(){
+    const input = $("hoursInput");
+    const noteInput = $("hoursNoteInput");
+    const btn = $("addHoursBtn");
+    const hours = Number(input.value || 0);
+    const note = noteInput.value.trim();
 
-    if(!hours || hours<=0){alert("Please enter hours worked.");return;}
+    if(!hours || hours <= 0){
+      alert("Please enter hours worked.");
+      return;
+    }
 
-    state.hoursCompleted+=hours;
-    state.hourLogs.push({hours:hours,note:note || "Hours worked",date:new Date().toLocaleDateString()});
-    input.value="";
-    noteInput.value="";
-    renderProgress();
-    await saveToFirebase();
-    renderProgress();
+    if(hours > 24){
+      if(!confirm("You entered more than 24 hours. Save this entry anyway?")) return;
+    }
+
+    setButtonBusy(btn,true,"Saving...");
+
+    try{
+      state.hoursCompleted += hours;
+      state.hourLogs.push({
+        hours,
+        note:note || "Hours worked",
+        date:new Date().toLocaleDateString(),
+        createdAt:new Date().toISOString()
+      });
+
+      input.value = "";
+      noteInput.value = "";
+      renderProgress();
+      await saveToFirebase();
+      renderProgress();
+    }finally{
+      setButtonBusy(btn,false);
+    }
   };
 
-  window.resetHours=async function(){
+  window.resetHours = async function(){
     if(!confirm("Reset all hours and hour logs?")) return;
-    state.hoursCompleted=0;
-    state.hourLogs=[];
+
+    state.hoursCompleted = 0;
+    state.hourLogs = [];
     renderProgress();
     await saveToFirebase();
     renderProgress();
   };
 
-  window.deleteHourLog=async function(index){
-    const log=state.hourLogs[index];
+  window.deleteHourLog = async function(index){
+    const log = state.hourLogs[index];
     if(!log) return;
-    state.hoursCompleted=Math.max(0,state.hoursCompleted-Number(log.hours || 0));
+
+    if(!confirm("Delete this hour log?")) return;
+
+    state.hoursCompleted = Math.max(0,state.hoursCompleted - Number(log.hours || 0));
     state.hourLogs.splice(index,1);
     renderProgress();
     await saveToFirebase();
     renderProgress();
   };
 
-  window.addCertification=async function(){
-    const input=document.getElementById("certInput");
-    const fileInput=document.getElementById("certFileInput");
-    const value=input.value.trim();
-    const file=fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+  async function addProofItem(options){
+    const input = $(options.inputId);
+    const fileInput = $(options.fileInputId);
+    const btn = $(options.buttonId);
+    const value = input.value.trim();
+    const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
 
-    if(!value){alert("Please enter a certification.");return;}
-    if(!file){alert("Please upload the certification proof document.");return;}
+    if(!value){
+      alert(options.emptyMessage);
+      return;
+    }
 
-    document.getElementById("saveStatus").textContent="Uploading certification proof...";
+    const validationError = validateFile(file);
+    if(validationError){
+      alert(validationError);
+      return;
+    }
+
+    setButtonBusy(btn,true,"Uploading...");
+    setStatus("saveStatus",options.uploadingMessage,"info");
 
     try{
-      const proof=await uploadProofFile("certifications",file);
-      state.certifications.push(value);
-      state.certificationProofs.push(proof);
-      input.value="";
-      if(fileInput) fileInput.value="";
+      const proof = await uploadProofFile(options.category,file);
+      options.onSuccess(value,proof);
+
+      input.value = "";
+      if(fileInput) fileInput.value = "";
+
       renderProgress();
       await saveToFirebase();
       renderProgress();
     }catch(error){
       console.error(error);
-      alert("Upload failed. Check Firebase Storage rules and try again.");
-      document.getElementById("saveStatus").textContent="Certification proof upload failed.";
+      alert(error.message || "Upload failed. Check Firebase Storage rules and try again.");
+      setStatus("saveStatus",options.failureMessage,"bad");
+    }finally{
+      setButtonBusy(btn,false);
     }
+  }
+
+  window.addCertification = async function(){
+    await addProofItem({
+      inputId:"certInput",
+      fileInputId:"certFileInput",
+      buttonId:"certBtn",
+      category:"certifications",
+      emptyMessage:"Please enter a certification.",
+      uploadingMessage:"Uploading certification proof...",
+      failureMessage:"Certification proof upload failed.",
+      onSuccess(value,proof){
+        state.certifications.push(value);
+        state.certificationProofs.push(proof);
+      }
+    });
   };
 
-  window.deleteCertification=async function(index){
+  window.deleteCertification = async function(index){
+    if(!confirm("Delete this certification entry?")) return;
     state.certifications.splice(index,1);
     state.certificationProofs.splice(index,1);
     renderProgress();
@@ -1453,34 +1648,24 @@
     renderProgress();
   };
 
-  window.addSkill=async function(){
-    const input=document.getElementById("skillInput");
-    const fileInput=document.getElementById("skillFileInput");
-    const value=input.value.trim();
-    const file=fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
-
-    if(!value){alert("Please enter a skill.");return;}
-    if(!file){alert("Please upload the skill proof document.");return;}
-
-    document.getElementById("saveStatus").textContent="Uploading skill proof...";
-
-    try{
-      const proof=await uploadProofFile("skills",file);
-      state.skillsLearned.push(value);
-      state.skillProofs.push(proof);
-      input.value="";
-      if(fileInput) fileInput.value="";
-      renderProgress();
-      await saveToFirebase();
-      renderProgress();
-    }catch(error){
-      console.error(error);
-      alert("Upload failed. Check Firebase Storage rules and try again.");
-      document.getElementById("saveStatus").textContent="Skill proof upload failed.";
-    }
+  window.addSkill = async function(){
+    await addProofItem({
+      inputId:"skillInput",
+      fileInputId:"skillFileInput",
+      buttonId:"skillBtn",
+      category:"skills",
+      emptyMessage:"Please enter a skill.",
+      uploadingMessage:"Uploading skill proof...",
+      failureMessage:"Skill proof upload failed.",
+      onSuccess(value,proof){
+        state.skillsLearned.push(value);
+        state.skillProofs.push(proof);
+      }
+    });
   };
 
-  window.deleteSkill=async function(index){
+  window.deleteSkill = async function(index){
+    if(!confirm("Delete this skill entry?")) return;
     state.skillsLearned.splice(index,1);
     state.skillProofs.splice(index,1);
     renderProgress();
@@ -1488,34 +1673,24 @@
     renderProgress();
   };
 
-  window.addProject=async function(){
-    const input=document.getElementById("projectInput");
-    const fileInput=document.getElementById("projectFileInput");
-    const value=input.value.trim();
-    const file=fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
-
-    if(!value){alert("Please enter a project.");return;}
-    if(!file){alert("Please upload signed project paperwork.");return;}
-
-    document.getElementById("saveStatus").textContent="Uploading project proof...";
-
-    try{
-      const proof=await uploadProofFile("projects",file);
-      state.projects.push(value);
-      state.projectProofs.push(proof);
-      input.value="";
-      if(fileInput) fileInput.value="";
-      renderProgress();
-      await saveToFirebase();
-      renderProgress();
-    }catch(error){
-      console.error(error);
-      alert("Upload failed. Check Firebase Storage rules and try again.");
-      document.getElementById("saveStatus").textContent="Project proof upload failed.";
-    }
+  window.addProject = async function(){
+    await addProofItem({
+      inputId:"projectInput",
+      fileInputId:"projectFileInput",
+      buttonId:"projectBtn",
+      category:"projects",
+      emptyMessage:"Please enter a project.",
+      uploadingMessage:"Uploading project proof...",
+      failureMessage:"Project proof upload failed.",
+      onSuccess(value,proof){
+        state.projects.push(value);
+        state.projectProofs.push(proof);
+      }
+    });
   };
 
-  window.deleteProject=async function(index){
+  window.deleteProject = async function(index){
+    if(!confirm("Delete this project entry?")) return;
     state.projects.splice(index,1);
     state.projectProofs.splice(index,1);
     renderProgress();
@@ -1523,55 +1698,99 @@
     renderProgress();
   };
 
-  window.addSignedProof=async function(){
-    const titleInput=document.getElementById("signedProofTitleInput");
-    const fileInput=document.getElementById("signedProofFileInput");
-    const title=(titleInput.value || "").trim();
-    const file=fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+  window.addSignedProof = async function(){
+    const titleInput = $("signedProofTitleInput");
+    const fileInput = $("signedProofFileInput");
+    const btn = $("signedProofBtn");
+    const title = (titleInput.value || "").trim();
+    const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
 
-    if(!title){alert("Please enter a proof description.");return;}
-    if(!file){alert("Please upload signed paperwork.");return;}
+    if(!title){
+      alert("Please enter a proof description.");
+      return;
+    }
 
-    document.getElementById("saveStatus").textContent="Uploading signed work proof...";
+    const validationError = validateFile(file);
+    if(validationError){
+      alert(validationError);
+      return;
+    }
+
+    setButtonBusy(btn,true,"Uploading...");
+    setStatus("saveStatus","Uploading signed work proof...","info");
 
     try{
-      const proof=await uploadProofFile("signed-work-proof",file);
+      const proof = await uploadProofFile("signed-work-proof",file);
+
       state.signedWorkProofs.push({
         title,
         ...proof
       });
-      state.jobsiteUploads=state.signedWorkProofs.length;
-      titleInput.value="";
-      if(fileInput) fileInput.value="";
+
+      state.jobsiteUploads = state.signedWorkProofs.length;
+      titleInput.value = "";
+      if(fileInput) fileInput.value = "";
+
       renderProgress();
       await saveToFirebase();
       renderProgress();
     }catch(error){
       console.error(error);
-      alert("Upload failed. Check Firebase Storage rules and try again.");
-      document.getElementById("saveStatus").textContent="Signed work proof upload failed.";
+      alert(error.message || "Upload failed. Check Firebase Storage rules and try again.");
+      setStatus("saveStatus","Signed work proof upload failed.","bad");
+    }finally{
+      setButtonBusy(btn,false);
     }
   };
 
-  window.deleteSignedProof=async function(index){
+  window.deleteSignedProof = async function(index){
+    if(!confirm("Delete this signed proof entry?")) return;
+
     state.signedWorkProofs.splice(index,1);
-    state.jobsiteUploads=state.signedWorkProofs.length;
+    state.jobsiteUploads = state.signedWorkProofs.length;
     renderProgress();
     await saveToFirebase();
     renderProgress();
   };
 
-  window.addJobsiteProof=async function(){
+  window.addJobsiteProof = async function(){
     alert("This old proof count button has been replaced by signed work proof uploads.");
   };
 
-  window.resetJobsiteProof=async function(){
-    if(!confirm("Reset signed proof uploads?")) return;
-    state.signedWorkProofs=[];
-    state.jobsiteUploads=0;
+  window.resetJobsiteProof = async function(){
+    if(!confirm("Reset signed proof uploads? This removes the saved entries from your progress record, but it does not delete files already stored in Firebase Storage.")) return;
+
+    state.signedWorkProofs = [];
+    state.jobsiteUploads = 0;
     renderProgress();
     await saveToFirebase();
     renderProgress();
+  };
+
+  window.exportProgressBackup = function(){
+    if(!currentUserId){
+      alert("You must be signed in to export progress.");
+      return;
+    }
+
+    const backup = {
+      exportedAt:new Date().toISOString(),
+      uid:currentUserId,
+      email:currentUserEmail,
+      profile,
+      progress:state
+    };
+
+    const blob = new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `ltn-apprenticeship-progress-${currentUserId}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   };
 
   function showPage(){
@@ -1579,9 +1798,9 @@
     document.documentElement.classList.add("auth-ready");
   }
 
-  onAuthStateChanged(auth, async function(user){
+  onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260515apprenticeverifiedskillscleanv22");
+      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv23");
       return;
     }
 
@@ -1594,27 +1813,51 @@
       name:user.displayName || ""
     };
 
-    localStorage.setItem("ltn_auth_uid", user.uid);
-    if(user.email) localStorage.setItem("userEmail", user.email);
+    localStorage.setItem("ltn_auth_uid",user.uid);
+    if(user.email) localStorage.setItem("userEmail",user.email);
 
     loadLocalProgressForUser(user.uid);
     await loadFirebaseProfile(user.uid);
     await loadVerifiedSkills();
 
-    if(!enforceApprenticeAccess(profile)){
+    if(!await enforceApprenticeAccess(profile)){
       return;
     }
 
     renderProfile();
     renderProgress();
 
-    document.getElementById("syncStatus").textContent="Signed in securely";
-    document.getElementById("saveStatus").textContent="Secure profile loaded.";
+    $("syncStatus").textContent = "Signed in securely";
+    setStatus("saveStatus","Secure profile loaded.","ok");
 
     showPage();
   });
 
-  console.log("LTN Apprenticeship Verified Skills Clean Loaded v22");
+  setTimeout(function(){
+    if(document.documentElement.classList.contains("auth-checking")){
+      document.documentElement.classList.remove("auth-checking");
+      document.documentElement.classList.add("auth-ready");
+      $("syncStatus").textContent = "Still checking sign in...";
+      setStatus("saveStatus","If this page does not load, refresh or sign in again.","bad");
+    }
+  },12000);
+
+  console.log("LTN Apprenticeship Dashboard Clean Loaded v23");
+
+  /*
+    Firebase security reminder:
+    Client-side checks improve user experience, but real security must be enforced in Firebase Rules.
+
+    Recommended Firestore rules:
+    - users/{uid}: allow read/write only when request.auth.uid == uid.
+    - schoolCodes: allow read for signed-in users, write only for admins/instructors.
+    - studentSkills: allow students to read skills where authUid == request.auth.uid.
+    - studentSkills writes/approvals should be limited to verified instructors/admins.
+
+    Recommended Storage rules:
+    - apprenticeship-proof/{uid}/...: allow read/write only when request.auth.uid == uid,
+      or allow instructor/admin read only through explicit claims/relationships.
+  */
 </script>
 
 </body>
