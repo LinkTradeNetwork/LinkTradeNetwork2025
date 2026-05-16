@@ -1108,6 +1108,7 @@ let currentUserId = "";
 let currentProfile = {};
 let autoLinkedStudents = [];
 let studentSkillsByUserId = {};
+let allVerifiedSkills = [];
 
 function safeJsonParse(value, fallback){
   try{return JSON.parse(value || "");}catch(e){return fallback;}
@@ -1418,6 +1419,7 @@ function normalizeSkillDoc(id, data){
 
 async function loadVerifiedSkills(){
   studentSkillsByUserId = {};
+  allVerifiedSkills = [];
 
   const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
 
@@ -1444,6 +1446,7 @@ async function loadVerifiedSkills(){
       }
 
       studentSkillsByUserId[skill.authUid].push(skill);
+      allVerifiedSkills.push(skill);
     });
   }catch(e){
     console.warn("Verified skills query failed", e);
@@ -1454,19 +1457,37 @@ function verifiedSkillsHtml(student){
   if(!student) return "";
 
   const authUid = String(student.authUid || student.userId || student.id || "").trim();
-  if(!authUid) return "";
+  const studentName = String(student.name || "").trim().toLowerCase();
 
-  const skills = studentSkillsByUserId[authUid] || [];
+  let skills = authUid ? (studentSkillsByUserId[authUid] || []) : [];
+
+  /* Fallback match: keeps verified skills visible even if older student records
+     were created before authUid was standardized. */
+  if(!skills.length && studentName){
+    skills = allVerifiedSkills.filter(skill => {
+      return String(skill.studentName || "").trim().toLowerCase() === studentName;
+    });
+  }
 
   if(!skills.length){
     return "";
   }
 
+  const uniqueSkills = [];
+  const seen = new Set();
+
+  skills.forEach(skill => {
+    const key = String(skill.skillName || "").trim().toLowerCase();
+    if(!key || seen.has(key)) return;
+    seen.add(key);
+    uniqueSkills.push(skill);
+  });
+
   return `
     <div class="verified-skills">
       <div class="verified-skills-title">Verified Skills</div>
       <div class="verified-skill-list">
-        ${skills.map(skill => `
+        ${uniqueSkills.map(skill => `
           <span class="verified-skill-pill">
             ✓ ${escapeHtml(skill.skillName)}
           </span>
