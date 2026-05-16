@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-school-code-v20 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-verified-skills-v21 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -391,6 +391,48 @@
 
     .profile-detail b{color:var(--ink)}
 
+
+    .verified-skills-card{
+      background:#f0fdf4;
+      border:1px solid #bbf7d0;
+      border-radius:14px;
+      padding:16px;
+      margin-top:14px;
+    }
+
+    .verified-skills-card .verified-title{
+      color:#166534;
+      font-size:13px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      margin-bottom:8px;
+    }
+
+    .verified-skill-row{
+      background:white;
+      border:1px solid #bbf7d0;
+      border-radius:12px;
+      padding:12px 14px;
+      margin-top:10px;
+    }
+
+    .verified-skill-row strong{
+      color:#14532d;
+      font-size:16px;
+      display:block;
+      word-break:break-word;
+    }
+
+    .verified-skill-row span{
+      color:#166534;
+      font-size:13px;
+      font-weight:800;
+      display:block;
+      margin-top:3px;
+      line-height:1.4;
+    }
+
     .empty{
       color:var(--muted);
       background:var(--soft);
@@ -493,9 +535,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260515apprenticeschoolcodev20'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260515apprenticeschoolcodev20'">Members</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260515apprenticeschoolcodev20'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260515apprenticeverifiedskillsv21'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260515apprenticeverifiedskillsv21'">Members</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260515apprenticeverifiedskillsv21'">Back</button>
   </div>
 </div>
 
@@ -639,6 +681,15 @@
     <div class="badge-list" id="badgeList"></div>
   </div>
 
+  <div class="section-title">Instructor Verified Skills</div>
+
+  <div class="card">
+    <div class="label">Instructor Approved</div>
+    <div class="value small-value">Verified Skill Record</div>
+    <div class="small">Skills approved by your instructor will appear here automatically from the Instructor Center.</div>
+    <div id="verifiedSkillsList" class="list-box"></div>
+  </div>
+
   <div class="section-title">Add Proof</div>
 
   <div class="grid">
@@ -710,7 +761,17 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    collection,
+    query,
+    where,
+    getDocs,
+    limit
+  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
 
   const firebaseConfig = {
@@ -741,6 +802,7 @@
     skillProofs:[],
     projectProofs:[],
     signedWorkProofs:[],
+    verifiedSkills:[],
     jobsiteUploads:0,
     badgesEarned:[],
     updatedAt:""
@@ -786,6 +848,7 @@
         skillProofs:Array.isArray(saved.skillProofs) ? saved.skillProofs : [],
         projectProofs:Array.isArray(saved.projectProofs) ? saved.projectProofs : [],
         signedWorkProofs:Array.isArray(saved.signedWorkProofs) ? saved.signedWorkProofs : [],
+        verifiedSkills:[],
         jobsiteUploads:Number(saved.jobsiteUploads || (Array.isArray(saved.signedWorkProofs) ? saved.signedWorkProofs.length : 0)),
         badgesEarned:Array.isArray(saved.badgesEarned) ? saved.badgesEarned : [],
         updatedAt:saved.updatedAt || ""
@@ -870,13 +933,13 @@
   function enforceApprenticeAccess(data){
     if(isInstructorProfile(data)){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260515apprenticeschoolcodev20");
+      window.location.replace("/instructor/?v=20260515apprenticeverifiedskillsv21");
       return false;
     }
 
     if(!isApprenticeProfile(data)){
       alert("Track My Progress is for apprentices and students. Open Edit Profile on the dashboard and mark yourself as an apprentice/student first.");
-      window.location.replace("/dashboard/?v=20260515apprenticeschoolcodev20");
+      window.location.replace("/dashboard/?v=20260515apprenticeverifiedskillsv21");
       return false;
     }
 
@@ -905,6 +968,7 @@
     if(state.hoursCompleted>=8000) badges.push("8,000 Hour Club");
     if(state.certifications.length>0) badges.push("Certification Uploaded");
     if(state.skillsLearned.length>0) badges.push("Skills Added");
+    if(state.verifiedSkills.length>0) badges.push("Instructor Verified Skill");
     if(state.projects.length>0) badges.push("Project Proof Added");
     if(state.jobsiteUploads>0) badges.push("Signed Proof Added");
     state.badgesEarned=badges;
@@ -1058,7 +1122,7 @@
 
   async function saveToFirebase(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260515apprenticeschoolcodev20");
+      window.location.replace("/front/?v=secureauth20260515apprenticeverifiedskillsv21");
       return;
     }
 
@@ -1090,6 +1154,7 @@
       jobsiteUploads:proofCount(),
       signedProofCount:proofCount(),
       verifiedPhotos:proofCount(),
+      verifiedSkillCount:state.verifiedSkills.length,
       badgesEarned:state.badgesEarned,
       badges:state.badgesEarned,
       updatedAt:state.updatedAt,
@@ -1111,6 +1176,7 @@
         jobsiteUploads:proofCount(),
         signedProofCount:proofCount(),
         verifiedPhotos:proofCount(),
+        verifiedSkillCount:state.verifiedSkills.length,
         badgesEarned:state.badgesEarned,
         updatedAt:new Date().toISOString()
       }
@@ -1177,13 +1243,13 @@
     document.getElementById("currentLevel").textContent=level;
 
     document.getElementById("certCount").textContent=state.certifications.length;
-    document.getElementById("skillCount").textContent=state.skillsLearned.length;
+    document.getElementById("skillCount").textContent=state.skillsLearned.length + state.verifiedSkills.length;
     document.getElementById("projectCount").textContent=state.projects.length;
     document.getElementById("photoCount").textContent=proofCount();
 
     document.getElementById("previewHours").textContent=hours.toLocaleString();
     document.getElementById("previewCerts").textContent=state.certifications.length;
-    document.getElementById("previewSkills").textContent=state.skillsLearned.length;
+    document.getElementById("previewSkills").textContent=state.skillsLearned.length + state.verifiedSkills.length;
     document.getElementById("previewProof").textContent=proofCount();
 
     const badgeHtml=state.badgesEarned.length
@@ -1198,6 +1264,74 @@
     renderSkills();
     renderProjects();
     renderSignedProofs();
+    renderVerifiedSkills();
+  }
+
+
+  function normalizeVerifiedSkill(id,data){
+    return {
+      id,
+      authUid:String(data.authUid || data.userId || data.studentId || "").trim(),
+      studentName:String(data.studentName || "").trim(),
+      skillName:String(data.skillName || "").trim(),
+      schoolCode:String(data.schoolCode || "").trim(),
+      approved:data.approved === true,
+      approvedBy:String(data.approvedBy || "Instructor").trim(),
+      approvedAt:data.approvedAt || data.createdAt || ""
+    };
+  }
+
+  async function loadVerifiedSkills(){
+    state.verifiedSkills = [];
+
+    if(!currentUserId){
+      return;
+    }
+
+    try{
+      const qRef = query(
+        collection(db,"studentSkills"),
+        where("authUid","==",currentUserId),
+        limit(200)
+      );
+
+      const snap = await getDocs(qRef);
+      const skills = [];
+
+      snap.forEach(docSnap => {
+        const skill = normalizeVerifiedSkill(docSnap.id, docSnap.data());
+        if(skill.approved === true && skill.skillName){
+          skills.push(skill);
+        }
+      });
+
+      state.verifiedSkills = skills;
+    }catch(error){
+      console.error("Could not load instructor verified skills:", error);
+      state.verifiedSkills = [];
+    }
+  }
+
+  function renderVerifiedSkills(){
+    const box = document.getElementById("verifiedSkillsList");
+    if(!box) return;
+
+    if(!state.verifiedSkills.length){
+      box.innerHTML = `<div class="empty">No instructor verified skills yet. When your instructor approves a skill, it will appear here automatically.</div>`;
+      return;
+    }
+
+    box.innerHTML = `
+      <div class="verified-skills-card">
+        <div class="verified-title">Verified by Instructor</div>
+        ${state.verifiedSkills.map(skill => `
+          <div class="verified-skill-row">
+            <strong><span class="orange-check">✓</span> ${safe(skill.skillName)}</strong>
+            <span>Approved by ${safe(skill.approvedBy || "Instructor")}${skill.schoolCode ? " • " + safe(skill.schoolCode) : ""}</span>
+          </div>
+        `).join("")}
+      </div>
+    `;
   }
 
   function renderHourLog(){
@@ -1278,6 +1412,7 @@
         state.skillProofs=Array.isArray(firebaseProfile.skillProofs) ? firebaseProfile.skillProofs : Array.isArray(p.skillProofs) ? p.skillProofs : state.skillProofs;
         state.projectProofs=Array.isArray(firebaseProfile.projectProofs) ? firebaseProfile.projectProofs : Array.isArray(p.projectProofs) ? p.projectProofs : state.projectProofs;
         state.signedWorkProofs=Array.isArray(firebaseProfile.signedWorkProofs) ? firebaseProfile.signedWorkProofs : Array.isArray(p.signedWorkProofs) ? p.signedWorkProofs : state.signedWorkProofs;
+        state.verifiedSkills=Array.isArray(state.verifiedSkills) ? state.verifiedSkills : [];
         state.jobsiteUploads=Number(firebaseProfile.signedProofCount ?? firebaseProfile.jobsiteUploads ?? firebaseProfile.verifiedPhotos ?? p.signedProofCount ?? p.jobsiteUploads ?? p.verifiedPhotos ?? state.jobsiteUploads ?? state.signedWorkProofs.length ?? 0) || 0;
         state.badgesEarned=Array.isArray(firebaseProfile.badgesEarned) ? firebaseProfile.badgesEarned : Array.isArray(p.badgesEarned) ? p.badgesEarned : state.badgesEarned;
         state.updatedAt=state.updatedAt || firebaseProfile.updatedAt || "";
@@ -1487,7 +1622,7 @@
 
   onAuthStateChanged(auth, async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260515apprenticeschoolcodev20");
+      window.location.replace("/front/?v=secureauth20260515apprenticeverifiedskillsv21");
       return;
     }
 
@@ -1505,6 +1640,7 @@
 
     loadLocalProgressForUser(user.uid);
     await loadFirebaseProfile(user.uid);
+    await loadVerifiedSkills();
 
     if(!enforceApprenticeAccess(profile)){
       return;
@@ -1519,7 +1655,7 @@
     showPage();
   });
 
-  console.log("LTN Apprenticeship School Code Loaded v20");
+  console.log("LTN Apprenticeship Verified Skills Loaded v21");
 </script>
 
 </body>
