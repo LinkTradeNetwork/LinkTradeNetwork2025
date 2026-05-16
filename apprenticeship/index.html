@@ -934,6 +934,16 @@
     <div id="verifiedSkillsList" class="list-box"></div>
   </div>
 
+  <div class="section-title">Instructor Review Status</div>
+
+  <div class="card">
+    <div class="label">Student Upload Reviews</div>
+    <div class="value small-value">Instructor Approval Status</div>
+    <div class="small">Uploads stay pending until your instructor reviews them.</div>
+    <div id="pendingReviewsList" class="list-box"></div>
+  </div>
+
+
   <div class="section-title">Add Proof</div>
 
   <div class="card" style="margin-bottom:18px">
@@ -1068,6 +1078,7 @@
       projectProofs:[],
       signedWorkProofs:[],
       verifiedSkills:[],
+      pendingReviews:[],
       aptitudeTest:null,
       jobsiteUploads:0,
       badgesEarned:[],
@@ -1144,6 +1155,7 @@
       projectProofs:normalizeArray(saved.projectProofs),
       signedWorkProofs:normalizeArray(saved.signedWorkProofs),
       verifiedSkills:normalizeArray(saved.verifiedSkills),
+      pendingReviews:normalizeArray(saved.pendingReviews),
       aptitudeTest:saved.aptitudeTest && typeof saved.aptitudeTest === "object" ? saved.aptitudeTest : null,
       jobsiteUploads:Number(saved.jobsiteUploads || (Array.isArray(saved.signedWorkProofs) ? saved.signedWorkProofs.length : 0)) || 0,
       badgesEarned:normalizeArray(saved.badgesEarned),
@@ -1692,6 +1704,7 @@
     renderProjects();
     renderSignedProofs();
     renderVerifiedSkills();
+    renderPendingReviews();
     renderAptitudeTest();
   }
 
@@ -1834,6 +1847,116 @@
       </div>
     `;
   }
+
+
+  function normalizePendingReview(id,data){
+    return {
+      id,
+      status:String(data.status || "pending").toLowerCase(),
+      reviewType:String(data.reviewType || "Student Upload"),
+      uploadTitle:String(data.uploadTitle || "Upload"),
+      instructorComment:String(data.instructorComment || ""),
+      approvedBy:String(data.approvedBy || ""),
+      submittedAtIso:String(data.submittedAtIso || ""),
+      reviewedDate:String(data.reviewedDate || ""),
+      proofFileUrl:String(data.proofFileUrl || "")
+    };
+  }
+
+  async function loadPendingReviews(){
+    state.pendingReviews = [];
+
+    if(!currentUserId) return;
+
+    try{
+      const qRef = query(
+        collection(db,"pendingReviews"),
+        where("authUid","==",currentUserId),
+        limit(200)
+      );
+
+      const snap = await getDocs(qRef);
+      const reviews = [];
+
+      snap.forEach(docSnap => {
+        reviews.push(normalizePendingReview(docSnap.id, docSnap.data()));
+      });
+
+      reviews.sort((a,b) => {
+        return String(b.submittedAtIso || "").localeCompare(String(a.submittedAtIso || ""));
+      });
+
+      state.pendingReviews = reviews;
+    }catch(error){
+      console.error("Could not load pending reviews:", error);
+      state.pendingReviews = [];
+    }
+  }
+
+  function renderPendingReviews(){
+    const box = $("pendingReviewsList");
+    if(!box) return;
+
+    if(!state.pendingReviews.length){
+      box.innerHTML = `<div class="empty">No uploads submitted for instructor review yet.</div>`;
+      return;
+    }
+
+    box.innerHTML = state.pendingReviews.map(review => {
+      let statusHtml = `<span class="status-pill status-pending">Pending Instructor Review</span>`;
+
+      if(review.status === "approved"){
+        statusHtml = `<span class="status-pill status-verified">✓ Instructor Approved</span>`;
+      }
+
+      if(review.status === "rejected"){
+        statusHtml = `<span class="status-pill status-rejected">Needs Correction</span>`;
+      }
+
+      return `
+        <div class="verification-record">
+          <strong><span class="orange-check">✓</span> ${safe(review.uploadTitle)}</strong>
+
+          <div class="verification-record-grid">
+            <div class="verification-record-metric">
+              <span>Type</span>
+              <b>${safe(review.reviewType)}</b>
+            </div>
+
+            <div class="verification-record-metric">
+              <span>Status</span>
+              <b>${safe(review.status)}</b>
+            </div>
+
+            <div class="verification-record-metric">
+              <span>Reviewed By</span>
+              <b>${safe(review.approvedBy || "Awaiting Instructor")}</b>
+            </div>
+
+            <div class="verification-record-metric">
+              <span>Date</span>
+              <b>${safe(review.reviewedDate || "Pending")}</b>
+            </div>
+          </div>
+
+          ${statusHtml}
+
+          ${review.instructorComment ? `
+            <div class="verification-comment">
+              <b>Instructor Comment:</b> ${safe(review.instructorComment)}
+            </div>
+          ` : ""}
+
+          ${review.proofFileUrl ? `
+            <a class="proof-link" href="${safe(review.proofFileUrl)}" target="_blank" rel="noopener">
+              View Submitted Proof
+            </a>
+          ` : ""}
+        </div>
+      `;
+    }).join("");
+  }
+
 
 
   function calculateAptitudeScores(){
