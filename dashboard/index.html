@@ -814,6 +814,230 @@ textarea.form-control{min-height:104px;resize:vertical}
   line-height:1.45;
 }
 
+.network-tabs{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  border-bottom:1px solid var(--line);
+  background:#fbfdff;
+}
+
+.network-tab{
+  padding:14px 8px;
+  font-weight:850;
+  color:var(--muted);
+  border-bottom:3px solid transparent;
+  cursor:pointer;
+  transition:color .18s,border-color .18s;
+}
+
+.network-tab.active{
+  color:var(--brand);
+  border-bottom-color:var(--brand);
+}
+
+.person-card{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:white;
+  margin-bottom:12px;
+  box-shadow:var(--shadow-sm);
+}
+
+.person-avatar,.message-avatar,.story-avatar{
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  background:var(--accent);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  flex-shrink:0;
+  overflow:hidden;
+}
+
+.person-avatar img,.message-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.person-info,.message-content,.story-meta{
+  min-width:0;
+  flex:1;
+}
+
+.person-name,.message-sender,.story-author{
+  font-weight:900;
+  color:var(--ink);
+}
+
+.person-trade,.person-location,.message-preview,.story-author-trade,.story-location,.message-time{
+  font-size:13px;
+  color:var(--muted);
+}
+
+.person-actions,.story-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.message-list{
+  max-height:68vh;
+  overflow:auto;
+}
+
+.message-item{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  padding:14px 18px;
+  border-bottom:1px solid var(--line);
+  cursor:pointer;
+  background:white;
+  transition:background .18s;
+}
+
+.message-item:hover,.message-item.unread{
+  background:var(--brand-soft);
+}
+
+.message-header{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.chat-view{
+  display:flex;
+  flex-direction:column;
+  height:min(68vh,560px);
+}
+
+.chat-header{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:14px 16px;
+  border-bottom:1px solid var(--line);
+  background:#fbfdff;
+}
+
+.chat-messages{
+  flex:1;
+  overflow:auto;
+  padding:16px;
+  background:#f8fafc;
+}
+
+.chat-message{
+  max-width:76%;
+  margin:8px 0;
+  padding:10px 13px;
+  border-radius:16px;
+  background:white;
+  border:1px solid var(--line);
+  word-wrap:break-word;
+}
+
+.chat-message.sent{
+  margin-left:auto;
+  background:var(--brand);
+  color:white;
+  border-color:var(--brand);
+}
+
+.chat-input-area{
+  display:flex;
+  gap:8px;
+  padding:12px;
+  border-top:1px solid var(--line);
+  background:white;
+}
+
+.chat-input,.search-input{
+  width:100%;
+  border:1px solid #c8d3e2;
+  border-radius:14px;
+  padding:10px 12px;
+  resize:none;
+  min-height:42px;
+  color:var(--ink);
+}
+
+.story-card{
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:white;
+  box-shadow:var(--shadow-sm);
+  margin-bottom:14px;
+}
+
+.story-header{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+.story-image{
+  width:100%;
+  max-height:320px;
+  object-fit:cover;
+  border-radius:16px;
+  margin-bottom:14px;
+}
+
+.story-title{
+  margin:14px 0 8px;
+  font-size:18px;
+  line-height:1.3;
+}
+
+.story-text{
+  color:#334155;
+  margin:0 0 10px;
+  line-height:1.65;
+}
+
+.story-date{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.document-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:8px 0;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+}
+
+.document-item svg{
+  width:18px;
+  height:18px;
+  color:var(--muted);
+  margin-right:6px;
+  flex-shrink:0;
+}
+
+.document-remove{
+  color:var(--danger);
+  font-weight:800;
+  cursor:pointer;
+  font-size:12px;
+}
+
 /* Top nav buttons now share one consistent dark style. Active tabs turn orange. */
 .nav a[href^="/apprenticeship/"],
 .nav a[href^="/find-apprenticeships/"]{
@@ -4964,10 +5188,24 @@ function renderJobs_(items) {
       <div class="apply">
         ${j.link
           ? `<a class="btn btn-primary" href="${escapeHtml(j.link)}" target="_blank" rel="noopener">Apply Now</a>`
-          : `<button class="btn-primary" onclick="applyToJob('${jobTitle.replace(/'/g, "\\'")}','${(j.company || "").replace(/'/g, "\\'")}')">Apply</button>`
+          : `<button class="btn-primary job-apply-btn" type="button">Apply</button>`
         }
-        <button class="btn btn-secondary" onclick="saveJob('${jobTitle.replace(/'/g, "\\'")}')">Save</button>
+        <button class="btn btn-secondary job-save-btn" type="button">Save</button>
       </div>`;
+
+    const applyBtn = el.querySelector(".job-apply-btn");
+    if (applyBtn) {
+      applyBtn.addEventListener("click", function() {
+        applyToJob(jobTitle, j.company || "");
+      });
+    }
+
+    const saveBtn = el.querySelector(".job-save-btn");
+    if (saveBtn) {
+      saveBtn.addEventListener("click", function() {
+        saveJob(jobTitle);
+      });
+    }
 
     list.appendChild(el);
   });
@@ -5448,3 +5686,4 @@ function restoreActiveNav() {
 
 </body>
 </html>
+
