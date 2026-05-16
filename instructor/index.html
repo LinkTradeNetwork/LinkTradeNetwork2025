@@ -648,6 +648,43 @@ textarea.form-control{min-height:106px;resize:vertical}
   font-weight:800;
 }
 
+
+.pending-review-card{
+  border:1px solid #fed7aa;
+  background:#fff7ed;
+  border-radius:18px;
+  padding:16px;
+  box-shadow:var(--shadow-sm);
+}
+
+.pending-review-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+  flex-wrap:wrap;
+}
+
+.pending-review-title{
+  font-size:16px;
+  font-weight:950;
+  color:#9a3412;
+}
+
+.pending-review-meta{
+  color:#7c2d12;
+  font-size:13px;
+  font-weight:700;
+  margin-top:3px;
+}
+
+.pending-review-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+
 .empty-state{
   text-align:center;
   padding:34px 18px;
@@ -1019,6 +1056,16 @@ textarea.form-control{min-height:106px;resize:vertical}
         </div>
       </div>
 
+      <div class="card">
+        <div class="hd">
+          <span>Pending Student Reviews</span>
+          <span class="badge badge-warning" id="pending-review-count">0 Pending</span>
+        </div>
+        <div class="bd">
+          <div id="pending-reviews-list" class="list"></div>
+        </div>
+      </div>
+
 
       <div class="card">
         <div class="hd">
@@ -1315,6 +1362,7 @@ let autoLinkedStudents = [];
 let studentSkillsByUserId = {};
 let allVerifiedSkills = [];
 let aptitudeTestsByUserId = {};
+let pendingReviews = [];
 
 function safeJsonParse(value, fallback){
   try{return JSON.parse(value || "");}catch(e){return fallback;}
@@ -1877,6 +1925,81 @@ function parseSkillStudentValue(value){
   }
 }
 
+
+async function loadPendingReviews(){
+  pendingReviews = [];
+
+  const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
+
+  try{
+    const qRef = query(
+      collection(db,"pendingReviews"),
+      where("schoolCode","==",schoolCode),
+      where("status","==","pending"),
+      limit(100)
+    );
+
+    const snap = await getDocs(qRef);
+
+    snap.forEach(docSnap => {
+      pendingReviews.push({
+        id:docSnap.id,
+        ...docSnap.data()
+      });
+    });
+  }catch(e){
+    console.warn("Pending review query failed", e);
+  }
+}
+
+function renderPendingReviews(){
+  const wrap = document.getElementById("pending-reviews-list");
+  const badge = document.getElementById("pending-review-count");
+
+  if(badge){
+    badge.innerText = `${pendingReviews.length} Pending`;
+  }
+
+  if(!wrap) return;
+
+  if(!pendingReviews.length){
+    wrap.innerHTML = emptyState(
+      "No pending reviews",
+      "Student uploads waiting for instructor approval will appear here."
+    );
+    return;
+  }
+
+  wrap.innerHTML = pendingReviews.map(item => {
+    const submitted = item.submittedAtIso
+      ? new Date(item.submittedAtIso).toLocaleDateString()
+      : "Recently";
+
+    return `
+      <div class="pending-review-card">
+        <div class="pending-review-top">
+          <div>
+            <div class="pending-review-title">${escapeHtml(item.uploadTitle || "Student Upload")}</div>
+            <div class="pending-review-meta">${escapeHtml(item.studentName || "Student")}</div>
+            <div class="pending-review-meta">${escapeHtml(item.reviewType || "Review")}</div>
+            <div class="pending-review-meta">Submitted: ${escapeHtml(submitted)}</div>
+          </div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${item.proofFileUrl ? `<a class="btn btn-secondary" style="min-height:34px;padding:8px 12px;font-size:12px" href="${escapeHtml(item.proofFileUrl)}" target="_blank">View Proof</a>` : ""}
+          </div>
+        </div>
+
+        <div class="pending-review-actions">
+          <button class="btn btn-success" style="min-height:36px;padding:8px 14px;font-size:13px" onclick="InstructorCenter.approvePendingReview('${item.id}')">Approve</button>
+          <button class="btn btn-danger" style="min-height:36px;padding:8px 14px;font-size:13px" onclick="InstructorCenter.rejectPendingReview('${item.id}')">Reject</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+
 window.InstructorCenter = {
   setActiveHeroButton(button){
     document.querySelectorAll('.hero-action-btn').forEach(btn => {
@@ -1886,6 +2009,44 @@ window.InstructorCenter = {
 
     button.classList.remove('btn-secondary');
     button.classList.add('btn-primary');
+  },
+
+
+
+  async approvePendingReview(reviewId){
+    try{
+      await updateDoc(doc(db,"pendingReviews",reviewId),{
+        status:"approved",
+        reviewedBy:currentProfile.name || "Instructor",
+        reviewedAt:serverTimestamp()
+      });
+
+      pendingReviews = pendingReviews.filter(r => r.id !== reviewId);
+      renderPendingReviews();
+
+      alert("Student upload approved.");
+    }catch(e){
+      console.error(e);
+      alert("Approval failed.");
+    }
+  },
+
+  async rejectPendingReview(reviewId){
+    try{
+      await updateDoc(doc(db,"pendingReviews",reviewId),{
+        status:"rejected",
+        reviewedBy:currentProfile.name || "Instructor",
+        reviewedAt:serverTimestamp()
+      });
+
+      pendingReviews = pendingReviews.filter(r => r.id !== reviewId);
+      renderPendingReviews();
+
+      alert("Student upload rejected.");
+    }catch(e){
+      console.error(e);
+      alert("Rejection failed.");
+    }
   },
 
   openProfileModal(){
@@ -2308,7 +2469,9 @@ async function init(){
   await loadAutoLinkedStudents();
   await loadAptitudeTests();
   await loadVerifiedSkills();
+  await loadPendingReviews();
   InstructorCenter.renderStudents();
+  renderPendingReviews();
   console.log("LTN verified skills loaded", allVerifiedSkills);
   InstructorCenter.renderDocuments();
   updateStats();
