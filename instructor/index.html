@@ -735,7 +735,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515instructorv7";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515instructorv10";
 
   window.LTNClearLocalSession = function(){
     [
@@ -778,11 +778,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260515instructorv7">Dashboard</a>
-      <a href="/members/?v=20260515instructorv7">Members</a>
-      <a href="/instructor/?v=20260515instructorv7" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260515instructorv7" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260515instructorv7">Network Center</a>
+      <a href="/dashboard/?v=20260515instructorv10">Dashboard</a>
+      <a href="/members/?v=20260515instructorv10">Members</a>
+      <a href="/instructor/?v=20260515instructorv10" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260515instructorv10" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260515instructorv10">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -799,6 +799,7 @@ textarea.form-control{min-height:106px;resize:vertical}
       </p>
       <div class="hero-actions">
         <button class="btn btn-primary" onclick="InstructorCenter.openStudentModal()">Add Student</button>
+        <button class="btn btn-secondary" onclick="InstructorCenter.openSkillApprovalModal()">Approve Skill</button>
         <button class="btn btn-secondary" onclick="InstructorCenter.openDocumentModal()">Upload Assignment</button>
       </div>
     </div>
@@ -829,7 +830,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260515instructorv7">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260515instructorv10">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1018,6 +1019,60 @@ textarea.form-control{min-height:106px;resize:vertical}
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="InstructorCenter.closeModal('student-modal')">Cancel</button>
       <button class="btn btn-primary" onclick="InstructorCenter.saveStudent()">Save Student</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Approve Skill Modal -->
+<div class="modal-backdrop" id="skill-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Approve Student Skill</h2>
+      <button class="modal-close" onclick="InstructorCenter.closeModal('skill-modal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Student *</label>
+        <select id="skill-student" class="form-control" onchange="InstructorCenter.handleSkillStudentChange()">
+          <option value="">Select student</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Skill *</label>
+        <select id="skill-name" class="form-control" onchange="InstructorCenter.handleSkillNameChange()">
+          <option value="Conduit Bending">Conduit Bending</option>
+          <option value="Blueprint Reading">Blueprint Reading</option>
+          <option value="Electrical Safety Procedures">Electrical Safety Procedures</option>
+          <option value="EMT Installation">EMT Installation</option>
+          <option value="Wire Pulling">Wire Pulling</option>
+          <option value="Low Voltage Termination">Low Voltage Termination</option>
+          <option value="Panel Labeling">Panel Labeling</option>
+          <option value="Motor Controls">Motor Controls</option>
+          <option value="Troubleshooting">Troubleshooting</option>
+          <option value="Custom">Custom Skill</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="custom-skill-wrap" style="display:none">
+        <label>Custom Skill Name *</label>
+        <input type="text" id="custom-skill-name" class="form-control" placeholder="Enter skill name">
+      </div>
+
+      <div class="form-group">
+        <label>Approval Notes</label>
+        <textarea id="skill-notes" class="form-control" placeholder="Optional notes about what the student demonstrated..."></textarea>
+      </div>
+
+      <div class="notice" style="margin-bottom:0">
+        This will create an instructor-verified skill record and show it on the student roster.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="InstructorCenter.closeModal('skill-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="InstructorCenter.saveSkillApproval()">Approve Skill</button>
     </div>
   </div>
 </div>
@@ -1409,11 +1464,14 @@ function normalizeSkillDoc(id, data){
     authUid,
     studentId:authUid,
     studentName:String(data.studentName || "").trim(),
+    studentEmail:normalizeEmail(data.studentEmail || ""),
     skillName:String(data.skillName || "").trim(),
     schoolCode:String(data.schoolCode || "").trim().toUpperCase(),
+    cohortName:String(data.cohortName || "").trim(),
     approved:data.approved === true,
     approvedBy:String(data.approvedBy || "").trim(),
-    approvedAt:data.approvedAt || ""
+    approvedAt:data.approvedAt || "",
+    notes:String(data.notes || "").trim()
   };
 }
 
@@ -1514,6 +1572,50 @@ function verifiedSkillsHtml(student, totalVisibleStudents){
   }
 
   return buildVerifiedSkillsBlock(skills);
+}
+
+
+function getVisibleStudents(){
+  const searchEl = document.getElementById("student-search");
+  const filterEl = document.getElementById("student-filter");
+  const search = searchEl ? searchEl.value.trim().toLowerCase() : "";
+  const filter = filterEl ? filterEl.value : "all";
+  let students = mergeStudents(getStudents(), autoLinkedStudents);
+
+  if(filter !== "all"){
+    students = students.filter(s => s.status === filter);
+  }
+
+  if(search){
+    students = students.filter(s => {
+      return [s.name,s.email,s.trade,s.status,s.school,s.notes].join(" ").toLowerCase().includes(search);
+    });
+  }
+
+  return students;
+}
+
+function getAllRosterStudents(){
+  return mergeStudents(getStudents(), autoLinkedStudents);
+}
+
+function buildSkillStudentValue(student){
+  return encodeURIComponent(JSON.stringify({
+    authUid:String(student.authUid || student.userId || student.id || "").trim(),
+    userId:String(student.userId || "").trim(),
+    name:String(student.name || "").trim(),
+    email:String(student.email || "").trim(),
+    schoolCode:String(student.schoolCode || currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase(),
+    cohortName:String(student.cohortName || currentProfile.cohortName || "Electrical Level 1").trim()
+  }));
+}
+
+function parseSkillStudentValue(value){
+  try{
+    return JSON.parse(decodeURIComponent(value || ""));
+  }catch(e){
+    return null;
+  }
 }
 
 window.InstructorCenter = {
@@ -1644,19 +1746,7 @@ window.InstructorCenter = {
 
   renderStudents(){
     const list = document.getElementById("students-list");
-    const search = document.getElementById("student-search").value.trim().toLowerCase();
-    const filter = document.getElementById("student-filter").value;
-    let students = mergeStudents(getStudents(), autoLinkedStudents);
-
-    if(filter !== "all"){
-      students = students.filter(s => s.status === filter);
-    }
-
-    if(search){
-      students = students.filter(s => {
-        return [s.name,s.email,s.trade,s.status,s.school,s.notes].join(" ").toLowerCase().includes(search);
-      });
-    }
+    let students = getVisibleStudents();
 
     if(!students.length){
       list.innerHTML = emptyState("No students yet", "Students will appear here when they connect with school code STC-ELECTRICAL-2026, or you can add them manually.");
@@ -1680,7 +1770,8 @@ window.InstructorCenter = {
             <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260515instructorv7">View Progress</a>` : ""}
+              <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260515instructorv10">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -1692,6 +1783,104 @@ window.InstructorCenter = {
         </div>
       `;
     }).join("");
+  },
+
+
+
+  openSkillApprovalModal(preselectedStudentValue){
+    const select = document.getElementById("skill-student");
+    const students = getAllRosterStudents();
+
+    if(!select){
+      return;
+    }
+
+    if(!students.length){
+      alert("No students available yet. Add or connect a student first.");
+      return;
+    }
+
+    select.innerHTML = '<option value="">Select student</option>' + students.map(student => {
+      const value = buildSkillStudentValue(student);
+      const label = `${student.name || "Student"}${student.email ? " • " + student.email : ""}`;
+      return `<option value="${value}">${escapeHtml(label)}</option>`;
+    }).join("");
+
+    document.getElementById("skill-name").value = "Conduit Bending";
+    document.getElementById("custom-skill-name").value = "";
+    document.getElementById("skill-notes").value = "";
+    document.getElementById("custom-skill-wrap").style.display = "none";
+
+    if(preselectedStudentValue){
+      select.value = preselectedStudentValue;
+    }
+
+    this.openModal("skill-modal");
+  },
+
+  handleSkillStudentChange(){
+    return true;
+  },
+
+  handleSkillNameChange(){
+    const skillSelect = document.getElementById("skill-name");
+    const customWrap = document.getElementById("custom-skill-wrap");
+    if(!skillSelect || !customWrap) return;
+    customWrap.style.display = skillSelect.value === "Custom" ? "block" : "none";
+  },
+
+  async saveSkillApproval(){
+    const selectedStudent = parseSkillStudentValue(document.getElementById("skill-student").value);
+    if(!selectedStudent || !selectedStudent.authUid){
+      alert("Please select a student.");
+      return;
+    }
+
+    let skillName = document.getElementById("skill-name").value;
+    if(skillName === "Custom"){
+      skillName = document.getElementById("custom-skill-name").value.trim();
+    }
+
+    skillName = String(skillName || "").trim();
+
+    if(!skillName){
+      alert("Please enter or select a skill.");
+      return;
+    }
+
+    const schoolCode = String(selectedStudent.schoolCode || currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
+    const cohortName = String(selectedStudent.cohortName || currentProfile.cohortName || "Electrical Level 1").trim();
+    const instructorName = currentProfile.name || currentProfile.fullName || "Instructor";
+    const notes = document.getElementById("skill-notes").value.trim();
+
+    try{
+      await addDoc(collection(db,"studentSkills"),{
+        authUid:selectedStudent.authUid,
+        studentName:selectedStudent.name || "Student",
+        studentEmail:normalizeEmail(selectedStudent.email || ""),
+        skillName,
+        approved:true,
+        approvedBy:instructorName,
+        approvedByUid:currentUserId || "",
+        instructorEmail:currentProfile.email || currentUserEmail || "",
+        schoolCode,
+        cohortName,
+        notes,
+        source:"instructor_center",
+        approvedAt:serverTimestamp(),
+        createdAt:serverTimestamp()
+      });
+    }catch(e){
+      console.warn("Skill approval save failed", e);
+      alert("Skill approval could not be saved. Check Firebase rules and try again.");
+      return;
+    }
+
+    await loadVerifiedSkills();
+    this.renderStudents();
+    updateStats();
+    this.closeModal("skill-modal");
+    alert("Skill approved and added to the student profile.");
   },
 
   openDocumentModal(){
@@ -1779,7 +1968,7 @@ document.addEventListener("click", function(e){
 window.ltnInstructorBlockTrackProgress = function(event){
   event.preventDefault();
   alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-  window.location.href = "/instructor/?v=20260515instructorv7";
+  window.location.href = "/instructor/?v=20260515instructorv10";
   return false;
 };
 
