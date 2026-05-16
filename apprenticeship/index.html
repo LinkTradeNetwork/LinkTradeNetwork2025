@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-pending-reviews-v27 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-proof-status-v29 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -375,6 +375,68 @@
     .accomplishment-card strong{display:block;font-size:26px;color:var(--ink);margin-bottom:5px}
     .accomplishment-card span{color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase}
 
+
+    .proof-status-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .proof-status-card{
+      border-radius:14px;
+      padding:15px;
+      border:1px solid var(--line);
+      background:var(--soft);
+    }
+
+    .proof-status-card strong{
+      display:block;
+      font-size:28px;
+      line-height:1;
+      margin-bottom:6px;
+      color:var(--ink);
+    }
+
+    .proof-status-card span{
+      display:block;
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      color:var(--muted);
+      letter-spacing:.04em;
+    }
+
+    .proof-status-card.approved{
+      background:#f0fdf4;
+      border-color:#bbf7d0;
+    }
+
+    .proof-status-card.approved strong,
+    .proof-status-card.approved span{
+      color:#166534;
+    }
+
+    .proof-status-card.pending{
+      background:#fff7ed;
+      border-color:#fed7aa;
+    }
+
+    .proof-status-card.pending strong,
+    .proof-status-card.pending span{
+      color:#9a3412;
+    }
+
+    .proof-status-card.rejected{
+      background:#fff1f2;
+      border-color:#fecdd3;
+    }
+
+    .proof-status-card.rejected strong,
+    .proof-status-card.rejected span{
+      color:#be123c;
+    }
+
     .badge-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 
     .badge{
@@ -741,9 +803,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv27'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260516apprenticedashboardv27'">Members</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv27'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv29'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260516apprenticedashboardv29'">Members</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv29'">Back</button>
   </div>
 </div>
 
@@ -857,7 +919,22 @@
       <div class="accomplishment-card"><strong id="certCount">0</strong><span>Certifications Earned</span></div>
       <div class="accomplishment-card"><strong id="skillCount">0</strong><span>Skills Learned</span></div>
       <div class="accomplishment-card"><strong id="projectCount">0</strong><span>Projects Completed</span></div>
-      <div class="accomplishment-card"><strong id="photoCount">0</strong><span>Signed Proof Uploaded</span></div>
+      <div class="accomplishment-card"><strong id="photoCount">0</strong><span>Total Proof Uploaded</span></div>
+    </div>
+
+    <div class="proof-status-grid">
+      <div class="proof-status-card approved">
+        <strong id="approvedProofCount">0</strong>
+        <span>Approved Proofs</span>
+      </div>
+      <div class="proof-status-card pending">
+        <strong id="pendingReviewCount">0</strong>
+        <span>Pending Proofs</span>
+      </div>
+      <div class="proof-status-card rejected">
+        <strong id="rejectedProofCount">0</strong>
+        <span>Rejected / Needs Correction</span>
+      </div>
     </div>
 
     <div class="badge-list" id="badgeList"></div>
@@ -1059,7 +1136,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v27";
+  const LOCAL_PROGRESS_VERSION = "v29";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1250,7 +1327,7 @@
   async function enforceApprenticeAccess(data){
     if(isInstructorProfile(data)){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260516apprenticedashboardv27");
+      window.location.replace("/instructor/?v=20260516apprenticedashboardv29");
       return false;
     }
 
@@ -1307,7 +1384,9 @@
     if(state.skillsLearned.length > 0) badges.push("Skills Added");
     if(state.verifiedSkills.length > 0) badges.push("Instructor Verified Skill");
     if(state.aptitudeTest && state.aptitudeTest.status === "Completed") badges.push("Aptitude Test Completed");
-    if(pendingProofCount() > 0) badges.push("Pending Instructor Verification");
+    if(pendingProofCount() > 0 || pendingReviewCount() > 0) badges.push("Pending Instructor Verification");
+    if(approvedProofCount() > 0) badges.push("Instructor Approved Proof");
+    if(rejectedProofCount() > 0) badges.push("Needs Correction");
     if(state.projects.length > 0) badges.push("Project Proof Added");
     if(proofCount() > 0) badges.push("Signed Proof Added");
 
@@ -1421,6 +1500,23 @@
     ];
 
     return allProofs.filter(proof => getProofStatus(proof) === "pending").length;
+  }
+
+
+  function reviewCountByStatus(status){
+    return state.pendingReviews.filter(review => String(review.status || "").toLowerCase() === status).length;
+  }
+
+  function approvedProofCount(){
+    return reviewCountByStatus("approved");
+  }
+
+  function rejectedProofCount(){
+    return reviewCountByStatus("rejected");
+  }
+
+  function pendingReviewCount(){
+    return reviewCountByStatus("pending");
   }
 
   async function findSchoolCode(code){
@@ -1563,7 +1659,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv27");
+      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv29");
       return;
     }
 
@@ -1595,7 +1691,10 @@
       signedWorkProofs:state.signedWorkProofs,
       jobsiteUploads:proofCount(),
       signedProofCount:proofCount(),
-      verifiedPhotos:proofCount(),
+      approvedProofCount:approvedProofCount(),
+      pendingReviewCount:pendingReviewCount(),
+      rejectedProofCount:rejectedProofCount(),
+      verifiedPhotos:approvedProofCount(),
       verifiedSkillCount:state.verifiedSkills.length,
       aptitudeTest:state.aptitudeTest,
       aptitudeStatus:state.aptitudeTest ? state.aptitudeTest.status : "Not Started",
@@ -1622,7 +1721,10 @@
         signedWorkProofs:state.signedWorkProofs,
         jobsiteUploads:proofCount(),
         signedProofCount:proofCount(),
-        verifiedPhotos:proofCount(),
+        approvedProofCount:approvedProofCount(),
+        pendingReviewCount:pendingReviewCount(),
+        rejectedProofCount:rejectedProofCount(),
+        verifiedPhotos:approvedProofCount(),
         verifiedSkillCount:state.verifiedSkills.length,
         aptitudeTest:state.aptitudeTest,
         aptitudeStatus:state.aptitudeTest ? state.aptitudeTest.status : "Not Started",
@@ -1693,6 +1795,10 @@
     $("projectCount").textContent = state.projects.length;
     $("photoCount").textContent = proofCount();
 
+    if($("approvedProofCount")) $("approvedProofCount").textContent = approvedProofCount();
+    if($("pendingReviewCount")) $("pendingReviewCount").textContent = pendingReviewCount();
+    if($("rejectedProofCount")) $("rejectedProofCount").textContent = rejectedProofCount();
+
     $("badgeList").innerHTML = state.badgesEarned.length
       ? state.badgesEarned.map(b => `<span class="badge"><span class="orange-check">✓</span>${safe(b)}</span>`).join("")
       : `<div class="empty">No badges yet. Add progress to earn accomplishment badges.</div>`;
@@ -1723,7 +1829,7 @@
         </div>
       </div>
       <div class="preview-note">
-        Members snapshot: ${state.hoursCompleted.toLocaleString()} hours, ${percent}% progress, ${state.certifications.length} certifications, ${state.skillsLearned.length + state.verifiedSkills.length} skills, ${state.projects.length} projects, and ${proofCount()} signed proof uploads.
+        Members snapshot: ${state.hoursCompleted.toLocaleString()} hours, ${percent}% progress, ${state.certifications.length} certifications, ${state.skillsLearned.length + state.verifiedSkills.length} skills, ${state.projects.length} projects, ${proofCount()} total proof uploads, ${approvedProofCount()} approved, ${pendingReviewCount()} pending, and ${rejectedProofCount()} needing correction.
       </div>
     `;
   }
@@ -2484,7 +2590,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv27");
+      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv29");
       return;
     }
 
