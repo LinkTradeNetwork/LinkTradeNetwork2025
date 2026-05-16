@@ -1724,6 +1724,16 @@ function parseSkillStudentValue(value){
 }
 
 window.InstructorCenter = {
+  setActiveHeroButton(button){
+    document.querySelectorAll('.hero-action-btn').forEach(btn => {
+      btn.classList.remove('btn-primary');
+      btn.classList.add('btn-secondary');
+    });
+
+    button.classList.remove('btn-secondary');
+    button.classList.add('btn-primary');
+  },
+
   openProfileModal(){
     document.getElementById("input-name").value = currentProfile.name || "";
     document.getElementById("input-email").value = currentProfile.email || currentUserEmail || "";
