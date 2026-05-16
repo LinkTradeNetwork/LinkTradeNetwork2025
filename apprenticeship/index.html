@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-clean-v23 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-pending-verification-v24 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -315,6 +315,49 @@
 
     .proof-link:hover{text-decoration:underline}
 
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:900;
+      margin-top:8px;
+      width:max-content;
+      max-width:100%;
+    }
+
+    .status-pending{
+      background:#fff7ed;
+      color:#9a3412;
+      border:1px solid #fed7aa;
+    }
+
+    .status-verified{
+      background:#f0fdf4;
+      color:#166534;
+      border:1px solid #bbf7d0;
+    }
+
+    .status-rejected{
+      background:#fff1f2;
+      color:#be123c;
+      border:1px solid #fecdd3;
+    }
+
+    .student-proof-note{
+      background:#eef6ff;
+      border:1px solid #cbe0f4;
+      color:#24517b;
+      border-radius:12px;
+      padding:12px;
+      margin-top:14px;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
     .accomplishment-grid{
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
@@ -538,9 +581,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv23'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260516apprenticedashboardv23'">Members</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv23'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv24'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260516apprenticedashboardv24'">Members</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv24'">Back</button>
   </div>
 </div>
 
@@ -673,6 +716,14 @@
 
   <div class="section-title">Add Proof</div>
 
+  <div class="card" style="margin-bottom:18px">
+    <div class="label">Verification Workflow</div>
+    <div class="value small-value">Student Uploads Start as Pending</div>
+    <div class="student-proof-note">
+      Certifications, skills, projects, and signed work proof are saved as <b>Pending Verification</b> until your instructor reviews and approves them.
+    </div>
+  </div>
+
   <div class="grid">
     <div class="card">
       <div class="label">Certification</div>
@@ -778,7 +829,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v23";
+  const LOCAL_PROGRESS_VERSION = "v24";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -965,7 +1016,7 @@
   async function enforceApprenticeAccess(data){
     if(isInstructorProfile(data)){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260516apprenticedashboardv23");
+      window.location.replace("/instructor/?v=20260516apprenticedashboardv24");
       return false;
     }
 
@@ -1021,6 +1072,7 @@
     if(state.certifications.length > 0) badges.push("Certification Uploaded");
     if(state.skillsLearned.length > 0) badges.push("Skills Added");
     if(state.verifiedSkills.length > 0) badges.push("Instructor Verified Skill");
+    if(pendingProofCount() > 0) badges.push("Pending Instructor Verification");
     if(state.projects.length > 0) badges.push("Project Proof Added");
     if(proofCount() > 0) badges.push("Signed Proof Added");
 
@@ -1083,6 +1135,57 @@
   function proofLinkHtml(proof){
     if(!proof || !proof.fileUrl) return "";
     return `<a class="proof-link" href="${safe(proof.fileUrl)}" target="_blank" rel="noopener">View uploaded proof</a>`;
+  }
+
+
+  function withPendingVerification(proof, category){
+    return {
+      ...(proof || {}),
+      category:category || "",
+      verificationStatus:"pending",
+      verified:false,
+      approved:false,
+      rejected:false,
+      submittedByUid:currentUserId || "",
+      submittedByEmail:currentUserEmail || "",
+      submittedAt:new Date().toISOString(),
+      verifiedBy:"",
+      verifiedAt:"",
+      instructorComment:""
+    };
+  }
+
+  function getProofStatus(proof){
+    if(!proof) return "pending";
+    if(proof.verificationStatus) return String(proof.verificationStatus).toLowerCase();
+    if(proof.verified === true || proof.approved === true) return "verified";
+    if(proof.rejected === true) return "rejected";
+    return "pending";
+  }
+
+  function proofStatusHtml(proof){
+    const status = getProofStatus(proof);
+
+    if(status === "verified" || status === "approved"){
+      return `<span class="status-pill status-verified">✓ Instructor Verified</span>`;
+    }
+
+    if(status === "rejected"){
+      return `<span class="status-pill status-rejected">Needs Correction</span>`;
+    }
+
+    return `<span class="status-pill status-pending">Pending Instructor Verification</span>`;
+  }
+
+  function pendingProofCount(){
+    const allProofs = [
+      ...state.certificationProofs,
+      ...state.skillProofs,
+      ...state.projectProofs,
+      ...state.signedWorkProofs
+    ];
+
+    return allProofs.filter(proof => getProofStatus(proof) === "pending").length;
   }
 
   async function findSchoolCode(code){
@@ -1195,7 +1298,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv23");
+      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv24");
       return;
     }
 
@@ -1262,7 +1365,7 @@
 
     try{
       await setDoc(doc(db,"users",currentUserId),payload,{merge:true});
-      setStatus("saveStatus","Saved securely to your signed-in profile.","ok");
+      setStatus("saveStatus","Saved securely. New proof stays pending until instructor verification.","ok");
       $("syncStatus").textContent = "Online save complete";
     }catch(error){
       console.error(error);
@@ -1444,7 +1547,7 @@
       ? state.certifications.map((item,index) => {
           const proof = state.certificationProofs[index] || null;
           const fileText = proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Certification earned</span>`;
-          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteCertification(${index})">Delete</button></div>`;
+          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofStatusHtml(proof)}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteCertification(${index})">Delete</button></div>`;
         }).join("")
       : `<div class="empty">No certifications added yet.</div>`;
   }
@@ -1456,7 +1559,7 @@
       ? state.skillsLearned.map((item,index) => {
           const proof = state.skillProofs[index] || null;
           const fileText = proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Skill learned</span>`;
-          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteSkill(${index})">Delete</button></div>`;
+          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofStatusHtml(proof)}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteSkill(${index})">Delete</button></div>`;
         }).join("")
       : `<div class="empty">No skills added yet.</div>`;
   }
@@ -1468,7 +1571,7 @@
       ? state.projects.map((item,index) => {
           const proof = state.projectProofs[index] || null;
           const fileText = proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Project completed</span>`;
-          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteProject(${index})">Delete</button></div>`;
+          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofStatusHtml(proof)}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteProject(${index})">Delete</button></div>`;
         }).join("")
       : `<div class="empty">No projects added yet.</div>`;
   }
@@ -1483,6 +1586,7 @@
             <div>
               <strong>${safe(proof.title || "Signed work proof")}</strong>
               <span>${safe(proof.fileName || "Uploaded document")}</span>
+              ${proofStatusHtml(proof)}
               ${proofLinkHtml(proof)}
             </div>
             <button class="delete-small" onclick="deleteSignedProof(${index})">Delete</button>
@@ -1605,7 +1709,7 @@
     setStatus("saveStatus",options.uploadingMessage,"info");
 
     try{
-      const proof = await uploadProofFile(options.category,file);
+      const proof = withPendingVerification(await uploadProofFile(options.category,file), options.category);
       options.onSuccess(value,proof);
 
       input.value = "";
@@ -1720,7 +1824,7 @@
     setStatus("saveStatus","Uploading signed work proof...","info");
 
     try{
-      const proof = await uploadProofFile("signed-work-proof",file);
+      const proof = withPendingVerification(await uploadProofFile("signed-work-proof",file), "signed-work-proof");
 
       state.signedWorkProofs.push({
         title,
@@ -1800,7 +1904,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv23");
+      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv24");
       return;
     }
 
@@ -1842,7 +1946,7 @@
     }
   },12000);
 
-  console.log("LTN Apprenticeship Dashboard Clean Loaded v23");
+  console.log("LTN Apprenticeship Dashboard Pending Verification Loaded v24");
 
   /*
     Firebase security reminder:
