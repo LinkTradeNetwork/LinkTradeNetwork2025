@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-verified-skills-v21 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-verified-skills-clean-v22 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -535,9 +535,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260515apprenticeverifiedskillsv21'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260515apprenticeverifiedskillsv21'">Members</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260515apprenticeverifiedskillsv21'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260515apprenticeverifiedskillscleanv22'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260515apprenticeverifiedskillscleanv22'">Members</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260515apprenticeverifiedskillscleanv22'">Back</button>
   </div>
 </div>
 
@@ -633,43 +633,11 @@
     </div>
   </div>
 
-  <div class="section-title">What Members Can See</div>
+  <div class="section-title">Progress Snapshot</div>
 
   <div class="card">
-    <div class="label">Public Member Preview</div>
-    <div class="value small-value">Accomplishment Snapshot</div>
-    <div class="small">This preview shows how your apprenticeship progress can appear inside the LTN Members section.</div>
-
-    <div class="preview-card">
-      <div class="preview-top">
-        <div class="preview-avatar" id="previewInitials">LT</div>
-        <div>
-          <div class="preview-name" id="previewName">Trade Worker</div>
-          <div class="preview-trade" id="previewTrade">Trade Not Selected</div>
-          <div class="small" id="previewLocation">Location not added</div>
-        </div>
-      </div>
-
-      <div class="metric-row">
-        <div class="metric"><strong id="previewHours">0</strong><span>Hours</span></div>
-        <div class="metric"><strong id="previewCerts">0</strong><span>Certifications</span></div>
-        <div class="metric"><strong id="previewSkills">0</strong><span>Skills</span></div>
-        <div class="metric"><strong id="previewProof">0</strong><span>Signed Proof</span></div>
-      </div>
-
-      <div class="badge-list" id="previewBadges"></div>
-
-      <div class="preview-note">
-        Members, instructors, contractors, and employers can quickly see your real trade progress instead of only reading a resume.
-      </div>
-    </div>
-  </div>
-
-  <div class="section-title">Accomplishments</div>
-
-  <div class="card">
-    <div class="label">Trade Worker Scoreboard</div>
-    <div class="value small-value">Build Proof of Progress</div>
+    <div class="label">Student Progress Summary</div>
+    <div class="value small-value">Your Proof Totals</div>
 
     <div class="accomplishment-grid">
       <div class="accomplishment-card"><strong id="certCount">0</strong><span>Certifications Earned</span></div>
@@ -933,13 +901,13 @@
   function enforceApprenticeAccess(data){
     if(isInstructorProfile(data)){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260515apprenticeverifiedskillsv21");
+      window.location.replace("/instructor/?v=20260515apprenticeverifiedskillscleanv22");
       return false;
     }
 
     if(!isApprenticeProfile(data)){
       alert("Track My Progress is for apprentices and students. Open Edit Profile on the dashboard and mark yourself as an apprentice/student first.");
-      window.location.replace("/dashboard/?v=20260515apprenticeverifiedskillsv21");
+      window.location.replace("/dashboard/?v=20260515apprenticeverifiedskillscleanv22");
       return false;
     }
 
@@ -1122,7 +1090,7 @@
 
   async function saveToFirebase(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260515apprenticeverifiedskillsv21");
+      window.location.replace("/front/?v=secureauth20260515apprenticeverifiedskillscleanv22");
       return;
     }
 
@@ -1210,10 +1178,6 @@
     document.getElementById("userTrade").textContent=trade;
     document.getElementById("userTradeSchool").textContent=school;
     document.getElementById("userLocation").textContent=location;
-    document.getElementById("previewInitials").textContent=getInitials(name);
-    document.getElementById("previewName").textContent=name;
-    document.getElementById("previewTrade").textContent=trade;
-    document.getElementById("previewLocation").textContent=location;
     document.getElementById("verificationBadge").style.display=isVerified(profile) ? "inline-flex" : "none";
 
     document.getElementById("profileDetails").innerHTML=`
@@ -1247,17 +1211,12 @@
     document.getElementById("projectCount").textContent=state.projects.length;
     document.getElementById("photoCount").textContent=proofCount();
 
-    document.getElementById("previewHours").textContent=hours.toLocaleString();
-    document.getElementById("previewCerts").textContent=state.certifications.length;
-    document.getElementById("previewSkills").textContent=state.skillsLearned.length + state.verifiedSkills.length;
-    document.getElementById("previewProof").textContent=proofCount();
 
     const badgeHtml=state.badgesEarned.length
       ? state.badgesEarned.map(b=>`<span class="badge"><span class="orange-check">✓</span>${safe(b)}</span>`).join("")
       : `<div class="empty">No badges yet. Add progress to earn accomplishment badges.</div>`;
 
     document.getElementById("badgeList").innerHTML=badgeHtml;
-    document.getElementById("previewBadges").innerHTML=badgeHtml;
 
     renderHourLog();
     renderCerts();
@@ -1622,7 +1581,7 @@
 
   onAuthStateChanged(auth, async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260515apprenticeverifiedskillsv21");
+      window.location.replace("/front/?v=secureauth20260515apprenticeverifiedskillscleanv22");
       return;
     }
 
@@ -1655,7 +1614,7 @@
     showPage();
   });
 
-  console.log("LTN Apprenticeship Verified Skills Loaded v21");
+  console.log("LTN Apprenticeship Verified Skills Clean Loaded v22");
 </script>
 
 </body>
