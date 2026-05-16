@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- LTN FULL DASHBOARD EXPORT 2026-05-16: MATCHING DARK NAV + ORANGE ACTIVE FIX v27 -->
+<!-- LTN FULL DASHBOARD EXPORT 2026-05-16: MOBILE LTN ORANGE BUTTON FIX v28 -->
 
 <html lang="en" class="auth-checking">
 <head>
@@ -16,8 +16,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
 
-<!-- LTN FORCE UPDATE 2026-05-16: DASHBOARD MATCHING DARK NAV + ORANGE ACTIVE FIX v27 -->
-<!-- LTN VERSION: dashboard-dark-nav-orange-active-v27 -->
+<!-- LTN FORCE UPDATE 2026-05-16: DASHBOARD MOBILE LTN ORANGE BUTTON FIX v28 -->
+<!-- LTN VERSION: dashboard-mobile-ltn-orange-button-v28 -->
 
 <style>
 :root{
@@ -127,15 +127,20 @@ button:disabled{cursor:not-allowed;opacity:.55}
 
 .mobile-menu-btn{
   display:none;
-  background:rgba(255,255,255,.10);
-  border:1px solid rgba(255,255,255,.16);
+  background:linear-gradient(135deg,#f59e0b,#ffb347);
+  border:2px solid rgba(255,255,255,.28);
   color:white;
-  border-radius:12px;
-  padding:8px;
-  width:44px;
-  height:44px;
+  border-radius:14px;
+  padding:0;
+  width:48px;
+  height:48px;
   align-items:center;
   justify-content:center;
+  font-weight:950;
+  font-size:16px;
+  letter-spacing:.3px;
+  line-height:1;
+  box-shadow:0 8px 20px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.30);
 }
 
 .nav{
@@ -1105,6 +1110,7 @@ textarea.form-control{min-height:104px;resize:vertical}
   .topbar-inner{padding:10px}
   .logo-text{font-size:14px}
   .logo-badge{width:38px;height:38px;font-size:14px}
+  .mobile-menu-btn{width:46px;height:46px;font-size:15px;border-radius:13px}
   .shell{padding:14px 10px 30px;gap:14px}
   .card{border-radius:20px}
   .card .bd{padding:15px}
@@ -1171,11 +1177,7 @@ textarea.form-control{min-height:104px;resize:vertical}
       <div class="logo-text">LinkTradeNetwork</div>
     </div>
 
-    <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle menu">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-      </svg>
-    </button>
+    <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle menu">LTN</button>
 
     <div class="search-container">
       <div class="ai-search-wrapper" style="position:relative;">
