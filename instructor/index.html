@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-16: INSTRUCTOR CENTER APTITUDE SCORES v13 -->
-<!-- LTN VERSION: instructor-center-aptitude-scores-v13 -->
+<!-- LTN FORCE UPDATE 2026-05-16: INSTRUCTOR CENTER REVIEW COMMENTS v15 -->
+<!-- LTN VERSION: instructor-center-review-comments-v15 -->
 
 <style>
 :root{
@@ -678,6 +678,36 @@ textarea.form-control{min-height:106px;resize:vertical}
   margin-top:3px;
 }
 
+
+.pending-review-comment{
+  margin-top:12px;
+}
+
+.pending-review-comment textarea{
+  width:100%;
+  min-height:74px;
+  border:1px solid #fed7aa;
+  border-radius:14px;
+  padding:11px 12px;
+  background:white;
+  color:var(--ink);
+  font-size:14px;
+  resize:vertical;
+}
+
+.pending-review-comment textarea:focus{
+  outline:none;
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px rgba(234,106,0,.12);
+}
+
+.pending-review-comment-help{
+  color:#7c2d12;
+  font-size:12px;
+  font-weight:800;
+  margin-top:5px;
+}
+
 .pending-review-actions{
   display:flex;
   gap:8px;
@@ -897,7 +927,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260516instructorv13";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260516instructorv15";
 
   window.LTNClearLocalSession = function(){
     [
@@ -940,11 +970,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260516instructorv13">Dashboard</a>
-      <a href="/members/?v=20260516instructorv13">Members</a>
-      <a href="/instructor/?v=20260516instructorv13" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260516instructorv13" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260516instructorv13">Network Center</a>
+      <a href="/dashboard/?v=20260516instructorv15">Dashboard</a>
+      <a href="/members/?v=20260516instructorv15">Members</a>
+      <a href="/instructor/?v=20260516instructorv15" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260516instructorv15" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260516instructorv15">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -992,7 +1022,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260516instructorv13">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260516instructorv15">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1990,6 +2020,11 @@ function renderPendingReviews(){
           </div>
         </div>
 
+        <div class="pending-review-comment">
+          <textarea id="review-comment-${item.id}" placeholder="Add instructor comment before approving or rejecting..."></textarea>
+          <div class="pending-review-comment-help">Example: Good documentation verified. Or: Please re-upload clearer signed proof.</div>
+        </div>
+
         <div class="pending-review-actions">
           <button class="btn btn-success" style="min-height:36px;padding:8px 14px;font-size:13px" onclick="InstructorCenter.approvePendingReview('${item.id}')">Approve</button>
           <button class="btn btn-danger" style="min-height:36px;padding:8px 14px;font-size:13px" onclick="InstructorCenter.rejectPendingReview('${item.id}')">Reject</button>
@@ -2013,18 +2048,32 @@ window.InstructorCenter = {
 
 
 
+  getReviewComment(reviewId){
+    const commentBox = document.getElementById("review-comment-" + reviewId);
+    return commentBox ? commentBox.value.trim() : "";
+  },
+
   async approvePendingReview(reviewId){
+    const instructorComment = this.getReviewComment(reviewId) || "Approved by instructor.";
+    const reviewedDate = new Date().toLocaleDateString();
+
     try{
       await updateDoc(doc(db,"pendingReviews",reviewId),{
         status:"approved",
+        verificationStatus:"approved",
+        approved:true,
+        rejected:false,
         reviewedBy:currentProfile.name || "Instructor",
+        approvedBy:currentProfile.name || "Instructor",
+        instructorComment,
+        reviewedDate,
         reviewedAt:serverTimestamp()
       });
 
       pendingReviews = pendingReviews.filter(r => r.id !== reviewId);
       renderPendingReviews();
 
-      alert("Student upload approved.");
+      alert("Student upload approved with instructor comment.");
     }catch(e){
       console.error(e);
       alert("Approval failed.");
@@ -2032,17 +2081,26 @@ window.InstructorCenter = {
   },
 
   async rejectPendingReview(reviewId){
+    const instructorComment = this.getReviewComment(reviewId) || "Needs correction. Please review and re-upload proof.";
+    const reviewedDate = new Date().toLocaleDateString();
+
     try{
       await updateDoc(doc(db,"pendingReviews",reviewId),{
         status:"rejected",
+        verificationStatus:"rejected",
+        approved:false,
+        rejected:true,
         reviewedBy:currentProfile.name || "Instructor",
+        approvedBy:currentProfile.name || "Instructor",
+        instructorComment,
+        reviewedDate,
         reviewedAt:serverTimestamp()
       });
 
       pendingReviews = pendingReviews.filter(r => r.id !== reviewId);
       renderPendingReviews();
 
-      alert("Student upload rejected.");
+      alert("Student upload rejected with instructor comment.");
     }catch(e){
       console.error(e);
       alert("Rejection failed.");
@@ -2201,7 +2259,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260516instructorv13">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260516instructorv15">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -2441,7 +2499,7 @@ document.addEventListener("click", function(e){
 window.ltnInstructorBlockTrackProgress = function(event){
   event.preventDefault();
   alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-  window.location.href = "/instructor/?v=20260516instructorv13";
+  window.location.href = "/instructor/?v=20260516instructorv15";
   return false;
 };
 
