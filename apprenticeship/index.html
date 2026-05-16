@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-proof-status-v29 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-instructor-aptitude-status-v30 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -725,42 +725,6 @@
       font-weight:900;
     }
 
-    .aptitude-question{
-      border:1px solid var(--line);
-      border-radius:12px;
-      background:#fff;
-      padding:14px;
-      margin-top:12px;
-    }
-
-    .aptitude-question strong{
-      display:block;
-      margin-bottom:10px;
-      color:var(--ink);
-      font-size:15px;
-    }
-
-    .aptitude-question label{
-      display:block;
-      padding:9px 10px;
-      border:1px solid #e2e8f0;
-      border-radius:10px;
-      margin-top:8px;
-      cursor:pointer;
-      font-size:14px;
-      color:#334155;
-      background:#f8fafc;
-    }
-
-    .aptitude-question label:hover{
-      border-color:var(--orange);
-      background:var(--orange-soft);
-    }
-
-    .aptitude-question input{
-      margin-right:8px;
-    }
-
 
     @media(max-width:900px){
       .hero{grid-template-columns:1fr}
@@ -803,9 +767,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv29'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260516apprenticedashboardv29'">Members</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv29'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv30'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260516apprenticedashboardv30'">Members</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv30'">Back</button>
   </div>
 </div>
 
@@ -943,63 +907,14 @@
   </div>
 
 
-  <div class="section-title">Aptitude Test</div>
+
+  <div class="section-title">Aptitude Status</div>
 
   <div class="card">
-    <div class="label">Student Placement</div>
-    <div class="value small-value">Trade Aptitude Snapshot</div>
-    <div class="small">This first version gives the student a simple trade-readiness snapshot and saves the result to Firebase for instructor review.</div>
-
+    <div class="label">Instructor Controlled</div>
+    <div class="value small-value">Aptitude Test Result</div>
+    <div class="small">Your instructor gives and controls the aptitude test. Once reviewed, the result will show here.</div>
     <div id="aptitudeStatusBox" class="aptitude-card"></div>
-
-    <div id="aptitudeTestBox" class="aptitude-card">
-      <div class="label">Take Aptitude Test</div>
-      <div class="small">Answer the questions below, then save your result. This is for placement and progress support, not a pass/fail grade.</div>
-
-      <div class="aptitude-question">
-        <strong>1. Math: What is 25% of 80?</strong>
-        <label><input type="radio" name="aptitude_q1" value="0"> 10</label>
-        <label><input type="radio" name="aptitude_q1" value="1"> 20</label>
-        <label><input type="radio" name="aptitude_q1" value="0"> 30</label>
-      </div>
-
-      <div class="aptitude-question">
-        <strong>2. Reading: A work order says “install after power is locked out.” What should happen first?</strong>
-        <label><input type="radio" name="aptitude_q2" value="1"> Confirm power is locked out</label>
-        <label><input type="radio" name="aptitude_q2" value="0"> Start installing immediately</label>
-        <label><input type="radio" name="aptitude_q2" value="0"> Skip the work order</label>
-      </div>
-
-      <div class="aptitude-question">
-        <strong>3. Mechanical Reasoning: Which tool is commonly used to tighten a nut?</strong>
-        <label><input type="radio" name="aptitude_q3" value="0"> Paint brush</label>
-        <label><input type="radio" name="aptitude_q3" value="1"> Wrench</label>
-        <label><input type="radio" name="aptitude_q3" value="0"> Tape measure only</label>
-      </div>
-
-      <div class="aptitude-question">
-        <strong>4. Safety Judgment: What should you do if PPE is required but missing?</strong>
-        <label><input type="radio" name="aptitude_q4" value="0"> Continue without it</label>
-        <label><input type="radio" name="aptitude_q4" value="1"> Stop and get proper PPE</label>
-        <label><input type="radio" name="aptitude_q4" value="0"> Ask someone else to do it without PPE</label>
-      </div>
-
-      <div class="aptitude-question">
-        <strong>5. Tool Recognition: Which tool is best for measuring distance?</strong>
-        <label><input type="radio" name="aptitude_q5" value="1"> Tape measure</label>
-        <label><input type="radio" name="aptitude_q5" value="0"> Hammer</label>
-        <label><input type="radio" name="aptitude_q5" value="0"> Pliers</label>
-      </div>
-
-      <div class="aptitude-question">
-        <strong>6. Blueprint Basics: On a drawing, symbols and labels usually help explain what?</strong>
-        <label><input type="radio" name="aptitude_q6" value="0"> Lunch schedule</label>
-        <label><input type="radio" name="aptitude_q6" value="1"> Materials, locations, and installation details</label>
-        <label><input type="radio" name="aptitude_q6" value="0"> Personal phone numbers</label>
-      </div>
-
-      <button id="aptitudeSubmitBtn" class="button" style="margin-top:14px" onclick="submitAptitudeTest()">Save Aptitude Test Result</button>
-    </div>
   </div>
 
   <div class="section-title">Instructor Verified Skills</div>
@@ -1136,7 +1051,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v29";
+  const LOCAL_PROGRESS_VERSION = "v30";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1327,7 +1242,7 @@
   async function enforceApprenticeAccess(data){
     if(isInstructorProfile(data)){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260516apprenticedashboardv29");
+      window.location.replace("/instructor/?v=20260516apprenticedashboardv30");
       return false;
     }
 
@@ -1383,7 +1298,7 @@
     if(state.certifications.length > 0) badges.push("Certification Uploaded");
     if(state.skillsLearned.length > 0) badges.push("Skills Added");
     if(state.verifiedSkills.length > 0) badges.push("Instructor Verified Skill");
-    if(state.aptitudeTest && state.aptitudeTest.status === "Completed") badges.push("Aptitude Test Completed");
+    if(state.aptitudeTest && normalizeAptitudeStatus(state.aptitudeTest)?.passed) badges.push("Aptitude Test Passed");
     if(pendingProofCount() > 0 || pendingReviewCount() > 0) badges.push("Pending Instructor Verification");
     if(approvedProofCount() > 0) badges.push("Instructor Approved Proof");
     if(rejectedProofCount() > 0) badges.push("Needs Correction");
@@ -1659,7 +1574,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv29");
+      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv30");
       return;
     }
 
@@ -1697,8 +1612,8 @@
       verifiedPhotos:approvedProofCount(),
       verifiedSkillCount:state.verifiedSkills.length,
       aptitudeTest:state.aptitudeTest,
-      aptitudeStatus:state.aptitudeTest ? state.aptitudeTest.status : "Not Started",
-      aptitudeTotalScore:state.aptitudeTest ? state.aptitudeTest.totalScore : 0,
+      aptitudeStatus:state.aptitudeTest ? normalizeAptitudeStatus(state.aptitudeTest)?.status || "Pending" : "Pending",
+      aptitudePassed:state.aptitudeTest ? normalizeAptitudeStatus(state.aptitudeTest)?.passed === true : false,
       badgesEarned:state.badgesEarned,
       badges:state.badgesEarned,
       updatedAt:state.updatedAt,
@@ -1727,8 +1642,8 @@
         verifiedPhotos:approvedProofCount(),
         verifiedSkillCount:state.verifiedSkills.length,
         aptitudeTest:state.aptitudeTest,
-        aptitudeStatus:state.aptitudeTest ? state.aptitudeTest.status : "Not Started",
-        aptitudeTotalScore:state.aptitudeTest ? state.aptitudeTest.totalScore : 0,
+        aptitudeStatus:state.aptitudeTest ? normalizeAptitudeStatus(state.aptitudeTest)?.status || "Pending" : "Pending",
+        aptitudePassed:state.aptitudeTest ? normalizeAptitudeStatus(state.aptitudeTest)?.passed === true : false,
         badgesEarned:state.badgesEarned,
         updatedAt:nowIso
       }
@@ -2065,125 +1980,61 @@
 
 
 
-  function calculateAptitudeScores(){
-    const values = [];
-    for(let i = 1; i <= 6; i++){
-      const selected = document.querySelector(`input[name="aptitude_q${i}"]:checked`);
-      if(!selected){
-        return null;
-      }
-      values.push(Number(selected.value || 0));
+
+  function normalizeAptitudeStatus(data){
+    if(!data || typeof data !== "object"){
+      return null;
     }
 
-    const mathScore = values[0] ? 100 : 0;
-    const readingScore = values[1] ? 100 : 0;
-    const mechanicalScore = values[2] ? 100 : 0;
-    const safetyScore = values[3] ? 100 : 0;
-    const toolScore = values[4] ? 100 : 0;
-    const blueprintScore = values[5] ? 100 : 0;
-    const correct = values.reduce((sum,value) => sum + value,0);
-    const totalScore = Math.round((correct / values.length) * 100);
+    const statusText = String(data.status || data.aptitudeStatus || data.result || "").trim();
+    const passedValue = data.passed === true || statusText.toLowerCase() === "passed";
 
     return {
-      status:"Completed",
-      mathScore,
-      readingScore,
-      mechanicalScore,
-      safetyScore,
-      toolScore,
-      blueprintScore,
-      totalScore,
-      correctAnswers:correct,
-      totalQuestions:values.length,
-      completedAt:new Date().toISOString(),
-      completedDate:new Date().toLocaleDateString()
+      status:passedValue ? "Passed" : (statusText || "Pending"),
+      passed:passedValue,
+      reviewedBy:String(data.reviewedBy || data.approvedBy || data.instructorName || "Instructor").trim(),
+      reviewedDate:String(data.reviewedDate || data.approvedDate || data.completedDate || "").trim(),
+      instructorComment:String(data.instructorComment || data.notes || data.comment || "").trim()
     };
   }
+
 
   function renderAptitudeTest(){
     const box = $("aptitudeStatusBox");
     if(!box) return;
 
-    const test = state.aptitudeTest;
+    const test = normalizeAptitudeStatus(state.aptitudeTest);
 
-    if(!test || test.status !== "Completed"){
+    if(!test || !test.status || test.status.toLowerCase() === "not started" || test.status.toLowerCase() === "pending"){
       box.innerHTML = `
         <div class="label">Status</div>
-        <div class="value small-value">Not Started</div>
-        <div class="aptitude-status">Aptitude Test Not Completed</div>
+        <div class="value small-value">Awaiting Instructor</div>
+        <div class="aptitude-status">Aptitude test will be marked by your instructor.</div>
       `;
       return;
     }
 
+    const isPassed = test.passed || test.status.toLowerCase() === "passed";
+
     box.innerHTML = `
       <div class="label">Status</div>
-      <div class="value small-value">Completed</div>
-      <div class="aptitude-status completed">✓ Saved to Firebase</div>
+      <div class="value small-value">${safe(test.status)}</div>
+      <div class="aptitude-status ${isPassed ? "completed" : ""}">
+        ${isPassed ? "✓ Passed by Instructor" : "Needs Instructor Review"}
+      </div>
 
       <div class="aptitude-grid">
-        <div class="aptitude-score-card"><span>Total Score</span><strong>${Number(test.totalScore || 0)}%</strong></div>
-        <div class="aptitude-score-card"><span>Math</span><strong>${Number(test.mathScore || 0)}%</strong></div>
-        <div class="aptitude-score-card"><span>Reading</span><strong>${Number(test.readingScore || 0)}%</strong></div>
-        <div class="aptitude-score-card"><span>Mechanical</span><strong>${Number(test.mechanicalScore || 0)}%</strong></div>
-        <div class="aptitude-score-card"><span>Safety</span><strong>${Number(test.safetyScore || 0)}%</strong></div>
-        <div class="aptitude-score-card"><span>Tools</span><strong>${Number(test.toolScore || 0)}%</strong></div>
-        <div class="aptitude-score-card"><span>Blueprint</span><strong>${Number(test.blueprintScore || 0)}%</strong></div>
-        <div class="aptitude-score-card"><span>Date</span><strong>${safe(test.completedDate || "Saved")}</strong></div>
+        <div class="aptitude-score-card"><span>Reviewed By</span><strong>${safe(test.reviewedBy || "Instructor")}</strong></div>
+        <div class="aptitude-score-card"><span>Date</span><strong>${safe(test.reviewedDate || "Saved")}</strong></div>
       </div>
+
+      ${test.instructorComment ? `
+        <div class="verification-comment">
+          <b>Instructor Comment:</b> ${safe(test.instructorComment)}
+        </div>
+      ` : ""}
     `;
   }
-
-  window.submitAptitudeTest = async function(){
-    if(!currentUserId){
-      alert("You must be signed in to save an aptitude test.");
-      return;
-    }
-
-    const result = calculateAptitudeScores();
-
-    if(!result){
-      alert("Please answer all aptitude test questions before saving.");
-      return;
-    }
-
-    const btn = $("aptitudeSubmitBtn");
-    setButtonBusy(btn,true,"Saving...");
-
-    const studentName = getProfileName(profile);
-    const apprenticeship = profile.apprenticeship || {};
-    const schoolCode = apprenticeship.schoolCode || profile.schoolCode || "";
-
-    state.aptitudeTest = {
-      ...result,
-      authUid:currentUserId,
-      studentName,
-      studentEmail:currentUserEmail,
-      schoolCode,
-      cohortName:apprenticeship.cohortName || profile.cohortName || "",
-      source:"track_my_progress"
-    };
-
-    try{
-      await setDoc(doc(db,"aptitudeTests",currentUserId),{
-        ...state.aptitudeTest,
-        updatedAt:serverTimestamp()
-      },{merge:true});
-
-      await saveToFirebase();
-      renderProgress();
-      setStatus("saveStatus","Aptitude test saved securely.","ok");
-      alert("Aptitude test saved.");
-    }catch(error){
-      console.error(error);
-      saveLocalProgress();
-      renderProgress();
-      setStatus("saveStatus","Saved on this device. Online aptitude save did not complete.","bad");
-      alert("The aptitude test was saved on this device, but Firebase did not complete. Check rules and try again.");
-    }finally{
-      setButtonBusy(btn,false);
-    }
-  };
-
 
   function renderHourLog(){
     const box = $("hourLogList");
@@ -2590,7 +2441,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv29");
+      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv30");
       return;
     }
 
