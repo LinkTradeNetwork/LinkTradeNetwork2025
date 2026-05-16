@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-pending-verification-v24 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-verification-records-v25 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -479,6 +479,70 @@
       line-height:1.4;
     }
 
+
+    .verification-record{
+      background:white;
+      border:1px solid #bbf7d0;
+      border-radius:14px;
+      padding:14px;
+      margin-top:10px;
+      box-shadow:0 6px 14px rgba(22,101,52,.06);
+    }
+
+    .verification-record strong{
+      color:#14532d;
+      font-size:16px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      word-break:break-word;
+    }
+
+    .verification-record-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(135px,1fr));
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .verification-record-metric{
+      background:#f8fafc;
+      border:1px solid #dbe3ee;
+      border-radius:10px;
+      padding:9px 10px;
+      min-width:0;
+    }
+
+    .verification-record-metric span{
+      display:block;
+      font-size:10px;
+      color:#64748b;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .verification-record-metric b{
+      display:block;
+      color:#172033;
+      font-size:13px;
+      margin-top:3px;
+      word-break:break-word;
+      line-height:1.25;
+    }
+
+    .verification-comment{
+      margin-top:12px;
+      background:#f0fdf4;
+      border:1px solid #bbf7d0;
+      color:#166534;
+      border-radius:10px;
+      padding:10px 11px;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
     .empty{
       color:var(--muted);
       background:var(--soft);
@@ -581,9 +645,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv24'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260516apprenticedashboardv24'">Members</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv24'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv25'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260516apprenticedashboardv25'">Members</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv25'">Back</button>
   </div>
 </div>
 
@@ -829,7 +893,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v24";
+  const LOCAL_PROGRESS_VERSION = "v25";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1016,7 +1080,7 @@
   async function enforceApprenticeAccess(data){
     if(isInstructorProfile(data)){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260516apprenticedashboardv24");
+      window.location.replace("/instructor/?v=20260516apprenticedashboardv25");
       return false;
     }
 
@@ -1298,7 +1362,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv24");
+      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv25");
       return;
     }
 
@@ -1460,11 +1524,21 @@
       id,
       authUid:String(data.authUid || data.userId || data.studentId || "").trim(),
       studentName:String(data.studentName || "").trim(),
+      studentEmail:String(data.studentEmail || "").trim(),
       skillName:String(data.skillName || "").trim(),
       schoolCode:String(data.schoolCode || "").trim(),
+      cohortName:String(data.cohortName || "").trim(),
       approved:data.approved === true,
       approvedBy:String(data.approvedBy || "Instructor").trim(),
-      approvedAt:data.approvedAt || data.createdAt || ""
+      approvedByUid:String(data.approvedByUid || "").trim(),
+      approvedAt:data.approvedAt || data.createdAt || "",
+      approvedDate:String(data.approvedDate || "").trim(),
+      hoursVerified:Number(data.hoursVerified || 0),
+      signedProofCount:Number(data.signedProofCount || 0),
+      assignmentTitle:String(data.assignmentTitle || "").trim(),
+      verificationLevel:String(data.verificationLevel || "Instructor Verified").trim(),
+      instructorComment:String(data.instructorComment || data.notes || "").trim(),
+      notes:String(data.notes || data.instructorComment || "").trim()
     };
   }
 
@@ -1510,9 +1584,55 @@
       <div class="verified-skills-card">
         <div class="verified-title">Verified by Instructor</div>
         ${state.verifiedSkills.map(skill => `
-          <div class="verified-skill-row">
+          <div class="verification-record">
             <strong><span class="orange-check">✓</span> ${safe(skill.skillName)}</strong>
-            <span>Approved by ${safe(skill.approvedBy || "Instructor")}${skill.schoolCode ? " • " + safe(skill.schoolCode) : ""}</span>
+
+            <div class="verification-record-grid">
+              <div class="verification-record-metric">
+                <span>Level</span>
+                <b>${safe(skill.verificationLevel || "Instructor Verified")}</b>
+              </div>
+
+              <div class="verification-record-metric">
+                <span>Hours</span>
+                <b>${Number(skill.hoursVerified || 0).toLocaleString()} verified</b>
+              </div>
+
+              <div class="verification-record-metric">
+                <span>Proof</span>
+                <b>${Number(skill.signedProofCount || 0).toLocaleString()} uploads</b>
+              </div>
+
+              <div class="verification-record-metric">
+                <span>Assignment</span>
+                <b>${safe(skill.assignmentTitle || "Not linked yet")}</b>
+              </div>
+
+              <div class="verification-record-metric">
+                <span>Approved By</span>
+                <b>${safe(skill.approvedBy || "Instructor")}</b>
+              </div>
+
+              <div class="verification-record-metric">
+                <span>Date</span>
+                <b>${safe(skill.approvedDate || "Saved")}</b>
+              </div>
+            </div>
+
+            ${skill.schoolCode || skill.cohortName ? `
+              <div class="verification-comment">
+                <b>Program:</b>
+                ${skill.schoolCode ? safe(skill.schoolCode) : ""}
+                ${skill.schoolCode && skill.cohortName ? " • " : ""}
+                ${skill.cohortName ? safe(skill.cohortName) : ""}
+              </div>
+            ` : ""}
+
+            ${skill.instructorComment || skill.notes ? `
+              <div class="verification-comment">
+                <b>Instructor Comment:</b> ${safe(skill.instructorComment || skill.notes)}
+              </div>
+            ` : ""}
           </div>
         `).join("")}
       </div>
@@ -1904,7 +2024,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv24");
+      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv25");
       return;
     }
 
@@ -1946,7 +2066,7 @@
     }
   },12000);
 
-  console.log("LTN Apprenticeship Dashboard Pending Verification Loaded v24");
+  console.log("LTN Apprenticeship Dashboard Verification Records Loaded v25");
 
   /*
     Firebase security reminder:
