@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-15: INSTRUCTOR CENTER VERIFICATION RECORDS v11 -->
-<!-- LTN VERSION: instructor-center-verification-records-v11 -->
+<!-- LTN FORCE UPDATE 2026-05-16: INSTRUCTOR CENTER VERIFICATION RECORDS ACTIVE HERO BUTTONS v12 -->
+<!-- LTN VERSION: instructor-center-verification-records-active-buttons-v12 -->
 
 <style>
 :root{
@@ -209,6 +209,14 @@ button:disabled{cursor:not-allowed;opacity:.55}
   display:flex;
   gap:10px;
   flex-wrap:wrap;
+}
+
+.hero-actions .btn.active-action{
+  background:linear-gradient(135deg,var(--brand),#ff8b21)!important;
+  color:#fff!important;
+  border-color:transparent!important;
+  box-shadow:0 10px 24px rgba(234,106,0,.28)!important;
+  transform:translateY(-1px);
 }
 
 .hero-panel{
@@ -857,9 +865,9 @@ textarea.form-control{min-height:106px;resize:vertical}
         verified skills, and class assignments from one place.
       </p>
       <div class="hero-actions">
-        <button class="btn btn-primary" onclick="InstructorCenter.openStudentModal()">Add Student</button>
-        <button class="btn btn-secondary" onclick="InstructorCenter.openSkillApprovalModal()">Approve Skill</button>
-        <button class="btn btn-secondary" onclick="InstructorCenter.openDocumentModal()">Upload Assignment</button>
+        <button class="btn btn-primary" onclick="InstructorCenter.openStudentModal(this)">Add Student</button>
+        <button class="btn btn-secondary" onclick="InstructorCenter.openSkillApprovalModal(null, this)">Approve Skill</button>
+        <button class="btn btn-secondary" onclick="InstructorCenter.openDocumentModal(this)">Upload Assignment</button>
       </div>
     </div>
 
@@ -1788,7 +1796,7 @@ window.InstructorCenter = {
     alert("Instructor information saved.");
   },
 
-  openStudentModal(){
+  openStudentModal(triggerBtn = null){
     document.getElementById("student-name").value = "";
     document.getElementById("student-email").value = "";
     document.getElementById("student-trade").value = "";
@@ -1796,7 +1804,7 @@ window.InstructorCenter = {
     document.getElementById("student-hours").value = "";
     document.getElementById("student-goal").value = "8000";
     document.getElementById("student-notes").value = "";
-    this.openModal("student-modal");
+    this.openModal("student-modal", triggerBtn);
   },
 
   async saveStudent(){
@@ -1884,7 +1892,7 @@ window.InstructorCenter = {
 
 
 
-  openSkillApprovalModal(preselectedStudentValue){
+  openSkillApprovalModal(preselectedStudentValue = null, triggerBtn = null){
     const select = document.getElementById("skill-student");
     const students = getAllRosterStudents();
 
@@ -1916,7 +1924,7 @@ window.InstructorCenter = {
       select.value = preselectedStudentValue;
     }
 
-    this.openModal("skill-modal");
+    this.openModal("skill-modal", triggerBtn);
   },
 
   handleSkillStudentChange(){
@@ -1995,12 +2003,12 @@ window.InstructorCenter = {
     alert("Skill verification record saved and added to the student profile.");
   },
 
-  openDocumentModal(){
+  openDocumentModal(triggerBtn = null){
     document.getElementById("document-file").value = "";
     document.getElementById("document-name").value = "";
     document.getElementById("document-type").value = "Homework";
     document.getElementById("selected-document-name").innerText = "";
-    this.openModal("document-modal");
+    this.openModal("document-modal", triggerBtn);
   },
 
   saveDocument(){
@@ -2050,12 +2058,36 @@ window.InstructorCenter = {
     `).join("");
   },
 
-  openModal(id){
-    document.getElementById(id).classList.add("active");
+  openModal(id, triggerBtn = null){
+    const modal = document.getElementById(id);
+    if(!modal) return;
+
+    modal.classList.add("active");
+
+    document.querySelectorAll(".hero-actions .btn").forEach(btn => {
+      btn.classList.remove("active-action");
+    });
+
+    if(triggerBtn){
+      triggerBtn.classList.add("active-action");
+    }
   },
 
   closeModal(id){
-    document.getElementById(id).classList.remove("active");
+    const modal = document.getElementById(id);
+    if(modal){
+      modal.classList.remove("active");
+    }
+
+    document.querySelectorAll(".hero-actions .btn").forEach(btn => {
+      btn.classList.remove("active-action");
+    });
+  },
+
+  clearHeroActionState(){
+    document.querySelectorAll(".hero-actions .btn").forEach(btn => {
+      btn.classList.remove("active-action");
+    });
   }
 };
 
@@ -2074,6 +2106,9 @@ document.getElementById("mobile-menu-toggle").addEventListener("click", function
 document.addEventListener("click", function(e){
   if(e.target.classList && e.target.classList.contains("modal-backdrop")){
     e.target.classList.remove("active");
+    if(window.InstructorCenter && typeof InstructorCenter.clearHeroActionState === "function"){
+      InstructorCenter.clearHeroActionState();
+    }
   }
 });
 
