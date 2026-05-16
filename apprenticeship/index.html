@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-aptitude-test-v26 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-pending-reviews-v27 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -741,9 +741,9 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv26'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260516apprenticedashboardv26'">Members</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv26'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv27'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260516apprenticedashboardv27'">Members</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv27'">Back</button>
   </div>
 </div>
 
@@ -1049,7 +1049,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v26";
+  const LOCAL_PROGRESS_VERSION = "v27";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1238,7 +1238,7 @@
   async function enforceApprenticeAccess(data){
     if(isInstructorProfile(data)){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260516apprenticedashboardv26");
+      window.location.replace("/instructor/?v=20260516apprenticedashboardv27");
       return false;
     }
 
@@ -1425,6 +1425,36 @@
     return snap.empty ? null : snap.docs[0];
   }
 
+
+  async function createPendingReview(reviewType, uploadTitle, proofData){
+    if(!currentUserId) return;
+
+    try{
+      const apprenticeship = profile.apprenticeship || {};
+
+      await addDoc(collection(db,"pendingReviews"),{
+        status:"pending",
+        authUid:currentUserId,
+        studentName:getProfileName(profile),
+        studentEmail:getProfileEmail(profile),
+        schoolCode:apprenticeship.schoolCode || profile.schoolCode || "",
+        cohortName:apprenticeship.cohortName || profile.cohortName || "",
+        instructorName:apprenticeship.instructorName || profile.instructorName || "",
+        reviewType:reviewType || "Student Upload",
+        uploadTitle:uploadTitle || "Student Upload",
+        proofFileName:proofData?.fileName || "",
+        proofFileUrl:proofData?.fileUrl || "",
+        proofFileType:proofData?.fileType || "",
+        verificationStatus:"pending",
+        submittedAt:serverTimestamp(),
+        submittedAtIso:new Date().toISOString(),
+        source:"track_my_progress"
+      });
+    }catch(error){
+      console.error("Pending review creation failed:", error);
+    }
+  }
+
   window.connectSchoolCode = async function(){
     const input = $("schoolCodeInput");
     const status = $("schoolCodeStatus");
@@ -1521,7 +1551,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv26");
+      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv27");
       return;
     }
 
@@ -2331,7 +2361,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv26");
+      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv27");
       return;
     }
 
