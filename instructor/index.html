@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-17: INSTRUCTOR CENTER ANALYTICS PENDING REVIEWS FIX v19 -->
-<!-- LTN VERSION: instructor-center-analytics-pending-reviews-fix-v19 -->
+<!-- LTN FORCE UPDATE 2026-05-17: INSTRUCTOR CENTER ANALYTICS + REVIEW COUNTS FIX v20 -->
+<!-- LTN VERSION: instructor-center-analytics-review-counts-v20 -->
 
 <style>
 :root{
@@ -1164,7 +1164,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260517instructorv19";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260517instructorv20";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1207,11 +1207,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260517instructorv19">Dashboard</a>
-      <a href="/members/?v=20260517instructorv19">Members</a>
-      <a href="/instructor/?v=20260517instructorv19" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260517instructorv19" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260517instructorv19">Network Center</a>
+      <a href="/dashboard/?v=20260517instructorv20">Dashboard</a>
+      <a href="/members/?v=20260517instructorv20">Members</a>
+      <a href="/instructor/?v=20260517instructorv20" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260517instructorv20" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260517instructorv20">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1259,7 +1259,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260517instructorv19">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260517instructorv20">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1784,7 +1784,7 @@ async function findCurrentUser(){
 
   if(!authUser){
     LTNClearLocalSession();
-    window.location.replace("/front.html?v=20260517instructorAuthRequiredv19");
+    window.location.replace("/front.html?v=20260517instructorAuthRequired");
     throw new Error("No authenticated Firebase user.");
   }
 
@@ -1804,7 +1804,7 @@ async function findCurrentUser(){
 
   if(!userSnap.exists()){
     alert("Instructor profile was not found for this signed-in account. Please complete your profile first.");
-    window.location.replace("/dashboard/?v=20260517instructorNoProfilev19");
+    window.location.replace("/dashboard/?v=20260517instructorNoProfile");
     throw new Error("No user profile document for current auth uid.");
   }
 
@@ -1812,7 +1812,7 @@ async function findCurrentUser(){
 
   if(!isFirestoreInstructorProfile(u)){
     alert("Instructor Center is only for instructor accounts. You are signed in as a student/apprentice/member account.");
-    window.location.replace("/dashboard/?v=20260517notInstructorv19");
+    window.location.replace("/dashboard/?v=20260517notInstructor");
     throw new Error("Current user is not an instructor.");
   }
 
@@ -2011,10 +2011,6 @@ function getFilteredStudents(){
   return getVisibleStudents().filter(itemMatchesSelectedCohort);
 }
 
-function getFilteredPendingReviews(){
-  return pendingReviews.filter(itemMatchesSelectedCohort);
-}
-
 function getFilteredVerifiedSkills(){
   return allVerifiedSkills.filter(itemMatchesSelectedCohort);
 }
@@ -2061,42 +2057,39 @@ function populateCohortFilter(){
 }
 
 
-function reviewStatus(item){
-  const status = String(item.status || "").trim().toLowerCase();
-  const verificationStatus = String(item.verificationStatus || "").trim().toLowerCase();
-
-  if(item.approved === true || status === "approved" || verificationStatus === "approved" || verificationStatus === "verified"){
-    return "approved";
-  }
-
-  if(item.rejected === true || status === "rejected" || verificationStatus === "rejected"){
-    return "rejected";
-  }
-
+function getReviewStatus(item){
+  const status = String(item && (item.status || item.verificationStatus) || "").trim().toLowerCase();
+  if(status) return status;
+  if(item && item.approved === true) return "approved";
+  if(item && item.rejected === true) return "rejected";
   return "pending";
 }
 
-function getFilteredPendingOnlyReviews(){
-  return getFilteredPendingReviews().filter(item => reviewStatus(item) === "pending");
+function getFilteredReviewsForAnalytics(){
+  return pendingReviews.filter(itemMatchesSelectedCohort);
+}
+
+function getFilteredPendingReviews(){
+  return pendingReviews.filter(item => {
+    return itemMatchesSelectedCohort(item) && getReviewStatus(item) === "pending";
+  });
 }
 
 function updateAnalytics(){
-  const filteredReviews = getFilteredPendingReviews();
+  const filteredReviews = getFilteredReviewsForAnalytics();
   const filteredVerifiedSkills = getFilteredVerifiedSkills();
   const filteredAptitudeTests = getFilteredAptitudeTests();
 
-  const pending = filteredReviews.filter(item => reviewStatus(item) === "pending").length;
-
-  const approvedProofReviews = filteredReviews.filter(item => reviewStatus(item) === "approved").length;
-
-  const rejected = filteredReviews.filter(item => reviewStatus(item) === "rejected").length;
-
-  const approvedSkillRecords = filteredVerifiedSkills.length;
-
-  const approved = approvedProofReviews + approvedSkillRecords;
+  const pending = filteredReviews.filter(item => getReviewStatus(item) === "pending").length;
+  const approvedReviews = filteredReviews.filter(item => {
+    return getReviewStatus(item) === "approved" || item.approved === true;
+  }).length;
+  const rejected = filteredReviews.filter(item => {
+    return getReviewStatus(item) === "rejected" || item.rejected === true;
+  }).length;
 
   const aptitudeCompleted = filteredAptitudeTests.filter(test => {
-    const status = String(test.status || "").toLowerCase();
+    const status = String(test.status || test.aptitudeStatus || "").toLowerCase();
     return status === "completed" || status === "passed";
   }).length;
 
@@ -2111,12 +2104,11 @@ function updateAnalytics(){
   const hoursEl = document.getElementById("analytics-hours");
 
   if(pendingEl) pendingEl.innerText = pending.toLocaleString();
-  if(approvedEl) approvedEl.innerText = approved.toLocaleString();
+  if(approvedEl) approvedEl.innerText = approvedReviews.toLocaleString();
   if(rejectedEl) rejectedEl.innerText = rejected.toLocaleString();
   if(aptitudeEl) aptitudeEl.innerText = aptitudeCompleted.toLocaleString();
   if(hoursEl) hoursEl.innerText = verifiedHours.toLocaleString();
 }
-
 
 function updateStats(){
   const students = mergeStudents(getStudents(), autoLinkedStudents).filter(itemMatchesSelectedCohort);
@@ -2474,39 +2466,67 @@ async function loadPendingReviews(){
   const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
 
   try{
-    const qRef = query(
-      collection(db,"pendingReviews"),
-      where("schoolCode","==",schoolCode),
-      limit(300)
+    const snap = await getDocs(
+      query(
+        collection(db,"pendingReviews"),
+        where("schoolCode","==",schoolCode),
+        limit(300)
+      )
     );
-
-    const snap = await getDocs(qRef);
 
     snap.forEach(docSnap => {
       const data = docSnap.data() || {};
       pendingReviews.push({
         id:docSnap.id,
         ...data,
-        status:String(data.status || "pending").toLowerCase(),
-        verificationStatus:String(data.verificationStatus || data.status || "pending").toLowerCase()
+        status:String(data.status || data.verificationStatus || "pending").trim().toLowerCase(),
+        verificationStatus:String(data.verificationStatus || data.status || "pending").trim().toLowerCase(),
+        cohortName:String(data.cohortName || data.cohort || data.className || "").trim(),
+        schoolCode:String(data.schoolCode || "").trim().toUpperCase()
       });
     });
   }catch(e){
-    console.warn("Pending review query failed", e);
+    console.warn("Pending review schoolCode query failed, trying fallback read", e);
+
+    try{
+      const fallbackSnap = await getDocs(query(collection(db,"pendingReviews"), limit(300)));
+      fallbackSnap.forEach(docSnap => {
+        const data = docSnap.data() || {};
+        const itemSchoolCode = String(data.schoolCode || "").trim().toUpperCase();
+        if(itemSchoolCode && itemSchoolCode !== schoolCode) return;
+
+        pendingReviews.push({
+          id:docSnap.id,
+          ...data,
+          status:String(data.status || data.verificationStatus || "pending").trim().toLowerCase(),
+          verificationStatus:String(data.verificationStatus || data.status || "pending").trim().toLowerCase(),
+          cohortName:String(data.cohortName || data.cohort || data.className || "").trim(),
+          schoolCode:itemSchoolCode
+        });
+      });
+    }catch(fallbackError){
+      console.warn("Pending review fallback query failed", fallbackError);
+    }
   }
+
+  pendingReviews.sort((a,b) => {
+    const aTime = a.submittedAtIso || a.reviewedAt || a.submittedAt || "";
+    const bTime = b.submittedAtIso || b.reviewedAt || b.submittedAt || "";
+    return String(bTime).localeCompare(String(aTime));
+  });
 }
 
 function renderPendingReviews(){
   const wrap = document.getElementById("pending-reviews-list");
   const badge = document.getElementById("pending-review-count");
 
-  const filteredReviews = getFilteredPendingOnlyReviews();
-
   if(badge){
-    badge.innerText = `${filteredReviews.length} Pending`;
+    badge.innerText = `${getFilteredPendingReviews().length} Pending`;
   }
 
   if(!wrap) return;
+
+  const filteredReviews = getFilteredPendingReviews();
 
   if(!filteredReviews.length){
     wrap.innerHTML = emptyState(
@@ -2605,20 +2625,7 @@ window.InstructorCenter = {
         reviewedAt:serverTimestamp()
       });
 
-      pendingReviews = pendingReviews.map(r => {
-        if(r.id !== reviewId) return r;
-        return {
-          ...r,
-          status:"approved",
-          verificationStatus:"approved",
-          approved:true,
-          rejected:false,
-          reviewedBy:currentProfile.name || "Instructor",
-          approvedBy:currentProfile.name || "Instructor",
-          instructorComment,
-          reviewedDate
-        };
-      });
+      await loadPendingReviews();
       populateCohortFilter();
       updateStats();
       updateAnalytics();
@@ -2648,20 +2655,7 @@ window.InstructorCenter = {
         reviewedAt:serverTimestamp()
       });
 
-      pendingReviews = pendingReviews.map(r => {
-        if(r.id !== reviewId) return r;
-        return {
-          ...r,
-          status:"rejected",
-          verificationStatus:"rejected",
-          approved:false,
-          rejected:true,
-          reviewedBy:currentProfile.name || "Instructor",
-          approvedBy:currentProfile.name || "Instructor",
-          instructorComment,
-          reviewedDate
-        };
-      });
+      await loadPendingReviews();
       populateCohortFilter();
       updateStats();
       updateAnalytics();
@@ -2828,7 +2822,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260517instructorv19">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260517instructorv20">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -3103,6 +3097,7 @@ async function init(){
   console.log("LTN verified skills loaded", allVerifiedSkills);
   InstructorCenter.renderDocuments();
   updateStats();
+  updateAnalytics();
 }
 
 init().catch(function(error){
