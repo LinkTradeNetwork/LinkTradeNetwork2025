@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-17: INSTRUCTOR CENTER AUTH UID PROFILE FIX v18 -->
-<!-- LTN VERSION: instructor-center-auth-uid-profile-fix-v18 -->
+<!-- LTN FORCE UPDATE 2026-05-17: INSTRUCTOR CENTER ANALYTICS PENDING REVIEWS FIX v19 -->
+<!-- LTN VERSION: instructor-center-analytics-pending-reviews-fix-v19 -->
 
 <style>
 :root{
@@ -1164,7 +1164,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260517instructorv18";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260517instructorv19";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1207,11 +1207,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260517instructorv18">Dashboard</a>
-      <a href="/members/?v=20260517instructorv18">Members</a>
-      <a href="/instructor/?v=20260517instructorv18" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260517instructorv18" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260517instructorv18">Network Center</a>
+      <a href="/dashboard/?v=20260517instructorv19">Dashboard</a>
+      <a href="/members/?v=20260517instructorv19">Members</a>
+      <a href="/instructor/?v=20260517instructorv19" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260517instructorv19" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260517instructorv19">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1259,7 +1259,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260517instructorv18">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260517instructorv19">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1784,7 +1784,7 @@ async function findCurrentUser(){
 
   if(!authUser){
     LTNClearLocalSession();
-    window.location.replace("/front.html?v=20260517instructorAuthRequired");
+    window.location.replace("/front.html?v=20260517instructorAuthRequiredv19");
     throw new Error("No authenticated Firebase user.");
   }
 
@@ -1804,7 +1804,7 @@ async function findCurrentUser(){
 
   if(!userSnap.exists()){
     alert("Instructor profile was not found for this signed-in account. Please complete your profile first.");
-    window.location.replace("/dashboard/?v=20260517instructorNoProfile");
+    window.location.replace("/dashboard/?v=20260517instructorNoProfilev19");
     throw new Error("No user profile document for current auth uid.");
   }
 
@@ -1812,7 +1812,7 @@ async function findCurrentUser(){
 
   if(!isFirestoreInstructorProfile(u)){
     alert("Instructor Center is only for instructor accounts. You are signed in as a student/apprentice/member account.");
-    window.location.replace("/dashboard/?v=20260517notInstructor");
+    window.location.replace("/dashboard/?v=20260517notInstructorv19");
     throw new Error("Current user is not an instructor.");
   }
 
@@ -2061,23 +2061,43 @@ function populateCohortFilter(){
 }
 
 
+function reviewStatus(item){
+  const status = String(item.status || "").trim().toLowerCase();
+  const verificationStatus = String(item.verificationStatus || "").trim().toLowerCase();
+
+  if(item.approved === true || status === "approved" || verificationStatus === "approved" || verificationStatus === "verified"){
+    return "approved";
+  }
+
+  if(item.rejected === true || status === "rejected" || verificationStatus === "rejected"){
+    return "rejected";
+  }
+
+  return "pending";
+}
+
+function getFilteredPendingOnlyReviews(){
+  return getFilteredPendingReviews().filter(item => reviewStatus(item) === "pending");
+}
+
 function updateAnalytics(){
-  const filteredPendingReviews = getFilteredPendingReviews();
+  const filteredReviews = getFilteredPendingReviews();
   const filteredVerifiedSkills = getFilteredVerifiedSkills();
   const filteredAptitudeTests = getFilteredAptitudeTests();
 
-  const approved = filteredVerifiedSkills.length;
+  const pending = filteredReviews.filter(item => reviewStatus(item) === "pending").length;
 
-  const rejected = filteredPendingReviews.filter(item => {
-    return String(item.status || "").toLowerCase() === "rejected";
-  }).length;
+  const approvedProofReviews = filteredReviews.filter(item => reviewStatus(item) === "approved").length;
 
-  const pending = filteredPendingReviews.filter(item => {
-    return String(item.status || "").toLowerCase() === "pending";
-  }).length;
+  const rejected = filteredReviews.filter(item => reviewStatus(item) === "rejected").length;
+
+  const approvedSkillRecords = filteredVerifiedSkills.length;
+
+  const approved = approvedProofReviews + approvedSkillRecords;
 
   const aptitudeCompleted = filteredAptitudeTests.filter(test => {
-    return String(test.status || "").toLowerCase() === "completed";
+    const status = String(test.status || "").toLowerCase();
+    return status === "completed" || status === "passed";
   }).length;
 
   const verifiedHours = filteredVerifiedSkills.reduce((sum, skill) => {
@@ -2457,16 +2477,18 @@ async function loadPendingReviews(){
     const qRef = query(
       collection(db,"pendingReviews"),
       where("schoolCode","==",schoolCode),
-      where("status","==","pending"),
-      limit(100)
+      limit(300)
     );
 
     const snap = await getDocs(qRef);
 
     snap.forEach(docSnap => {
+      const data = docSnap.data() || {};
       pendingReviews.push({
         id:docSnap.id,
-        ...docSnap.data()
+        ...data,
+        status:String(data.status || "pending").toLowerCase(),
+        verificationStatus:String(data.verificationStatus || data.status || "pending").toLowerCase()
       });
     });
   }catch(e){
@@ -2478,13 +2500,13 @@ function renderPendingReviews(){
   const wrap = document.getElementById("pending-reviews-list");
   const badge = document.getElementById("pending-review-count");
 
+  const filteredReviews = getFilteredPendingOnlyReviews();
+
   if(badge){
-    badge.innerText = `${getFilteredPendingReviews().length} Pending`;
+    badge.innerText = `${filteredReviews.length} Pending`;
   }
 
   if(!wrap) return;
-
-  const filteredReviews = getFilteredPendingReviews();
 
   if(!filteredReviews.length){
     wrap.innerHTML = emptyState(
@@ -2583,7 +2605,20 @@ window.InstructorCenter = {
         reviewedAt:serverTimestamp()
       });
 
-      pendingReviews = pendingReviews.filter(r => r.id !== reviewId);
+      pendingReviews = pendingReviews.map(r => {
+        if(r.id !== reviewId) return r;
+        return {
+          ...r,
+          status:"approved",
+          verificationStatus:"approved",
+          approved:true,
+          rejected:false,
+          reviewedBy:currentProfile.name || "Instructor",
+          approvedBy:currentProfile.name || "Instructor",
+          instructorComment,
+          reviewedDate
+        };
+      });
       populateCohortFilter();
       updateStats();
       updateAnalytics();
@@ -2613,7 +2648,20 @@ window.InstructorCenter = {
         reviewedAt:serverTimestamp()
       });
 
-      pendingReviews = pendingReviews.filter(r => r.id !== reviewId);
+      pendingReviews = pendingReviews.map(r => {
+        if(r.id !== reviewId) return r;
+        return {
+          ...r,
+          status:"rejected",
+          verificationStatus:"rejected",
+          approved:false,
+          rejected:true,
+          reviewedBy:currentProfile.name || "Instructor",
+          approvedBy:currentProfile.name || "Instructor",
+          instructorComment,
+          reviewedDate
+        };
+      });
       populateCohortFilter();
       updateStats();
       updateAnalytics();
@@ -2780,7 +2828,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260517instructorv18">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260517instructorv19">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
