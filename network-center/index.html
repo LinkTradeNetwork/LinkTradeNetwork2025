@@ -1357,6 +1357,66 @@ const NetworkCenterEnhancements = {
 };
 
 
+
+/* ===== ROLE ROUTING FIX: BLOCK APPRENTICES FROM INSTRUCTOR CENTER ===== */
+async function ltnGetCurrentRoleFromFirestore() {
+  try {
+    const user = firebaseAuth && firebaseAuth.currentUser;
+    if (!user || !firebaseDb) return "";
+
+    const snap = await firebaseDb.collection("users").doc(user.uid).get();
+    if (!snap.exists) return "";
+
+    const data = snap.data() || {};
+    const role = String(data.role || "").trim().toLowerCase();
+    const profileType = String(data.profileType || "").trim().toLowerCase();
+    const isInstructorProfile = data.instructor && data.instructor.isInstructor === true;
+
+    if (role === "instructor" || role === "admin") return role;
+    if (isInstructorProfile) return "instructor";
+    if (profileType.includes("instructor")) return "instructor";
+    if (data.apprenticeship && data.apprenticeship.isApprentice === true) return "apprentice";
+    if (role === "student" || role === "apprentice" || role === "apprenticeship") return "apprentice";
+
+    return role || profileType || "member";
+  } catch (e) {
+    console.warn("Role check failed:", e);
+    return "";
+  }
+}
+
+function ltnRouteInstructorCenterFromNetwork(event, href) {
+  if (event) event.preventDefault();
+
+  ltnGetCurrentRoleFromFirestore().then(function(role) {
+    if (role === "instructor" || role === "admin") {
+      window.location.href = href;
+      return;
+    }
+
+    alert("Instructor Center is only for instructor accounts.");
+    window.location.href = "/apprenticeship/?v=20260517roleblock";
+  });
+
+  return false;
+}
+
+function ltnRouteTrackProgressFromNetwork(event, href) {
+  if (event) event.preventDefault();
+
+  ltnGetCurrentRoleFromFirestore().then(function(role) {
+    if (role === "instructor" || role === "admin") {
+      alert("Track My Progress is for apprenticeship/student accounts.");
+      window.location.href = "/instructor/?v=20260517roleblock";
+      return;
+    }
+
+    window.location.href = href;
+  });
+
+  return false;
+}
+
 /* ===== NETWORK CENTER PAGE OVERRIDES ===== */
 NetworkManager.openNetworkModal = async function() {
   const user = await this.ensureUser();
