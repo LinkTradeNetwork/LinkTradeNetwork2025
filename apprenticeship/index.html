@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-all-proof-types-pending-review-v32 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-all-proof-types-pending-review-v33 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -767,12 +767,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260517allproofapprovalv32'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260517allproofapprovalv32'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260517allproofpendingv33'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260517allproofpendingv33'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260517allproofapprovalv32'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260517allproofapprovalv32'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260517allproofpendingv33'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260517allproofpendingv33'">Back</button>
   </div>
 </div>
 
@@ -1055,7 +1055,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v32";
+  const LOCAL_PROGRESS_VERSION = "v33";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1292,7 +1292,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260517allproofapprovalv32";
+      window.location.href = "/instructor/?v=20260517allproofpendingv33";
       return false;
     }
 
@@ -1307,11 +1307,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260517allproofapprovalv32";
+      window.location.href = "/instructor/?v=20260517allproofpendingv33";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260517allproofapprovalv32";
+    window.location.href = "/apprenticeship/?v=20260517allproofpendingv33";
     return false;
   };
 
@@ -1320,7 +1320,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260517allproofapprovalv32");
+      window.location.replace("/instructor/?v=20260517allproofpendingv33");
       return false;
     }
 
@@ -1528,54 +1528,62 @@
 
 
   async function createPendingReview(reviewType, uploadTitle, proofData){
-    if(!currentUserId) return null;
-
-    try{
-      const apprenticeship = profile.apprenticeship || {};
-      const nowIso = new Date().toISOString();
-
-      const docRef = await addDoc(collection(db,"pendingReviews"),{
-        status:"pending",
-        verificationStatus:"pending",
-        approved:false,
-        rejected:false,
-
-        authUid:currentUserId,
-        studentUid:currentUserId,
-        studentId:currentUserId,
-        studentName:getProfileName(profile),
-        studentEmail:getProfileEmail(profile),
-
-        schoolCode:apprenticeship.schoolCode || profile.schoolCode || "",
-        schoolId:apprenticeship.schoolId || profile.schoolId || "",
-        schoolName:apprenticeship.schoolName || profile.schoolName || profile.school || "",
-        cohortId:apprenticeship.cohortId || profile.cohortId || "",
-        cohortName:apprenticeship.cohortName || profile.cohortName || "",
-        instructorId:apprenticeship.instructorId || profile.instructorId || "",
-        instructorName:apprenticeship.instructorName || profile.instructorName || "",
-        instructorEmail:apprenticeship.instructorEmail || profile.instructorEmail || "",
-
-        reviewType:reviewType || "Student Upload",
-        uploadTitle:uploadTitle || "Student Upload",
-        proofFileName:proofData?.fileName || "",
-        proofFileUrl:proofData?.fileUrl || "",
-        proofFileType:proofData?.fileType || "",
-        proofFileSize:proofData?.fileSize || 0,
-        proofCategory:proofData?.category || "",
-
-        submittedAt:serverTimestamp(),
-        submittedAtIso:nowIso,
-        createdAt:serverTimestamp(),
-        createdAtIso:nowIso,
-        source:"track_my_progress"
-      });
-
-      return docRef.id;
-    }catch(error){
-      console.error("Pending review creation failed:", error);
-      alert("Proof uploaded, but the instructor review record could not be created. Check Firestore rules for pendingReviews.");
-      return null;
+    if(!currentUserId){
+      throw new Error("You must be signed in before submitting proof for instructor review.");
     }
+
+    const apprenticeship = profile.apprenticeship || {};
+    const cleanReviewType = String(reviewType || "Student Upload").trim();
+    const cleanUploadTitle = String(uploadTitle || "Student Upload").trim();
+    const proof = proofData || {};
+    const nowIso = new Date().toISOString();
+
+    const reviewPayload = {
+      status:"pending",
+      verificationStatus:"pending",
+      approved:false,
+      rejected:false,
+
+      authUid:currentUserId,
+      uid:currentUserId,
+      studentUid:currentUserId,
+      studentId:currentUserId,
+      submittedByUid:currentUserId,
+      submittedByEmail:currentUserEmail || getProfileEmail(profile),
+
+      studentName:getProfileName(profile),
+      studentEmail:getProfileEmail(profile),
+
+      schoolCode:apprenticeship.schoolCode || profile.schoolCode || "",
+      schoolId:apprenticeship.schoolId || profile.schoolId || "",
+      schoolName:apprenticeship.schoolName || profile.schoolName || profile.tradeSchool || profile.school || "",
+      cohortId:apprenticeship.cohortId || profile.cohortId || "",
+      cohortName:apprenticeship.cohortName || profile.cohortName || "",
+      instructorId:apprenticeship.instructorId || profile.instructorId || "",
+      instructorName:apprenticeship.instructorName || profile.instructorName || "",
+      instructorEmail:apprenticeship.instructorEmail || profile.instructorEmail || profile.assignedInstructorEmail || "",
+
+      reviewType:cleanReviewType,
+      uploadType:cleanReviewType,
+      uploadTitle:cleanUploadTitle,
+      title:cleanUploadTitle,
+
+      proofFileName:proof.fileName || "",
+      proofFileUrl:proof.fileUrl || "",
+      proofFileType:proof.fileType || "",
+      proofFileSize:Number(proof.fileSize || 0),
+      proofUploadedAt:proof.uploadedAt || nowIso,
+
+      instructorComment:"",
+      approvedBy:"",
+      reviewedBy:"",
+      reviewedDate:"",
+      submittedAt:serverTimestamp(),
+      submittedAtIso:nowIso,
+      source:"track_my_progress"
+    };
+
+    await addDoc(collection(db,"pendingReviews"), reviewPayload);
   }
 
   window.connectSchoolCode = async function(){
@@ -1674,7 +1682,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260517allproofapprovalv32");
+      window.location.replace("/front/?v=secureauth20260517allproofpendingv33");
       return;
     }
 
@@ -2346,27 +2354,17 @@
     setStatus("saveStatus",options.uploadingMessage,"info");
 
     try{
-      const proof = withPendingVerification(await uploadProofFile(options.category,file), options.category);
-
-      const reviewMap = {
-        certifications:"Certification Upload",
-        skills:"Skill Upload",
-        projects:"Project Upload",
-        "signed-work-proof":"Signed Work Proof"
-      };
-
-      const reviewId = await createPendingReview(reviewMap[options.category] || "Student Upload", value, proof);
-      proof.pendingReviewId = reviewId || "";
-      proof.reviewType = reviewMap[options.category] || "Student Upload";
-      proof.uploadTitle = value;
-
+      const proof = withPendingVerification(await uploadProofFile(options.storageCategory || options.category,file), options.category);
       options.onSuccess(value,proof);
+
+      await createPendingReview(options.reviewType || "Student Upload", value, proof);
 
       input.value = "";
       if(fileInput) fileInput.value = "";
 
       renderProgress();
       await saveToFirebase();
+      setStatus("saveStatus","Proof uploaded and sent to instructor for approval.","ok");
       renderProgress();
     }catch(error){
       console.error(error);
@@ -2383,6 +2381,8 @@
       fileInputId:"certFileInput",
       buttonId:"certBtn",
       category:"certifications",
+      storageCategory:"certifications",
+      reviewType:"Certification Upload",
       emptyMessage:"Please enter a certification.",
       uploadingMessage:"Uploading certification proof...",
       failureMessage:"Certification proof upload failed.",
@@ -2408,6 +2408,8 @@
       fileInputId:"skillFileInput",
       buttonId:"skillBtn",
       category:"skills",
+      storageCategory:"skills",
+      reviewType:"Skill Upload",
       emptyMessage:"Please enter a skill.",
       uploadingMessage:"Uploading skill proof...",
       failureMessage:"Skill proof upload failed.",
@@ -2433,6 +2435,8 @@
       fileInputId:"projectFileInput",
       buttonId:"projectBtn",
       category:"projects",
+      storageCategory:"projects",
+      reviewType:"Project Upload",
       emptyMessage:"Please enter a project.",
       uploadingMessage:"Uploading project proof...",
       failureMessage:"Project proof upload failed.",
@@ -2475,15 +2479,13 @@
 
     try{
       const proof = withPendingVerification(await uploadProofFile("signed-work-proof",file), "signed-work-proof");
-      const reviewId = await createPendingReview("Signed Work Proof", title, proof);
-      proof.pendingReviewId = reviewId || "";
-      proof.reviewType = "Signed Work Proof";
-      proof.uploadTitle = title;
 
       state.signedWorkProofs.push({
         title,
         ...proof
       });
+
+      await createPendingReview("Signed Work Proof", title, proof);
 
       state.jobsiteUploads = state.signedWorkProofs.length;
       titleInput.value = "";
@@ -2558,7 +2560,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260517allproofapprovalv32");
+      window.location.replace("/front/?v=secureauth20260517allproofpendingv33");
       return;
     }
 
@@ -2601,7 +2603,7 @@
     }
   },8000);
 
-  console.log("LTN Apprenticeship Dashboard All Proof Approval Routing Loaded v32");
+  console.log("LTN Apprenticeship Dashboard Strong Role Routing Loaded v31");
 
   /*
     Firebase security reminder:
