@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LTN Members</title>
 
-  <!-- LTN FORCE UPDATE VERSION: members-role-routing-instructor-center-20260515-v6 -->
+  <!-- LTN FORCE UPDATE VERSION: members-strong-firebase-role-routing-20260517-v7 -->
 
   <style>
     *{
@@ -392,7 +392,7 @@
   const accessGranted = localStorage.getItem("ltn_access_granted") === "true";
 
   if (!accessGranted) {
-    window.location.replace("/front.html?v=membersblocked-rolefix-v6");
+    window.location.replace("/front.html?v=membersblocked-strongrolefix-v7");
     return;
   }
 })();
@@ -402,10 +402,10 @@
   <div class="logo">LTN • LinkTradeNetwork</div>
 
   <div class="nav">
-    <a href="/dashboard/?v=20260515membersrolefixv6">Dashboard</a>
-    <a href="/members/?v=20260515membersrolefixv6">Members</a>
-    <a href="/apprenticeship/?v=20260515membersrolefixv6" onclick="return ltnRouteTrackProgressFromMembers(event, this.href)">Track My Progress</a>
-    <a href="/instructor/?v=20260515membersrolefixv6" onclick="return ltnRouteInstructorCenterFromMembers(event, this.href)">Instructor Center</a>
+    <a href="/dashboard/?v=20260517membersstrongrolefixv7">Dashboard</a>
+    <a href="/members/?v=20260517membersstrongrolefixv7">Members</a>
+    <a href="/apprenticeship/?v=20260517membersstrongrolefixv7" onclick="return ltnRouteTrackProgressFromMembers(event, this.href)">Track My Progress</a>
+    <a href="/instructor/?v=20260517membersstrongrolefixv7" onclick="return ltnRouteInstructorCenterFromMembers(event, this.href)">Instructor Center</a>
     <button onclick="logoutUser()">Logout</button>
   </div>
 </div>
@@ -429,8 +429,8 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+  import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
@@ -470,13 +470,24 @@
     return {};
   }
 
+  function normalizeRoleText(value){
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function hasTrue(value){
+    return value === true || value === "true" || value === "yes" || value === "1";
+  }
+
   function isInstructorProfile(profile){
-    const type = String(profile.profileType || profile.role || "").toLowerCase();
+    const role = normalizeRoleText(profile.role);
+    const type = normalizeRoleText(profile.profileType || profile.type);
     const instructor = profile.instructor || {};
 
     return (
-      profile.isInstructor === true ||
-      instructor.isInstructor === true ||
+      role === "instructor" ||
+      role === "admin" ||
+      hasTrue(profile.isInstructor) ||
+      hasTrue(instructor.isInstructor) ||
       type.includes("instructor") ||
       type.includes("teacher") ||
       type.includes("training center") ||
@@ -485,50 +496,168 @@
   }
 
   function isApprenticeProfile(profile){
-    const type = String(profile.profileType || profile.role || "").toLowerCase();
+    const role = normalizeRoleText(profile.role);
+    const type = normalizeRoleText(profile.profileType || profile.type);
     const apprenticeship = profile.apprenticeship || {};
 
     return (
-      profile.isApprentice === true ||
-      apprenticeship.isApprentice === true ||
+      role === "student" ||
+      role === "apprentice" ||
+      role === "apprenticeship" ||
+      hasTrue(profile.isApprentice) ||
+      hasTrue(apprenticeship.isApprentice) ||
       type.includes("apprentice") ||
+      type.includes("apprenticeship") ||
       type.includes("student")
     );
+  }
+
+  function isFirebaseInstructor(data){
+    const role = normalizeRoleText(data.role);
+    const profileType = normalizeRoleText(data.profileType || data.type);
+    const instructor = data.instructor || {};
+
+    return (
+      role === "instructor" ||
+      role === "admin" ||
+      hasTrue(data.isInstructor) ||
+      hasTrue(instructor.isInstructor) ||
+      profileType.includes("instructor") ||
+      profileType.includes("teacher") ||
+      profileType.includes("training center") ||
+      profileType.includes("trade school")
+    );
+  }
+
+  function isFirebaseApprentice(data){
+    const role = normalizeRoleText(data.role);
+    const profileType = normalizeRoleText(data.profileType || data.type);
+    const apprenticeship = data.apprenticeship || {};
+
+    return (
+      role === "student" ||
+      role === "apprentice" ||
+      role === "apprenticeship" ||
+      hasTrue(data.isApprentice) ||
+      hasTrue(apprenticeship.isApprentice) ||
+      profileType.includes("apprentice") ||
+      profileType.includes("apprenticeship") ||
+      profileType.includes("student")
+    );
+  }
+
+  async function waitForAuthUser(){
+    if(auth.currentUser) return auth.currentUser;
+
+    return new Promise(resolve => {
+      const unsubscribe = onAuthStateChanged(auth, user => {
+        try{ unsubscribe(); }catch(e){}
+        resolve(user || null);
+      });
+
+      setTimeout(() => {
+        try{ unsubscribe(); }catch(e){}
+        resolve(auth.currentUser || null);
+      }, 3000);
+    });
+  }
+
+  async function getCurrentFirebaseProfile(){
+    const user = await waitForAuthUser();
+
+    if(!user || !user.uid){
+      return { accessType:"signedOut", source:"auth", data:{} };
+    }
+
+    try{
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
+
+      if(snap.exists()){
+        const data = { id:user.uid, uid:user.uid, authUid:user.uid, ...snap.data() };
+
+        if(isFirebaseInstructor(data)){
+          return { accessType:"instructor", source:"firestore", data };
+        }
+
+        if(isFirebaseApprentice(data)){
+          return { accessType:"student", source:"firestore", data };
+        }
+
+        return { accessType:"member", source:"firestore", data };
+      }
+
+      await setDoc(ref, {
+        uid:user.uid,
+        authUid:user.uid,
+        email:String(user.email || "").trim().toLowerCase(),
+        lastLoginAt:serverTimestamp(),
+        updatedAt:serverTimestamp()
+      }, { merge:true });
+
+      return {
+        accessType:"member",
+        source:"created-basic-user",
+        data:{ uid:user.uid, authUid:user.uid, email:String(user.email || "").trim().toLowerCase() }
+      };
+    }catch(error){
+      console.warn("Firestore role check failed, using local fallback:", error);
+
+      const localProfile = readLTNProfile();
+
+      if(isInstructorProfile(localProfile)){
+        return { accessType:"instructor", source:"localStorage-fallback", data:localProfile };
+      }
+
+      if(isApprenticeProfile(localProfile)){
+        return { accessType:"student", source:"localStorage-fallback", data:localProfile };
+      }
+
+      return { accessType:"member", source:"fallback", data:localProfile };
+    }
   }
 
   window.ltnRouteTrackProgressFromMembers = async function(event, href){
     if(event) event.preventDefault();
 
-    const profile = readLTNProfile();
+    const access = await getCurrentFirebaseProfile();
 
-    if(isInstructorProfile(profile)){
-      alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.href = "/instructor/?v=20260515membersrolefixv6";
+    if(access.accessType === "signedOut"){
+      window.location.replace("/front.html?v=members-track-auth-required-v7");
       return false;
     }
 
-    if(!isApprenticeProfile(profile)){
+    if(access.accessType === "instructor"){
+      alert("Track My Progress is only for student/apprenticeship accounts. You are signed in as an instructor.");
+      return false;
+    }
+
+    if(access.accessType !== "student"){
       alert("Track My Progress is for apprentices and students. Open Edit Profile and mark yourself as an apprentice/student first.");
-      window.location.href = "/dashboard/?v=20260515membersrolefixv6";
+      window.location.href = "/dashboard/?v=20260517membersstrongrolefixv7";
       return false;
     }
 
-    window.location.href = href || "/apprenticeship/?v=20260515membersrolefixv6";
+    window.location.href = href || "/apprenticeship/?v=20260517membersstrongrolefixv7";
     return false;
   };
 
   window.ltnRouteInstructorCenterFromMembers = async function(event, href){
     if(event) event.preventDefault();
 
-    const profile = readLTNProfile();
+    const access = await getCurrentFirebaseProfile();
 
-    if(!isInstructorProfile(profile)){
-      alert("Instructor Center is for Instructor / Teacher or Trade School accounts.");
-      window.location.href = "/dashboard/?v=20260515membersrolefixv6";
+    if(access.accessType === "signedOut"){
+      window.location.replace("/front.html?v=members-instructor-auth-required-v7");
       return false;
     }
 
-    window.location.href = href || "/instructor/?v=20260515membersrolefixv6";
+    if(access.accessType !== "instructor"){
+      alert("Instructor Center is only for instructor accounts.");
+      return false;
+    }
+
+    window.location.href = href || "/instructor/?v=20260517membersstrongrolefixv7";
     return false;
   };
 
@@ -549,7 +678,7 @@
     localStorage.removeItem("userName");
     localStorage.removeItem("ltn_apprentice_email");
 
-    window.location.replace("/front.html?v=loggedoutmembers-rolefix-v6");
+    window.location.replace("/front.html?v=loggedoutmembers-strongrolefix-v7");
   };
 
   function safe(value){
@@ -812,7 +941,7 @@
 
         ${renderAchievements(member)}
 
-        <button class="btn" onclick="window.location.href='/profile.html?id=${safeUrl(member.id)}&v=20260515membersrolefixv6'">
+        <button class="btn" onclick="window.location.href='/profile.html?id=${safeUrl(member.id)}&v=20260517membersstrongrolefixv7'">
           View Profile
         </button>
       `;
