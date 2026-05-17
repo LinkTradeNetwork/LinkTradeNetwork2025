@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-strong-role-routing-v31 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-all-proof-types-pending-review-v32 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -767,12 +767,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260517apprenticerolefixv31'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260517apprenticerolefixv31'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260517allproofapprovalv32'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260517allproofapprovalv32'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260517apprenticerolefixv31'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260517apprenticerolefixv31'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260517allproofapprovalv32'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260517allproofapprovalv32'">Back</button>
   </div>
 </div>
 
@@ -1028,6 +1028,7 @@
     doc,
     getDoc,
     setDoc,
+    addDoc,
     collection,
     query,
     where,
@@ -1054,7 +1055,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v31";
+  const LOCAL_PROGRESS_VERSION = "v32";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1291,7 +1292,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260517apprenticerolefixv31";
+      window.location.href = "/instructor/?v=20260517allproofapprovalv32";
       return false;
     }
 
@@ -1306,11 +1307,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260517apprenticerolefixv31";
+      window.location.href = "/instructor/?v=20260517allproofapprovalv32";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260517apprenticerolefixv31";
+    window.location.href = "/apprenticeship/?v=20260517allproofapprovalv32";
     return false;
   };
 
@@ -1319,7 +1320,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260517apprenticerolefixv31");
+      window.location.replace("/instructor/?v=20260517allproofapprovalv32");
       return false;
     }
 
@@ -1527,31 +1528,53 @@
 
 
   async function createPendingReview(reviewType, uploadTitle, proofData){
-    if(!currentUserId) return;
+    if(!currentUserId) return null;
 
     try{
       const apprenticeship = profile.apprenticeship || {};
+      const nowIso = new Date().toISOString();
 
-      await addDoc(collection(db,"pendingReviews"),{
+      const docRef = await addDoc(collection(db,"pendingReviews"),{
         status:"pending",
+        verificationStatus:"pending",
+        approved:false,
+        rejected:false,
+
         authUid:currentUserId,
+        studentUid:currentUserId,
+        studentId:currentUserId,
         studentName:getProfileName(profile),
         studentEmail:getProfileEmail(profile),
+
         schoolCode:apprenticeship.schoolCode || profile.schoolCode || "",
+        schoolId:apprenticeship.schoolId || profile.schoolId || "",
+        schoolName:apprenticeship.schoolName || profile.schoolName || profile.school || "",
+        cohortId:apprenticeship.cohortId || profile.cohortId || "",
         cohortName:apprenticeship.cohortName || profile.cohortName || "",
+        instructorId:apprenticeship.instructorId || profile.instructorId || "",
         instructorName:apprenticeship.instructorName || profile.instructorName || "",
+        instructorEmail:apprenticeship.instructorEmail || profile.instructorEmail || "",
+
         reviewType:reviewType || "Student Upload",
         uploadTitle:uploadTitle || "Student Upload",
         proofFileName:proofData?.fileName || "",
         proofFileUrl:proofData?.fileUrl || "",
         proofFileType:proofData?.fileType || "",
-        verificationStatus:"pending",
+        proofFileSize:proofData?.fileSize || 0,
+        proofCategory:proofData?.category || "",
+
         submittedAt:serverTimestamp(),
-        submittedAtIso:new Date().toISOString(),
+        submittedAtIso:nowIso,
+        createdAt:serverTimestamp(),
+        createdAtIso:nowIso,
         source:"track_my_progress"
       });
+
+      return docRef.id;
     }catch(error){
       console.error("Pending review creation failed:", error);
+      alert("Proof uploaded, but the instructor review record could not be created. Check Firestore rules for pendingReviews.");
+      return null;
     }
   }
 
@@ -1651,7 +1674,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260517apprenticerolefixv31");
+      window.location.replace("/front/?v=secureauth20260517allproofapprovalv32");
       return;
     }
 
@@ -2324,6 +2347,19 @@
 
     try{
       const proof = withPendingVerification(await uploadProofFile(options.category,file), options.category);
+
+      const reviewMap = {
+        certifications:"Certification Upload",
+        skills:"Skill Upload",
+        projects:"Project Upload",
+        "signed-work-proof":"Signed Work Proof"
+      };
+
+      const reviewId = await createPendingReview(reviewMap[options.category] || "Student Upload", value, proof);
+      proof.pendingReviewId = reviewId || "";
+      proof.reviewType = reviewMap[options.category] || "Student Upload";
+      proof.uploadTitle = value;
+
       options.onSuccess(value,proof);
 
       input.value = "";
@@ -2439,6 +2475,10 @@
 
     try{
       const proof = withPendingVerification(await uploadProofFile("signed-work-proof",file), "signed-work-proof");
+      const reviewId = await createPendingReview("Signed Work Proof", title, proof);
+      proof.pendingReviewId = reviewId || "";
+      proof.reviewType = "Signed Work Proof";
+      proof.uploadTitle = title;
 
       state.signedWorkProofs.push({
         title,
@@ -2518,7 +2558,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260517apprenticerolefixv31");
+      window.location.replace("/front/?v=secureauth20260517allproofapprovalv32");
       return;
     }
 
@@ -2561,7 +2601,7 @@
     }
   },8000);
 
-  console.log("LTN Apprenticeship Dashboard Strong Role Routing Loaded v31");
+  console.log("LTN Apprenticeship Dashboard All Proof Approval Routing Loaded v32");
 
   /*
     Firebase security reminder:
