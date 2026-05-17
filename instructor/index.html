@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-17: INSTRUCTOR CENTER ANALYTICS + REVIEW COUNTS FIX v20 -->
-<!-- LTN VERSION: instructor-center-analytics-review-counts-v20 -->
+<!-- LTN FORCE UPDATE 2026-05-17: INSTRUCTOR CENTER COHORT FILTER FIX v21 -->
+<!-- LTN VERSION: instructor-center-cohort-filter-fix-v21 -->
 
 <style>
 :root{
@@ -1164,7 +1164,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260517instructorv20";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260517instructorv21";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1207,11 +1207,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260517instructorv20">Dashboard</a>
-      <a href="/members/?v=20260517instructorv20">Members</a>
-      <a href="/instructor/?v=20260517instructorv20" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260517instructorv20" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260517instructorv20">Network Center</a>
+      <a href="/dashboard/?v=20260517instructorv21">Dashboard</a>
+      <a href="/members/?v=20260517instructorv21">Members</a>
+      <a href="/instructor/?v=20260517instructorv21" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260517instructorv21" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260517instructorv21">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1259,7 +1259,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260517instructorv20">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260517instructorv21">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -2045,6 +2045,11 @@ function populateCohortFilter(){
     if(value) cohorts.add(value);
   });
 
+  // Also include the instructor default cohort, if the instructor profile has one.
+  // This prevents the filter from looking empty when students/reviews are still loading.
+  const profileCohort = String(currentProfile.cohortName || "").trim();
+  if(profileCohort) cohorts.add(profileCohort);
+
   const sorted = Array.from(cohorts).sort((a,b) => a.localeCompare(b));
   const current = selectedCohortFilter || "all";
 
@@ -2822,7 +2827,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260517instructorv20">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260517instructorv21">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -3072,6 +3077,14 @@ function ltnRevealInstructorPage(){
   }catch(e){}
 }
 
+// Extra safety: make the cohort dropdown work even if inline onchange is blocked
+// by a browser, cache, or older copied page version.
+document.addEventListener("change", function(event){
+  if(event && event.target && event.target.id === "cohort-filter" && window.InstructorCenter){
+    window.InstructorCenter.applyCohortFilter();
+  }
+});
+
 async function init(){
   await findCurrentUser();
   ltnRevealInstructorPage();
@@ -3092,6 +3105,13 @@ async function init(){
   await loadAptitudeTests();
   await loadVerifiedSkills();
   await loadPendingReviews();
+
+  // IMPORTANT FIX v21:
+  // The cohort dropdown must be populated AFTER students, verified skills,
+  // aptitude tests, and pending reviews have loaded.
+  // Without this call the dropdown stays stuck on only "All Cohorts / Classes".
+  populateCohortFilter();
+
   InstructorCenter.renderStudents();
   renderPendingReviews();
   console.log("LTN verified skills loaded", allVerifiedSkills);
