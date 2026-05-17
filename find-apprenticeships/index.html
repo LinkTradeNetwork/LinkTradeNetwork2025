@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Find Apprenticeships | LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE VERSION: clean-url-find-apprenticeships-20260513-v18 -->
+<!-- LTN FORCE UPDATE VERSION: find-apprenticeships-strong-firebase-role-routing-20260517-v20 -->
 
 <style>
 :root{
@@ -290,53 +290,31 @@ button:hover,.btn:hover{
 
 <body>
 
-<!-- LTN SECURE ACCESS GATE -->
+<!-- LTN STRONG FIREBASE AUTH + ROLE GATE v20 -->
 <script>
 (function () {
+  window.LTN_FIND_APP_VERSION = "20260517findappv20strong";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=" + window.LTN_FIND_APP_VERSION;
+  window.LTN_CURRENT_ACCESS_TYPE = "unknown";
+  window.LTN_CURRENT_USER_PROFILE = null;
 
-  const rawProfile =
-    localStorage.getItem("ltn_current_profile") ||
-    localStorage.getItem("ltnUserProfile") ||
-    localStorage.getItem("ltn_profile") ||
-    localStorage.getItem("currentUserProfile") ||
-    localStorage.getItem("userProfile");
-
-  const email =
-    localStorage.getItem("userEmail") ||
-    localStorage.getItem("profileEmail") ||
-    localStorage.getItem("ltn_apprentice_email");
-
-  if (!rawProfile && !email) {
-    window.location.replace("/front.html?v=20260513findappv18");
-    return;
-  }
-
-  if (rawProfile) {
-    try {
-      const parsed = JSON.parse(rawProfile);
-
-      const hasIdentity =
-        parsed &&
-        (
-          parsed.email ||
-          parsed.fullName ||
-          parsed.name ||
-          parsed.displayName
-        );
-
-      if (!hasIdentity) {
-        localStorage.clear();
-        window.location.replace("/front.html?v=20260513findappv18");
-        return;
-      }
-
-    } catch (err) {
-      localStorage.clear();
-      window.location.replace("/front.html?v=20260513findappv18");
-      return;
-    }
-  }
-
+  window.LTNClearLocalSession = function(){
+    [
+      "userEmail",
+      "profileEmail",
+      "ltn_user_email",
+      "ltn_auth_uid",
+      "ltn_current_profile",
+      "ltnUserProfile",
+      "ltn_profile",
+      "ltn_profile_data",
+      "currentUserProfile",
+      "userProfile",
+      "ltn_user"
+    ].forEach(function(key){
+      try{ localStorage.removeItem(key); }catch(e){}
+    });
+  };
 })();
 </script>
 
@@ -344,11 +322,13 @@ button:hover,.btn:hover{
   <div class="logo">LTN • Find Apprenticeships</div>
 
   <nav class="nav">
-    <a href="/dashboard/?v=20260513findappv18">Dashboard</a>
-    <a href="/members/?v=20260513findappv18">Members</a>
-    <a href="/apprenticeship/?v=20260513findappv18">Track Progress</a>
-    <a href="/find-apprenticeships/?v=20260513findappv18" class="active">Find Apprenticeships</a>
-    <a href="/network-center/?v=20260513findappv18">Network Center</a>
+    <a href="/dashboard/?v=20260517findappv20strong">Dashboard</a>
+    <a href="/members/?v=20260517findappv20strong">Members</a>
+    <a href="/apprenticeship/?v=20260517findappv20strong" onclick="return ltnRouteTrackProgressFromFind(event, this.href)">Track My Progress</a>
+    <a href="/instructor/?v=20260517findappv20strong" onclick="return ltnRouteInstructorCenterFromFind(event, this.href)">Instructor Center</a>
+    <a href="/find-apprenticeships/?v=20260517findappv20strong" class="active">Find Apprenticeships</a>
+    <a href="/network-center/?v=20260517findappv20strong">Network Center</a>
+  <a href="#" onclick="logoutUser();return false;">Logout</a>
   </nav>
 </header>
 
@@ -406,7 +386,7 @@ button:hover,.btn:hover{
     <div class="actions">
       <button onclick="applyFilters()">Search</button>
       <button class="btn-secondary" onclick="resetFilters()">Reset</button>
-      <a href="/dashboard/?v=20260513findappv18" class="btn btn-secondary">Back to Dashboard</a>
+      <a href="/dashboard/?v=20260517findappv20strong" class="btn btn-secondary">Back to Dashboard</a>
     </div>
   </section>
 
@@ -427,8 +407,11 @@ button:hover,.btn:hover{
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import {
   getFirestore,
+  doc,
+  getDoc,
   collection,
   getDocs,
   addDoc,
@@ -445,7 +428,157 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getFirestore(app);
+
+let currentAuthUser = null;
+let currentUserProfile = null;
+let authReady = false;
+
+function normalizeText(value){
+  return String(value || "").trim().toLowerCase();
+}
+
+function getAccessType(profile){
+  const role = normalizeText(profile.role);
+  const profileType = normalizeText(profile.profileType);
+  const type = normalizeText(profile.type);
+  const instructor = profile.instructor || {};
+  const apprenticeship = profile.apprenticeship || {};
+
+  // IMPORTANT: Do NOT use apprenticeship.instructorId as proof the current user is an instructor.
+  // Students have that field too because it stores their assigned instructor.
+  if (
+    role === "instructor" ||
+    role === "admin" ||
+    profile.isInstructor === true ||
+    instructor.isInstructor === true ||
+    profileType.includes("instructor") ||
+    profileType.includes("teacher") ||
+    type.includes("instructor")
+  ) {
+    return "instructor";
+  }
+
+  if (
+    role === "student" ||
+    role === "apprentice" ||
+    role === "member" ||
+    profile.isApprentice === true ||
+    apprenticeship.isApprentice === true ||
+    profileType.includes("apprentice") ||
+    profileType.includes("student")
+  ) {
+    return "student";
+  }
+
+  return "member";
+}
+
+function showNotAllowed(message){
+  alert(message);
+}
+
+window.ltnRouteTrackProgressFromFind = function(event, href){
+  if(event) event.preventDefault();
+
+  if(!authReady){
+    alert("Please wait one second while LinkTradeNetwork verifies your account.");
+    return false;
+  }
+
+  if(window.LTN_CURRENT_ACCESS_TYPE === "instructor"){
+    showNotAllowed("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
+    return false;
+  }
+
+  window.location.href = href || "/apprenticeship/?v=20260517findappv20strong";
+  return false;
+};
+
+window.ltnRouteInstructorCenterFromFind = function(event, href){
+  if(event) event.preventDefault();
+
+  if(!authReady){
+    alert("Please wait one second while LinkTradeNetwork verifies your account.");
+    return false;
+  }
+
+  if(window.LTN_CURRENT_ACCESS_TYPE !== "instructor"){
+    showNotAllowed("Instructor Center is only for instructor accounts.");
+    return false;
+  }
+
+  window.location.href = href || "/instructor/?v=20260517findappv20strong";
+  return false;
+};
+
+window.logoutUser = async function(){
+  try{ await signOut(auth); }catch(e){}
+  try{ window.LTNClearLocalSession(); }catch(e){}
+  window.location.replace(window.LTN_FRONT_GATE_URL || "/front.html");
+};
+
+async function loadCurrentUserProfile(user){
+  if(!user) return null;
+
+  const cleanEmail = String(user.email || "").trim().toLowerCase();
+
+  try{
+    localStorage.setItem("ltn_auth_uid", user.uid || "");
+    if(cleanEmail){
+      localStorage.setItem("userEmail", cleanEmail);
+      localStorage.setItem("ltn_user_email", cleanEmail);
+    }
+  }catch(e){}
+
+  try{
+    const snap = await getDoc(doc(db, "users", user.uid));
+
+    if(snap.exists()){
+      return {
+        id:user.uid,
+        uid:user.uid,
+        authUid:user.uid,
+        email:cleanEmail,
+        ...snap.data()
+      };
+    }
+  }catch(error){
+    console.warn("Could not load signed-in user profile:", error);
+  }
+
+  return {
+    id:user.uid,
+    uid:user.uid,
+    authUid:user.uid,
+    email:cleanEmail,
+    role:"member",
+    profileType:"Member"
+  };
+}
+
+async function startSecurePage(){
+  if(window.__LTN_FIND_APP_STARTED__) return;
+  window.__LTN_FIND_APP_STARTED__ = true;
+  await loadJobs();
+}
+
+onAuthStateChanged(auth, async function(user){
+  if(!user){
+    try{ window.LTNClearLocalSession(); }catch(e){}
+    window.location.replace(window.LTN_FRONT_GATE_URL || "/front.html");
+    return;
+  }
+
+  currentAuthUser = user;
+  currentUserProfile = await loadCurrentUserProfile(user);
+  window.LTN_CURRENT_USER_PROFILE = currentUserProfile;
+  window.LTN_CURRENT_ACCESS_TYPE = getAccessType(currentUserProfile || {});
+  authReady = true;
+
+  await startSecurePage();
+});
 
 const SAMPLE_JOBS = [
   {
@@ -829,7 +962,7 @@ function renderJobs(jobs){
             <div class="actions">
               <button onclick="markInterested('${escapeHtml(job.id)}')">Apply / Interested</button>
               <a class="btn btn-secondary" href="${profileLink}">View Profile</a>
-              <a class="btn btn-secondary" href="/apprenticeship/?v=20260513findappv18">Track My Progress</a>
+              <a class="btn btn-secondary" href="/apprenticeship/?v=20260517findappv20strong" onclick="return ltnRouteTrackProgressFromFind(event, this.href)">Track My Progress</a>
             </div>
           </div>
         </div>
@@ -902,19 +1035,21 @@ window.markInterested = async function(jobId){
     return;
   }
 
-  let email = localStorage.getItem("userEmail") || "";
+  let email = currentAuthUser && currentAuthUser.email ? String(currentAuthUser.email).trim().toLowerCase() : "";
+  const uid = currentAuthUser && currentAuthUser.uid ? currentAuthUser.uid : "";
 
-  try{
-    const stored = JSON.parse(localStorage.getItem("ltn_user") || "{}");
-    if(!email && stored.email) email = stored.email;
-  }catch(e){}
+  if(!email && currentUserProfile && currentUserProfile.email){
+    email = String(currentUserProfile.email).trim().toLowerCase();
+  }
 
   await addDoc(collection(db, "applications"), {
     jobId: job.id,
     jobTitle: job.title,
     company: job.company,
     country: job.country || "",
+    applicantUid: uid || "unknown",
     applicantEmail: email || "unknown",
+    applicantRole: window.LTN_CURRENT_ACCESS_TYPE || "unknown",
     status: "interested",
     createdAt: serverTimestamp()
   });
@@ -963,7 +1098,21 @@ async function loadJobs(){
   }
 }
 
-document.addEventListener("DOMContentLoaded", loadJobs);
+document.addEventListener("DOMContentLoaded", function(){
+  const results = document.getElementById("results");
+  const count = document.getElementById("result-count");
+  if(results) results.innerHTML = '<div class="empty">Checking secure sign in...</div>';
+  if(count) count.innerText = "Checking...";
+});
+
+setTimeout(function(){
+  if(!authReady){
+    const results = document.getElementById("results");
+    const count = document.getElementById("result-count");
+    if(results) results.innerHTML = '<div class="empty">Still checking secure sign in. If this stays here, refresh or sign in again.</div>';
+    if(count) count.innerText = "Secure check";
+  }
+}, 6000);
 </script>
 
 </body>
