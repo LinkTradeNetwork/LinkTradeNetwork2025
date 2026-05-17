@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-instructor-aptitude-status-v30 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-strong-role-routing-v31 -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -767,9 +767,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv30'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260516apprenticedashboardv30'">Members</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260516apprenticedashboardv30'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260517apprenticerolefixv31'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260517apprenticerolefixv31'">Members</button>
+    <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
+    <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260517apprenticerolefixv31'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260517apprenticerolefixv31'">Back</button>
   </div>
 </div>
 
@@ -1051,7 +1054,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v30";
+  const LOCAL_PROGRESS_VERSION = "v31";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1217,36 +1220,110 @@
     return String(value || "").trim().toLowerCase();
   }
 
-  function isInstructorProfile(data){
-    const roleText = normalizeRoleText(`${data.profileType || ""} ${data.role || ""} ${data.type || ""} ${data.trade || ""}`);
+  function hasExactInstructorSignal(data){
+    const role = normalizeRoleText(data.role || "");
+    const profileType = normalizeRoleText(data.profileType || "");
+    const type = normalizeRoleText(data.type || "");
     const instructor = data.instructor || {};
 
-    return data.isInstructor === true ||
+    return (
+      data.isInstructor === true ||
       instructor.isInstructor === true ||
-      roleText.includes("instructor") ||
-      roleText.includes("teacher") ||
-      roleText.includes("trade school") ||
-      roleText.includes("training center");
+      role === "instructor" ||
+      role === "admin" ||
+      profileType === "instructor" ||
+      profileType === "instructor / teacher" ||
+      profileType === "teacher" ||
+      profileType === "trade school" ||
+      profileType === "training center" ||
+      type === "instructor" ||
+      type === "teacher"
+    );
+  }
+
+  function hasApprenticeSignal(data){
+    const role = normalizeRoleText(data.role || "");
+    const profileType = normalizeRoleText(data.profileType || "");
+    const type = normalizeRoleText(data.type || "");
+    const apprenticeship = data.apprenticeship || {};
+
+    return (
+      data.isApprentice === true ||
+      apprenticeship.isApprentice === true ||
+      role === "student" ||
+      role === "apprentice" ||
+      role === "apprenticeship" ||
+      profileType.includes("apprentice") ||
+      profileType.includes("student") ||
+      type.includes("apprentice") ||
+      type.includes("student")
+    );
+  }
+
+  function getCurrentAccessType(data){
+    const apprenticeship = data.apprenticeship || {};
+
+    // IMPORTANT: apprenticeship.instructorId means the student is assigned to an instructor.
+    // It does NOT mean the signed-in user is an instructor.
+    // Apprentice/student signal wins unless the account has an exact instructor role/profile.
+    if(hasApprenticeSignal(data) && !hasExactInstructorSignal(data)){
+      return "student";
+    }
+
+    if(hasExactInstructorSignal(data)){
+      return "instructor";
+    }
+
+    return "student";
+  }
+
+  function isInstructorProfile(data){
+    return getCurrentAccessType(data || {}) === "instructor";
   }
 
   function isApprenticeProfile(data){
-    const roleText = normalizeRoleText(`${data.profileType || ""} ${data.role || ""} ${data.type || ""}`);
-    const apprenticeship = data.apprenticeship || {};
-
-    return data.isApprentice === true ||
-      apprenticeship.isApprentice === true ||
-      roleText.includes("apprentice") ||
-      roleText.includes("student");
+    return getCurrentAccessType(data || {}) === "student";
   }
 
-  async function enforceApprenticeAccess(data){
-    if(isInstructorProfile(data)){
-      alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260516apprenticedashboardv30");
+  window.ltnRouteInstructorCenterFromApprenticeship = function(event){
+    if(event) event.preventDefault();
+
+    const accessType = getCurrentAccessType(profile || {});
+
+    if(accessType === "instructor"){
+      window.location.href = "/instructor/?v=20260517apprenticerolefixv31";
       return false;
     }
 
-    if(!isApprenticeProfile(data)){
+    alert("Instructor Center is only for instructor accounts. You are signed in as an apprentice/student.");
+    return false;
+  };
+
+  window.ltnRouteTrackProgressFromApprenticeship = function(event){
+    if(event) event.preventDefault();
+
+    const accessType = getCurrentAccessType(profile || {});
+
+    if(accessType === "instructor"){
+      alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
+      window.location.href = "/instructor/?v=20260517apprenticerolefixv31";
+      return false;
+    }
+
+    window.location.href = "/apprenticeship/?v=20260517apprenticerolefixv31";
+    return false;
+  };
+
+  async function enforceApprenticeAccess(data){
+    const accessType = getCurrentAccessType(data || {});
+
+    if(accessType === "instructor"){
+      alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
+      window.location.replace("/instructor/?v=20260517apprenticerolefixv31");
+      return false;
+    }
+
+    if(!hasApprenticeSignal(data || {})){
       profile = {
         ...profile,
         apprenticeship:{
@@ -1574,7 +1651,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv30");
+      window.location.replace("/front/?v=secureauth20260517apprenticerolefixv31");
       return;
     }
 
@@ -2441,7 +2518,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260516apprenticedashboardv30");
+      window.location.replace("/front/?v=secureauth20260517apprenticerolefixv31");
       return;
     }
 
@@ -2482,9 +2559,9 @@
       $("syncStatus").textContent = "Still checking sign in...";
       setStatus("saveStatus","If this page does not load, refresh or sign in again.","bad");
     }
-  },12000);
+  },8000);
 
-  console.log("LTN Apprenticeship Dashboard Aptitude Test Loaded v26");
+  console.log("LTN Apprenticeship Dashboard Strong Role Routing Loaded v31");
 
   /*
     Firebase security reminder:
