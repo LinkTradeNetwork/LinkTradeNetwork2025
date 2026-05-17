@@ -3023,8 +3023,16 @@ window.ltnInstructorBlockTrackProgress = function(event){
   return false;
 };
 
+function ltnRevealInstructorPage(){
+  try{
+    document.documentElement.classList.remove("auth-checking");
+    document.documentElement.classList.add("auth-ready");
+  }catch(e){}
+}
+
 async function init(){
   await findCurrentUser();
+  ltnRevealInstructorPage();
 
   if(!currentProfile.name){
     currentProfile.name = "Instructor";
@@ -3049,7 +3057,18 @@ async function init(){
   updateStats();
 }
 
-init();
+init().catch(function(error){
+  console.error("Instructor Center init failed:", error);
+  try{
+    document.documentElement.classList.remove("auth-checking");
+    document.documentElement.classList.add("auth-ready");
+  }catch(e){}
+
+  const shell = document.querySelector("main.shell");
+  if(shell && !String(error && error.message || "").includes("not an instructor")){
+    shell.insertAdjacentHTML("afterbegin", `<div class="notice"><strong>Instructor Center loading issue:</strong> Please refresh once. If this stays on screen, check that this account has role set to instructor in Firestore.</div>`);
+  }
+});
 </script>
 
 </body>
