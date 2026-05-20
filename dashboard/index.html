@@ -2698,8 +2698,8 @@ window.ltnRouteTrackProgressFromDashboard = async function(event, targetUrl) {
   const profile = ltnProfileFromOpenFormOrSaved();
 
   if (ltnIsInstructorProfile(profile)) {
-    alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-    window.location.href = "/instructor/?v=20260515roleswitchv26";
+    alert("Instructor accounts use the Instructor Center button. Track My Progress is for apprentices and students.");
+    try { localStorage.setItem("ltn_active_nav", "dashboard"); } catch (e) {}
     return false;
   }
 
