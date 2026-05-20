@@ -15,7 +15,7 @@
 <title>Instructor Center • LinkTradeNetwork</title>
 
 <!-- LTN FORCE UPDATE 2026-05-20: INSTRUCTOR CENTER DAILY ASSIGNMENTS FIREBASE FIX v22 -->
-<!-- LTN VERSION: instructor-center-assignment-storage-proof-path-v24 -->
+<!-- LTN VERSION: instructor-center-attachment-fallback-v25 -->
 
 <style>
 :root{
@@ -501,6 +501,16 @@ button:disabled{cursor:not-allowed;opacity:.55}
 }
 
 textarea.form-control{min-height:106px;resize:vertical}
+
+.file-control{
+  width:100%;
+  border:1px dashed #f3b37f;
+  border-radius:12px;
+  padding:12px;
+  font-size:14px;
+  background:#fff7ed;
+  color:var(--ink);
+}
 
 .two-col{
   display:grid;
@@ -1006,7 +1016,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260520instructorv24";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260520instructorv25";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1047,11 +1057,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260520instructorv24">Dashboard</a>
-      <a href="/members/?v=20260520instructorv24">Members</a>
-      <a href="/instructor/?v=20260520instructorv24" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260520instructorv24" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260520instructorv24">Network Center</a>
+      <a href="/dashboard/?v=20260520instructorv25">Dashboard</a>
+      <a href="/members/?v=20260520instructorv25">Members</a>
+      <a href="/instructor/?v=20260520instructorv25" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260520instructorv25" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260520instructorv25">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1099,7 +1109,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260520instructorv24">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260520instructorv25">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1468,10 +1478,12 @@ textarea.form-control{min-height:106px;resize:vertical}
     </div>
     <div class="modal-body">
       <div class="upload-area" onclick="document.getElementById('document-file').click()">
-        <strong>Click to attach assignment file</strong>
+        <strong>Click here or use the button below to attach assignment file</strong>
         <div class="small">Daily assignments, homework, classroom PDFs, worksheets, blueprints, lab instructions</div>
-        <input type="file" id="document-file" style="display:none" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
       </div>
+
+      <input type="file" id="document-file" class="file-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.heic">
+      <div id="selected-document-name" class="small" style="margin-top:8px;font-weight:800;color:#243b5a"></div>
 
       <div class="form-group">
         <label>Assignment Name *</label>
@@ -1507,8 +1519,6 @@ textarea.form-control{min-height:106px;resize:vertical}
         <label>Instructions for Students</label>
         <textarea id="document-instructions" class="form-control" placeholder="Complete this assignment and upload signed proof in Track My Progress."></textarea>
       </div>
-
-      <div id="selected-document-name" class="small"></div>
 
       <div class="notice" style="margin-bottom:0;margin-top:12px">
         Attach the file, fill out the details, then click Send Assignment.
@@ -2535,26 +2545,43 @@ async function uploadAssignmentFile(file){
     throw new Error("You must be signed in as an instructor to upload assignment files.");
   }
 
-  const storagePath = "apprenticeship-proof/" + currentUserId + "/assignments/" + Date.now() + "_" + cleanStorageFileName(file.name);
-  const fileRef = ref(storage, storagePath);
+  const cleanFile = Date.now() + "_" + cleanStorageFileName(file.name);
 
-  await uploadBytes(fileRef, file, {
-    contentType:file.type || undefined,
-    customMetadata:{
-      ownerUid:currentUserId,
-      source:"instructor_center_assignment"
+  const storagePathsToTry = [
+    "assignments/" + currentUserId + "/" + cleanFile,
+    "apprenticeship-proof/" + currentUserId + "/assignments/" + cleanFile
+  ];
+
+  let lastError = null;
+
+  for(const storagePath of storagePathsToTry){
+    try{
+      const fileRef = ref(storage, storagePath);
+
+      await uploadBytes(fileRef, file, {
+        contentType:file.type || "application/octet-stream",
+        customMetadata:{
+          ownerUid:currentUserId,
+          source:"instructor_center_assignment"
+        }
+      });
+
+      const fileUrl = await getDownloadURL(fileRef);
+
+      return {
+        fileName:file.name,
+        fileSize:file.size,
+        fileType:file.type || "",
+        fileUrl,
+        storagePath
+      };
+    }catch(error){
+      console.warn("Assignment upload path failed:", storagePath, error);
+      lastError = error;
     }
-  });
+  }
 
-  const fileUrl = await getDownloadURL(fileRef);
-
-  return {
-    fileName:file.name,
-    fileSize:file.size,
-    fileType:file.type || "",
-    fileUrl,
-    storagePath
-  };
+  throw lastError || new Error("Assignment file upload failed.");
 }
 
 window.InstructorCenter = {
@@ -2805,7 +2832,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260520instructorv24">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260520instructorv25">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -2977,7 +3004,7 @@ window.InstructorCenter = {
       uploadedFile = await uploadAssignmentFile(file);
     }catch(uploadError){
       console.error("Assignment file upload failed:", uploadError);
-      alert((uploadError && uploadError.code ? uploadError.code + ": " : "") + (uploadError.message || "Assignment file upload failed. Check Firebase Storage rules."));
+      alert("Attachment upload failed. " + (uploadError && uploadError.code ? uploadError.code + ": " : "") + (uploadError.message || "Check Firebase Storage rules and make sure you are signed in."));
       if(sendBtn){
         sendBtn.disabled = false;
         sendBtn.textContent = sendBtn.dataset.originalText || "Send Assignment";
@@ -3129,8 +3156,15 @@ window.InstructorCenter = {
 };
 
 document.getElementById("document-file").addEventListener("change", function(){
-  const file = this.files[0];
-  document.getElementById("selected-document-name").innerText = file ? "Selected assignment: " + file.name : "";
+  const file = this.files && this.files[0] ? this.files[0] : null;
+  const selectedName = document.getElementById("selected-document-name");
+
+  if(selectedName){
+    selectedName.innerText = file
+      ? "Attached: " + file.name + " (" + formatFileSize(file.size) + ")"
+      : "";
+  }
+
   if(file && !document.getElementById("document-name").value.trim()){
     document.getElementById("document-name").value = file.name.replace(/\.[^/.]+$/, "");
   }
@@ -3198,7 +3232,7 @@ async function init(){
   updateStats();
   updateAnalytics();
 
-  console.log("LTN Instructor Center v24 loaded", {
+  console.log("LTN Instructor Center v25 loaded", {
     currentProfile,
     students:autoLinkedStudents.length,
     verifiedSkills:allVerifiedSkills.length,
