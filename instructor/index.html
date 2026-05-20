@@ -15,7 +15,7 @@
 <title>Instructor Center • LinkTradeNetwork</title>
 
 <!-- LTN FORCE UPDATE 2026-05-20: INSTRUCTOR CENTER DAILY ASSIGNMENTS FIREBASE FIX v22 -->
-<!-- LTN VERSION: instructor-center-assignment-storage-upload-v23 -->
+<!-- LTN VERSION: instructor-center-assignment-storage-proof-path-v24 -->
 
 <style>
 :root{
@@ -1006,7 +1006,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260520instructorv23";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260520instructorv24";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1047,11 +1047,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260520instructorv23">Dashboard</a>
-      <a href="/members/?v=20260520instructorv23">Members</a>
-      <a href="/instructor/?v=20260520instructorv23" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260520instructorv23" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260520instructorv23">Network Center</a>
+      <a href="/dashboard/?v=20260520instructorv24">Dashboard</a>
+      <a href="/members/?v=20260520instructorv24">Members</a>
+      <a href="/instructor/?v=20260520instructorv24" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260520instructorv24" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260520instructorv24">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1099,7 +1099,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260520instructorv23">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260520instructorv24">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -2535,7 +2535,7 @@ async function uploadAssignmentFile(file){
     throw new Error("You must be signed in as an instructor to upload assignment files.");
   }
 
-  const storagePath = "assignments/" + currentUserId + "/" + Date.now() + "_" + cleanStorageFileName(file.name);
+  const storagePath = "apprenticeship-proof/" + currentUserId + "/assignments/" + Date.now() + "_" + cleanStorageFileName(file.name);
   const fileRef = ref(storage, storagePath);
 
   await uploadBytes(fileRef, file, {
@@ -2805,7 +2805,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260520instructorv23">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260520instructorv24">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -2977,7 +2977,7 @@ window.InstructorCenter = {
       uploadedFile = await uploadAssignmentFile(file);
     }catch(uploadError){
       console.error("Assignment file upload failed:", uploadError);
-      alert(uploadError.message || "Assignment file upload failed. Check Firebase Storage rules.");
+      alert((uploadError && uploadError.code ? uploadError.code + ": " : "") + (uploadError.message || "Assignment file upload failed. Check Firebase Storage rules."));
       if(sendBtn){
         sendBtn.disabled = false;
         sendBtn.textContent = sendBtn.dataset.originalText || "Send Assignment";
@@ -3198,7 +3198,7 @@ async function init(){
   updateStats();
   updateAnalytics();
 
-  console.log("LTN Instructor Center v23 loaded", {
+  console.log("LTN Instructor Center v24 loaded", {
     currentProfile,
     students:autoLinkedStudents.length,
     verifiedSkills:allVerifiedSkills.length,
