@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-instructor-assignments-v34 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-assignment-attachment-link-v35 -->
   <!-- FIXES:
     1. Pulls instructor daily assignments from Firestore classAssignments.
     2. Matches assignments by student apprenticeship.schoolCode.
@@ -743,6 +743,64 @@
       padding:12px;
     }
 
+    .assignment-file-chip{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      margin-top:12px;
+    }
+
+    .assignment-file-left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .assignment-file-icon{
+      width:38px;
+      height:38px;
+      border-radius:10px;
+      background:#fee2e2;
+      color:#b91c1c;
+      display:grid;
+      place-items:center;
+      font-size:11px;
+      font-weight:900;
+      flex-shrink:0;
+    }
+
+    .assignment-file-chip strong{
+      display:block;
+      font-size:14px;
+      color:var(--ink);
+      word-break:break-word;
+      line-height:1.25;
+    }
+
+    .assignment-file-chip span{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+      margin-top:2px;
+    }
+
+    .assignment-file-link{
+      color:var(--orange-dark);
+      font-size:13px;
+      font-weight:900;
+      text-decoration:none;
+      white-space:nowrap;
+    }
+
+    .assignment-file-link:hover{text-decoration:underline}
+
     .assignment-upload-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -792,12 +850,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260520assignmentsv34'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260520assignmentsv34'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260520assignmentsv35'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260520assignmentsv35'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260520assignmentsv34'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260520assignmentsv34'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260520assignmentsv35'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260520assignmentsv35'">Back</button>
   </div>
 </div>
 
@@ -1130,6 +1188,14 @@
     return document.getElementById(id);
   }
 
+  function formatFileSize(bytes){
+    const size = Number(bytes || 0);
+    if(!size) return "";
+    if(size < 1024) return size + " B";
+    if(size < 1024 * 1024) return Math.round(size / 1024) + " KB";
+    return (size / (1024 * 1024)).toFixed(1) + " MB";
+  }
+
   function setStatus(id,message,type="info"){
     const el = $(id);
     if(!el) return;
@@ -1329,7 +1395,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260520assignmentsv34";
+      window.location.href = "/instructor/?v=20260520assignmentsv35";
       return false;
     }
 
@@ -1344,11 +1410,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260520assignmentsv34";
+      window.location.href = "/instructor/?v=20260520assignmentsv35";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260520assignmentsv34";
+    window.location.href = "/apprenticeship/?v=20260520assignmentsv35";
     return false;
   };
 
@@ -1357,7 +1423,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260520assignmentsv34");
+      window.location.replace("/instructor/?v=20260520assignmentsv35");
       return false;
     }
 
@@ -1731,7 +1797,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260520assignmentsv34");
+      window.location.replace("/front/?v=secureauth20260520assignmentsv35");
       return;
     }
 
@@ -1948,6 +2014,11 @@
           ...data,
           title:data.title || data.name || "Assignment",
           assignmentType:data.assignmentType || data.type || "Assignment",
+          fileName:data.fileName || "",
+          fileUrl:data.fileUrl || data.attachmentUrl || data.downloadURL || "",
+          fileSize:Number(data.fileSize || 0),
+          fileType:data.fileType || "",
+          storagePath:data.storagePath || "",
           cohortName:assignmentCohort,
           schoolCode:String(data.schoolCode || "").trim().toUpperCase()
         });
@@ -1983,7 +2054,18 @@
     box.innerHTML = instructorAssignments.map(item => {
       const submitted = assignmentAlreadySubmitted(item.id);
       const cardClass = submitted ? "assignment-card done" : "assignment-card";
-      const fileLine = item.fileName ? `<div class="assignment-meta">Attachment listed by instructor: ${safe(item.fileName)}</div>` : "";
+      const fileLine = item.fileName ? `
+        <div class="assignment-file-chip">
+          <div class="assignment-file-left">
+            <div class="assignment-file-icon">${String(item.fileName || "").toLowerCase().endsWith(".pdf") ? "PDF" : "FILE"}</div>
+            <div>
+              <strong>${safe(item.fileName)}</strong>
+              <span>${formatFileSize(item.fileSize)}</span>
+            </div>
+          </div>
+          ${item.fileUrl ? `<a class="assignment-file-link" href="${safe(item.fileUrl)}" target="_blank" rel="noopener">Open Attachment</a>` : `<span class="assignment-meta">No link saved</span>`}
+        </div>
+      ` : "";
       const dueLine = item.dueDate ? `<div class="assignment-meta">Due: ${safe(item.dueDate)}</div>` : "";
       const cohortLine = item.cohortName ? `<div class="assignment-meta">Cohort: ${safe(item.cohortName)}</div>` : "";
       const submitStatus = submitted ? `<span class="status-pill status-verified">✓ Submitted for Instructor Review</span>` : `<span class="status-pill status-pending">Waiting for Student Upload</span>`;
@@ -2804,7 +2886,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260520assignmentsv34");
+      window.location.replace("/front/?v=secureauth20260520assignmentsv35");
       return;
     }
 
@@ -2850,7 +2932,7 @@
     }
   },8000);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v34 - Instructor Assignments Enabled");
+  console.log("LTN Apprenticeship Dashboard Loaded v35 - Instructor Assignment Attachments Enabled");
 </script>
 
 </body>
