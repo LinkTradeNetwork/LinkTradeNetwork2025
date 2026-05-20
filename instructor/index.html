@@ -15,7 +15,7 @@
 <title>Instructor Center • LinkTradeNetwork</title>
 
 <!-- LTN FORCE UPDATE 2026-05-20: INSTRUCTOR CENTER DAILY ASSIGNMENTS FIREBASE FIX v22 -->
-<!-- LTN VERSION: instructor-center-daily-assignments-firebase-v22 -->
+<!-- LTN VERSION: instructor-center-assignment-storage-upload-v23 -->
 
 <style>
 :root{
@@ -522,6 +522,64 @@ textarea.form-control{min-height:106px;resize:vertical}
   box-shadow:var(--shadow-sm);
 }
 
+.file-chip{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border:1px solid var(--line);
+  background:#f8fafc;
+  border-radius:14px;
+  padding:12px 14px;
+  margin-top:10px;
+}
+
+.file-chip-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.file-icon{
+  width:38px;
+  height:38px;
+  border-radius:10px;
+  background:#fee2e2;
+  color:#b91c1c;
+  display:grid;
+  place-items:center;
+  font-size:11px;
+  font-weight:950;
+  flex-shrink:0;
+}
+
+.file-chip strong{
+  display:block;
+  color:var(--ink);
+  font-size:14px;
+  line-height:1.25;
+  word-break:break-word;
+}
+
+.file-chip span{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  margin-top:2px;
+}
+
+.file-link{
+  color:var(--brand2);
+  font-size:13px;
+  font-weight:950;
+  text-decoration:none;
+  white-space:nowrap;
+}
+
+.file-link:hover{text-decoration:underline}
+
 .person-top{
   display:flex;
   justify-content:space-between;
@@ -948,7 +1006,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260520instructorv22";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260520instructorv23";
 
   window.LTNClearLocalSession = function(){
     [
@@ -989,11 +1047,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260520instructorv22">Dashboard</a>
-      <a href="/members/?v=20260520instructorv22">Members</a>
-      <a href="/instructor/?v=20260520instructorv22" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260520instructorv22" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260520instructorv22">Network Center</a>
+      <a href="/dashboard/?v=20260520instructorv23">Dashboard</a>
+      <a href="/members/?v=20260520instructorv23">Members</a>
+      <a href="/instructor/?v=20260520instructorv23" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260520instructorv23" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260520instructorv23">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1041,7 +1099,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260520instructorv22">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260520instructorv23">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1184,7 +1242,7 @@ textarea.form-control{min-height:106px;resize:vertical}
         </div>
         <div class="bd">
           <div class="notice">
-            Daily assignments saved here are sent to Firebase in <strong>classAssignments</strong>. Students can see them on their dashboard when their school code/cohort matches.
+            Sent assignments appear here with the attachment. Students with the matching school code and cohort will see them on their dashboard.
           </div>
           <div id="documents-list" class="list"></div>
         </div>
@@ -1410,7 +1468,7 @@ textarea.form-control{min-height:106px;resize:vertical}
     </div>
     <div class="modal-body">
       <div class="upload-area" onclick="document.getElementById('document-file').click()">
-        <strong>Click to select assignment file</strong>
+        <strong>Click to attach assignment file</strong>
         <div class="small">Daily assignments, homework, classroom PDFs, worksheets, blueprints, lab instructions</div>
         <input type="file" id="document-file" style="display:none" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
       </div>
@@ -1453,7 +1511,7 @@ textarea.form-control{min-height:106px;resize:vertical}
       <div id="selected-document-name" class="small"></div>
 
       <div class="notice" style="margin-bottom:0;margin-top:12px">
-        This assignment will be saved to Firebase and shown to students with the same school code and cohort on their dashboard.
+        Attach the file, fill out the details, then click Send Assignment.
       </div>
     </div>
     <div class="modal-footer">
@@ -1487,16 +1545,24 @@ import {
   getDocs,
   limit
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
   authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
-  projectId: "linktradenetwork-2dcd1"
+  projectId: "linktradenetwork-2dcd1",
+  storageBucket: "linktradenetwork-2dcd1.firebasestorage.app"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
 const LOCAL_KEYS = {
   instructor:"ltn_instructor_center_profile",
@@ -2435,6 +2501,62 @@ async function loadClassAssignments(){
   });
 }
 
+
+function formatFileSize(bytes){
+  const size = Number(bytes || 0);
+  if(!size) return "";
+  if(size < 1024) return size + " B";
+  if(size < 1024 * 1024) return Math.round(size / 1024) + " KB";
+  return (size / (1024 * 1024)).toFixed(1) + " MB";
+}
+
+function cleanStorageFileName(fileName){
+  return String(fileName || "assignment")
+    .replace(/[^a-zA-Z0-9._-]/g,"_")
+    .substring(0,140);
+}
+
+async function uploadAssignmentFile(file){
+  if(!file) return null;
+
+  const maxSize = 20 * 1024 * 1024;
+  if(file.size > maxSize){
+    throw new Error("Assignment file is too large. Please upload a file under 20 MB.");
+  }
+
+  const allowed = ["pdf","doc","docx","jpg","jpeg","png","heic"];
+  const ext = String(file.name || "").split(".").pop().toLowerCase();
+
+  if(!allowed.includes(ext)){
+    throw new Error("Unsupported assignment file. Please use PDF, DOC, DOCX, JPG, PNG, or HEIC.");
+  }
+
+  if(!currentUserId){
+    throw new Error("You must be signed in as an instructor to upload assignment files.");
+  }
+
+  const storagePath = "assignments/" + currentUserId + "/" + Date.now() + "_" + cleanStorageFileName(file.name);
+  const fileRef = ref(storage, storagePath);
+
+  await uploadBytes(fileRef, file, {
+    contentType:file.type || undefined,
+    customMetadata:{
+      ownerUid:currentUserId,
+      source:"instructor_center_assignment"
+    }
+  });
+
+  const fileUrl = await getDownloadURL(fileRef);
+
+  return {
+    fileName:file.name,
+    fileSize:file.size,
+    fileType:file.type || "",
+    fileUrl,
+    storagePath
+  };
+}
+
 window.InstructorCenter = {
   applyCohortFilter(){
     const select = document.getElementById("cohort-filter");
@@ -2683,7 +2805,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260520instructorv22">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260520instructorv23">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -2828,11 +2950,40 @@ window.InstructorCenter = {
     }
 
     const file = document.getElementById("document-file").files[0];
+    if(!file){
+      alert("Please attach the assignment file before sending.");
+      return;
+    }
+
     const assignmentType = document.getElementById("document-type").value;
     const cohortName = document.getElementById("document-cohort").value.trim() || currentProfile.cohortName || "Electrical Level 1";
     const dueDate = document.getElementById("document-due-date").value || "";
     const instructions = document.getElementById("document-instructions").value.trim();
     const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
+
+    const sendBtn = Array.from(document.querySelectorAll("#document-modal .btn-primary")).find(btn => {
+      return String(btn.textContent || "").toLowerCase().includes("send");
+    });
+
+    if(sendBtn){
+      sendBtn.disabled = true;
+      sendBtn.dataset.originalText = sendBtn.textContent;
+      sendBtn.textContent = "Uploading...";
+    }
+
+    let uploadedFile = null;
+
+    try{
+      uploadedFile = await uploadAssignmentFile(file);
+    }catch(uploadError){
+      console.error("Assignment file upload failed:", uploadError);
+      alert(uploadError.message || "Assignment file upload failed. Check Firebase Storage rules.");
+      if(sendBtn){
+        sendBtn.disabled = false;
+        sendBtn.textContent = sendBtn.dataset.originalText || "Send Assignment";
+      }
+      return;
+    }
 
     const assignment = {
       id:"assignment_" + Date.now(),
@@ -2849,18 +3000,17 @@ window.InstructorCenter = {
       instructorName:currentProfile.name || "Instructor",
       instructorEmail:currentProfile.email || currentUserEmail || "",
       schoolName:currentProfile.school || "",
-      fileName:file ? file.name : "",
-      fileSize:file ? file.size : 0,
-      fileAttached:file ? true : false,
+      fileName:uploadedFile.fileName || "",
+      fileSize:uploadedFile.fileSize || 0,
+      fileType:uploadedFile.fileType || "",
+      fileUrl:uploadedFile.fileUrl || "",
+      storagePath:uploadedFile.storagePath || "",
+      fileAttached:true,
       status:"active",
       visibleToStudents:true,
       createdAt:new Date().toISOString(),
       createdAtText:new Date().toLocaleDateString()
     };
-
-    const localDocs = safeJsonParse(localStorage.getItem(LOCAL_KEYS.documents), []) || [];
-    localDocs.unshift(assignment);
-    saveDocuments(localDocs);
 
     try{
       const created = await addDoc(collection(db,"classAssignments"),{
@@ -2875,20 +3025,36 @@ window.InstructorCenter = {
         id:created.id,
         source:"firebase"
       });
+
+      const localDocs = safeJsonParse(localStorage.getItem(LOCAL_KEYS.documents), []) || [];
+      localDocs.unshift({
+        ...assignment,
+        firebaseId:created.id,
+        id:created.id,
+        source:"firebase"
+      });
+      saveDocuments(localDocs);
+
     }catch(e){
       console.error("Assignment Firebase save failed:", e);
-      alert("Assignment was saved on this teacher page, but it did not reach Firebase. Check Firestore rules for classAssignments.");
-      this.closeModal("document-modal");
-      this.renderDocuments();
-      updateStats();
+      alert("The file uploaded, but the assignment did not save to Firestore. Check Firestore rules for classAssignments.");
+      if(sendBtn){
+        sendBtn.disabled = false;
+        sendBtn.textContent = sendBtn.dataset.originalText || "Send Assignment";
+      }
       return;
+    }
+
+    if(sendBtn){
+      sendBtn.disabled = false;
+      sendBtn.textContent = sendBtn.dataset.originalText || "Send Assignment";
     }
 
     this.closeModal("document-modal");
     populateCohortFilter();
     this.renderDocuments();
     updateStats();
-    alert("Assignment sent. Students with this school code and cohort can now see it on their dashboard.");
+    alert("Assignment sent with attachment. Students with this school code and cohort can now see it on their dashboard.");
   },
 
   renderDocuments(){
@@ -2896,19 +3062,32 @@ window.InstructorCenter = {
     const docs = getFilteredAssignments();
 
     if(!docs.length){
-      list.innerHTML = emptyState("No assignments sent yet", "Upload daily assignments, homework, lab sheets, classroom PDFs, blueprint exercises, and apprenticeship assignments.");
+      list.innerHTML = emptyState("No assignments sent yet", "Send daily assignments, homework, lab sheets, classroom PDFs, blueprint exercises, and apprenticeship assignments.");
       return;
     }
 
     list.innerHTML = docs.map(d => `
       <div class="document-card">
         <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
-          <div>
+          <div style="min-width:0;flex:1">
             <div class="person-name">${escapeHtml(d.name || d.title || "Assignment")}</div>
-            <div class="person-meta">${escapeHtml(d.fileName || "No file attached")} • ${escapeHtml(d.type || d.assignmentType || "Assignment")}</div>
+            <div class="person-meta">${escapeHtml(d.type || d.assignmentType || "Assignment")} • ${escapeHtml(d.instructorName || currentProfile.name || "Instructor")}</div>
             <div class="person-meta">Cohort: ${escapeHtml(d.cohortName || "All students")} • School Code: ${escapeHtml(d.schoolCode || currentProfile.schoolCode || "")}</div>
             ${d.dueDate ? `<div class="person-meta">Due: ${escapeHtml(d.dueDate)}</div>` : ""}
             ${d.instructions ? `<div class="person-meta">${escapeHtml(d.instructions)}</div>` : ""}
+
+            ${d.fileName ? `
+              <div class="file-chip">
+                <div class="file-chip-left">
+                  <div class="file-icon">${String(d.fileName || "").toLowerCase().endsWith(".pdf") ? "PDF" : "FILE"}</div>
+                  <div>
+                    <strong>${escapeHtml(d.fileName)}</strong>
+                    <span>${formatFileSize(d.fileSize)}</span>
+                  </div>
+                </div>
+                ${d.fileUrl ? `<a class="file-link" href="${escapeHtml(d.fileUrl)}" target="_blank" rel="noopener">Open</a>` : ""}
+              </div>
+            ` : ""}
           </div>
           <span class="badge">${d.source === "firebase" ? "Sent to Students" : "Saved Locally"}</span>
         </div>
@@ -3019,7 +3198,7 @@ async function init(){
   updateStats();
   updateAnalytics();
 
-  console.log("LTN Instructor Center v22 loaded", {
+  console.log("LTN Instructor Center v23 loaded", {
     currentProfile,
     students:autoLinkedStudents.length,
     verifiedSkills:allVerifiedSkills.length,
