@@ -5,7 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-all-proof-types-pending-review-v33 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-instructor-assignments-v34 -->
+  <!-- FIXES:
+    1. Pulls instructor daily assignments from Firestore classAssignments.
+    2. Matches assignments by student apprenticeship.schoolCode.
+    3. Matches cohortName when assignment has a cohort.
+    4. Lets students upload assignment completion proof.
+    5. Sends completed assignment proof to pendingReviews for instructor approval.
+    6. Keeps existing proof workflow for certifications, skills, projects, signed paperwork.
+  -->
 
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -28,6 +36,7 @@
       --danger-soft:#fff1f2;
       --ok:#16a34a;
       --ok-soft:#f0fdf4;
+      --warning:#f59e0b;
       --shadow:0 18px 48px rgba(23,32,51,.16);
       --radius:16px;
     }
@@ -42,7 +51,7 @@
       color:var(--ink);
     }
 
-    button,input{font:inherit}
+    button,input,textarea,select{font:inherit}
     button:disabled{opacity:.62;cursor:not-allowed;transform:none!important}
     a{color:inherit}
 
@@ -85,6 +94,7 @@
     .dashbtn{background:white;color:var(--blue)}
     .button.soft{background:white;color:var(--blue);border:1px solid var(--line)}
     .button.danger{background:var(--danger)}
+    .button.ok{background:var(--ok)}
     .logout:hover,.dashbtn:hover,.button:hover{filter:brightness(.97);transform:translateY(-1px)}
 
     .wrap{max-width:1180px;margin:0 auto;padding:30px 20px 42px}
@@ -248,6 +258,8 @@
       color:var(--ink);
     }
 
+    textarea.form-control{min-height:96px;resize:vertical}
+
     .form-control:focus{
       border-color:var(--orange);
       box-shadow:0 0 0 3px rgba(233,105,22,.14);
@@ -273,7 +285,7 @@
 
     .school-code-input{text-transform:uppercase;font-weight:900}
 
-    .school-code-status,.save-status{
+    .school-code-status,.save-status,.assignment-upload-status{
       margin-top:10px;
       font-size:13px;
       font-weight:900;
@@ -281,9 +293,9 @@
       line-height:1.4;
     }
 
-    .school-code-status.ok,.save-status.ok{color:var(--ok)}
-    .school-code-status.bad,.save-status.bad{color:var(--danger)}
-    .school-code-status.info,.save-status.info{color:var(--blue)}
+    .school-code-status.ok,.save-status.ok,.assignment-upload-status.ok{color:var(--ok)}
+    .school-code-status.bad,.save-status.bad,.assignment-upload-status.bad{color:var(--danger)}
+    .school-code-status.info,.save-status.info,.assignment-upload-status.info{color:var(--blue)}
 
     .file-control{
       width:100%;
@@ -375,7 +387,6 @@
     .accomplishment-card strong{display:block;font-size:26px;color:var(--ink);margin-bottom:5px}
     .accomplishment-card span{color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase}
 
-
     .proof-status-grid{
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
@@ -407,35 +418,12 @@
       letter-spacing:.04em;
     }
 
-    .proof-status-card.approved{
-      background:#f0fdf4;
-      border-color:#bbf7d0;
-    }
-
-    .proof-status-card.approved strong,
-    .proof-status-card.approved span{
-      color:#166534;
-    }
-
-    .proof-status-card.pending{
-      background:#fff7ed;
-      border-color:#fed7aa;
-    }
-
-    .proof-status-card.pending strong,
-    .proof-status-card.pending span{
-      color:#9a3412;
-    }
-
-    .proof-status-card.rejected{
-      background:#fff1f2;
-      border-color:#fecdd3;
-    }
-
-    .proof-status-card.rejected strong,
-    .proof-status-card.rejected span{
-      color:#be123c;
-    }
+    .proof-status-card.approved{background:#f0fdf4;border-color:#bbf7d0}
+    .proof-status-card.approved strong,.proof-status-card.approved span{color:#166534}
+    .proof-status-card.pending{background:#fff7ed;border-color:#fed7aa}
+    .proof-status-card.pending strong,.proof-status-card.pending span{color:#9a3412}
+    .proof-status-card.rejected{background:#fff1f2;border-color:#fecdd3}
+    .proof-status-card.rejected strong,.proof-status-card.rejected span{color:#be123c}
 
     .badge-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 
@@ -514,33 +502,6 @@
       letter-spacing:.5px;
       margin-bottom:8px;
     }
-
-    .verified-skill-row{
-      background:white;
-      border:1px solid #bbf7d0;
-      border-radius:12px;
-      padding:12px 14px;
-      margin-top:10px;
-    }
-
-    .verified-skill-row strong{
-      color:#14532d;
-      font-size:16px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      word-break:break-word;
-    }
-
-    .verified-skill-row span{
-      color:#166534;
-      font-size:13px;
-      font-weight:800;
-      display:block;
-      margin-top:3px;
-      line-height:1.4;
-    }
-
 
     .verification-record{
       background:white;
@@ -725,12 +686,76 @@
       font-weight:900;
     }
 
+    .assignment-card{
+      background:#fff;
+      border:1px solid var(--orange-border);
+      border-radius:16px;
+      padding:16px;
+      margin-top:12px;
+      box-shadow:0 10px 20px rgba(233,105,22,.06);
+    }
+
+    .assignment-card.done{
+      border-color:#bbf7d0;
+      background:#f8fff9;
+    }
+
+    .assignment-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .assignment-title{
+      font-size:17px;
+      font-weight:900;
+      color:var(--ink);
+      word-break:break-word;
+    }
+
+    .assignment-meta{
+      color:#7c2d12;
+      font-size:13px;
+      font-weight:800;
+      margin-top:4px;
+      line-height:1.4;
+    }
+
+    .assignment-instructions{
+      margin-top:12px;
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+      color:#7c2d12;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .assignment-upload-box{
+      margin-top:12px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+    }
+
+    .assignment-upload-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
 
     @media(max-width:900px){
       .hero{grid-template-columns:1fr}
       .hero-stack{align-items:flex-start}
       .card.big{grid-column:span 1}
       .form-row{grid-template-columns:1fr}
+      .assignment-upload-grid{grid-template-columns:1fr}
     }
 
     @media(max-width:750px){
@@ -767,12 +792,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260517allproofpendingv33'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260517allproofpendingv33'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260520assignmentsv34'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260520assignmentsv34'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260517allproofpendingv33'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260517allproofpendingv33'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260520assignmentsv34'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260520assignmentsv34'">Back</button>
   </div>
 </div>
 
@@ -782,7 +807,7 @@
     <div>
       <h1 id="welcome">Welcome, Trade Worker</h1>
       <div class="sub">
-        Track hours, skills, certifications, projects, and signed work proof. Your accomplishment snapshot can appear in the Members section after your progress saves.
+        Track hours, skills, certifications, projects, signed work proof, and instructor daily assignments. Your proof uploads go to your instructor for review.
       </div>
       <div id="verificationBadge" class="verified-badge" style="display:none">
         <span class="orange-check">✓</span>
@@ -842,6 +867,17 @@
       <div class="value small-value" id="userLocation">Not added</div>
       <div class="small">City, state, and country</div>
     </div>
+  </div>
+
+  <div class="section-title">Daily Assignments From Instructor</div>
+
+  <div class="card">
+    <div class="label">Class Assignments</div>
+    <div class="value small-value">Assignments Sent By Your Instructor</div>
+    <div class="student-proof-note">
+      Assignments appear here when your school code and cohort match the assignment your instructor sent. Upload your completed proof here and it will go to your instructor for review.
+    </div>
+    <div id="studentAssignmentsList" class="list-box"></div>
   </div>
 
   <div class="section-title">Progress Dashboard</div>
@@ -905,11 +941,8 @@
     </div>
 
     <div class="badge-list" id="badgeList"></div>
-
     <div class="preview-card" id="memberPreview"></div>
   </div>
-
-
 
   <div class="section-title">Aptitude Status</div>
 
@@ -938,14 +971,13 @@
     <div id="pendingReviewsList" class="list-box"></div>
   </div>
 
-
   <div class="section-title">Add Proof</div>
 
   <div class="card" style="margin-bottom:18px">
     <div class="label">Verification Workflow</div>
     <div class="value small-value">Student Uploads Start as Pending</div>
     <div class="student-proof-note">
-      Certifications, skills, projects, and signed work proof are saved as <b>Pending Verification</b> until your instructor reviews and approves them.
+      Certifications, skills, projects, assignment submissions, and signed work proof are saved as <b>Pending Verification</b> until your instructor reviews and approves them.
     </div>
   </div>
 
@@ -1006,6 +1038,7 @@
     <div class="inline-actions">
       <button class="button soft" onclick="exportProgressBackup()">Export Progress Backup</button>
       <button class="button soft" onclick="saveToFirebase()">Save Now</button>
+      <button class="button soft" onclick="refreshInstructorData()">Refresh Instructor Data</button>
     </div>
 
     <div class="danger-zone">
@@ -1055,11 +1088,12 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v33";
+  const LOCAL_PROGRESS_VERSION = "v34";
 
   let currentUserId = null;
   let currentUserEmail = "";
   let profile = {};
+  let instructorAssignments = [];
   let state = getEmptyState();
 
   function getEmptyState(){
@@ -1073,6 +1107,7 @@
       skillProofs:[],
       projectProofs:[],
       signedWorkProofs:[],
+      assignmentSubmissions:[],
       verifiedSkills:[],
       pendingReviews:[],
       aptitudeTest:null,
@@ -1121,6 +1156,7 @@
 
   function oldProgressKeys(uid){
     return [
+      `ltn_apprenticeship_progress_${uid}_v33`,
       `ltn_apprenticeship_progress_${uid}_v22`,
       `ltn_apprenticeship_progress_${uid}_v17`,
       `ltn_apprenticeship_progress_${uid}_v10`
@@ -1150,6 +1186,7 @@
       skillProofs:normalizeArray(saved.skillProofs),
       projectProofs:normalizeArray(saved.projectProofs),
       signedWorkProofs:normalizeArray(saved.signedWorkProofs),
+      assignmentSubmissions:normalizeArray(saved.assignmentSubmissions),
       verifiedSkills:normalizeArray(saved.verifiedSkills),
       pendingReviews:normalizeArray(saved.pendingReviews),
       aptitudeTest:saved.aptitudeTest && typeof saved.aptitudeTest === "object" ? saved.aptitudeTest : null,
@@ -1188,9 +1225,24 @@
     return apprenticeship.schoolName || data.tradeSchool || data.school || data.trainingCenter || data.instructorSchool || apprenticeship.program || "Not added";
   }
 
+  function getSchoolCode(data){
+    const apprenticeship = data.apprenticeship || {};
+    return String(apprenticeship.schoolCode || data.schoolCode || "").trim().toUpperCase();
+  }
+
   function getInstructorName(data){
     const apprenticeship = data.apprenticeship || {};
     return apprenticeship.instructorName || data.instructorName || data.assignedInstructorName || "";
+  }
+
+  function getInstructorEmail(data){
+    const apprenticeship = data.apprenticeship || {};
+    return apprenticeship.instructorEmail || data.instructorEmail || data.assignedInstructorEmail || "";
+  }
+
+  function getInstructorId(data){
+    const apprenticeship = data.apprenticeship || {};
+    return apprenticeship.instructorId || data.instructorId || "";
   }
 
   function getCohortName(data){
@@ -1262,28 +1314,13 @@
   }
 
   function getCurrentAccessType(data){
-    const apprenticeship = data.apprenticeship || {};
-
-    // IMPORTANT: apprenticeship.instructorId means the student is assigned to an instructor.
-    // It does NOT mean the signed-in user is an instructor.
-    // Apprentice/student signal wins unless the account has an exact instructor role/profile.
     if(hasApprenticeSignal(data) && !hasExactInstructorSignal(data)){
       return "student";
     }
-
     if(hasExactInstructorSignal(data)){
       return "instructor";
     }
-
     return "student";
-  }
-
-  function isInstructorProfile(data){
-    return getCurrentAccessType(data || {}) === "instructor";
-  }
-
-  function isApprenticeProfile(data){
-    return getCurrentAccessType(data || {}) === "student";
   }
 
   window.ltnRouteInstructorCenterFromApprenticeship = function(event){
@@ -1292,7 +1329,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260517allproofpendingv33";
+      window.location.href = "/instructor/?v=20260520assignmentsv34";
       return false;
     }
 
@@ -1307,11 +1344,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260517allproofpendingv33";
+      window.location.href = "/instructor/?v=20260520assignmentsv34";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260517allproofpendingv33";
+    window.location.href = "/apprenticeship/?v=20260520assignmentsv34";
     return false;
   };
 
@@ -1320,7 +1357,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260517allproofpendingv33");
+      window.location.replace("/instructor/?v=20260520assignmentsv34");
       return false;
     }
 
@@ -1376,6 +1413,8 @@
     if(state.certifications.length > 0) badges.push("Certification Uploaded");
     if(state.skillsLearned.length > 0) badges.push("Skills Added");
     if(state.verifiedSkills.length > 0) badges.push("Instructor Verified Skill");
+    if(instructorAssignments.length > 0) badges.push("Instructor Assignment Received");
+    if(state.assignmentSubmissions.length > 0) badges.push("Assignment Proof Submitted");
     if(state.aptitudeTest && normalizeAptitudeStatus(state.aptitudeTest)?.passed) badges.push("Aptitude Test Passed");
     if(pendingProofCount() > 0 || pendingReviewCount() > 0) badges.push("Pending Instructor Verification");
     if(approvedProofCount() > 0) badges.push("Instructor Approved Proof");
@@ -1387,7 +1426,7 @@
   }
 
   function proofCount(){
-    return state.signedWorkProofs.length || Number(state.jobsiteUploads || 0);
+    return state.signedWorkProofs.length + state.assignmentSubmissions.length || Number(state.jobsiteUploads || 0);
   }
 
   function validateFile(file){
@@ -1444,7 +1483,6 @@
     return `<a class="proof-link" href="${safe(proof.fileUrl)}" target="_blank" rel="noopener">View uploaded proof</a>`;
   }
 
-
   function withPendingVerification(proof, category){
     return {
       ...(proof || {}),
@@ -1489,12 +1527,12 @@
       ...state.certificationProofs,
       ...state.skillProofs,
       ...state.projectProofs,
-      ...state.signedWorkProofs
+      ...state.signedWorkProofs,
+      ...state.assignmentSubmissions
     ];
 
     return allProofs.filter(proof => getProofStatus(proof) === "pending").length;
   }
-
 
   function reviewCountByStatus(status){
     return state.pendingReviews.filter(review => String(review.status || "").toLowerCase() === status).length;
@@ -1526,8 +1564,7 @@
     return snap.empty ? null : snap.docs[0];
   }
 
-
-  async function createPendingReview(reviewType, uploadTitle, proofData){
+  async function createPendingReview(reviewType, uploadTitle, proofData, extraData = {}){
     if(!currentUserId){
       throw new Error("You must be signed in before submitting proof for instructor review.");
     }
@@ -1554,14 +1591,14 @@
       studentName:getProfileName(profile),
       studentEmail:getProfileEmail(profile),
 
-      schoolCode:apprenticeship.schoolCode || profile.schoolCode || "",
+      schoolCode:getSchoolCode(profile),
       schoolId:apprenticeship.schoolId || profile.schoolId || "",
       schoolName:apprenticeship.schoolName || profile.schoolName || profile.tradeSchool || profile.school || "",
       cohortId:apprenticeship.cohortId || profile.cohortId || "",
-      cohortName:apprenticeship.cohortName || profile.cohortName || "",
-      instructorId:apprenticeship.instructorId || profile.instructorId || "",
-      instructorName:apprenticeship.instructorName || profile.instructorName || "",
-      instructorEmail:apprenticeship.instructorEmail || profile.instructorEmail || profile.assignedInstructorEmail || "",
+      cohortName:getCohortName(profile),
+      instructorId:getInstructorId(profile),
+      instructorName:getInstructorName(profile),
+      instructorEmail:getInstructorEmail(profile),
 
       reviewType:cleanReviewType,
       uploadType:cleanReviewType,
@@ -1580,7 +1617,8 @@
       reviewedDate:"",
       submittedAt:serverTimestamp(),
       submittedAtIso:nowIso,
-      source:"track_my_progress"
+      source:"track_my_progress",
+      ...extraData
     };
 
     await addDoc(collection(db,"pendingReviews"), reviewPayload);
@@ -1635,25 +1673,35 @@
         schoolName:codeData.schoolName || "",
         instructorId:codeData.instructorId || "",
         instructorName:codeData.instructorName || "",
+        instructorEmail:codeData.instructorEmail || "",
         cohortId:codeData.cohortId || "",
         cohortName:codeData.cohortName || "",
         schoolCode:code
       };
 
       await setDoc(doc(db,"users",currentUserId),{
+        schoolCode:code,
+        cohortName:updatedApprenticeship.cohortName || "",
+        instructorEmail:updatedApprenticeship.instructorEmail || "",
         apprenticeship:updatedApprenticeship,
         updatedAt:serverTimestamp()
       },{merge:true});
 
       profile = {
         ...profile,
+        schoolCode:code,
+        cohortName:updatedApprenticeship.cohortName || "",
+        instructorEmail:updatedApprenticeship.instructorEmail || "",
         apprenticeship:updatedApprenticeship
       };
 
       try{
         const stored = JSON.parse(localStorage.getItem("ltn_user") || "{}");
+        stored.schoolCode = code;
+        stored.cohortName = updatedApprenticeship.cohortName || "";
         stored.apprenticeship = updatedApprenticeship;
         localStorage.setItem("ltn_user",JSON.stringify(stored));
+        localStorage.setItem("ltn_current_profile",JSON.stringify(profile));
       }catch(error){
         console.warn("Could not update local user profile:", error);
       }
@@ -1670,6 +1718,7 @@
         "ok"
       );
 
+      await loadInstructorAssignments();
       renderProfile();
       renderProgress();
     }catch(error){
@@ -1682,7 +1731,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260517allproofpendingv33");
+      window.location.replace("/front/?v=secureauth20260520assignmentsv34");
       return;
     }
 
@@ -1712,6 +1761,7 @@
       skillProofs:state.skillProofs,
       projectProofs:state.projectProofs,
       signedWorkProofs:state.signedWorkProofs,
+      assignmentSubmissions:state.assignmentSubmissions,
       jobsiteUploads:proofCount(),
       signedProofCount:proofCount(),
       approvedProofCount:approvedProofCount(),
@@ -1742,6 +1792,7 @@
         skillProofs:state.skillProofs,
         projectProofs:state.projectProofs,
         signedWorkProofs:state.signedWorkProofs,
+        assignmentSubmissions:state.assignmentSubmissions,
         jobsiteUploads:proofCount(),
         signedProofCount:proofCount(),
         approvedProofCount:approvedProofCount(),
@@ -1777,6 +1828,7 @@
     const school = getTradeSchool(profile);
     const instructorName = getInstructorName(profile);
     const cohortName = getCohortName(profile);
+    const schoolCode = getSchoolCode(profile);
 
     $("welcome").textContent = `Welcome, ${name}`;
     $("userName").textContent = name;
@@ -1790,6 +1842,7 @@
     $("profileDetails").innerHTML = `
       <div class="profile-detail"><b>Trade:</b> ${safe(trade)}</div>
       <div class="profile-detail"><b>School / Training Center:</b> ${safe(school)}</div>
+      ${schoolCode ? `<div class="profile-detail"><b>School Code:</b> ${safe(schoolCode)}</div>` : ""}
       ${instructorName ? `<div class="profile-detail"><b>Instructor:</b> ${safe(instructorName)}</div>` : ""}
       ${cohortName ? `<div class="profile-detail"><b>Cohort / Class:</b> ${safe(cohortName)}</div>` : ""}
       <div class="profile-detail"><b>Location:</b> ${safe(location)}</div>
@@ -1826,6 +1879,7 @@
       ? state.badgesEarned.map(b => `<span class="badge"><span class="orange-check">✓</span>${safe(b)}</span>`).join("")
       : `<div class="empty">No badges yet. Add progress to earn accomplishment badges.</div>`;
 
+    renderStudentAssignments();
     renderMemberPreview();
     renderHourLog();
     renderCerts();
@@ -1852,10 +1906,196 @@
         </div>
       </div>
       <div class="preview-note">
-        Members snapshot: ${state.hoursCompleted.toLocaleString()} hours, ${percent}% progress, ${state.certifications.length} certifications, ${state.skillsLearned.length + state.verifiedSkills.length} skills, ${state.projects.length} projects, ${proofCount()} total proof uploads, ${approvedProofCount()} approved, ${pendingReviewCount()} pending, and ${rejectedProofCount()} needing correction.
+        Members snapshot: ${state.hoursCompleted.toLocaleString()} hours, ${percent}% progress, ${state.certifications.length} certifications, ${state.skillsLearned.length + state.verifiedSkills.length} skills, ${state.projects.length} projects, ${proofCount()} total proof uploads, ${approvedProofCount()} approved, ${pendingReviewCount()} pending, ${rejectedProofCount()} needing correction, and ${instructorAssignments.length} instructor assignments received.
       </div>
     `;
   }
+
+  function assignmentAlreadySubmitted(assignmentId){
+    return state.assignmentSubmissions.some(item => String(item.assignmentId || "") === String(assignmentId || ""));
+  }
+
+  async function loadInstructorAssignments(){
+    instructorAssignments = [];
+
+    const schoolCode = getSchoolCode(profile);
+    const studentCohort = String(getCohortName(profile) || "").trim();
+
+    if(!schoolCode){
+      return;
+    }
+
+    try{
+      const snap = await getDocs(
+        query(
+          collection(db,"classAssignments"),
+          where("schoolCode","==",schoolCode),
+          where("visibleToStudents","==",true),
+          limit(200)
+        )
+      );
+
+      snap.forEach(docSnap => {
+        const data = docSnap.data() || {};
+        const assignmentCohort = String(data.cohortName || "").trim();
+
+        if(studentCohort && assignmentCohort && assignmentCohort !== studentCohort){
+          return;
+        }
+
+        instructorAssignments.push({
+          id:docSnap.id,
+          ...data,
+          title:data.title || data.name || "Assignment",
+          assignmentType:data.assignmentType || data.type || "Assignment",
+          cohortName:assignmentCohort,
+          schoolCode:String(data.schoolCode || "").trim().toUpperCase()
+        });
+      });
+
+      instructorAssignments.sort((a,b) => {
+        const aTime = a.createdAtText || a.createdAt || "";
+        const bTime = b.createdAtText || b.createdAt || "";
+        return String(bTime).localeCompare(String(aTime));
+      });
+    }catch(error){
+      console.error("Could not load instructor assignments:", error);
+      instructorAssignments = [];
+    }
+  }
+
+  function renderStudentAssignments(){
+    const box = $("studentAssignmentsList");
+    if(!box) return;
+
+    const schoolCode = getSchoolCode(profile);
+
+    if(!schoolCode){
+      box.innerHTML = `<div class="empty">Connect your school code first. Once connected, daily assignments from your instructor will appear here.</div>`;
+      return;
+    }
+
+    if(!instructorAssignments.length){
+      box.innerHTML = `<div class="empty">No instructor assignments yet for ${safe(schoolCode)}. When your instructor sends daily assignments, they will appear here.</div>`;
+      return;
+    }
+
+    box.innerHTML = instructorAssignments.map(item => {
+      const submitted = assignmentAlreadySubmitted(item.id);
+      const cardClass = submitted ? "assignment-card done" : "assignment-card";
+      const fileLine = item.fileName ? `<div class="assignment-meta">Attachment listed by instructor: ${safe(item.fileName)}</div>` : "";
+      const dueLine = item.dueDate ? `<div class="assignment-meta">Due: ${safe(item.dueDate)}</div>` : "";
+      const cohortLine = item.cohortName ? `<div class="assignment-meta">Cohort: ${safe(item.cohortName)}</div>` : "";
+      const submitStatus = submitted ? `<span class="status-pill status-verified">✓ Submitted for Instructor Review</span>` : `<span class="status-pill status-pending">Waiting for Student Upload</span>`;
+
+      return `
+        <div class="${cardClass}">
+          <div class="assignment-top">
+            <div>
+              <div class="assignment-title">${safe(item.title || item.name || "Assignment")}</div>
+              <div class="assignment-meta">${safe(item.assignmentType || item.type || "Assignment")} • ${safe(item.instructorName || "Instructor")}</div>
+              ${dueLine}
+              ${cohortLine}
+              ${fileLine}
+            </div>
+            ${submitStatus}
+          </div>
+
+          ${item.instructions ? `<div class="assignment-instructions">${safe(item.instructions)}</div>` : ""}
+
+          ${submitted ? `
+            <div class="assignment-upload-box">
+              <strong>Assignment proof submitted.</strong>
+              <div class="small">Your instructor will review this in the Instructor Center.</div>
+            </div>
+          ` : `
+            <div class="assignment-upload-box">
+              <div class="label">Upload Completed Assignment Proof</div>
+              <div class="small">Upload your completed worksheet, signed proof, photo, or PDF.</div>
+              <div class="assignment-upload-grid">
+                <input class="form-control" type="text" id="assignment-note-${safe(item.id)}" maxlength="120" placeholder="Short note to instructor">
+                <input class="file-control" type="file" id="assignment-file-${safe(item.id)}" accept=".pdf,.jpg,.jpeg,.png,.heic">
+              </div>
+              <button class="button" id="assignment-btn-${safe(item.id)}" onclick="submitAssignmentProof('${safe(item.id)}')" style="margin-top:10px">Submit Assignment Proof</button>
+              <div class="assignment-upload-status info" id="assignment-status-${safe(item.id)}"></div>
+            </div>
+          `}
+        </div>
+      `;
+    }).join("");
+  }
+
+  window.submitAssignmentProof = async function(assignmentId){
+    const assignment = instructorAssignments.find(item => String(item.id) === String(assignmentId));
+    if(!assignment){
+      alert("Assignment not found. Refresh and try again.");
+      return;
+    }
+
+    const fileInput = $("assignment-file-" + assignmentId);
+    const noteInput = $("assignment-note-" + assignmentId);
+    const btn = $("assignment-btn-" + assignmentId);
+    const statusId = "assignment-status-" + assignmentId;
+    const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+    const note = noteInput ? noteInput.value.trim() : "";
+
+    const validationError = validateFile(file);
+    if(validationError){
+      alert(validationError);
+      return;
+    }
+
+    setButtonBusy(btn,true,"Submitting...");
+    setStatus(statusId,"Uploading assignment proof...","info");
+
+    try{
+      const proof = withPendingVerification(await uploadProofFile("assignment-proof",file), "assignment-proof");
+
+      const submission = {
+        assignmentId:assignment.id,
+        assignmentTitle:assignment.title || assignment.name || "Assignment",
+        assignmentType:assignment.assignmentType || assignment.type || "Assignment",
+        instructorName:assignment.instructorName || getInstructorName(profile) || "Instructor",
+        instructorId:assignment.instructorId || getInstructorId(profile) || "",
+        instructorEmail:assignment.instructorEmail || getInstructorEmail(profile) || "",
+        schoolCode:getSchoolCode(profile),
+        cohortName:getCohortName(profile),
+        studentNote:note,
+        ...proof
+      };
+
+      state.assignmentSubmissions.push(submission);
+
+      await createPendingReview(
+        "Assignment Submission",
+        assignment.title || assignment.name || "Assignment",
+        proof,
+        {
+          assignmentId:assignment.id,
+          assignmentTitle:assignment.title || assignment.name || "Assignment",
+          assignmentType:assignment.assignmentType || assignment.type || "Assignment",
+          studentNote:note,
+          instructorId:assignment.instructorId || getInstructorId(profile) || "",
+          instructorName:assignment.instructorName || getInstructorName(profile) || "",
+          instructorEmail:assignment.instructorEmail || getInstructorEmail(profile) || ""
+        }
+      );
+
+      if(fileInput) fileInput.value = "";
+      if(noteInput) noteInput.value = "";
+
+      await saveToFirebase();
+      await loadPendingReviews();
+      setStatus(statusId,"Assignment proof submitted to instructor for review.","ok");
+      renderProgress();
+    }catch(error){
+      console.error("Assignment proof failed:", error);
+      setStatus(statusId,error.message || "Assignment proof upload failed.","bad");
+      alert(error.message || "Assignment proof upload failed.");
+    }finally{
+      setButtonBusy(btn,false);
+    }
+  };
 
   function normalizeVerifiedSkill(id,data){
     return {
@@ -1977,7 +2217,6 @@
     `;
   }
 
-
   function normalizePendingReview(id,data){
     return {
       id,
@@ -1985,10 +2224,11 @@
       reviewType:String(data.reviewType || "Student Upload"),
       uploadTitle:String(data.uploadTitle || "Upload"),
       instructorComment:String(data.instructorComment || ""),
-      approvedBy:String(data.approvedBy || ""),
+      approvedBy:String(data.approvedBy || data.reviewedBy || ""),
       submittedAtIso:String(data.submittedAtIso || ""),
       reviewedDate:String(data.reviewedDate || ""),
-      proofFileUrl:String(data.proofFileUrl || "")
+      proofFileUrl:String(data.proofFileUrl || ""),
+      assignmentId:String(data.assignmentId || "")
     };
   }
 
@@ -2086,16 +2326,13 @@
     }).join("");
   }
 
-
-
-
   function normalizeAptitudeStatus(data){
     if(!data || typeof data !== "object"){
       return null;
     }
 
     const statusText = String(data.status || data.aptitudeStatus || data.result || "").trim();
-    const passedValue = data.passed === true || statusText.toLowerCase() === "passed";
+    const passedValue = data.passed === true || statusText.toLowerCase() === "passed" || statusText.toLowerCase() === "completed";
 
     return {
       status:passedValue ? "Passed" : (statusText || "Pending"),
@@ -2105,7 +2342,6 @@
       instructorComment:String(data.instructorComment || data.notes || data.comment || "").trim()
     };
   }
-
 
   function renderAptitudeTest(){
     const box = $("aptitudeStatusBox");
@@ -2232,6 +2468,7 @@
     state.skillProofs = normalizeArray(firebaseProfile.skillProofs).length ? normalizeArray(firebaseProfile.skillProofs) : normalizeArray(p.skillProofs).length ? normalizeArray(p.skillProofs) : state.skillProofs;
     state.projectProofs = normalizeArray(firebaseProfile.projectProofs).length ? normalizeArray(firebaseProfile.projectProofs) : normalizeArray(p.projectProofs).length ? normalizeArray(p.projectProofs) : state.projectProofs;
     state.signedWorkProofs = normalizeArray(firebaseProfile.signedWorkProofs).length ? normalizeArray(firebaseProfile.signedWorkProofs) : normalizeArray(p.signedWorkProofs).length ? normalizeArray(p.signedWorkProofs) : state.signedWorkProofs;
+    state.assignmentSubmissions = normalizeArray(firebaseProfile.assignmentSubmissions).length ? normalizeArray(firebaseProfile.assignmentSubmissions) : normalizeArray(p.assignmentSubmissions).length ? normalizeArray(p.assignmentSubmissions) : state.assignmentSubmissions;
     state.jobsiteUploads = Number(firebaseProfile.signedProofCount ?? firebaseProfile.jobsiteUploads ?? firebaseProfile.verifiedPhotos ?? p.signedProofCount ?? p.jobsiteUploads ?? p.verifiedPhotos ?? state.jobsiteUploads ?? state.signedWorkProofs.length ?? 0) || 0;
     state.badgesEarned = normalizeArray(firebaseProfile.badgesEarned).length ? normalizeArray(firebaseProfile.badgesEarned) : normalizeArray(p.badgesEarned).length ? normalizeArray(p.badgesEarned) : state.badgesEarned;
     state.aptitudeTest = firebaseProfile.aptitudeTest && typeof firebaseProfile.aptitudeTest === "object"
@@ -2257,7 +2494,6 @@
     }
   }
 
-
   async function loadAptitudeTest(uid){
     if(!uid) return;
 
@@ -2271,6 +2507,14 @@
     }
   }
 
+  window.refreshInstructorData = async function(){
+    $("syncStatus").textContent = "Refreshing instructor data...";
+    await loadInstructorAssignments();
+    await loadVerifiedSkills();
+    await loadPendingReviews();
+    renderProgress();
+    $("syncStatus").textContent = "Instructor data refreshed";
+  };
 
   window.addHours = async function(){
     const input = $("hoursInput");
@@ -2364,6 +2608,7 @@
 
       renderProgress();
       await saveToFirebase();
+      await loadPendingReviews();
       setStatus("saveStatus","Proof uploaded and sent to instructor for approval.","ok");
       renderProgress();
     }catch(error){
@@ -2493,6 +2738,7 @@
 
       renderProgress();
       await saveToFirebase();
+      await loadPendingReviews();
       renderProgress();
     }catch(error){
       console.error(error);
@@ -2513,14 +2759,11 @@
     renderProgress();
   };
 
-  window.addJobsiteProof = async function(){
-    alert("This old proof count button has been replaced by signed work proof uploads.");
-  };
-
   window.resetJobsiteProof = async function(){
     if(!confirm("Reset signed proof uploads? This removes the saved entries from your progress record, but it does not delete files already stored in Firebase Storage.")) return;
 
     state.signedWorkProofs = [];
+    state.assignmentSubmissions = [];
     state.jobsiteUploads = 0;
     renderProgress();
     await saveToFirebase();
@@ -2538,6 +2781,7 @@
       uid:currentUserId,
       email:currentUserEmail,
       profile,
+      instructorAssignments,
       progress:state
     };
 
@@ -2560,7 +2804,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260517allproofpendingv33");
+      window.location.replace("/front/?v=secureauth20260520assignmentsv34");
       return;
     }
 
@@ -2580,10 +2824,13 @@
     await loadFirebaseProfile(user.uid);
     await loadAptitudeTest(user.uid);
     await loadVerifiedSkills();
+    await loadPendingReviews();
 
     if(!await enforceApprenticeAccess(profile)){
       return;
     }
+
+    await loadInstructorAssignments();
 
     renderProfile();
     renderProgress();
@@ -2603,22 +2850,7 @@
     }
   },8000);
 
-  console.log("LTN Apprenticeship Dashboard Strong Role Routing Loaded v31");
-
-  /*
-    Firebase security reminder:
-    Client-side checks improve user experience, but real security must be enforced in Firebase Rules.
-
-    Recommended Firestore rules:
-    - users/{uid}: allow read/write only when request.auth.uid == uid.
-    - schoolCodes: allow read for signed-in users, write only for admins/instructors.
-    - studentSkills: allow students to read skills where authUid == request.auth.uid.
-    - studentSkills writes/approvals should be limited to verified instructors/admins.
-
-    Recommended Storage rules:
-    - apprenticeship-proof/{uid}/...: allow read/write only when request.auth.uid == uid,
-      or allow instructor/admin read only through explicit claims/relationships.
-  */
+  console.log("LTN Apprenticeship Dashboard Loaded v34 - Instructor Assignments Enabled");
 </script>
 
 </body>
