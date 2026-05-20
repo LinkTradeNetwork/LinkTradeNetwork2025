@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-17: INSTRUCTOR CENTER COHORT FILTER FIX v21 -->
-<!-- LTN VERSION: instructor-center-cohort-filter-fix-v21 -->
+<!-- LTN FORCE UPDATE 2026-05-20: INSTRUCTOR CENTER DAILY ASSIGNMENTS FIREBASE FIX v22 -->
+<!-- LTN VERSION: instructor-center-daily-assignments-firebase-v22 -->
 
 <style>
 :root{
@@ -324,9 +324,7 @@ button:disabled{cursor:not-allowed;opacity:.55}
 .badge-warning{background:#fff4dd;color:#a05a00}
 .badge-blue{background:#eaf2ff;color:#1d4ed8}
 
-.profile-box{
-  text-align:center;
-}
+.profile-box{text-align:center}
 
 .avatar{
   width:132px;
@@ -344,11 +342,7 @@ button:disabled{cursor:not-allowed;opacity:.55}
   box-shadow:0 10px 24px rgba(15,23,42,.18);
 }
 
-.avatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
+.avatar img{width:100%;height:100%;object-fit:cover}
 
 .profile-title{
   font-size:22px;
@@ -368,8 +362,6 @@ button:disabled{cursor:not-allowed;opacity:.55}
   font-size:14px;
   font-weight:650;
 }
-
-
 
 .cohort-filter-panel{
   background:#fff7ed;
@@ -591,25 +583,6 @@ textarea.form-control{min-height:106px;resize:vertical}
   margin-bottom:7px;
 }
 
-.verified-skill-list{
-  display:flex;
-  flex-wrap:wrap;
-  gap:7px;
-}
-
-.verified-skill-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  background:white;
-  color:#166534;
-  border:1px solid #bbf7d0;
-  border-radius:999px;
-  padding:6px 10px;
-  font-size:12px;
-  font-weight:900;
-}
-
 .verified-record-card{
   background:white;
   border:1px solid #bbf7d0;
@@ -669,7 +642,6 @@ textarea.form-control{min-height:106px;resize:vertical}
   font-weight:750;
 }
 
-
 .aptitude-results{
   margin-top:12px;
   background:#fff7ed;
@@ -727,7 +699,6 @@ textarea.form-control{min-height:106px;resize:vertical}
   font-weight:800;
 }
 
-
 .pending-review-card{
   border:1px solid #fed7aa;
   background:#fff7ed;
@@ -757,10 +728,7 @@ textarea.form-control{min-height:106px;resize:vertical}
   margin-top:3px;
 }
 
-
-.pending-review-comment{
-  margin-top:12px;
-}
+.pending-review-comment{margin-top:12px}
 
 .pending-review-comment textarea{
   width:100%;
@@ -808,32 +776,6 @@ textarea.form-control{min-height:106px;resize:vertical}
   color:var(--ink);
   font-size:17px;
   font-weight:950;
-}
-
-.tabs{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-bottom:16px;
-}
-
-.tab{
-  padding:9px 15px;
-  border:1px solid var(--line);
-  border-radius:999px;
-  background:white;
-  color:var(--muted);
-  font-size:13px;
-  cursor:pointer;
-  transition:all .2s;
-  font-weight:850;
-}
-
-.tab.active{
-  background:var(--brand);
-  color:white;
-  border-color:var(--brand);
-  box-shadow:0 8px 18px rgba(234,106,0,.18);
 }
 
 .notice{
@@ -987,172 +929,14 @@ textarea.form-control{min-height:106px;resize:vertical}
   .shell{padding:16px 10px 32px}
   .card .bd{padding:15px}
   .card .hd{padding:14px 15px;font-size:15px;align-items:flex-start;gap:8px;flex-wrap:wrap}
-  
-
-.cohort-filter-panel{
-  background:#fff7ed;
-  border:1px solid #fed7aa;
-  border-radius:18px;
-  padding:16px;
-  margin-bottom:18px;
-}
-
-.cohort-filter-panel label{
-  display:block;
-  color:#9a3412;
-  font-size:12px;
-  font-weight:950;
-  text-transform:uppercase;
-  letter-spacing:.04em;
-  margin-bottom:8px;
-}
-
-.cohort-filter-row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  align-items:center;
-}
-
-.cohort-filter-row select{
-  flex:1;
-  min-width:240px;
-}
-
-.cohort-filter-note{
-  color:#7c2d12;
-  font-size:12px;
-  font-weight:800;
-  margin-top:8px;
-}
-
-.analytics-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:14px;
-}
-
-.analytics-card{
-  background:linear-gradient(180deg,#ffffff,#f8fafc);
-  border:1px solid var(--line);
-  border-radius:18px;
-  padding:18px;
-  box-shadow:var(--shadow-sm);
-}
-
-.analytics-card strong{
-  display:block;
-  font-size:34px;
-  line-height:1;
-  color:var(--accent);
-  font-weight:950;
-  margin-bottom:8px;
-}
-
-.analytics-card span{
-  display:block;
-  font-size:12px;
-  font-weight:900;
-  color:var(--muted);
-  text-transform:uppercase;
-  letter-spacing:.04em;
-}
-
-.analytics-card small{
-  display:block;
-  margin-top:6px;
-  color:#64748b;
-  font-size:12px;
-  font-weight:700;
-}
-
-.stats{grid-template-columns:1fr 1fr;gap:8px}
+  .stats{grid-template-columns:1fr 1fr;gap:8px}
   .person-top{flex-direction:column}
   .hero-actions .btn{width:100%}
 }
 
 @media(max-width:370px){
   .logo-text{display:none}
-  
-
-.cohort-filter-panel{
-  background:#fff7ed;
-  border:1px solid #fed7aa;
-  border-radius:18px;
-  padding:16px;
-  margin-bottom:18px;
-}
-
-.cohort-filter-panel label{
-  display:block;
-  color:#9a3412;
-  font-size:12px;
-  font-weight:950;
-  text-transform:uppercase;
-  letter-spacing:.04em;
-  margin-bottom:8px;
-}
-
-.cohort-filter-row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  align-items:center;
-}
-
-.cohort-filter-row select{
-  flex:1;
-  min-width:240px;
-}
-
-.cohort-filter-note{
-  color:#7c2d12;
-  font-size:12px;
-  font-weight:800;
-  margin-top:8px;
-}
-
-.analytics-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:14px;
-}
-
-.analytics-card{
-  background:linear-gradient(180deg,#ffffff,#f8fafc);
-  border:1px solid var(--line);
-  border-radius:18px;
-  padding:18px;
-  box-shadow:var(--shadow-sm);
-}
-
-.analytics-card strong{
-  display:block;
-  font-size:34px;
-  line-height:1;
-  color:var(--accent);
-  font-weight:950;
-  margin-bottom:8px;
-}
-
-.analytics-card span{
-  display:block;
-  font-size:12px;
-  font-weight:900;
-  color:var(--muted);
-  text-transform:uppercase;
-  letter-spacing:.04em;
-}
-
-.analytics-card small{
-  display:block;
-  margin-top:6px;
-  color:#64748b;
-  font-size:12px;
-  font-weight:700;
-}
-
-.stats{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -1164,7 +948,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260517instructorv21";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260520instructorv22";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1178,7 +962,6 @@ textarea.form-control{min-height:106px;resize:vertical}
 
   window.LTNLogout = function(){
     window.LTNClearLocalSession();
-
     try{
       if(window.firebase && firebase.auth){
         firebase.auth().signOut().finally(function(){
@@ -1187,7 +970,6 @@ textarea.form-control{min-height:106px;resize:vertical}
         return;
       }
     }catch(e){}
-
     window.location.href = window.LTN_FRONT_GATE_URL;
   };
 })();
@@ -1207,11 +989,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260517instructorv21">Dashboard</a>
-      <a href="/members/?v=20260517instructorv21">Members</a>
-      <a href="/instructor/?v=20260517instructorv21" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260517instructorv21" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260517instructorv21">Network Center</a>
+      <a href="/dashboard/?v=20260520instructorv22">Dashboard</a>
+      <a href="/members/?v=20260520instructorv22">Members</a>
+      <a href="/instructor/?v=20260520instructorv22" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260520instructorv22" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260520instructorv22">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1224,12 +1006,12 @@ textarea.form-control{min-height:106px;resize:vertical}
       <h1>Instructor Center</h1>
       <p>
         Manage your instructor profile, school information, student roster, student progress,
-        verified skills, and class assignments from one place.
+        verified skills, pending reviews, and daily assignments from one place.
       </p>
       <div class="hero-actions">
         <button class="btn btn-secondary hero-action-btn" onclick="InstructorCenter.openStudentModal(this)">Add Student</button>
         <button class="btn btn-secondary hero-action-btn" onclick="InstructorCenter.openSkillApprovalModal(null, this)">Approve Skill</button>
-        <button class="btn btn-secondary hero-action-btn" onclick="InstructorCenter.openDocumentModal(this)">Upload Assignment</button>
+        <button class="btn btn-secondary hero-action-btn" onclick="InstructorCenter.openDocumentModal(this)">Send Daily Assignment</button>
       </div>
     </div>
 
@@ -1259,7 +1041,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260517instructorv21">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260520instructorv22">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1314,7 +1096,7 @@ textarea.form-control{min-height:106px;resize:vertical}
               <button class="btn btn-secondary" onclick="InstructorCenter.resetCohortFilter()">Reset</button>
             </div>
             <div class="cohort-filter-note">
-              This filter updates analytics, student roster, and pending student reviews.
+              This filter updates analytics, student roster, pending reviews, and daily assignments.
             </div>
           </div>
         </div>
@@ -1328,7 +1110,6 @@ textarea.form-control{min-height:106px;resize:vertical}
 
         <div class="bd">
           <div class="analytics-grid">
-
             <div class="analytics-card">
               <strong id="analytics-pending">0</strong>
               <span>Pending Reviews</span>
@@ -1358,11 +1139,9 @@ textarea.form-control{min-height:106px;resize:vertical}
               <span>Total Verified Hours</span>
               <small>Hours approved across all students</small>
             </div>
-
           </div>
         </div>
       </div>
-
 
       <div class="card">
         <div class="hd">
@@ -1371,7 +1150,7 @@ textarea.form-control{min-height:106px;resize:vertical}
         </div>
         <div class="bd">
           <div class="notice">
-            Students can be added manually here, and this page now automatically pulls apprentice/student profiles connected with school code STC-ELECTRICAL-2026.
+            Students are pulled automatically when their profile has your school code. Manual students can also be added here.
           </div>
 
           <div class="search-row">
@@ -1398,13 +1177,15 @@ textarea.form-control{min-height:106px;resize:vertical}
         </div>
       </div>
 
-
       <div class="card">
         <div class="hd">
-          <span>Class Assignments</span>
-          <button class="btn btn-primary" style="min-height:34px;padding:8px 12px;font-size:13px" onclick="InstructorCenter.openDocumentModal()">Upload</button>
+          <span>Daily / Class Assignments Sent to Students</span>
+          <button class="btn btn-primary" style="min-height:34px;padding:8px 12px;font-size:13px" onclick="InstructorCenter.openDocumentModal()">Send Assignment</button>
         </div>
         <div class="bd">
+          <div class="notice">
+            Daily assignments saved here are sent to Firebase in <strong>classAssignments</strong>. Students can see them on their dashboard when their school code/cohort matches.
+          </div>
           <div id="documents-list" class="list"></div>
         </div>
       </div>
@@ -1445,6 +1226,17 @@ textarea.form-control{min-height:106px;resize:vertical}
       <div class="form-group">
         <label>Courses / Trades Taught</label>
         <input type="text" id="input-courses" class="form-control" placeholder="Electrical Level 1, Safety, Blueprint Reading">
+      </div>
+
+      <div class="two-col">
+        <div class="form-group">
+          <label>School Code</label>
+          <input type="text" id="input-school-code" class="form-control" placeholder="STC-ELECTRICAL-2026">
+        </div>
+        <div class="form-group">
+          <label>Default Cohort / Class</label>
+          <input type="text" id="input-cohort-name" class="form-control" placeholder="Electrical Level 1">
+        </div>
       </div>
 
       <div class="two-col">
@@ -1516,6 +1308,11 @@ textarea.form-control{min-height:106px;resize:vertical}
       </div>
 
       <div class="form-group">
+        <label>Cohort / Class</label>
+        <input type="text" id="student-cohort" class="form-control" placeholder="Electrical Level 1">
+      </div>
+
+      <div class="form-group">
         <label>Notes</label>
         <textarea id="student-notes" class="form-control" placeholder="Progress notes, attendance, accomplishments, or next steps..."></textarea>
       </div>
@@ -1526,8 +1323,6 @@ textarea.form-control{min-height:106px;resize:vertical}
     </div>
   </div>
 </div>
-
-
 
 <!-- Approve Skill Modal -->
 <div class="modal-backdrop" id="skill-modal">
@@ -1596,7 +1391,7 @@ textarea.form-control{min-height:106px;resize:vertical}
       </div>
 
       <div class="notice" style="margin-bottom:0">
-        This will create a full verification record with hours, proof count, assignment title, and instructor comments.
+        This will create a verification record with hours, proof count, assignment title, and instructor comments.
       </div>
     </div>
     <div class="modal-footer">
@@ -1606,28 +1401,29 @@ textarea.form-control{min-height:106px;resize:vertical}
   </div>
 </div>
 
-<!-- Upload Class Assignment Modal -->
+<!-- Upload Daily / Class Assignment Modal -->
 <div class="modal-backdrop" id="document-modal">
   <div class="modal">
     <div class="modal-header">
-      <h2>Upload Assignment</h2>
+      <h2>Send Daily / Class Assignment</h2>
       <button class="modal-close" onclick="InstructorCenter.closeModal('document-modal')">&times;</button>
     </div>
     <div class="modal-body">
       <div class="upload-area" onclick="document.getElementById('document-file').click()">
-        <strong>Click to select document</strong>
-        <div class="small">Homework, classroom PDFs, safety assignments, worksheets, blueprints, lab instructions</div>
+        <strong>Click to select assignment file</strong>
+        <div class="small">Daily assignments, homework, classroom PDFs, worksheets, blueprints, lab instructions</div>
         <input type="file" id="document-file" style="display:none" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
       </div>
 
       <div class="form-group">
         <label>Assignment Name *</label>
-        <input type="text" id="document-name" class="form-control" placeholder="Electrical Safety Assignment">
+        <input type="text" id="document-name" class="form-control" placeholder="Daily Electrical Safety Assignment">
       </div>
 
       <div class="form-group">
         <label>Assignment Type</label>
         <select id="document-type" class="form-control">
+          <option value="Daily Assignment">Daily Assignment</option>
           <option value="Homework">Homework</option>
           <option value="Lab Assignment">Lab Assignment</option>
           <option value="Safety Assignment">Safety Assignment</option>
@@ -1638,11 +1434,31 @@ textarea.form-control{min-height:106px;resize:vertical}
         </select>
       </div>
 
+      <div class="two-col">
+        <div class="form-group">
+          <label>Send To Cohort / Class</label>
+          <input type="text" id="document-cohort" class="form-control" placeholder="Electrical Level 1">
+        </div>
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" id="document-due-date" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Instructions for Students</label>
+        <textarea id="document-instructions" class="form-control" placeholder="Complete this assignment and upload signed proof in Track My Progress."></textarea>
+      </div>
+
       <div id="selected-document-name" class="small"></div>
+
+      <div class="notice" style="margin-bottom:0;margin-top:12px">
+        This assignment will be saved to Firebase and shown to students with the same school code and cohort on their dashboard.
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="InstructorCenter.closeModal('document-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="InstructorCenter.saveDocument()">Save Assignment</button>
+      <button class="btn btn-primary" onclick="InstructorCenter.saveDocument()">Send Assignment</button>
     </div>
   </div>
 </div>
@@ -1655,8 +1471,7 @@ if(localStorage.getItem("ltn_access_granted") !== "true"){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import {
   getAuth,
-  onAuthStateChanged,
-  signOut
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import {
   getFirestore,
@@ -1670,7 +1485,6 @@ import {
   query,
   where,
   getDocs,
-  orderBy,
   limit
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
@@ -1698,10 +1512,15 @@ let studentSkillsByUserId = {};
 let allVerifiedSkills = [];
 let aptitudeTestsByUserId = {};
 let pendingReviews = [];
+let firebaseAssignments = [];
 let selectedCohortFilter = "all";
 
 function safeJsonParse(value, fallback){
   try{return JSON.parse(value || "");}catch(e){return fallback;}
+}
+
+function normalizeEmail(value){
+  return String(value || "").trim().toLowerCase();
 }
 
 function getStoredUser(){
@@ -1748,7 +1567,6 @@ function getRoleTextFromProfile(data){
 
 function isFirestoreInstructorProfile(data){
   const roleText = getRoleTextFromProfile(data || {});
-
   return (
     roleText.includes("instructor") ||
     roleText.includes("teacher") ||
@@ -1784,7 +1602,7 @@ async function findCurrentUser(){
 
   if(!authUser){
     LTNClearLocalSession();
-    window.location.replace("/front.html?v=20260517instructorAuthRequired");
+    window.location.replace("/front.html?v=20260520instructorAuthRequired");
     throw new Error("No authenticated Firebase user.");
   }
 
@@ -1804,7 +1622,7 @@ async function findCurrentUser(){
 
   if(!userSnap.exists()){
     alert("Instructor profile was not found for this signed-in account. Please complete your profile first.");
-    window.location.replace("/dashboard/?v=20260517instructorNoProfile");
+    window.location.replace("/dashboard/?v=20260520instructorNoProfile");
     throw new Error("No user profile document for current auth uid.");
   }
 
@@ -1812,7 +1630,7 @@ async function findCurrentUser(){
 
   if(!isFirestoreInstructorProfile(u)){
     alert("Instructor Center is only for instructor accounts. You are signed in as a student/apprentice/member account.");
-    window.location.replace("/dashboard/?v=20260517notInstructor");
+    window.location.replace("/dashboard/?v=20260520notInstructor");
     throw new Error("Current user is not an instructor.");
   }
 
@@ -1831,8 +1649,8 @@ async function findCurrentUser(){
     city:u.city || "",
     state:u.state || "",
     bio:u.bio || "",
-    schoolCode:instructorData.schoolCode || u.schoolCode || apprenticeshipData.schoolCode || "",
-    cohortName:instructorData.cohortName || u.cohortName || apprenticeshipData.cohortName || "",
+    schoolCode:String(instructorData.schoolCode || u.schoolCode || apprenticeshipData.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase(),
+    cohortName:instructorData.cohortName || u.cohortName || apprenticeshipData.cohortName || "Electrical Level 1",
     profileImage:u.profileImageUrl || u.profileImage || u.photoURL || "",
     profileType:u.profileType || u.role || "Instructor / Teacher",
     role:u.role || "instructor",
@@ -1856,6 +1674,7 @@ async function findCurrentUser(){
     console.warn("Instructor visit sync skipped:", e);
   }
 }
+
 function getInitials(name){
   const parts = String(name || "LT").trim().split(/\s+/).filter(Boolean);
   if(parts.length === 1) return parts[0].substring(0,2).toUpperCase();
@@ -1870,72 +1689,16 @@ function saveStudents(students){
   localStorage.setItem(LOCAL_KEYS.students, JSON.stringify(students));
 }
 
-function normalizeEmail(value){
-  return String(value || "").trim().toLowerCase();
-}
-
-function normalizeStudentFromUserDoc(id, u){
-  const apprenticeship = u.apprenticeship || {};
-  const progress = u.apprenticeshipProgress || {};
-
-  const hours = Number(
-    u.totalHours ||
-    u.hoursCompleted ||
-    u.apprenticeshipHours ||
-    progress.totalHours ||
-    progress.hoursCompleted ||
-    apprenticeship.hours ||
-    apprenticeship.currentHours ||
-    apprenticeship.completedHours ||
-    0
-  );
-
-  const goal = Number(
-    apprenticeship.goalHours ||
-    apprenticeship.requiredHours ||
-    u.goalHours ||
-    8000
-  );
-
-  return {
-    id:"firebase_" + id,
-    source:"firebase",
-    userId:id,
-    authUid:u.authUid || id,
-    name:u.fullName || u.name || u.displayName || "Student",
-    email:normalizeEmail(u.email || ""),
-    trade:u.trade || u.specialty || "Trade not added",
-    status:u.studentStatus || apprenticeship.status || "active",
-    hours,
-    goal:goal || 8000,
-    notes:u.bio || apprenticeship.notes || "Connected through school code.",
-    school:apprenticeship.schoolName || u.studentSchool || apprenticeship.school || u.school || apprenticeship.program || "",
-    schoolCode:apprenticeship.schoolCode || u.schoolCode || "",
-    cohortName:apprenticeship.cohortName || u.cohortName || "",
-    instructorId:apprenticeship.instructorId || "",
-    instructorEmail:normalizeEmail(u.assignedInstructorEmail || u.instructorEmail || apprenticeship.instructorEmail || ""),
-    instructorName:u.assignedInstructorName || u.instructorName || apprenticeship.instructorName || "",
-    createdAt:u.createdAt || ""
-  };
-}
-
-function mergeStudents(manualStudents, linkedStudents){
-  const seen = new Set();
-  const merged = [];
-
-  [...linkedStudents, ...manualStudents].forEach(student => {
-    const key = normalizeEmail(student.email) || student.userId || student.id;
-    if(key && seen.has(key)) return;
-    if(key) seen.add(key);
-    merged.push(student);
-  });
-
-  return merged;
-}
-
-
 function getDocuments(){
-  return safeJsonParse(localStorage.getItem(LOCAL_KEYS.documents), []) || [];
+  const localDocs = safeJsonParse(localStorage.getItem(LOCAL_KEYS.documents), []) || [];
+  const seen = new Set();
+  const merged = [...firebaseAssignments, ...localDocs].filter(item => {
+    const key = item.firebaseId || item.id || item.name + item.createdAt;
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  return merged;
 }
 
 function saveDocuments(items){
@@ -1949,12 +1712,6 @@ function escapeHtml(value){
     .replaceAll(">","&gt;")
     .replaceAll('"',"&quot;")
     .replaceAll("'","&#039;");
-}
-
-function formatStatus(status){
-  if(status === "needs-review") return "Needs Review";
-  if(status === "completed") return "Completed";
-  return "Active";
 }
 
 function statusBadge(status){
@@ -1989,11 +1746,11 @@ function updateProfileDisplay(){
   document.getElementById("school-summary").innerHTML = `
     <strong>${escapeHtml(school)}</strong><br>
     <span>${escapeHtml(courses)}</span><br>
+    <span>School Code: <strong>${escapeHtml(currentProfile.schoolCode || "Not set")}</strong></span><br>
+    <span>Default Cohort: <strong>${escapeHtml(currentProfile.cohortName || "Not set")}</strong></span><br>
     <span>${escapeHtml(currentProfile.bio || "Instructor bio not added yet.")}</span>
   `;
 }
-
-
 
 function getSelectedCohort(){
   return selectedCohortFilter || "all";
@@ -2002,7 +1759,6 @@ function getSelectedCohort(){
 function itemMatchesSelectedCohort(item){
   const selected = getSelectedCohort();
   if(selected === "all") return true;
-
   const cohort = String(item.cohortName || item.cohort || item.className || "").trim();
   return cohort === selected;
 }
@@ -2017,6 +1773,10 @@ function getFilteredVerifiedSkills(){
 
 function getFilteredAptitudeTests(){
   return Object.values(aptitudeTestsByUserId).filter(itemMatchesSelectedCohort);
+}
+
+function getFilteredAssignments(){
+  return getDocuments().filter(itemMatchesSelectedCohort);
 }
 
 function populateCohortFilter(){
@@ -2045,8 +1805,11 @@ function populateCohortFilter(){
     if(value) cohorts.add(value);
   });
 
-  // Also include the instructor default cohort, if the instructor profile has one.
-  // This prevents the filter from looking empty when students/reviews are still loading.
+  getDocuments().forEach(item => {
+    const value = String(item.cohortName || item.cohort || item.className || "").trim();
+    if(value) cohorts.add(value);
+  });
+
   const profileCohort = String(currentProfile.cohortName || "").trim();
   if(profileCohort) cohorts.add(profileCohort);
 
@@ -2060,7 +1823,6 @@ function populateCohortFilter(){
   select.value = sorted.includes(current) ? current : "all";
   selectedCohortFilter = select.value;
 }
-
 
 function getReviewStatus(item){
   const status = String(item && (item.status || item.verificationStatus) || "").trim().toLowerCase();
@@ -2102,22 +1864,16 @@ function updateAnalytics(){
     return sum + Number(skill.hoursVerified || 0);
   }, 0);
 
-  const pendingEl = document.getElementById("analytics-pending");
-  const approvedEl = document.getElementById("analytics-approved");
-  const rejectedEl = document.getElementById("analytics-rejected");
-  const aptitudeEl = document.getElementById("analytics-aptitude");
-  const hoursEl = document.getElementById("analytics-hours");
-
-  if(pendingEl) pendingEl.innerText = pending.toLocaleString();
-  if(approvedEl) approvedEl.innerText = approvedReviews.toLocaleString();
-  if(rejectedEl) rejectedEl.innerText = rejected.toLocaleString();
-  if(aptitudeEl) aptitudeEl.innerText = aptitudeCompleted.toLocaleString();
-  if(hoursEl) hoursEl.innerText = verifiedHours.toLocaleString();
+  document.getElementById("analytics-pending").innerText = pending.toLocaleString();
+  document.getElementById("analytics-approved").innerText = approvedReviews.toLocaleString();
+  document.getElementById("analytics-rejected").innerText = rejected.toLocaleString();
+  document.getElementById("analytics-aptitude").innerText = aptitudeCompleted.toLocaleString();
+  document.getElementById("analytics-hours").innerText = verifiedHours.toLocaleString();
 }
 
 function updateStats(){
   const students = mergeStudents(getStudents(), autoLinkedStudents).filter(itemMatchesSelectedCohort);
-  const documents = getDocuments();
+  const documents = getFilteredAssignments();
   const verifiedSkillCount = getFilteredVerifiedSkills().length;
 
   const avg = students.length
@@ -2136,6 +1892,65 @@ function updateStats(){
 
 function emptyState(title, text){
   return `<div class="empty-state"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div>`;
+}
+
+function normalizeStudentFromUserDoc(id, u){
+  const apprenticeship = u.apprenticeship || {};
+  const progress = u.apprenticeshipProgress || {};
+
+  const hours = Number(
+    u.totalHours ||
+    u.hoursCompleted ||
+    u.apprenticeshipHours ||
+    progress.totalHours ||
+    progress.hoursCompleted ||
+    apprenticeship.hours ||
+    apprenticeship.currentHours ||
+    apprenticeship.completedHours ||
+    0
+  );
+
+  const goal = Number(
+    apprenticeship.goalHours ||
+    apprenticeship.requiredHours ||
+    u.goalHours ||
+    8000
+  );
+
+  return {
+    id:"firebase_" + id,
+    source:"firebase",
+    userId:id,
+    authUid:u.authUid || id,
+    name:u.fullName || u.name || u.displayName || "Student",
+    email:normalizeEmail(u.email || ""),
+    trade:u.trade || u.specialty || "Trade not added",
+    status:u.studentStatus || apprenticeship.status || "active",
+    hours,
+    goal:goal || 8000,
+    notes:u.bio || apprenticeship.notes || "Connected through school code.",
+    school:apprenticeship.schoolName || u.studentSchool || apprenticeship.school || u.school || apprenticeship.program || "",
+    schoolCode:String(apprenticeship.schoolCode || u.schoolCode || "").trim().toUpperCase(),
+    cohortName:apprenticeship.cohortName || u.cohortName || "",
+    instructorId:apprenticeship.instructorId || "",
+    instructorEmail:normalizeEmail(u.assignedInstructorEmail || u.instructorEmail || apprenticeship.instructorEmail || ""),
+    instructorName:u.assignedInstructorName || u.instructorName || apprenticeship.instructorName || "",
+    createdAt:u.createdAt || ""
+  };
+}
+
+function mergeStudents(manualStudents, linkedStudents){
+  const seen = new Set();
+  const merged = [];
+
+  [...linkedStudents, ...manualStudents].forEach(student => {
+    const key = normalizeEmail(student.email) || student.userId || student.id;
+    if(key && seen.has(key)) return;
+    if(key) seen.add(key);
+    merged.push(student);
+  });
+
+  return merged;
 }
 
 async function loadAutoLinkedStudents(){
@@ -2162,6 +1977,14 @@ async function loadAutoLinkedStudents(){
       );
     }catch(e){
       console.warn("School code student query failed", e);
+    }
+
+    try{
+      await addQueryResults(
+        query(collection(db,"users"), where("schoolCode","==",schoolCode), limit(100))
+      );
+    }catch(e){
+      console.warn("Root school code student query failed", e);
     }
   }
 
@@ -2193,7 +2016,6 @@ async function loadAutoLinkedStudents(){
 
   autoLinkedStudents = Array.from(results.values());
 }
-
 
 function normalizeAptitudeTest(id, data){
   return {
@@ -2263,7 +2085,7 @@ function aptitudeHtml(student){
   const authUid = String(student.authUid || student.userId || student.id || "").trim();
   const test = authUid ? aptitudeTestsByUserId[authUid] : null;
 
-  if(!test || test.status !== "Completed"){
+  if(!test || String(test.status || "").toLowerCase() !== "completed"){
     return `
       <div class="aptitude-empty">
         Aptitude Test: Not completed yet.
@@ -2287,7 +2109,6 @@ function aptitudeHtml(student){
     </div>
   `;
 }
-
 
 function normalizeSkillDoc(id, data){
   const authUid = String(data.authUid || data.studentId || data.userId || "").trim();
@@ -2411,15 +2232,12 @@ function verifiedSkillsHtml(student, totalVisibleStudents){
     });
   }
 
-  /* Safety fallback: if the instructor has one visible student and one or more verified skills loaded,
-     show those skills on that one student card instead of hiding them because of an old ID mismatch. */
   if(!skills.length && Number(totalVisibleStudents || 0) === 1 && allVerifiedSkills.length){
     skills = allVerifiedSkills;
   }
 
   return buildVerifiedSkillsBlock(skills);
 }
-
 
 function getVisibleStudents(){
   const searchEl = document.getElementById("student-search");
@@ -2434,7 +2252,7 @@ function getVisibleStudents(){
 
   if(search){
     students = students.filter(s => {
-      return [s.name,s.email,s.trade,s.status,s.school,s.notes].join(" ").toLowerCase().includes(search);
+      return [s.name,s.email,s.trade,s.status,s.school,s.notes,s.cohortName,s.schoolCode].join(" ").toLowerCase().includes(search);
     });
   }
 
@@ -2463,7 +2281,6 @@ function parseSkillStudentValue(value){
     return null;
   }
 }
-
 
 async function loadPendingReviews(){
   pendingReviews = [];
@@ -2554,6 +2371,7 @@ function renderPendingReviews(){
             <div class="pending-review-meta">${escapeHtml(item.studentName || "Student")}</div>
             <div class="pending-review-meta">${escapeHtml(item.reviewType || "Review")}</div>
             <div class="pending-review-meta">Submitted: ${escapeHtml(submitted)}</div>
+            ${item.cohortName ? `<div class="pending-review-meta">Cohort: ${escapeHtml(item.cohortName)}</div>` : ""}
           </div>
 
           <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -2575,18 +2393,49 @@ function renderPendingReviews(){
   }).join("");
 }
 
+async function loadClassAssignments(){
+  firebaseAssignments = [];
+
+  const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
+
+  if(!schoolCode) return;
+
+  try{
+    const snap = await getDocs(
+      query(
+        collection(db,"classAssignments"),
+        where("schoolCode","==",schoolCode),
+        limit(200)
+      )
+    );
+
+    snap.forEach(docSnap => {
+      const data = docSnap.data() || {};
+      firebaseAssignments.push({
+        firebaseId:docSnap.id,
+        id:docSnap.id,
+        ...data,
+        name:data.name || data.title || "Assignment",
+        title:data.title || data.name || "Assignment",
+        type:data.type || data.assignmentType || "Assignment",
+        assignmentType:data.assignmentType || data.type || "Assignment",
+        cohortName:String(data.cohortName || "").trim(),
+        schoolCode:String(data.schoolCode || "").trim().toUpperCase(),
+        source:"firebase"
+      });
+    });
+  }catch(e){
+    console.warn("Class assignments query failed", e);
+  }
+
+  firebaseAssignments.sort((a,b) => {
+    const aTime = a.createdAtText || a.createdAt || "";
+    const bTime = b.createdAtText || b.createdAt || "";
+    return String(bTime).localeCompare(String(aTime));
+  });
+}
 
 window.InstructorCenter = {
-  setActiveHeroButton(button){
-    document.querySelectorAll('.hero-action-btn').forEach(btn => {
-      btn.classList.remove('btn-primary');
-      btn.classList.add('btn-secondary');
-    });
-
-    button.classList.remove('btn-secondary');
-    button.classList.add('btn-primary');
-  },
-
   applyCohortFilter(){
     const select = document.getElementById("cohort-filter");
     selectedCohortFilter = select ? select.value : "all";
@@ -2594,6 +2443,7 @@ window.InstructorCenter = {
     updateAnalytics();
     renderPendingReviews();
     this.renderStudents();
+    this.renderDocuments();
   },
 
   resetCohortFilter(){
@@ -2604,9 +2454,8 @@ window.InstructorCenter = {
     updateAnalytics();
     renderPendingReviews();
     this.renderStudents();
+    this.renderDocuments();
   },
-
-
 
   getReviewComment(reviewId){
     const commentBox = document.getElementById("review-comment-" + reviewId);
@@ -2639,7 +2488,7 @@ window.InstructorCenter = {
       alert("Student upload approved with instructor comment.");
     }catch(e){
       console.error(e);
-      alert("Approval failed.");
+      alert("Approval failed. Check Firebase rules.");
     }
   },
 
@@ -2669,7 +2518,7 @@ window.InstructorCenter = {
       alert("Student upload rejected with instructor comment.");
     }catch(e){
       console.error(e);
-      alert("Rejection failed.");
+      alert("Rejection failed. Check Firebase rules.");
     }
   },
 
@@ -2679,6 +2528,8 @@ window.InstructorCenter = {
     document.getElementById("input-school").value = currentProfile.school || "";
     document.getElementById("input-trade").value = currentProfile.trade || "";
     document.getElementById("input-courses").value = currentProfile.courses || "";
+    document.getElementById("input-school-code").value = currentProfile.schoolCode || "STC-ELECTRICAL-2026";
+    document.getElementById("input-cohort-name").value = currentProfile.cohortName || "Electrical Level 1";
     document.getElementById("input-city").value = currentProfile.city || "";
     document.getElementById("input-state").value = currentProfile.state || "";
     document.getElementById("input-bio").value = currentProfile.bio || "";
@@ -2693,11 +2544,11 @@ window.InstructorCenter = {
       school:document.getElementById("input-school").value.trim(),
       trade:document.getElementById("input-trade").value.trim() || "Instructor / Teacher",
       courses:document.getElementById("input-courses").value.trim(),
+      schoolCode:String(document.getElementById("input-school-code").value.trim() || "STC-ELECTRICAL-2026").toUpperCase(),
+      cohortName:document.getElementById("input-cohort-name").value.trim() || "Electrical Level 1",
       city:document.getElementById("input-city").value.trim(),
       state:document.getElementById("input-state").value.trim(),
       bio:document.getElementById("input-bio").value.trim(),
-      schoolCode:currentProfile.schoolCode || "STC-ELECTRICAL-2026",
-      cohortName:currentProfile.cohortName || "Electrical Level 1",
       profileType:"Instructor / Teacher",
       isInstructor:true,
       updatedAt:new Date().toISOString()
@@ -2707,13 +2558,14 @@ window.InstructorCenter = {
 
     if(currentUserId){
       try{
-        await updateDoc(doc(db,"users",currentUserId),{
+        await setDoc(doc(db,"users",currentUserId),{
           uid:currentUserId,
           authUid:currentUserId,
           fullName:currentProfile.name,
           name:currentProfile.name,
           email:currentProfile.email,
           profileType:"Instructor / Teacher",
+          role:"instructor",
           isInstructor:true,
           instructorSchool:currentProfile.school,
           school:currentProfile.school,
@@ -2723,26 +2575,26 @@ window.InstructorCenter = {
           city:currentProfile.city,
           state:currentProfile.state,
           bio:currentProfile.bio,
-          schoolCode:currentProfile.schoolCode || "STC-ELECTRICAL-2026",
+          schoolCode:currentProfile.schoolCode,
+          cohortName:currentProfile.cohortName,
           instructor:{
-            schoolCode:currentProfile.schoolCode || "STC-ELECTRICAL-2026",
-            cohortName:currentProfile.cohortName || "Electrical Level 1"
+            isInstructor:true,
+            schoolName:currentProfile.school,
+            school:currentProfile.school,
+            trade:currentProfile.trade,
+            courses:currentProfile.courses,
+            schoolCode:currentProfile.schoolCode,
+            cohortName:currentProfile.cohortName
           },
           updatedAt:serverTimestamp()
-        });
-      }catch(e){
-        try{
-          await setDoc(doc(db,"users",currentUserId),{
-            ...currentProfile,
-            updatedAt:serverTimestamp()
-          },{merge:true});
-        }catch(err){
-          console.warn("Instructor profile saved locally only:", err);
-        }
+        },{merge:true});
+      }catch(err){
+        console.warn("Instructor profile saved locally only:", err);
       }
     }
 
     updateProfileDisplay();
+    populateCohortFilter();
     this.closeModal("profile-modal");
     alert("Instructor information saved.");
   },
@@ -2754,6 +2606,7 @@ window.InstructorCenter = {
     document.getElementById("student-status").value = "active";
     document.getElementById("student-hours").value = "";
     document.getElementById("student-goal").value = "8000";
+    document.getElementById("student-cohort").value = currentProfile.cohortName || "Electrical Level 1";
     document.getElementById("student-notes").value = "";
     this.openModal("student-modal", triggerBtn);
   },
@@ -2774,9 +2627,12 @@ window.InstructorCenter = {
       status:document.getElementById("student-status").value,
       hours:Number(document.getElementById("student-hours").value || 0),
       goal:Number(document.getElementById("student-goal").value || 8000),
+      cohortName:document.getElementById("student-cohort").value.trim() || currentProfile.cohortName || "Electrical Level 1",
+      schoolCode:currentProfile.schoolCode || "STC-ELECTRICAL-2026",
       notes:document.getElementById("student-notes").value.trim(),
       school:currentProfile.school || "",
       instructorEmail:currentProfile.email || currentUserEmail || "",
+      instructorId:currentUserId || "",
       createdAt:new Date().toISOString()
     };
 
@@ -2787,7 +2643,6 @@ window.InstructorCenter = {
       try{
         await addDoc(collection(db,"instructorStudents"),{
           ...student,
-          instructorId:currentUserId,
           createdAt:serverTimestamp()
         });
       }catch(e){
@@ -2796,6 +2651,7 @@ window.InstructorCenter = {
     }
 
     this.closeModal("student-modal");
+    populateCohortFilter();
     this.renderStudents();
     updateStats();
   },
@@ -2805,7 +2661,7 @@ window.InstructorCenter = {
     let students = getFilteredStudents();
 
     if(!students.length){
-      list.innerHTML = emptyState("No students yet", "Students will appear here when they connect with school code STC-ELECTRICAL-2026, or you can add them manually.");
+      list.innerHTML = emptyState("No students yet", "Students will appear here when they connect with your school code, or you can add them manually.");
       return;
     }
 
@@ -2827,7 +2683,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260517instructorv21">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260520instructorv22">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -2842,15 +2698,11 @@ window.InstructorCenter = {
     }).join("");
   },
 
-
-
   openSkillApprovalModal(preselectedStudentValue = null, triggerBtn = null){
     const select = document.getElementById("skill-student");
     const students = getAllRosterStudents();
 
-    if(!select){
-      return;
-    }
+    if(!select) return;
 
     if(!students.length){
       alert("No students available yet. Add or connect a student first.");
@@ -2949,8 +2801,10 @@ window.InstructorCenter = {
     }
 
     await loadVerifiedSkills();
+    populateCohortFilter();
     this.renderStudents();
     updateStats();
+    updateAnalytics();
     this.closeModal("skill-modal");
     alert("Skill verification record saved and added to the student profile.");
   },
@@ -2958,42 +2812,91 @@ window.InstructorCenter = {
   openDocumentModal(triggerBtn = null){
     document.getElementById("document-file").value = "";
     document.getElementById("document-name").value = "";
-    document.getElementById("document-type").value = "Homework";
+    document.getElementById("document-type").value = "Daily Assignment";
+    document.getElementById("document-cohort").value = currentProfile.cohortName || "Electrical Level 1";
+    document.getElementById("document-due-date").value = "";
+    document.getElementById("document-instructions").value = "";
     document.getElementById("selected-document-name").innerText = "";
     this.openModal("document-modal", triggerBtn);
   },
 
-  saveDocument(){
+  async saveDocument(){
     const name = document.getElementById("document-name").value.trim();
     if(!name){
-      alert("Document name is required.");
+      alert("Assignment name is required.");
       return;
     }
 
     const file = document.getElementById("document-file").files[0];
-    const docs = getDocuments();
+    const assignmentType = document.getElementById("document-type").value;
+    const cohortName = document.getElementById("document-cohort").value.trim() || currentProfile.cohortName || "Electrical Level 1";
+    const dueDate = document.getElementById("document-due-date").value || "";
+    const instructions = document.getElementById("document-instructions").value.trim();
+    const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
 
-    docs.unshift({
-      id:"doc_" + Date.now(),
+    const assignment = {
+      id:"assignment_" + Date.now(),
       name,
-      type:document.getElementById("document-type").value,
+      title:name,
+      type:assignmentType,
+      assignmentType,
+      instructions,
+      dueDate,
+      cohortName,
+      schoolCode,
+      instructorId:currentUserId || "",
+      instructorUid:currentUserId || "",
+      instructorName:currentProfile.name || "Instructor",
+      instructorEmail:currentProfile.email || currentUserEmail || "",
+      schoolName:currentProfile.school || "",
       fileName:file ? file.name : "",
       fileSize:file ? file.size : 0,
-      createdAt:new Date().toISOString()
-    });
+      fileAttached:file ? true : false,
+      status:"active",
+      visibleToStudents:true,
+      createdAt:new Date().toISOString(),
+      createdAtText:new Date().toLocaleDateString()
+    };
 
-    saveDocuments(docs);
+    const localDocs = safeJsonParse(localStorage.getItem(LOCAL_KEYS.documents), []) || [];
+    localDocs.unshift(assignment);
+    saveDocuments(localDocs);
+
+    try{
+      const created = await addDoc(collection(db,"classAssignments"),{
+        ...assignment,
+        createdAt:serverTimestamp(),
+        updatedAt:serverTimestamp()
+      });
+
+      firebaseAssignments.unshift({
+        ...assignment,
+        firebaseId:created.id,
+        id:created.id,
+        source:"firebase"
+      });
+    }catch(e){
+      console.error("Assignment Firebase save failed:", e);
+      alert("Assignment was saved on this teacher page, but it did not reach Firebase. Check Firestore rules for classAssignments.");
+      this.closeModal("document-modal");
+      this.renderDocuments();
+      updateStats();
+      return;
+    }
+
     this.closeModal("document-modal");
+    populateCohortFilter();
     this.renderDocuments();
     updateStats();
+    alert("Assignment sent. Students with this school code and cohort can now see it on their dashboard.");
   },
 
   renderDocuments(){
     const list = document.getElementById("documents-list");
-    const docs = getDocuments();
+    const docs = getFilteredAssignments();
 
     if(!docs.length){
-      list.innerHTML = emptyState("No class assignments uploaded yet", "Upload homework, lab sheets, classroom PDFs, blueprint exercises, and apprenticeship assignments.");
+      list.innerHTML = emptyState("No assignments sent yet", "Upload daily assignments, homework, lab sheets, classroom PDFs, blueprint exercises, and apprenticeship assignments.");
       return;
     }
 
@@ -3001,10 +2904,13 @@ window.InstructorCenter = {
       <div class="document-card">
         <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
           <div>
-            <div class="person-name">${escapeHtml(d.name)}</div>
-            <div class="person-meta">${escapeHtml(d.fileName || "Assignment file saved locally")} • ${escapeHtml(d.type || "Document")}</div>
+            <div class="person-name">${escapeHtml(d.name || d.title || "Assignment")}</div>
+            <div class="person-meta">${escapeHtml(d.fileName || "No file attached")} • ${escapeHtml(d.type || d.assignmentType || "Assignment")}</div>
+            <div class="person-meta">Cohort: ${escapeHtml(d.cohortName || "All students")} • School Code: ${escapeHtml(d.schoolCode || currentProfile.schoolCode || "")}</div>
+            ${d.dueDate ? `<div class="person-meta">Due: ${escapeHtml(d.dueDate)}</div>` : ""}
+            ${d.instructions ? `<div class="person-meta">${escapeHtml(d.instructions)}</div>` : ""}
           </div>
-          <span class="badge">${escapeHtml(d.type || "Document")}</span>
+          <span class="badge">${d.source === "firebase" ? "Sent to Students" : "Saved Locally"}</span>
         </div>
       </div>
     `).join("");
@@ -3077,8 +2983,6 @@ function ltnRevealInstructorPage(){
   }catch(e){}
 }
 
-// Extra safety: make the cohort dropdown work even if inline onchange is blocked
-// by a browser, cache, or older copied page version.
 document.addEventListener("change", function(event){
   if(event && event.target && event.target.id === "cohort-filter" && window.InstructorCenter){
     window.InstructorCenter.applyCohortFilter();
@@ -3105,19 +3009,23 @@ async function init(){
   await loadAptitudeTests();
   await loadVerifiedSkills();
   await loadPendingReviews();
+  await loadClassAssignments();
 
-  // IMPORTANT FIX v21:
-  // The cohort dropdown must be populated AFTER students, verified skills,
-  // aptitude tests, and pending reviews have loaded.
-  // Without this call the dropdown stays stuck on only "All Cohorts / Classes".
   populateCohortFilter();
 
   InstructorCenter.renderStudents();
   renderPendingReviews();
-  console.log("LTN verified skills loaded", allVerifiedSkills);
   InstructorCenter.renderDocuments();
   updateStats();
   updateAnalytics();
+
+  console.log("LTN Instructor Center v22 loaded", {
+    currentProfile,
+    students:autoLinkedStudents.length,
+    verifiedSkills:allVerifiedSkills.length,
+    pendingReviews:pendingReviews.length,
+    assignments:firebaseAssignments.length
+  });
 }
 
 init().catch(function(error){
