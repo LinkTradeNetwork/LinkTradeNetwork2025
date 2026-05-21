@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-20: INSTRUCTOR CENTER DASHBOARD IMPROVEMENTS v26 -->
-<!-- LTN VERSION: instructor-center-dashboard-improvements-v26 -->
+<!-- LTN FORCE UPDATE 2026-05-20: INSTRUCTOR CENTER DELETE ASSIGNMENTS v27 -->
+<!-- LTN VERSION: instructor-center-delete-assignments-v27 -->
 
 <style>
 :root{
@@ -710,6 +710,22 @@ textarea.form-control{min-height:106px;resize:vertical}
 
 .file-link:hover{text-decoration:underline}
 
+.assignment-action-row{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+.assignment-delete-note{
+  display:block;
+  font-size:12px;
+  font-weight:800;
+  color:var(--muted);
+  margin-top:6px;
+}
+
 .person-top{
   display:flex;
   justify-content:space-between;
@@ -1136,7 +1152,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260521instructorv26";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260521instructorv27";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1177,11 +1193,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260521instructorv26">Dashboard</a>
-      <a href="/members/?v=20260521instructorv26">Members</a>
-      <a href="/instructor/?v=20260521instructorv26" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260521instructorv26" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260521instructorv26">Network Center</a>
+      <a href="/dashboard/?v=20260521instructorv27">Dashboard</a>
+      <a href="/members/?v=20260521instructorv27">Members</a>
+      <a href="/instructor/?v=20260521instructorv27" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260521instructorv27" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260521instructorv27">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1229,7 +1245,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260521instructorv26">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260521instructorv27">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1714,7 +1730,8 @@ import {
   query,
   where,
   getDocs,
-  limit
+  limit,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 import {
   getStorage,
@@ -3105,7 +3122,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260521instructorv26">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260521instructorv27">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -3357,6 +3374,52 @@ window.InstructorCenter = {
     alert("Assignment sent with attachment. Students with this school code and cohort can now see it on their dashboard.");
   },
 
+  deleteAssignmentFromButton(button){
+    const id = button && button.dataset ? button.dataset.assignmentId : "";
+    const name = button && button.dataset ? button.dataset.assignmentName : "Assignment";
+    return this.deleteAssignment(id, name);
+  },
+
+  async deleteAssignment(assignmentId, assignmentName = ""){
+    const id = String(assignmentId || "").trim();
+
+    if(!id){
+      alert("This assignment does not have a Firebase ID, so it cannot be deleted from Firebase.");
+      return;
+    }
+
+    const label = assignmentName ? String(assignmentName) : "this assignment";
+
+    if(!confirm("Delete " + label + "? Students will no longer see this assignment.")){
+      return;
+    }
+
+    try{
+      await deleteDoc(doc(db,"classAssignments",id));
+
+      firebaseAssignments = firebaseAssignments.filter(item => {
+        return String(item.firebaseId || item.id || "") !== id;
+      });
+
+      const localDocs = safeJsonParse(localStorage.getItem(LOCAL_KEYS.documents), []) || [];
+      const cleanedLocalDocs = localDocs.filter(item => {
+        return String(item.firebaseId || item.id || "") !== id;
+      });
+      saveDocuments(cleanedLocalDocs);
+
+      populateCohortFilter();
+      this.renderDocuments();
+      updateStats();
+      updateAnalytics();
+      updateQuickDashboard();
+
+      alert("Assignment deleted.");
+    }catch(error){
+      console.error("Delete assignment failed:", error);
+      alert("Could not delete assignment. Check Firestore rules for classAssignments delete permission.");
+    }
+  },
+
   renderDocuments(){
     const list = document.getElementById("documents-list");
     const docs = getFilteredAssignments();
@@ -3405,7 +3468,11 @@ window.InstructorCenter = {
               </div>
             </div>
           </div>
-          <span class="badge">${d.source === "firebase" ? "Sent to Students" : "Saved Locally"}</span>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <span class="badge">${d.source === "firebase" ? "Sent to Students" : "Saved Locally"}</span>
+            <button class="btn btn-danger" style="min-height:34px;padding:8px 12px;font-size:13px" data-assignment-id="${escapeHtml(d.firebaseId || d.id || "")}" data-assignment-name="${escapeHtml(d.name || d.title || "Assignment")}" onclick="InstructorCenter.deleteAssignmentFromButton(this)">Delete</button>
+            <span class="assignment-delete-note">Removes from student dashboards</span>
+          </div>
         </div>
       </div>
     `).join("");
