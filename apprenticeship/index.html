@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-assignment-attachment-link-v35 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-auto-roster-link-v36 -->
   <!-- FIXES:
     1. Pulls instructor daily assignments from Firestore classAssignments.
     2. Matches assignments by student apprenticeship.schoolCode.
@@ -850,12 +850,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260520assignmentsv35'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260520assignmentsv35'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260521rosterv36'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260521rosterv36'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260520assignmentsv35'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260520assignmentsv35'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260521rosterv36'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260521rosterv36'">Back</button>
   </div>
 </div>
 
@@ -1146,7 +1146,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v34";
+  const LOCAL_PROGRESS_VERSION = "v36";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1395,7 +1395,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260520assignmentsv35";
+      window.location.href = "/instructor/?v=20260521rosterv36";
       return false;
     }
 
@@ -1410,11 +1410,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260520assignmentsv35";
+      window.location.href = "/instructor/?v=20260521rosterv36";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260520assignmentsv35";
+    window.location.href = "/apprenticeship/?v=20260521rosterv36";
     return false;
   };
 
@@ -1423,7 +1423,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260520assignmentsv35");
+      window.location.replace("/instructor/?v=20260521rosterv36");
       return false;
     }
 
@@ -1690,6 +1690,47 @@
     await addDoc(collection(db,"pendingReviews"), reviewPayload);
   }
 
+
+  async function createInstructorRosterLink(code, codeData, updatedApprenticeship){
+    if(!currentUserId){
+      return;
+    }
+
+    const rosterPayload = {
+      studentUid:currentUserId,
+      authUid:currentUserId,
+      uid:currentUserId,
+      studentId:currentUserId,
+
+      studentName:getProfileName(profile),
+      studentEmail:currentUserEmail || getProfileEmail(profile),
+      trade:getProfileTrade(profile),
+      role:getProfileRole(profile),
+
+      schoolCode:code,
+      schoolId:updatedApprenticeship.schoolId || codeData.schoolId || "",
+      schoolName:updatedApprenticeship.schoolName || codeData.schoolName || "",
+      cohortId:updatedApprenticeship.cohortId || codeData.cohortId || "",
+      cohortName:updatedApprenticeship.cohortName || codeData.cohortName || "",
+
+      instructorId:updatedApprenticeship.instructorId || codeData.instructorId || "",
+      instructorName:updatedApprenticeship.instructorName || codeData.instructorName || "",
+      instructorEmail:updatedApprenticeship.instructorEmail || codeData.instructorEmail || "",
+
+      hoursCompleted:Number(state.hoursCompleted || 0),
+      totalHours:Number(state.hoursCompleted || 0),
+      progressPercent:Math.min(100,Math.round((Number(state.hoursCompleted || 0) / BENCHMARK_HOURS) * 100)),
+      currentLevel:getLevel(Number(state.hoursCompleted || 0)),
+
+      status:"active",
+      source:"student_school_code_connect",
+      joinedAt:serverTimestamp(),
+      updatedAt:serverTimestamp()
+    };
+
+    await setDoc(doc(db,"instructorStudents",currentUserId), rosterPayload, {merge:true});
+  }
+
   window.connectSchoolCode = async function(){
     const input = $("schoolCodeInput");
     const status = $("schoolCodeStatus");
@@ -1748,10 +1789,14 @@
       await setDoc(doc(db,"users",currentUserId),{
         schoolCode:code,
         cohortName:updatedApprenticeship.cohortName || "",
+        instructorId:updatedApprenticeship.instructorId || "",
+        instructorName:updatedApprenticeship.instructorName || "",
         instructorEmail:updatedApprenticeship.instructorEmail || "",
         apprenticeship:updatedApprenticeship,
         updatedAt:serverTimestamp()
       },{merge:true});
+
+      await createInstructorRosterLink(code, codeData, updatedApprenticeship);
 
       profile = {
         ...profile,
@@ -1797,7 +1842,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260520assignmentsv35");
+      window.location.replace("/front/?v=secureauth20260521rosterv36");
       return;
     }
 
@@ -2886,7 +2931,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260520assignmentsv35");
+      window.location.replace("/front/?v=secureauth20260521rosterv36");
       return;
     }
 
@@ -2932,7 +2977,7 @@
     }
   },8000);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v35 - Instructor Assignment Attachments Enabled");
+  console.log("LTN Apprenticeship Dashboard Loaded v36 - Instructor Assignment Attachments Enabled");
 </script>
 
 </body>
