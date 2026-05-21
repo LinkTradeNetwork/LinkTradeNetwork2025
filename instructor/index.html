@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-20: INSTRUCTOR CENTER DELETE ASSIGNMENTS v27 -->
-<!-- LTN VERSION: instructor-center-delete-assignments-v27 -->
+<!-- LTN FORCE UPDATE 2026-05-20: INSTRUCTOR CENTER ASSIGNMENT COMPLETION TRACKING v28 -->
+<!-- LTN VERSION: instructor-center-assignment-completion-tracking-v28 -->
 
 <style>
 :root{
@@ -726,6 +726,76 @@ textarea.form-control{min-height:106px;resize:vertical}
   margin-top:6px;
 }
 
+.assignment-detail-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:8px;
+  margin-top:10px;
+}
+
+.assignment-detail-card{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px;
+}
+
+.assignment-detail-card strong{
+  display:block;
+  font-size:20px;
+  color:var(--accent);
+  line-height:1;
+}
+
+.assignment-detail-card span{
+  display:block;
+  font-size:11px;
+  color:var(--muted);
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-top:4px;
+}
+
+.assignment-submission-list{
+  margin-top:12px;
+  display:grid;
+  gap:8px;
+}
+
+.assignment-submission-item{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:12px;
+  padding:10px 12px;
+}
+
+.assignment-submission-item strong{
+  display:block;
+  color:var(--ink);
+  font-size:13px;
+  font-weight:950;
+}
+
+.assignment-submission-item span{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  margin-top:3px;
+}
+
+.assignment-missing{
+  margin-top:12px;
+  background:#f8fafc;
+  border:1px dashed #cbd5e1;
+  border-radius:12px;
+  padding:10px 12px;
+  color:#64748b;
+  font-size:12px;
+  font-weight:800;
+}
+
 .person-top{
   display:flex;
   justify-content:space-between;
@@ -1152,7 +1222,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260521instructorv27";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260521instructorv28";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1193,11 +1263,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260521instructorv27">Dashboard</a>
-      <a href="/members/?v=20260521instructorv27">Members</a>
-      <a href="/instructor/?v=20260521instructorv27" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260521instructorv27" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260521instructorv27">Network Center</a>
+      <a href="/dashboard/?v=20260521instructorv28">Dashboard</a>
+      <a href="/members/?v=20260521instructorv28">Members</a>
+      <a href="/instructor/?v=20260521instructorv28" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260521instructorv28" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260521instructorv28">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1245,7 +1315,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260521instructorv27">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260521instructorv28">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1425,7 +1495,10 @@ textarea.form-control{min-height:106px;resize:vertical}
       <div class="card">
         <div class="hd">
           <span>Daily / Class Assignments Sent to Students</span>
-          <button class="btn btn-primary" style="min-height:34px;padding:8px 12px;font-size:13px" onclick="InstructorCenter.openDocumentModal()">Send Assignment</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-secondary" style="min-height:34px;padding:8px 12px;font-size:13px" onclick="InstructorCenter.refreshAssignmentCompletion()">Refresh</button>
+            <button class="btn btn-primary" style="min-height:34px;padding:8px 12px;font-size:13px" onclick="InstructorCenter.openDocumentModal()">Send Assignment</button>
+          </div>
         </div>
         <div class="bd">
           <div class="notice">
@@ -2058,6 +2131,105 @@ function getAssignmentCompletionPercent(assignmentId){
   const counts = getAssignmentSubmissionCounts();
   const submitted = counts[String(assignmentId || "")] ? counts[String(assignmentId || "")].total : 0;
   return Math.min(100, Math.round((submitted / totalStudents) * 100));
+}
+
+function getAssignmentReviews(assignmentId){
+  const id = String(assignmentId || "").trim();
+  if(!id) return [];
+
+  return pendingReviews.filter(review => {
+    return String(review.assignmentId || "").trim() === id;
+  });
+}
+
+function getAssignmentRosterStudents(assignment){
+  const cohort = String(assignment && assignment.cohortName || "").trim();
+  return mergeStudents(getStudents(), autoLinkedStudents).filter(student => {
+    if(!itemMatchesSelectedCohort(student)) return false;
+    if(!cohort) return true;
+    return String(student.cohortName || student.cohort || student.className || "").trim() === cohort;
+  });
+}
+
+function getAssignmentMissingStudents(assignment){
+  const reviews = getAssignmentReviews(assignment.firebaseId || assignment.id);
+  const submittedKeys = new Set();
+
+  reviews.forEach(review => {
+    [
+      review.authUid,
+      review.uid,
+      review.studentUid,
+      review.studentId,
+      review.submittedByUid,
+      normalizeEmail(review.studentEmail || review.submittedByEmail || "")
+    ].forEach(value => {
+      const key = String(value || "").trim().toLowerCase();
+      if(key) submittedKeys.add(key);
+    });
+  });
+
+  return getAssignmentRosterStudents(assignment).filter(student => {
+    const keys = [
+      student.authUid,
+      student.userId,
+      student.uid,
+      student.id,
+      normalizeEmail(student.email || "")
+    ].map(value => String(value || "").trim().toLowerCase()).filter(Boolean);
+
+    return !keys.some(key => submittedKeys.has(key));
+  });
+}
+
+function buildAssignmentSubmissionDetails(assignment){
+  const assignmentId = assignment.firebaseId || assignment.id;
+  const reviews = getAssignmentReviews(assignmentId);
+  const counts = getAssignmentSubmissionCounts()[String(assignmentId || "")] || {pending:0, approved:0, rejected:0, total:0};
+  const rosterStudents = getAssignmentRosterStudents(assignment);
+  const missingStudents = getAssignmentMissingStudents(assignment);
+  const percent = getAssignmentCompletionPercent(assignmentId);
+
+  const latestReviews = reviews.slice(0,6).map(review => {
+    const status = getReviewStatus(review);
+    const statusLabel = status === "approved" ? "Approved" : status === "rejected" ? "Needs Correction" : "Pending Review";
+    return `
+      <div class="assignment-submission-item">
+        <strong>${escapeHtml(review.studentName || review.submittedByEmail || "Student")}</strong>
+        <span>${escapeHtml(statusLabel)}${review.studentNote ? " • " + escapeHtml(review.studentNote) : ""}</span>
+        ${review.proofFileUrl ? `<a class="file-link" href="${escapeHtml(review.proofFileUrl)}" target="_blank" rel="noopener">Open Submitted Proof</a>` : ""}
+      </div>
+    `;
+  }).join("");
+
+  const missingNames = missingStudents.slice(0,8).map(student => escapeHtml(student.name || student.email || "Student")).join(", ");
+  const extraMissing = missingStudents.length > 8 ? ` + ${missingStudents.length - 8} more` : "";
+
+  return `
+    <div class="assignment-detail-grid">
+      <div class="assignment-detail-card"><strong>${counts.total}</strong><span>Submitted</span></div>
+      <div class="assignment-detail-card"><strong>${counts.pending}</strong><span>Pending</span></div>
+      <div class="assignment-detail-card"><strong>${counts.approved}</strong><span>Approved</span></div>
+      <div class="assignment-detail-card"><strong>${counts.rejected}</strong><span>Rejected</span></div>
+      <div class="assignment-detail-card"><strong>${missingStudents.length}</strong><span>Not Submitted</span></div>
+    </div>
+
+    ${latestReviews ? `<div class="assignment-submission-list">${latestReviews}</div>` : `<div class="assignment-missing">No students have submitted this assignment yet.</div>`}
+
+    ${missingStudents.length ? `
+      <div class="assignment-missing">
+        <strong>Not submitted yet:</strong> ${missingNames}${extraMissing}
+      </div>
+    ` : rosterStudents.length ? `
+      <div class="assignment-missing" style="border-color:#bbf7d0;background:#f0fdf4;color:#166534">
+        All visible students have submitted this assignment.
+      </div>
+    ` : `
+      <div class="assignment-missing">
+        No students are currently visible for this assignment cohort.
+      </div>
+    `}
+  `;
 }
 
 function populateTradeFilter(){
@@ -2892,6 +3064,17 @@ window.InstructorCenter = {
     if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
   },
 
+  async refreshAssignmentCompletion(){
+    await loadPendingReviews();
+    await loadClassAssignments();
+    populateCohortFilter();
+    updateStats();
+    updateAnalytics();
+    renderPendingReviews();
+    this.renderDocuments();
+    alert("Assignment completion tracking refreshed.");
+  },
+
   getReviewComment(reviewId){
     const commentBox = document.getElementById("review-comment-" + reviewId);
     return commentBox ? commentBox.value.trim() : "";
@@ -2915,10 +3098,12 @@ window.InstructorCenter = {
       });
 
       await loadPendingReviews();
+      await loadClassAssignments();
       populateCohortFilter();
       updateStats();
       updateAnalytics();
       renderPendingReviews();
+      this.renderDocuments();
 
       alert("Student upload approved with instructor comment.");
     }catch(e){
@@ -2945,10 +3130,12 @@ window.InstructorCenter = {
       });
 
       await loadPendingReviews();
+      await loadClassAssignments();
       populateCohortFilter();
       updateStats();
       updateAnalytics();
       renderPendingReviews();
+      this.renderDocuments();
 
       alert("Student upload rejected with instructor comment.");
     }catch(e){
@@ -3122,7 +3309,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260521instructorv27">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260521instructorv28">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -3467,6 +3654,7 @@ window.InstructorCenter = {
                 })()}
               </div>
             </div>
+            ${buildAssignmentSubmissionDetails(d)}
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
             <span class="badge">${d.source === "firebase" ? "Sent to Students" : "Saved Locally"}</span>
