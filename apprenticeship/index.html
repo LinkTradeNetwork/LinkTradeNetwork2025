@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-auto-roster-link-v36 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-assignment-completion-v37 -->
   <!-- FIXES:
     1. Pulls instructor daily assignments from Firestore classAssignments.
     2. Matches assignments by student apprenticeship.schoolCode.
@@ -700,6 +700,39 @@
       background:#f8fff9;
     }
 
+    .assignment-card.approved{
+      border-color:#86efac;
+      background:#f0fdf4;
+    }
+
+    .assignment-card.rejected{
+      border-color:#fecdd3;
+      background:#fff1f2;
+    }
+
+    .assignment-review-box{
+      margin-top:12px;
+      background:white;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+    }
+
+    .assignment-review-box strong{
+      display:block;
+      color:var(--ink);
+      font-size:14px;
+    }
+
+    .assignment-review-box span{
+      display:block;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+      margin-top:3px;
+      line-height:1.4;
+    }
+
     .assignment-top{
       display:flex;
       justify-content:space-between;
@@ -850,12 +883,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260521rosterv36'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260521rosterv36'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260521assignmentv37'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260521assignmentv37'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260521rosterv36'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260521rosterv36'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260521assignmentv37'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260521assignmentv37'">Back</button>
   </div>
 </div>
 
@@ -1146,7 +1179,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v36";
+  const LOCAL_PROGRESS_VERSION = "v37";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1395,7 +1428,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260521rosterv36";
+      window.location.href = "/instructor/?v=20260521assignmentv37";
       return false;
     }
 
@@ -1410,11 +1443,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260521rosterv36";
+      window.location.href = "/instructor/?v=20260521assignmentv37";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260521rosterv36";
+    window.location.href = "/apprenticeship/?v=20260521assignmentv37";
     return false;
   };
 
@@ -1423,7 +1456,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260521rosterv36");
+      window.location.replace("/instructor/?v=20260521assignmentv37");
       return false;
     }
 
@@ -1842,7 +1875,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260521rosterv36");
+      window.location.replace("/front/?v=secureauth20260521assignmentv37");
       return;
     }
 
@@ -2080,6 +2113,24 @@
     }
   }
 
+  function getAssignmentReview(assignmentId){
+    const id = String(assignmentId || "").trim();
+    if(!id) return null;
+
+    const reviews = state.pendingReviews.filter(review => String(review.assignmentId || "").trim() === id);
+    if(!reviews.length) return null;
+
+    const priority = {approved:3,rejected:2,pending:1};
+    reviews.sort((a,b) => {
+      const aScore = priority[String(a.status || "pending").toLowerCase()] || 0;
+      const bScore = priority[String(b.status || "pending").toLowerCase()] || 0;
+      if(aScore !== bScore) return bScore - aScore;
+      return String(b.submittedAtIso || "").localeCompare(String(a.submittedAtIso || ""));
+    });
+
+    return reviews[0];
+  }
+
   function renderStudentAssignments(){
     const box = $("studentAssignmentsList");
     if(!box) return;
@@ -2097,8 +2148,10 @@
     }
 
     box.innerHTML = instructorAssignments.map(item => {
-      const submitted = assignmentAlreadySubmitted(item.id);
-      const cardClass = submitted ? "assignment-card done" : "assignment-card";
+      const review = getAssignmentReview(item.id);
+      const reviewStatus = review ? String(review.status || "pending").toLowerCase() : "";
+      const submitted = assignmentAlreadySubmitted(item.id) || !!review;
+      const cardClass = reviewStatus === "approved" ? "assignment-card approved" : reviewStatus === "rejected" ? "assignment-card rejected" : submitted ? "assignment-card done" : "assignment-card";
       const fileLine = item.fileName ? `
         <div class="assignment-file-chip">
           <div class="assignment-file-left">
@@ -2113,7 +2166,23 @@
       ` : "";
       const dueLine = item.dueDate ? `<div class="assignment-meta">Due: ${safe(item.dueDate)}</div>` : "";
       const cohortLine = item.cohortName ? `<div class="assignment-meta">Cohort: ${safe(item.cohortName)}</div>` : "";
-      const submitStatus = submitted ? `<span class="status-pill status-verified">✓ Submitted for Instructor Review</span>` : `<span class="status-pill status-pending">Waiting for Student Upload</span>`;
+      let submitStatus = `<span class="status-pill status-pending">Waiting for Student Upload</span>`;
+      if(reviewStatus === "approved"){
+        submitStatus = `<span class="status-pill status-verified">✓ Instructor Approved</span>`;
+      }else if(reviewStatus === "rejected"){
+        submitStatus = `<span class="status-pill status-rejected">Needs Correction</span>`;
+      }else if(submitted){
+        submitStatus = `<span class="status-pill status-pending">Submitted for Instructor Review</span>`;
+      }
+
+      const reviewBox = review ? `
+        <div class="assignment-review-box">
+          <strong>Instructor Review Status</strong>
+          <span>Status: ${safe(reviewStatus || "pending")}</span>
+          ${review.instructorComment ? `<span>Instructor Comment: ${safe(review.instructorComment)}</span>` : ""}
+          ${review.proofFileUrl ? `<a class="proof-link" href="${safe(review.proofFileUrl)}" target="_blank" rel="noopener">View Submitted Proof</a>` : ""}
+        </div>
+      ` : "";
 
       return `
         <div class="${cardClass}">
@@ -2130,10 +2199,12 @@
 
           ${item.instructions ? `<div class="assignment-instructions">${safe(item.instructions)}</div>` : ""}
 
-          ${submitted ? `
+          ${reviewBox}
+
+          ${submitted && reviewStatus !== "rejected" ? `
             <div class="assignment-upload-box">
-              <strong>Assignment proof submitted.</strong>
-              <div class="small">Your instructor will review this in the Instructor Center.</div>
+              <strong>${reviewStatus === "approved" ? "Assignment approved." : "Assignment proof submitted."}</strong>
+              <div class="small">${reviewStatus === "approved" ? "Your instructor approved this assignment." : "Your instructor will review this in the Instructor Center."}</div>
             </div>
           ` : `
             <div class="assignment-upload-box">
@@ -2143,7 +2214,7 @@
                 <input class="form-control" type="text" id="assignment-note-${safe(item.id)}" maxlength="120" placeholder="Short note to instructor">
                 <input class="file-control" type="file" id="assignment-file-${safe(item.id)}" accept=".pdf,.jpg,.jpeg,.png,.heic">
               </div>
-              <button class="button" id="assignment-btn-${safe(item.id)}" onclick="submitAssignmentProof('${safe(item.id)}')" style="margin-top:10px">Submit Assignment Proof</button>
+              <button class="button" id="assignment-btn-${safe(item.id)}" onclick="submitAssignmentProof('${safe(item.id)}')" style="margin-top:10px">${reviewStatus === "rejected" ? "Resubmit Assignment Proof" : "Submit Assignment Proof"}</button>
               <div class="assignment-upload-status info" id="assignment-status-${safe(item.id)}"></div>
             </div>
           `}
@@ -2213,6 +2284,7 @@
 
       await saveToFirebase();
       await loadPendingReviews();
+      await loadInstructorAssignments();
       setStatus(statusId,"Assignment proof submitted to instructor for review.","ok");
       renderProgress();
     }catch(error){
@@ -2931,7 +3003,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260521rosterv36");
+      window.location.replace("/front/?v=secureauth20260521assignmentv37");
       return;
     }
 
