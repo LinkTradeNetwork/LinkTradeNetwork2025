@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-ultra-fast-v42 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-lite-no-passport-v43 -->
   <!-- FIXES:
     1. Pulls instructor daily assignments from Firestore classAssignments.
     2. Matches assignments by student apprenticeship.schoolCode.
@@ -1075,14 +1075,7 @@
     <div class="preview-card" id="memberPreview"></div>
   </div>
 
-  <div class="section-title">Verified Trade Passport</div>
-
-  <div class="card">
-    <div class="label">LTN Trade Passport</div>
-    <div class="value small-value">Employer-Ready Progress Record</div>
-    <div class="small">This updates automatically from your hours, uploads, instructor approvals, and verified skills.</div>
-    <div id="tradePassportBox" class="trade-passport-card"></div>
-  </div>
+  <!-- Verified Trade Passport section removed in v43 for faster loading. -->
 
   <div class="section-title">Aptitude Status</div>
 
@@ -1983,55 +1976,19 @@
   }
 
   async function syncTradePassport(activityType = "student_sync", title = "Trade Passport updated"){
-    if(!currentUserId) return;
-    try{
-      const payload = buildTradePassportPayload();
-      await setDoc(doc(db,"tradePassports",currentUserId),payload,{merge:true});
-      await addDoc(collection(db,"tradePassportActivity"),{
-        authUid:currentUserId,
-        studentUid:currentUserId,
-        schoolCode:payload.schoolCode || "",
-        cohort:payload.cohort || "",
-        activityType,
-        title,
-        detail:"Student dashboard synced Trade Passport metrics.",
-        createdAt:serverTimestamp(),
-        source:"apprenticeship_dashboard"
-      });
-    }catch(error){
-      console.warn("Trade Passport sync failed:", error);
-    }
+    // v43 SPEED FIX: Trade Passport auto-sync disabled on Track My Progress.
+    // This removes extra Firestore writes that were slowing the page down.
+    return;
   }
 
   function renderTradePassport(){
-    const box = $("tradePassportBox");
-    if(!box) return;
-    const payload = buildTradePassportPayload();
-    box.innerHTML = `
-      <div class="preview-top">
-        <div class="preview-avatar">${safe(getInitials(payload.fullName))}</div>
-        <div>
-          <div class="preview-name">${safe(payload.fullName)}</div>
-          <div class="preview-trade">${safe(payload.trade)} • Employer Ready Score ${payload.employerReadyScore}%</div>
-        </div>
-      </div>
-      <div class="trade-passport-grid">
-        <div class="trade-passport-metric"><span>Current Hours</span><strong>${Number(payload.currentHours || 0).toLocaleString()}</strong></div>
-        <div class="trade-passport-metric"><span>Verified Hours</span><strong>${Number(payload.verifiedHours || 0).toLocaleString()}</strong></div>
-        <div class="trade-passport-metric"><span>Approved Assignments</span><strong>${Number(payload.approvedAssignments || 0)}</strong></div>
-        <div class="trade-passport-metric"><span>Verified Skills</span><strong>${Number(payload.verifiedSkills || 0)}</strong></div>
-        <div class="trade-passport-metric"><span>Certifications</span><strong>${Number(payload.certifications || 0)}</strong></div>
-        <div class="trade-passport-metric"><span>Progress</span><strong>${Number(payload.progressPercent || 0)}%</strong></div>
-      </div>
-      <div class="preview-note">
-        School Code: ${safe(payload.schoolCode || "Not connected")} ${payload.cohort ? " • Cohort: " + safe(payload.cohort) : ""}
-      </div>
-    `;
+    // v43 SPEED FIX: Employer-ready Trade Passport section removed for faster loading.
+    return;
   }
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260522fastv42");
+      window.location.replace("/front/?v=secureauth20260522litev43");
       return;
     }
 
@@ -2182,7 +2139,6 @@
 
     renderStudentAssignments();
     renderMemberPreview();
-    renderTradePassport();
     renderHourLog();
     renderCerts();
     renderSkills();
@@ -2867,9 +2823,12 @@
 
   window.refreshInstructorData = async function(){
     $("syncStatus").textContent = "Refreshing instructor data...";
-    await loadInstructorAssignments();
-    await loadVerifiedSkills();
-    await loadPendingReviews();
+    await Promise.allSettled([
+      loadInstructorAssignments(),
+      loadVerifiedSkills(),
+      loadPendingReviews(),
+      loadAptitudeTest(currentUserId)
+    ]);
     renderProgress();
     $("syncStatus").textContent = "Instructor data refreshed";
   };
@@ -3185,7 +3144,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260522fastv42");
+      window.location.replace("/front/?v=secureauth20260522litev43");
       return;
     }
 
@@ -3217,10 +3176,14 @@
     renderProgress();
 
     $("syncStatus").textContent = "Profile loaded";
-    setStatus("saveStatus","Track My Progress opened. Loading instructor details in background.","ok");
+    setStatus("saveStatus","Track My Progress opened fast. Click Refresh Instructor Data only when you need assignments or reviews.","ok");
     showPage();
 
-    setTimeout(loadBackgroundInstructorData, 50);
+    // v43 SPEED FIX: Do not auto-load heavy instructor data on page open.
+    // Use the Refresh Instructor Data button to load assignments/reviews/skills when needed.
+    setTimeout(function(){
+      try{ $("syncStatus").textContent = "Loaded fast"; }catch(e){}
+    }, 50);
   });
 
   setTimeout(function(){
@@ -3232,7 +3195,7 @@
     }
   },2500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v42 - Ultra Fast First Paint Enabled");
+  console.log("LTN Apprenticeship Dashboard Loaded v43 - Lite No Trade Passport Auto Load");
 </script>
 
 </body>
