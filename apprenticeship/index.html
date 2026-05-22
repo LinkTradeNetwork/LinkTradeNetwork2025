@@ -265,27 +265,7 @@
       box-shadow:0 0 0 3px rgba(233,105,22,.14);
     }
 
-    .school-code-area{
-      margin-top:18px;
-      background:var(--orange-soft);
-      border:1px solid var(--orange-border);
-      border-radius:14px;
-      padding:14px;
-    }
-
-    .school-code-area .label{color:#9a3412;margin-bottom:8px}
-
-    .school-code-help{
-      color:#7c2d12;
-      font-size:13px;
-      font-weight:700;
-      line-height:1.4;
-      margin-bottom:10px;
-    }
-
-    .school-code-input{text-transform:uppercase;font-weight:900}
-
-    .school-code-status,.save-status,.assignment-upload-status{
+    .save-status,.assignment-upload-status{
       margin-top:10px;
       font-size:13px;
       font-weight:900;
@@ -293,9 +273,9 @@
       line-height:1.4;
     }
 
-    .school-code-status.ok,.save-status.ok,.assignment-upload-status.ok{color:var(--ok)}
-    .school-code-status.bad,.save-status.bad,.assignment-upload-status.bad{color:var(--danger)}
-    .school-code-status.info,.save-status.info,.assignment-upload-status.info{color:var(--blue)}
+    .save-status.ok,.assignment-upload-status.ok{color:var(--ok)}
+    .save-status.bad,.assignment-upload-status.bad{color:var(--danger)}
+    .save-status.info,.assignment-upload-status.info{color:var(--blue)}
 
     .file-control{
       width:100%;
@@ -975,16 +955,6 @@
       <div class="value small-value" id="userTradeSchool">Not added</div>
       <div class="small">Connected to your progress profile</div>
 
-      <div class="school-code-area">
-        <div class="label">Join School / Instructor Cohort</div>
-        <div class="school-code-help">
-          If your instructor gave you a code, enter it here to connect your profile to your school, instructor, and class.
-        </div>
-
-        <input id="schoolCodeInput" class="form-control school-code-input" type="text" placeholder="STC-ELECTRICAL-2026" autocomplete="off">
-        <button id="schoolCodeBtn" class="button" style="margin-top:10px;width:100%" onclick="connectSchoolCode()">Connect School</button>
-        <div id="schoolCodeStatus" class="school-code-status info"></div>
-      </div>
     </div>
 
     <div class="card">
@@ -1199,7 +1169,6 @@
     query,
     where,
     getDocs,
-    limit,
     serverTimestamp
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
@@ -1828,20 +1797,6 @@
     return reviewCountByStatus("pending");
   }
 
-  async function findSchoolCode(code){
-    const directSnap = await getDoc(doc(db,"schoolCodes",code));
-    if(directSnap.exists()) return directSnap;
-
-    const qRef = query(
-      collection(db,"schoolCodes"),
-      where("code","==",code),
-      limit(1)
-    );
-
-    const snap = await getDocs(qRef);
-    return snap.empty ? null : snap.docs[0];
-  }
-
   async function createPendingReview(reviewType, uploadTitle, proofData, extraData = {}){
     if(!currentUserId){
       throw new Error("You must be signed in before submitting proof for instructor review.");
@@ -1902,155 +1857,6 @@
     await addDoc(collection(db,"pendingReviews"), reviewPayload);
   }
 
-
-  async function createInstructorRosterLink(code, codeData, updatedApprenticeship){
-    if(!currentUserId){
-      return;
-    }
-
-    const rosterPayload = {
-      studentUid:currentUserId,
-      authUid:currentUserId,
-      uid:currentUserId,
-      studentId:currentUserId,
-
-      studentName:getProfileName(profile),
-      studentEmail:currentUserEmail || getProfileEmail(profile),
-      trade:getProfileTrade(profile),
-      role:getProfileRole(profile),
-
-      schoolCode:code,
-      schoolId:updatedApprenticeship.schoolId || codeData.schoolId || "",
-      schoolName:updatedApprenticeship.schoolName || codeData.schoolName || "",
-      cohortId:updatedApprenticeship.cohortId || codeData.cohortId || "",
-      cohortName:updatedApprenticeship.cohortName || codeData.cohortName || "",
-
-      instructorId:updatedApprenticeship.instructorId || codeData.instructorId || "",
-      instructorName:updatedApprenticeship.instructorName || codeData.instructorName || "",
-      instructorEmail:updatedApprenticeship.instructorEmail || codeData.instructorEmail || "",
-
-      hoursCompleted:Number(state.hoursCompleted || 0),
-      totalHours:Number(state.hoursCompleted || 0),
-      progressPercent:Math.min(100,Math.round((Number(state.hoursCompleted || 0) / BENCHMARK_HOURS) * 100)),
-      currentLevel:getLevel(Number(state.hoursCompleted || 0)),
-
-      status:"active",
-      source:"student_school_code_connect",
-      joinedAt:serverTimestamp(),
-      updatedAt:serverTimestamp()
-    };
-
-    await setDoc(doc(db,"instructorStudents",currentUserId), rosterPayload, {merge:true});
-  }
-
-  window.connectSchoolCode = async function(){
-    const input = $("schoolCodeInput");
-    const status = $("schoolCodeStatus");
-    const btn = $("schoolCodeBtn");
-
-    if(!input || !status || !btn) return;
-
-    const code = input.value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g,"");
-
-    if(!code){
-      setStatus("schoolCodeStatus","Please enter your school / instructor code.","bad");
-      return;
-    }
-
-    if(!currentUserId){
-      setStatus("schoolCodeStatus","You must be signed in to connect a school code.","bad");
-      return;
-    }
-
-    setButtonBusy(btn,true,"Checking...");
-    setStatus("schoolCodeStatus","Checking school code...","info");
-
-    try{
-      const codeSnap = await findSchoolCode(code);
-
-      if(!codeSnap || !codeSnap.exists()){
-        setStatus("schoolCodeStatus","Code not found. Please check the code and try again.","bad");
-        return;
-      }
-
-      const codeData = codeSnap.data();
-
-      if(codeData.active !== true){
-        setStatus("schoolCodeStatus","This school code is not active. Please contact your instructor.","bad");
-        return;
-      }
-
-      const existingApprenticeship =
-        profile && profile.apprenticeship && typeof profile.apprenticeship === "object"
-          ? profile.apprenticeship
-          : {};
-
-      const updatedApprenticeship = {
-        ...existingApprenticeship,
-        isApprentice:true,
-        schoolId:codeData.schoolId || "",
-        schoolName:codeData.schoolName || "",
-        instructorId:codeData.instructorId || "",
-        instructorName:codeData.instructorName || "",
-        instructorEmail:codeData.instructorEmail || "",
-        cohortId:codeData.cohortId || "",
-        cohortName:codeData.cohortName || "",
-        schoolCode:code
-      };
-
-      await setDoc(doc(db,"users",currentUserId),{
-        schoolCode:code,
-        cohortName:updatedApprenticeship.cohortName || "",
-        instructorId:updatedApprenticeship.instructorId || "",
-        instructorName:updatedApprenticeship.instructorName || "",
-        instructorEmail:updatedApprenticeship.instructorEmail || "",
-        apprenticeship:updatedApprenticeship,
-        updatedAt:serverTimestamp()
-      },{merge:true});
-
-      await createInstructorRosterLink(code, codeData, updatedApprenticeship);
-
-      profile = {
-        ...profile,
-        schoolCode:code,
-        cohortName:updatedApprenticeship.cohortName || "",
-        instructorEmail:updatedApprenticeship.instructorEmail || "",
-        apprenticeship:updatedApprenticeship
-      };
-
-      try{
-        const stored = JSON.parse(localStorage.getItem("ltn_user") || "{}");
-        stored.schoolCode = code;
-        stored.cohortName = updatedApprenticeship.cohortName || "";
-        stored.apprenticeship = updatedApprenticeship;
-        localStorage.setItem("ltn_user",JSON.stringify(stored));
-        localStorage.setItem("ltn_current_profile",JSON.stringify(profile));
-      }catch(error){
-        console.warn("Could not update local user profile:", error);
-      }
-
-      input.value = "";
-      setStatus(
-        "schoolCodeStatus",
-        "Connected to " +
-          (codeData.schoolName || "school") +
-          " • " +
-          (codeData.cohortName || "cohort") +
-          " • " +
-          (codeData.instructorName || "instructor"),
-        "ok"
-      );
-
-      await loadInstructorAssignments();
-      renderProfile();
-      renderProgress();
-    }catch(error){
-      console.error("School code error:", error);
-      setStatus("schoolCodeStatus","Something went wrong connecting this code. Please try again.","bad");
-    }finally{
-      setButtonBusy(btn,false);
-    }
-  };
 
 
   function calculateEmployerReadyScore(metrics){
