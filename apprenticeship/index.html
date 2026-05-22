@@ -1988,7 +1988,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260522instantv44");
+      window.location.replace("/front/?v=secureauth20260522instantv45");
       return;
     }
 
@@ -2070,7 +2070,7 @@
     try{
       await setDoc(doc(db,"users",currentUserId),payload,{merge:true});
       await syncTradePassport("progress_saved","Student progress saved");
-      setStatus("saveStatus","Saved securely. Trade Passport synced. New proof stays pending until instructor verification.","ok");
+      setStatus("saveStatus","Saved securely. New proof stays pending until instructor verification.","ok");
       $("syncStatus").textContent = "Online save complete";
     }catch(error){
       console.error(error);
@@ -2798,8 +2798,20 @@
       const snap = await getDoc(doc(db,"users",uid));
 
       if(snap.exists()){
-        const firebaseProfile = snap.data();
-        profile = {...profile,...firebaseProfile};
+        const firebaseProfile = snap.data() || {};
+        profile = {
+          ...profile,
+          ...firebaseProfile,
+          uid:uid,
+          authUid:uid,
+          email:firebaseProfile.email || currentUserEmail || profile.email || ""
+        };
+
+        try{
+          localStorage.setItem("ltn_current_profile", JSON.stringify(profile));
+          localStorage.setItem("ltn_user", JSON.stringify(profile));
+        }catch(error){}
+
         mergeFirebaseProgress(firebaseProfile);
       }
     }catch(error){
@@ -3170,8 +3182,9 @@
       ...profile,
       uid:user.uid,
       authUid:user.uid,
-      email:user.email || localProfile.email || "",
-      name:user.displayName || localProfile.name || localProfile.fullName || ""
+      email:user.email || localProfile.email || localProfile.userEmail || "",
+      name:user.displayName || localProfile.fullName || localProfile.name || localProfile.displayName || "",
+      fullName:localProfile.fullName || localProfile.name || localProfile.displayName || profile.fullName || profile.name || ""
     };
   }
 
@@ -3200,7 +3213,7 @@
 
   onAuthStateChanged(auth,function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260522instantv44");
+      window.location.replace("/front/?v=secureauth20260522instantv45");
       return;
     }
 
@@ -3231,9 +3244,12 @@
   });
 
   setTimeout(function(){
-      try{ $("syncStatus").textContent = "Loaded fast"; }catch(e){}
+      try{
+        if($("syncStatus") && $("syncStatus").textContent === "Opened instantly"){
+          $("syncStatus").textContent = "Loading profile...";
+        }
+      }catch(e){}
     }, 50);
-  });
 
   setTimeout(function(){
     if(document.documentElement.classList.contains("auth-checking")){
@@ -3244,7 +3260,7 @@
     }
   },2500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v44 - Instant Render Background Firebase Load");
+  console.log("LTN Apprenticeship Dashboard Loaded v45 - Instant Profile Fix");
 </script>
 
 </body>
