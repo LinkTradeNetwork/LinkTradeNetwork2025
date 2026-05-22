@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- LTN FULL DASHBOARD EXPORT 2026-05-22: ROLE ROUTING FIX v29 -->
+<!-- LTN FULL DASHBOARD EXPORT 2026-05-22: ROLE ROUTING FIX v30 -->
 
 <html lang="en" class="auth-checking">
 <head>
@@ -16,8 +16,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
 
-<!-- LTN FORCE UPDATE 2026-05-22: DASHBOARD ROLE ROUTING FIX v29 -->
-<!-- LTN VERSION: dashboard-role-routing-fix-v29 -->
+<!-- LTN FORCE UPDATE 2026-05-22: DASHBOARD ROLE ROUTING FIX v30 -->
+<!-- LTN VERSION: dashboard-role-routing-fix-v30-instructor-code -->
 
 <style>
 :root{
@@ -365,6 +365,31 @@ aside,section{min-width:0}
 }
 
 textarea.form-control{min-height:104px;resize:vertical}
+
+.ltn-code-helper{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.45;
+  margin-top:6px;
+  font-weight:700;
+}
+
+.ltn-code-status{
+  font-size:13px;
+  font-weight:850;
+  margin-top:8px;
+  min-height:18px;
+}
+
+.ltn-code-status.ok{color:var(--success);}
+.ltn-code-status.bad{color:var(--danger);}
+.ltn-code-status.info{color:var(--muted);}
+
+.ltn-code-field{
+  text-transform:uppercase;
+  font-weight:850;
+  letter-spacing:.02em;
+}
 
 .profile-image-container{
   position:relative;
@@ -1138,7 +1163,7 @@ textarea.form-control{min-height:104px;resize:vertical}
 (function () {
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515roleswitchv30";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260522dashv30";
 
   window.LTNClearLocalSession = function () {
     [
@@ -1189,13 +1214,13 @@ textarea.form-control{min-height:104px;resize:vertical}
     </div>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260515roleswitchv30" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
-      <a href="/members/?v=20260515roleswitchv30" data-nav="members" onclick="setActiveNav(this)">Members</a>
-      <a href="/find-apprenticeships/?v=20260515roleswitchv30" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
-      <a href="/apprenticeship/?v=20260515roleswitchv30" data-nav="track-progress" onclick="return ltnRouteTrackProgressFromDashboard(event, this.href)" class="btn nav-action">Track My Progress</a>
-      <a href="/instructor/?v=20260515roleswitchv30" data-nav="instructor-center" onclick="return ltnRouteInstructorCenterFromDashboard(event, this.href)" class="btn nav-action">Instructor Center</a>
+      <a href="/dashboard/?v=20260522dashv30" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
+      <a href="/members/?v=20260522dashv30" data-nav="members" onclick="setActiveNav(this)">Members</a>
+      <a href="/find-apprenticeships/?v=20260522dashv30" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
+      <a href="/apprenticeship/?v=20260522dashv30" data-nav="track-progress" onclick="return ltnRouteTrackProgressFromDashboard(event, this.href)" class="btn nav-action">Track My Progress</a>
+      <a href="/instructor/?v=20260522dashv30" data-nav="instructor-center" onclick="return ltnRouteInstructorCenterFromDashboard(event, this.href)" class="btn nav-action">Instructor Center</a>
       <a href="#jobs" data-nav="jobs" onclick="setActiveNav(this)">Jobs</a>
-      <a href="/network-center/?v=20260515roleswitchv30" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
+      <a href="/network-center/?v=20260522dashv30" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
         Network Center
         <span id="network-badge" class="notification-badge" style="display:none">0</span>
         <span id="messages-badge" class="notification-badge" style="display:none;right:-14px">0</span>
@@ -1402,7 +1427,7 @@ textarea.form-control{min-height:104px;resize:vertical}
           <li style="margin-bottom:8px">Showcase your skills and certifications</li>
           <li>Get matched with projects in your area</li>
         </ul>
-        <a class="btn-primary" style="width:100%" href="/network-center/?v=20260515roleswitchv30">Open Network Center</a>
+        <a class="btn-primary" style="width:100%" href="/network-center/?v=20260522dashv30">Open Network Center</a>
       </div>
     </section>
 
@@ -1492,6 +1517,12 @@ textarea.form-control{min-height:104px;resize:vertical}
             <div class="form-group"><label>Employer / Contractor</label><input type="text" id="input-apprentice-employer" class="form-control" placeholder="Company or contractor name"></div>
             <div class="form-group"><label>Apprenticeship Start Date</label><input type="date" id="input-apprentice-start-date" class="form-control"></div>
             <div class="form-group"><label>Current Hours Completed</label><input type="number" id="input-apprentice-hours" class="form-control" placeholder="0" min="0" max="8000"></div>
+            <div class="form-group">
+              <label>Instructor / School Code</label>
+              <input type="text" id="input-apprentice-school-code" class="form-control ltn-code-field" placeholder="Enter code from your instructor">
+              <div class="ltn-code-helper">Students enter the code their instructor gave them. Example: JOHNSON2026</div>
+              <div id="apprentice-code-status" class="ltn-code-status info"></div>
+            </div>
           </div>
         </div>
 
@@ -1503,6 +1534,12 @@ textarea.form-control{min-height:104px;resize:vertical}
           <div id="instructor-fields" style="display:none;margin-top:14px">
             <div class="form-group"><label>School / Training Center</label><input type="text" id="input-instructor-school" class="form-control" placeholder="Superior Training Centre, trade school, union program, etc."></div>
             <div class="form-group"><label>Courses / Trades Taught</label><input type="text" id="input-instructor-courses" class="form-control" placeholder="Electrical, HVAC, Plumbing, Low Voltage, Safety, etc."></div>
+            <div class="form-group">
+              <label>Create Instructor / School Code</label>
+              <input type="text" id="input-instructor-code" class="form-control ltn-code-field" placeholder="Example: JOHNSON2026">
+              <div class="ltn-code-helper">Create a code your apprentices/students will enter in their Edit Profile to connect to your dashboard.</div>
+              <div id="instructor-code-status" class="ltn-code-status info"></div>
+            </div>
           </div>
         </div>
 
@@ -1843,6 +1880,158 @@ function escapeHtml(value) {
   });
 }
 
+function ltnCleanSchoolCode(value) {
+  return String(value || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+}
+
+function ltnSetCodeStatus(id, message, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = "ltn-code-status " + (type || "info");
+  el.textContent = message || "";
+}
+
+function ltnGetInstructorCodeFromProfile(profile) {
+  profile = profile || {};
+  const instr = profile.instructor || {};
+  return ltnCleanSchoolCode(
+    instr.instructorCode ||
+    instr.schoolCode ||
+    profile.instructorCode ||
+    profile.schoolCode ||
+    ""
+  );
+}
+
+async function ltnUpsertInstructorSchoolCode(profile) {
+  if (!firebaseDb || !firebaseAuth || !firebaseAuth.currentUser || !profile) return;
+
+  if (!profile.instructor || profile.instructor.isInstructor !== true) return;
+
+  const code = ltnGetInstructorCodeFromProfile(profile);
+  if (!code) return;
+
+  const uid = firebaseAuth.currentUser.uid;
+  const email = String(firebaseAuth.currentUser.email || profile.email || "").trim().toLowerCase();
+
+  const codeRef = firebaseDb.collection("schoolCodes").doc(code);
+  const existing = await codeRef.get();
+
+  if (existing.exists) {
+    const data = existing.data() || {};
+    if (data.instructorId && data.instructorId !== uid) {
+      throw new Error("That instructor code is already being used. Please choose a different code.");
+    }
+  }
+
+  const schoolName =
+    (profile.instructor && (profile.instructor.schoolName || profile.instructor.school)) ||
+    profile.schoolName ||
+    profile.school ||
+    "";
+
+  await codeRef.set({
+    active: true,
+    code: code,
+    schoolCode: code,
+    instructorId: uid,
+    instructorName: profile.fullName || profile.name || "Instructor",
+    instructorEmail: email,
+    schoolName: schoolName,
+    schoolId: uid,
+    cohortId: code,
+    cohortName: schoolName || code,
+    trade: profile.trade || "",
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    createdAt: existing.exists && existing.data() && existing.data().createdAt
+      ? existing.data().createdAt
+      : firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true });
+}
+
+async function ltnConnectApprenticeSchoolCode(profile) {
+  if (!firebaseDb || !firebaseAuth || !firebaseAuth.currentUser || !profile) return profile;
+
+  if (!profile.apprenticeship || profile.apprenticeship.isApprentice !== true) return profile;
+
+  const code = ltnCleanSchoolCode(
+    profile.apprenticeship.schoolCode ||
+    profile.schoolCode ||
+    ""
+  );
+
+  if (!code) return profile;
+
+  const codeRef = firebaseDb.collection("schoolCodes").doc(code);
+  const snap = await codeRef.get();
+
+  if (!snap.exists) {
+    throw new Error("Instructor / School Code not found. Please check the code and try again.");
+  }
+
+  const codeData = snap.data() || {};
+
+  if (codeData.active !== true) {
+    throw new Error("This Instructor / School Code is not active. Please contact your instructor.");
+  }
+
+  const uid = firebaseAuth.currentUser.uid;
+  const email = String(firebaseAuth.currentUser.email || profile.email || "").trim().toLowerCase();
+
+  const updatedApprenticeship = {
+    ...(profile.apprenticeship || {}),
+    isApprentice: true,
+    schoolCode: code,
+    schoolId: codeData.schoolId || "",
+    schoolName: codeData.schoolName || "",
+    instructorId: codeData.instructorId || "",
+    instructorName: codeData.instructorName || "",
+    instructorEmail: codeData.instructorEmail || "",
+    cohortId: codeData.cohortId || code,
+    cohortName: codeData.cohortName || codeData.schoolName || code
+  };
+
+  const updatedProfile = {
+    ...profile,
+    schoolCode: code,
+    cohortName: updatedApprenticeship.cohortName || "",
+    instructorId: updatedApprenticeship.instructorId || "",
+    instructorName: updatedApprenticeship.instructorName || "",
+    instructorEmail: updatedApprenticeship.instructorEmail || "",
+    assignedInstructorName: updatedApprenticeship.instructorName || "",
+    assignedInstructorEmail: updatedApprenticeship.instructorEmail || "",
+    apprenticeship: updatedApprenticeship
+  };
+
+  await firebaseDb.collection("instructorStudents").doc(uid).set({
+    studentUid: uid,
+    authUid: uid,
+    uid: uid,
+    studentId: uid,
+    studentName: updatedProfile.fullName || updatedProfile.name || "Student",
+    studentEmail: email,
+    trade: updatedProfile.trade || "",
+    role: updatedProfile.role || updatedProfile.profileType || "Apprentice",
+    schoolCode: code,
+    schoolId: updatedApprenticeship.schoolId || "",
+    schoolName: updatedApprenticeship.schoolName || "",
+    cohortId: updatedApprenticeship.cohortId || "",
+    cohortName: updatedApprenticeship.cohortName || "",
+    instructorId: updatedApprenticeship.instructorId || "",
+    instructorName: updatedApprenticeship.instructorName || "",
+    instructorEmail: updatedApprenticeship.instructorEmail || "",
+    status: "active",
+    source: "dashboard_edit_profile_code",
+    joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true });
+
+  return updatedProfile;
+}
+
 function getStoredUserEmail() {
   const authUser = firebaseAuth && firebaseAuth.currentUser;
   if (authUser && authUser.email) return String(authUser.email).trim().toLowerCase();
@@ -1909,6 +2098,12 @@ async function saveProfileToFirestore(profile) {
     ltnVerified: profile.ltnVerified === true,
     isApprentice: ltnIsApprenticeProfile(profile),
     isInstructor: ltnIsInstructorProfile(profile),
+    schoolCode: profile.schoolCode || (profile.apprenticeship || {}).schoolCode || (profile.instructor || {}).schoolCode || "",
+    instructorCode: profile.instructorCode || (profile.instructor || {}).instructorCode || "",
+    cohortName: profile.cohortName || (profile.apprenticeship || {}).cohortName || "",
+    instructorId: profile.instructorId || (profile.apprenticeship || {}).instructorId || "",
+    instructorName: profile.instructorName || (profile.apprenticeship || {}).instructorName || "",
+    instructorEmail: profile.instructorEmail || (profile.apprenticeship || {}).instructorEmail || "",
     apprenticeship: { ...(profile.apprenticeship || {}), isApprentice: ltnIsApprenticeProfile(profile), hours: apprenticeHours },
     instructor: { ...(profile.instructor || {}), isInstructor: ltnIsInstructorProfile(profile) },
     hours: apprenticeHours,
@@ -1935,6 +2130,25 @@ async function saveProfileToFirestore(profile) {
     const existing = await ref.get();
     if (!existing.exists) cleanProfile.createdAt = firebase.firestore.FieldValue.serverTimestamp();
     await ref.set(cleanProfile, { merge: true });
+
+    if (cleanProfile.isInstructor) {
+      await ltnUpsertInstructorSchoolCode(cleanProfile);
+    }
+
+    if (cleanProfile.isApprentice && cleanProfile.schoolCode) {
+      const connectedProfile = await ltnConnectApprenticeSchoolCode(cleanProfile);
+      await ref.set({
+        schoolCode: connectedProfile.schoolCode || "",
+        cohortName: connectedProfile.cohortName || "",
+        instructorId: connectedProfile.instructorId || "",
+        instructorName: connectedProfile.instructorName || "",
+        instructorEmail: connectedProfile.instructorEmail || "",
+        assignedInstructorName: connectedProfile.assignedInstructorName || "",
+        assignedInstructorEmail: connectedProfile.assignedInstructorEmail || "",
+        apprenticeship: connectedProfile.apprenticeship || cleanProfile.apprenticeship || {},
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    }
     return true;
   } catch (e) {
     console.error("Firestore profile save failed:", e);
@@ -2710,9 +2924,16 @@ function ltnProfileFromOpenFormOrSaved() {
       instructorEmail: (((document.getElementById("input-student-instructor-email") || {}).value || (saved.apprenticeship || {}).instructorEmail || saved.instructorEmail || saved.assignedInstructorEmail || "").trim()).toLowerCase(),
       employer: ((document.getElementById("input-apprentice-employer") || {}).value || (saved.apprenticeship || {}).employer || "").trim(),
       startDate: (document.getElementById("input-apprentice-start-date") || {}).value || (saved.apprenticeship || {}).startDate || "",
-      hours: Number((document.getElementById("input-apprentice-hours") || {}).value || (saved.apprenticeship || {}).hours || saved.hoursCompleted || saved.totalHours || 0) || 0
+      hours: Number((document.getElementById("input-apprentice-hours") || {}).value || (saved.apprenticeship || {}).hours || saved.hoursCompleted || saved.totalHours || 0) || 0,
+      schoolCode: ltnCleanSchoolCode(((document.getElementById("input-apprentice-school-code") || {}).value || (saved.apprenticeship || {}).schoolCode || saved.schoolCode || ""))
     },
-    instructor: saved.instructor || {}
+    schoolCode: ltnCleanSchoolCode(((document.getElementById("input-apprentice-school-code") || {}).value || saved.schoolCode || (saved.apprenticeship || {}).schoolCode || "")),
+    instructorCode: ltnCleanSchoolCode(((document.getElementById("input-instructor-code") || {}).value || saved.instructorCode || (saved.instructor || {}).instructorCode || "")),
+    instructor: {
+      ...(saved.instructor || {}),
+      instructorCode: ltnCleanSchoolCode(((document.getElementById("input-instructor-code") || {}).value || (saved.instructor || {}).instructorCode || saved.instructorCode || "")),
+      schoolCode: ltnCleanSchoolCode(((document.getElementById("input-instructor-code") || {}).value || (saved.instructor || {}).schoolCode || saved.schoolCode || ""))
+    }
   };
 }
 
@@ -2848,7 +3069,7 @@ window.ltnRouteTrackProgressFromDashboard = async function(event, targetUrl) {
   ltnSaveProfileEverywhere(profile);
   try { await saveProfileToFirestore(profile); } catch (e) { console.warn("Apprenticeship handoff Firebase save failed:", e); }
 
-  window.location.href = targetUrl || "/apprenticeship/?v=20260515roleswitchv30";
+  window.location.href = targetUrl || "/apprenticeship/?v=20260522dashv30";
   return false;
 };
 
@@ -2877,7 +3098,7 @@ window.ltnRouteInstructorCenterFromDashboard = async function(event, targetUrl) 
     console.warn("Instructor route save skipped:", e);
   }
 
-  window.location.href = targetUrl || "/instructor/?v=20260515roleswitchv30";
+  window.location.href = targetUrl || "/instructor/?v=20260522dashv30";
   return false;
 };
 
@@ -3316,10 +3537,12 @@ const ProfileManager = {
     if (byId("input-apprentice-employer")) byId("input-apprentice-employer").value = app.employer || "";
     if (byId("input-apprentice-start-date")) byId("input-apprentice-start-date").value = app.startDate || "";
     if (byId("input-apprentice-hours")) byId("input-apprentice-hours").value = app.hours || 0;
+    if (byId("input-apprentice-school-code")) byId("input-apprentice-school-code").value = ltnCleanSchoolCode(app.schoolCode || p.schoolCode || "");
 
     if (byId("input-is-instructor")) byId("input-is-instructor").checked = !!instr.isInstructor || p.profileType === "Instructor / Teacher";
-    if (byId("input-instructor-school")) byId("input-instructor-school").value = instr.school || "";
+    if (byId("input-instructor-school")) byId("input-instructor-school").value = instr.school || instr.schoolName || "";
     if (byId("input-instructor-courses")) byId("input-instructor-courses").value = instr.courses || "";
+    if (byId("input-instructor-code")) byId("input-instructor-code").value = ltnGetInstructorCodeFromProfile(p);
 
     this.toggleApprenticeFields();
     this.toggleInstructorFields();
@@ -3368,12 +3591,16 @@ const ProfileManager = {
         instructorEmail: (document.getElementById("input-student-instructor-email") || {}).value ? document.getElementById("input-student-instructor-email").value.trim().toLowerCase() : "",
         employer: (document.getElementById("input-apprentice-employer") || {}).value ? document.getElementById("input-apprentice-employer").value.trim() : "",
         startDate: (document.getElementById("input-apprentice-start-date") || {}).value || "",
-        hours: Number((document.getElementById("input-apprentice-hours") || {}).value || 0)
+        hours: Number((document.getElementById("input-apprentice-hours") || {}).value || 0),
+        schoolCode: ltnCleanSchoolCode((document.getElementById("input-apprentice-school-code") || {}).value || "")
       },
       instructor: {
         isInstructor: !!(document.getElementById("input-is-instructor") && document.getElementById("input-is-instructor").checked),
         school: (document.getElementById("input-instructor-school") || {}).value ? document.getElementById("input-instructor-school").value.trim() : "",
-        courses: (document.getElementById("input-instructor-courses") || {}).value ? document.getElementById("input-instructor-courses").value.trim() : ""
+        schoolName: (document.getElementById("input-instructor-school") || {}).value ? document.getElementById("input-instructor-school").value.trim() : "",
+        courses: (document.getElementById("input-instructor-courses") || {}).value ? document.getElementById("input-instructor-courses").value.trim() : "",
+        instructorCode: ltnCleanSchoolCode((document.getElementById("input-instructor-code") || {}).value || ""),
+        schoolCode: ltnCleanSchoolCode((document.getElementById("input-instructor-code") || {}).value || "")
       }
     };
 
@@ -3396,6 +3623,32 @@ const ProfileManager = {
 
     profile.isApprentice = profile.apprenticeship.isApprentice === true;
     profile.isInstructor = profile.instructor.isInstructor === true;
+
+    if (profile.isInstructor) {
+      const instructorCode = ltnCleanSchoolCode(profile.instructor.instructorCode || profile.instructor.schoolCode || "");
+      if (!instructorCode) {
+        alert("Please create an Instructor / School Code so students can connect to your dashboard.");
+        return;
+      }
+      if (instructorCode.length < 4) {
+        alert("Instructor / School Code must be at least 4 characters.");
+        return;
+      }
+      profile.instructor.instructorCode = instructorCode;
+      profile.instructor.schoolCode = instructorCode;
+      profile.instructorCode = instructorCode;
+      profile.schoolCode = instructorCode;
+      ltnSetCodeStatus("instructor-code-status", "Instructor code ready: " + instructorCode, "ok");
+    }
+
+    if (profile.isApprentice) {
+      const apprenticeCode = ltnCleanSchoolCode(profile.apprenticeship.schoolCode || "");
+      profile.apprenticeship.schoolCode = apprenticeCode;
+      profile.schoolCode = apprenticeCode;
+      if (apprenticeCode) {
+        ltnSetCodeStatus("apprentice-code-status", "Instructor / School Code ready: " + apprenticeCode, "ok");
+      }
+    }
 
     profile.school = profile.instructor.isInstructor ? profile.instructor.school : (profile.apprenticeship.school || profile.apprenticeship.program || "");
     profile.studentSchool = profile.apprenticeship.school || profile.apprenticeship.program || "";
@@ -3434,7 +3687,18 @@ const ProfileManager = {
     if (profile.profileImageUrl) this.displayProfileImage(profile.profileImageUrl);
     else this.displayPlaceholder();
 
-    const firebaseSaved = await saveProfileToFirestore(profile);
+    let firebaseSaved = false;
+    try {
+      firebaseSaved = await saveProfileToFirestore(profile);
+    } catch (error) {
+      console.error("Firebase profile/code save failed:", error);
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Profile";
+      }
+      alert(error && error.message ? error.message : "Profile save failed while saving the instructor/school code.");
+      return;
+    }
 
     if (!firebaseSaved) {
       console.warn("Firebase profile save failed. Local profile was still saved.");
