@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-20: INSTRUCTOR CENTER ASSIGNMENT COMPLETION TRACKING v28 -->
-<!-- LTN VERSION: instructor-center-assignment-completion-tracking-v28 -->
+<!-- LTN FORCE UPDATE 2026-05-20: INSTRUCTOR CENTER TRADE PASSPORT SYNC v29 -->
+<!-- LTN VERSION: instructor-center-trade-passport-sync-v29 -->
 
 <style>
 :root{
@@ -796,6 +796,53 @@ textarea.form-control{min-height:106px;resize:vertical}
   font-weight:800;
 }
 
+.trade-passport-mini{
+  margin-top:12px;
+  background:linear-gradient(135deg,#fff7ed,#ffffff);
+  border:1px solid #fed7aa;
+  border-radius:14px;
+  padding:12px;
+}
+
+.trade-passport-mini-title{
+  color:#9a3412;
+  font-size:12px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-bottom:8px;
+}
+
+.trade-passport-mini-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:8px;
+}
+
+.trade-passport-mini-card{
+  background:white;
+  border:1px solid #fed7aa;
+  border-radius:10px;
+  padding:8px;
+}
+
+.trade-passport-mini-card span{
+  display:block;
+  color:#9a3412;
+  font-size:10px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.trade-passport-mini-card b{
+  display:block;
+  color:#182230;
+  font-size:14px;
+  margin-top:2px;
+}
+
+
 .person-top{
   display:flex;
   justify-content:space-between;
@@ -1222,7 +1269,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260521instructorv28";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260521instructorv29";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1263,11 +1310,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260521instructorv28">Dashboard</a>
-      <a href="/members/?v=20260521instructorv28">Members</a>
-      <a href="/instructor/?v=20260521instructorv28" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260521instructorv28" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260521instructorv28">Network Center</a>
+      <a href="/dashboard/?v=20260521instructorv29">Dashboard</a>
+      <a href="/members/?v=20260521instructorv29">Members</a>
+      <a href="/instructor/?v=20260521instructorv29" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260521instructorv29" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260521instructorv29">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1315,7 +1362,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260521instructorv28">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260521instructorv29">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1379,7 +1426,10 @@ textarea.form-control{min-height:106px;resize:vertical}
       <div class="card">
         <div class="hd">
           <span>Instructor Quick Dashboard</span>
-          <span class="badge badge-blue">Class Snapshot</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-secondary" style="min-height:34px;padding:8px 12px;font-size:13px" onclick="InstructorCenter.syncAllTradePassports()">Sync Trade Passports</button>
+            <span class="badge badge-blue">Class Snapshot</span>
+          </div>
         </div>
         <div class="bd">
           <div class="quick-actions-grid">
@@ -3019,6 +3069,176 @@ async function uploadAssignmentFile(file){
   throw lastError || new Error("Assignment file upload failed.");
 }
 
+
+function getStudentRecordByUid(uid){
+  const cleanUid = String(uid || "").trim();
+  if(!cleanUid) return null;
+
+  const students = mergeStudents(getStudents(), autoLinkedStudents);
+  return students.find(student => {
+    return String(student.authUid || student.userId || student.uid || student.id || "").trim() === cleanUid;
+  }) || null;
+}
+
+function calculateEmployerReadyScore(metrics){
+  let score = 0;
+
+  if(metrics.profileCompleted) score += 10;
+  if(metrics.schoolCode) score += 10;
+  if(metrics.currentHours > 0) score += Math.min(20, Math.round((metrics.currentHours / 8000) * 20));
+  score += Math.min(20, Number(metrics.approvedAssignments || 0) * 5);
+  score += Math.min(20, Number(metrics.verifiedSkills || 0) * 10);
+  score += Math.min(10, Number(metrics.certifications || 0) * 5);
+  score += Math.min(10, Number(metrics.approvedProofs || 0) * 2);
+
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+async function buildTradePassportMetricsForStudent(studentUid){
+  const uid = String(studentUid || "").trim();
+  if(!uid) return null;
+
+  let userData = {};
+  try{
+    const userSnap = await getDoc(doc(db,"users",uid));
+    if(userSnap.exists()) userData = userSnap.data() || {};
+  }catch(error){
+    console.warn("Could not load user for trade passport sync", error);
+  }
+
+  const apprenticeship = userData.apprenticeship || {};
+  const progress = userData.apprenticeshipProgress || {};
+  const rosterStudent = getStudentRecordByUid(uid) || {};
+
+  let reviews = [];
+  try{
+    const reviewSnap = await getDocs(query(collection(db,"pendingReviews"), where("authUid","==",uid), limit(300)));
+    reviewSnap.forEach(docSnap => reviews.push({id:docSnap.id,...(docSnap.data() || {})}));
+  }catch(error){
+    console.warn("Could not load pending reviews for trade passport sync", error);
+  }
+
+  let skills = [];
+  try{
+    const skillSnap = await getDocs(query(collection(db,"studentSkills"), where("authUid","==",uid), limit(300)));
+    skillSnap.forEach(docSnap => {
+      const data = docSnap.data() || {};
+      if(data.approved === true) skills.push({id:docSnap.id,...data});
+    });
+  }catch(error){
+    console.warn("Could not load student skills for trade passport sync", error);
+  }
+
+  const approvedReviews = reviews.filter(review => String(review.status || review.verificationStatus || "").toLowerCase() === "approved" || review.approved === true);
+  const pendingReviewsCount = reviews.filter(review => String(review.status || review.verificationStatus || "pending").toLowerCase() === "pending").length;
+  const rejectedReviewsCount = reviews.filter(review => String(review.status || review.verificationStatus || "").toLowerCase() === "rejected" || review.rejected === true).length;
+
+  const approvedAssignments = approvedReviews.filter(review => {
+    const text = [review.reviewType,review.uploadType,review.assignmentId,review.assignmentName,review.uploadTitle].join(" ").toLowerCase();
+    return text.includes("assignment") || !!review.assignmentId;
+  }).length;
+
+  const verifiedHours = skills.reduce((sum,skill) => sum + Number(skill.hoursVerified || 0),0);
+  const currentHours = Number(
+    userData.hoursCompleted || userData.totalHours || userData.apprenticeshipHours ||
+    progress.hoursCompleted || progress.totalHours ||
+    rosterStudent.hours || 0
+  );
+  const totalHoursRequired = Number(apprenticeship.goalHours || userData.goalHours || rosterStudent.goal || 8000) || 8000;
+  const progressPercent = Math.min(100, Math.round((currentHours / Math.max(totalHoursRequired,1)) * 100));
+
+  const certifications = Array.isArray(userData.certifications) ? userData.certifications.length : Array.isArray(progress.certifications) ? progress.certifications.length : 0;
+  const verifiedSkills = skills.length;
+  const approvedProofs = approvedReviews.length;
+  const assignmentCompletionRate = reviews.length ? Math.round((approvedAssignments / Math.max(approvedAssignments + pendingReviewsCount + rejectedReviewsCount,1)) * 100) : 0;
+  const profileCompleted = !!(userData.fullName || userData.name || rosterStudent.name) && !!(userData.trade || rosterStudent.trade) && !!(apprenticeship.schoolCode || userData.schoolCode || rosterStudent.schoolCode);
+  const schoolCode = String(apprenticeship.schoolCode || userData.schoolCode || rosterStudent.schoolCode || currentProfile.schoolCode || "").trim().toUpperCase();
+
+  const metrics = {
+    uid,
+    authUid:uid,
+    fullName:userData.fullName || userData.name || userData.displayName || rosterStudent.name || "Student",
+    email:userData.email || rosterStudent.email || "",
+    trade:userData.trade || userData.specialty || rosterStudent.trade || "Trade not added",
+    schoolCode,
+    schoolName:apprenticeship.schoolName || userData.schoolName || userData.school || rosterStudent.school || currentProfile.school || "",
+    cohort:apprenticeship.cohortName || userData.cohortName || rosterStudent.cohortName || currentProfile.cohortName || "",
+    instructorName:apprenticeship.instructorName || userData.instructorName || currentProfile.name || "Instructor",
+    instructorUid:apprenticeship.instructorId || currentUserId || "",
+    currentHours,
+    verifiedHours,
+    totalHoursRequired,
+    progressPercent,
+    approvedAssignments,
+    verifiedAssignments:approvedAssignments,
+    verifiedSkills,
+    certifications,
+    approvedProofs,
+    pendingReviews:pendingReviewsCount,
+    rejectedReviews:rejectedReviewsCount,
+    assignmentCompletionRate,
+    badgesEarned:Array.isArray(userData.badgesEarned) ? userData.badgesEarned.length : 0,
+    oshaCompleted:(Array.isArray(userData.certifications) ? userData.certifications : []).join(" ").toLowerCase().includes("osha"),
+    profileCompleted,
+    status:"active",
+    lastUpdated:serverTimestamp(),
+    updatedBy:"instructor_center",
+    employerReadyScore:0
+  };
+
+  metrics.employerReadyScore = calculateEmployerReadyScore(metrics);
+  return metrics;
+}
+
+async function syncTradePassportForStudent(studentUid, activity = {}){
+  const uid = String(studentUid || "").trim();
+  if(!uid) return;
+
+  try{
+    const metrics = await buildTradePassportMetricsForStudent(uid);
+    if(!metrics) return;
+
+    await setDoc(doc(db,"tradePassports",uid),metrics,{merge:true});
+
+    await addDoc(collection(db,"tradePassportActivity"),{
+      authUid:uid,
+      studentUid:uid,
+      schoolCode:metrics.schoolCode || "",
+      cohort:metrics.cohort || "",
+      instructorUid:currentUserId || "",
+      instructorName:currentProfile.name || "Instructor",
+      activityType:activity.type || "passport_sync",
+      title:activity.title || "Trade Passport updated",
+      detail:activity.detail || "Instructor Center synced verified progress.",
+      reviewId:activity.reviewId || "",
+      skillName:activity.skillName || "",
+      createdAt:serverTimestamp(),
+      source:"instructor_center"
+    });
+
+    console.log("Trade Passport synced", uid, metrics);
+  }catch(error){
+    console.warn("Trade Passport sync failed", error);
+  }
+}
+
+function tradePassportMiniHtml(student){
+  const hours = Number(student && student.hours || 0);
+  const goal = Math.max(Number(student && student.goal || 8000),1);
+  const pct = Math.min(100,Math.round((hours / goal) * 100));
+  const skills = student && (student.authUid || student.userId) ? (studentSkillsByUserId[String(student.authUid || student.userId)] || []).length : 0;
+  return `
+    <div class="trade-passport-mini">
+      <div class="trade-passport-mini-title">Trade Passport Snapshot</div>
+      <div class="trade-passport-mini-grid">
+        <div class="trade-passport-mini-card"><span>Progress</span><b>${pct}%</b></div>
+        <div class="trade-passport-mini-card"><span>Hours</span><b>${hours.toLocaleString()}</b></div>
+        <div class="trade-passport-mini-card"><span>Verified Skills</span><b>${skills}</b></div>
+      </div>
+    </div>
+  `;
+}
+
 window.InstructorCenter = {
   applyCohortFilter(){
     const select = document.getElementById("cohort-filter");
@@ -3075,6 +3295,23 @@ window.InstructorCenter = {
     alert("Assignment completion tracking refreshed.");
   },
 
+  async syncAllTradePassports(){
+    const students = mergeStudents(getStudents(), autoLinkedStudents);
+    if(!students.length){
+      alert("No students found to sync yet.");
+      return;
+    }
+
+    for(const student of students){
+      const uid = String(student.authUid || student.userId || student.uid || "").trim();
+      if(uid){
+        await syncTradePassportForStudent(uid,{type:"manual_sync",title:"Manual Trade Passport sync",detail:"Instructor manually synced passport metrics."});
+      }
+    }
+
+    alert("Trade Passports synced for visible roster students.");
+  },
+
   getReviewComment(reviewId){
     const commentBox = document.getElementById("review-comment-" + reviewId);
     return commentBox ? commentBox.value.trim() : "";
@@ -3083,6 +3320,7 @@ window.InstructorCenter = {
   async approvePendingReview(reviewId){
     const instructorComment = this.getReviewComment(reviewId) || "Approved by instructor.";
     const reviewedDate = new Date().toLocaleDateString();
+    const existingReview = pendingReviews.find(item => String(item.id) === String(reviewId)) || {};
 
     try{
       await updateDoc(doc(db,"pendingReviews",reviewId),{
@@ -3095,6 +3333,20 @@ window.InstructorCenter = {
         instructorComment,
         reviewedDate,
         reviewedAt:serverTimestamp()
+      });
+
+      await syncTradePassportForStudent(existingReview.authUid || existingReview.studentUid || existingReview.uid || existingReview.studentId, {
+        type:"review_approved",
+        title:existingReview.uploadTitle || "Student upload approved",
+        detail:instructorComment,
+        reviewId
+      });
+
+      await syncTradePassportForStudent(existingReview.authUid || existingReview.studentUid || existingReview.uid || existingReview.studentId, {
+        type:"review_rejected",
+        title:existingReview.uploadTitle || "Student upload rejected",
+        detail:instructorComment,
+        reviewId
       });
 
       await loadPendingReviews();
@@ -3115,6 +3367,7 @@ window.InstructorCenter = {
   async rejectPendingReview(reviewId){
     const instructorComment = this.getReviewComment(reviewId) || "Needs correction. Please review and re-upload proof.";
     const reviewedDate = new Date().toLocaleDateString();
+    const existingReview = pendingReviews.find(item => String(item.id) === String(reviewId)) || {};
 
     try{
       await updateDoc(doc(db,"pendingReviews",reviewId),{
@@ -3309,7 +3562,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260521instructorv28">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260521instructorv29">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -3319,6 +3572,7 @@ window.InstructorCenter = {
           </div>
           ${aptitudeHtml(s)}
           ${verifiedSkillsHtml(s, students.length)}
+          ${tradePassportMiniHtml(s)}
         </div>
       `;
     }).join("");
@@ -3425,6 +3679,13 @@ window.InstructorCenter = {
       alert("Skill approval could not be saved. Check Firebase rules and try again.");
       return;
     }
+
+    await syncTradePassportForStudent(selectedStudent.authUid, {
+      type:"skill_verified",
+      title:"Skill verified: " + skillName,
+      detail:notes || "Instructor verified a student skill.",
+      skillName
+    });
 
     await loadVerifiedSkills();
     populateCohortFilter();
