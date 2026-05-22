@@ -1138,7 +1138,7 @@ textarea.form-control{min-height:104px;resize:vertical}
 (function () {
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515roleswitchv26";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515roleswitchv30";
 
   window.LTNClearLocalSession = function () {
     [
@@ -1189,13 +1189,13 @@ textarea.form-control{min-height:104px;resize:vertical}
     </div>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260515roleswitchv26" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
-      <a href="/members/?v=20260515roleswitchv26" data-nav="members" onclick="setActiveNav(this)">Members</a>
-      <a href="/find-apprenticeships/?v=20260515roleswitchv26" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
-      <a href="/apprenticeship/?v=20260515roleswitchv26" data-nav="track-progress" onclick="return ltnRouteTrackProgressFromDashboard(event, this.href)" class="btn nav-action">Track My Progress</a>
-      <a href="/instructor/?v=20260515roleswitchv26" data-nav="instructor-center" onclick="return ltnRouteInstructorCenterFromDashboard(event, this.href)" class="btn nav-action">Instructor Center</a>
+      <a href="/dashboard/?v=20260515roleswitchv30" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
+      <a href="/members/?v=20260515roleswitchv30" data-nav="members" onclick="setActiveNav(this)">Members</a>
+      <a href="/find-apprenticeships/?v=20260515roleswitchv30" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
+      <a href="/apprenticeship/?v=20260515roleswitchv30" data-nav="track-progress" onclick="return ltnRouteTrackProgressFromDashboard(event, this.href)" class="btn nav-action">Track My Progress</a>
+      <a href="/instructor/?v=20260515roleswitchv30" data-nav="instructor-center" onclick="return ltnRouteInstructorCenterFromDashboard(event, this.href)" class="btn nav-action">Instructor Center</a>
       <a href="#jobs" data-nav="jobs" onclick="setActiveNav(this)">Jobs</a>
-      <a href="/network-center/?v=20260515roleswitchv26" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
+      <a href="/network-center/?v=20260515roleswitchv30" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
         Network Center
         <span id="network-badge" class="notification-badge" style="display:none">0</span>
         <span id="messages-badge" class="notification-badge" style="display:none;right:-14px">0</span>
@@ -1402,7 +1402,7 @@ textarea.form-control{min-height:104px;resize:vertical}
           <li style="margin-bottom:8px">Showcase your skills and certifications</li>
           <li>Get matched with projects in your area</li>
         </ul>
-        <a class="btn-primary" style="width:100%" href="/network-center/?v=20260515roleswitchv26">Open Network Center</a>
+        <a class="btn-primary" style="width:100%" href="/network-center/?v=20260515roleswitchv30">Open Network Center</a>
       </div>
     </section>
 
@@ -2389,21 +2389,42 @@ function ltnNormalizeRole(value) {
 
 function ltnRoleFromProfile(profile) {
   profile = profile || {};
-  const role = ltnNormalizeRole(profile.profileType || profile.role || profile.type);
   const app = profile.apprenticeship || {};
   const instr = profile.instructor || {};
 
   /*
-    ROLE ROUTING FIX v29:
-    Profile Type is the source of truth. This prevents old saved flags from
-    keeping a user stuck as Instructor after switching to Apprentice, or stuck
-    as Apprentice after switching to Instructor.
+    ROLE ROUTING FIX v30:
+    Apprentice / Student and Instructor access is controlled from the saved
+    Profile Type first, then fallback flags. This fixes accounts that were
+    created as Apprentice/Student but did not get allowed into Track My Progress.
   */
-  if (role.includes("apprentice") || role.includes("student")) return "apprentice";
-  if (role.includes("instructor") || role.includes("teacher") || role.includes("trade school") || role.includes("training center")) return "instructor";
+  const roleText = [
+    profile.profileType,
+    profile.role,
+    profile.type,
+    profile.accountType,
+    profile.userType,
+    profile.memberType,
+    profile.category,
+    profile.profileRole,
+    app.role,
+    app.type,
+    instr.role,
+    instr.type
+  ].map(ltnNormalizeRole).filter(Boolean).join(" ");
 
-  if (app.isApprentice === true || profile.isApprentice === true) return "apprentice";
-  if (instr.isInstructor === true || profile.isInstructor === true) return "instructor";
+  if (roleText.includes("apprentice") || roleText.includes("apprenticeship") || roleText.includes("student")) return "apprentice";
+  if (roleText.includes("instructor") || roleText.includes("teacher") || roleText.includes("educator") || roleText.includes("trade school") || roleText.includes("training center")) return "instructor";
+
+  if (app.isApprentice === true || profile.isApprentice === true || profile.student === true || profile.isStudent === true) return "apprentice";
+  if (instr.isInstructor === true || profile.isInstructor === true || profile.isTeacher === true) return "instructor";
+
+  const localProfileType = ltnNormalizeRole(localStorage.getItem("ltn_profile_type") || localStorage.getItem("profileType") || "");
+  if (localProfileType.includes("apprentice") || localProfileType.includes("apprenticeship") || localProfileType.includes("student")) return "apprentice";
+  if (localProfileType.includes("instructor") || localProfileType.includes("teacher") || localProfileType.includes("trade school") || localProfileType.includes("training center")) return "instructor";
+
+  if (localStorage.getItem("ltn_is_apprentice") === "true" || localStorage.getItem("isApprentice") === "true" || localStorage.getItem("ltn_is_student") === "true" || localStorage.getItem("isStudent") === "true") return "apprentice";
+  if (localStorage.getItem("ltn_is_instructor") === "true" || localStorage.getItem("isInstructor") === "true") return "instructor";
 
   return "member";
 }
@@ -2461,10 +2482,40 @@ function ltnWriteJSON(key, value) {
 
 function ltnReadCurrentProfile() {
   const email = ltnGetCurrentEmail();
-  if (!email) return {};
-  const profile = ltnReadJSON(ltnProfileKey(email), {});
-  if (profile && profile.email && String(profile.email).toLowerCase() !== email) return {};
-  return profile || {};
+  const profileSources = [];
+
+  if (email) profileSources.push(ltnReadJSON(ltnProfileKey(email), {}));
+  ["ltn_current_profile", "currentUserProfile", "tradeWorkerProfile", "ltn_profile", "userProfile", "ltnUserProfile"].forEach(function(key) {
+    profileSources.push(ltnReadJSON(key, {}));
+  });
+
+  let merged = {};
+  profileSources.forEach(function(item) {
+    if (!item || typeof item !== "object") return;
+    if (email && item.email && String(item.email).trim().toLowerCase() !== email) return;
+    merged = { ...merged, ...item };
+    if (item.apprenticeship) merged.apprenticeship = { ...(merged.apprenticeship || {}), ...item.apprenticeship };
+    if (item.instructor) merged.instructor = { ...(merged.instructor || {}), ...item.instructor };
+  });
+
+  if (email && !merged.email) merged.email = email;
+
+  const storedType = localStorage.getItem("ltn_profile_type") || localStorage.getItem("profileType") || "";
+  if (storedType && !merged.profileType) merged.profileType = storedType;
+
+  if (localStorage.getItem("ltn_is_apprentice") === "true" || localStorage.getItem("isApprentice") === "true" || localStorage.getItem("ltn_is_student") === "true" || localStorage.getItem("isStudent") === "true") {
+    if (!merged.profileType) merged.profileType = "Apprentice";
+    merged.isApprentice = true;
+    merged.apprenticeship = { ...(merged.apprenticeship || {}), isApprentice: true };
+  }
+
+  if (localStorage.getItem("ltn_is_instructor") === "true" || localStorage.getItem("isInstructor") === "true") {
+    if (!merged.profileType) merged.profileType = "Instructor / Teacher";
+    merged.isInstructor = true;
+    merged.instructor = { ...(merged.instructor || {}), isInstructor: true };
+  }
+
+  return merged || {};
 }
 
 function ltnBuildApprenticeProfile(profile) {
@@ -2716,8 +2767,29 @@ function ltnSaveInstructorEverywhere(profile) {
   localStorage.setItem("instructorCourses", instructorProfile.courses || "");
 }
 
-window.prepareApprenticeTrackerFromDashboard = function() {
-  let profile = ltnForceSingleRole(ltnProfileFromOpenFormOrSaved());
+async function ltnGetBestCurrentProfileForRouting() {
+  let localProfile = ltnProfileFromOpenFormOrSaved() || {};
+  let firebaseProfile = null;
+
+  try {
+    firebaseProfile = await loadProfileFromFirestore();
+  } catch (e) {
+    console.warn("Routing profile Firebase load skipped:", e);
+  }
+
+  let profile = { ...localProfile, ...(firebaseProfile || {}) };
+  if (localProfile.apprenticeship || (firebaseProfile && firebaseProfile.apprenticeship)) {
+    profile.apprenticeship = { ...(localProfile.apprenticeship || {}), ...((firebaseProfile && firebaseProfile.apprenticeship) || {}) };
+  }
+  if (localProfile.instructor || (firebaseProfile && firebaseProfile.instructor)) {
+    profile.instructor = { ...(localProfile.instructor || {}), ...((firebaseProfile && firebaseProfile.instructor) || {}) };
+  }
+
+  return ltnForceSingleRole(profile);
+}
+
+window.prepareApprenticeTrackerFromDashboard = async function() {
+  let profile = await ltnGetBestCurrentProfileForRouting();
 
   if (!ltnIsApprenticeProfile(profile)) {
     alert("Track My Progress is for apprentices and students only. Please stay on the Dashboard or update your Profile Type.");
@@ -2746,7 +2818,7 @@ window.ltnRouteTrackProgressFromDashboard = async function(event, targetUrl) {
   if (event && event.preventDefault) event.preventDefault();
   try { localStorage.setItem("ltn_active_nav", "track-progress"); } catch (e) {}
 
-  let profile = ltnForceSingleRole(ltnProfileFromOpenFormOrSaved());
+  let profile = await ltnGetBestCurrentProfileForRouting();
 
   if (ltnIsInstructorProfile(profile)) {
     alert("Track My Progress is for students and apprentices only. Instructor accounts should use Instructor Center.");
@@ -2776,7 +2848,7 @@ window.ltnRouteTrackProgressFromDashboard = async function(event, targetUrl) {
   ltnSaveProfileEverywhere(profile);
   try { await saveProfileToFirestore(profile); } catch (e) { console.warn("Apprenticeship handoff Firebase save failed:", e); }
 
-  window.location.href = targetUrl || "/apprenticeship/?v=20260515roleswitchv26";
+  window.location.href = targetUrl || "/apprenticeship/?v=20260515roleswitchv30";
   return false;
 };
 
@@ -2786,7 +2858,7 @@ window.ltnRouteInstructorCenterFromDashboard = async function(event, targetUrl) 
   if (event && event.preventDefault) event.preventDefault();
   try { localStorage.setItem("ltn_active_nav", "instructor-center"); } catch (e) {}
 
-  let profile = ltnForceSingleRole(ltnProfileFromOpenFormOrSaved());
+  let profile = await ltnGetBestCurrentProfileForRouting();
 
   if (ltnIsApprenticeProfile(profile)) {
     alert("Instructor Center is only for instructors. Apprentice and student accounts should use Track My Progress.");
@@ -2805,7 +2877,7 @@ window.ltnRouteInstructorCenterFromDashboard = async function(event, targetUrl) 
     console.warn("Instructor route save skipped:", e);
   }
 
-  window.location.href = targetUrl || "/instructor/?v=20260515roleswitchv26";
+  window.location.href = targetUrl || "/instructor/?v=20260515roleswitchv30";
   return false;
 };
 
