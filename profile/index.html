@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
-<!-- LTN PROFILE ROLE SYSTEM v22 -->
-<!-- Instructor creates own code + Apprentice connects with instructor code -->
+<!-- LTN PROFILE ROLE SYSTEM v23 -->
+<!-- Instructor creates own code + Apprentice connects with instructor code + stronger own-profile visibility fix -->
 
 <html lang="en">
 <head>
@@ -338,11 +338,11 @@ body{
 <div class="topbar">
   <div class="brand">LTN • LinkTradeNetwork</div>
   <div class="nav">
-    <a href="/dashboard/?v=20260522profilev22">Dashboard</a>
-    <a href="/members/?v=20260522profilev22">Members</a>
-    <a href="/apprenticeship/?v=20260522profilev22" onclick="return ltnRouteTrackProgressFromProfile(event, this.href)">Track My Progress</a>
-    <a href="/instructor/?v=20260522profilev22" onclick="return ltnRouteInstructorCenterFromProfile(event, this.href)">Instructor Center</a>
-    <a href="/front/?v=20260522profilev22">Sign Out</a>
+    <a href="/dashboard/?v=20260522profilev23">Dashboard</a>
+    <a href="/members/?v=20260522profilev23">Members</a>
+    <a href="/apprenticeship/?v=20260522profilev23" onclick="return ltnRouteTrackProgressFromProfile(event, this.href)">Track My Progress</a>
+    <a href="/instructor/?v=20260522profilev23" onclick="return ltnRouteInstructorCenterFromProfile(event, this.href)">Instructor Center</a>
+    <a href="/front/?v=20260522profilev23">Sign Out</a>
   </div>
 </div>
 
@@ -533,13 +533,27 @@ function readStoredProfile(){
   return {};
 }
 
+function roleText(profile){
+  return String(
+    profile.profileType ||
+    profile.role ||
+    profile.accountType ||
+    profile.memberType ||
+    profile.type ||
+    ""
+  ).toLowerCase();
+}
+
 function isInstructorProfile(profile){
-  const type = String(profile.profileType || profile.role || "").toLowerCase();
+  const type = roleText(profile);
   const instructor = profile.instructor || {};
 
   return (
     profile.isInstructor === true ||
     instructor.isInstructor === true ||
+    type === "instructor" ||
+    type === "teacher" ||
+    type === "instructor / teacher" ||
     type.includes("instructor") ||
     type.includes("teacher") ||
     type.includes("training center") ||
@@ -548,15 +562,34 @@ function isInstructorProfile(profile){
 }
 
 function isApprenticeProfile(profile){
-  const type = String(profile.profileType || profile.role || "").toLowerCase();
+  const type = roleText(profile);
   const apprenticeship = profile.apprenticeship || {};
 
   return (
     profile.isApprentice === true ||
     apprenticeship.isApprentice === true ||
+    type === "apprentice" ||
+    type === "apprenticeship" ||
+    type === "student" ||
     type.includes("apprentice") ||
     type.includes("student")
   );
+}
+
+function isOwnProfileViewing(u){
+  const noProfileIdInUrl = !params.get("id");
+  const idMatch = currentUserId && profileUserId && currentUserId === profileUserId;
+
+  const profileEmail = String(
+    u.email ||
+    u.userEmail ||
+    u.profileEmail ||
+    ""
+  ).trim().toLowerCase();
+
+  const emailMatch = currentUserEmail && profileEmail && currentUserEmail === profileEmail;
+
+  return Boolean(noProfileIdInUrl || idMatch || emailMatch);
 }
 
 window.ltnRouteTrackProgressFromProfile = async function(event, href){
@@ -566,17 +599,17 @@ window.ltnRouteTrackProgressFromProfile = async function(event, href){
 
   if(isInstructorProfile(profile)){
     alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-    window.location.href = "/instructor/?v=20260522profilev22";
+    window.location.href = "/instructor/?v=20260522profilev23";
     return false;
   }
 
   if(!isApprenticeProfile(profile)){
     alert("Track My Progress is for apprentices and students.");
-    window.location.href = "/dashboard/?v=20260522profilev22";
+    window.location.href = "/dashboard/?v=20260522profilev23";
     return false;
   }
 
-  window.location.href = href || "/apprenticeship/?v=20260522profilev22";
+  window.location.href = href || "/apprenticeship/?v=20260522profilev23";
   return false;
 };
 
@@ -587,11 +620,11 @@ window.ltnRouteInstructorCenterFromProfile = async function(event, href){
 
   if(!isInstructorProfile(profile)){
     alert("Instructor Center is only for instructor or school accounts.");
-    window.location.href = "/dashboard/?v=20260522profilev22";
+    window.location.href = "/dashboard/?v=20260522profilev23";
     return false;
   }
 
-  window.location.href = href || "/instructor/?v=20260522profilev22";
+  window.location.href = href || "/instructor/?v=20260522profilev23";
   return false;
 };
 
@@ -693,6 +726,7 @@ function getSchoolFromProfile(u){
     u.school ||
     u.studentSchool ||
     apprenticeship.program ||
+    instructor.schoolName ||
     instructor.school ||
     ""
   );
@@ -720,21 +754,40 @@ function getInstructorEmailFromProfile(u){
   );
 }
 
+function cleanInstructorCode(value){
+  return String(value || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+}
+
+function getInstructorCodeFromProfile(u){
+  const instructor = u.instructor || {};
+  return cleanInstructorCode(
+    instructor.instructorCode ||
+    instructor.schoolCode ||
+    u.instructorCode ||
+    u.schoolCode ||
+    ""
+  );
+}
+
 function updateSchoolCodeBoxVisibility(u){
   const apprenticeBox = document.getElementById("schoolCodeBox");
   const instructorBox = document.getElementById("instructorCodeBox");
 
-  const isOwnProfile = currentUserId && profileUserId && currentUserId === profileUserId;
+  const ownProfile = isOwnProfileViewing(u);
   const instructorAccount = isInstructorProfile(u);
+  const apprenticeAccount = isApprenticeProfile(u);
 
   if(apprenticeBox){
-    apprenticeBox.style.display = isOwnProfile && !instructorAccount ? "block" : "none";
+    apprenticeBox.style.display = ownProfile && !instructorAccount ? "block" : "none";
   }
 
   if(instructorBox){
-    instructorBox.style.display = isOwnProfile && instructorAccount ? "block" : "none";
+    instructorBox.style.display = ownProfile && instructorAccount ? "block" : "none";
 
-    if(isOwnProfile && instructorAccount){
+    if(ownProfile && instructorAccount){
       const existingCode = getInstructorCodeFromProfile(u);
       const input = document.getElementById("instructorCodeInput");
       const status = document.getElementById("instructorCodeStatus");
@@ -754,24 +807,6 @@ function updateSchoolCodeBoxVisibility(u){
       }
     }
   }
-}
-
-function cleanInstructorCode(value){
-  return String(value || "")
-    .trim()
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, "");
-}
-
-function getInstructorCodeFromProfile(u){
-  const instructor = u.instructor || {};
-  return cleanInstructorCode(
-    instructor.instructorCode ||
-    instructor.schoolCode ||
-    u.instructorCode ||
-    u.schoolCode ||
-    ""
-  );
 }
 
 function renderRoleSection(u){
@@ -935,7 +970,7 @@ async function checkConnection(){
     const msgBtn = document.getElementById("messageBtn");
     msgBtn.innerText = "Instructor Center";
     msgBtn.onclick = function(){
-      window.location.href = "/instructor/?v=20260522profilev22";
+      window.location.href = "/instructor/?v=20260522profilev23";
     };
   }
 
@@ -984,12 +1019,6 @@ window.createInstructorCode = async function(){
   if(!currentUserId){
     status.className = "school-status bad";
     status.innerText = "Unable to find your user profile. Go back to dashboard and try again.";
-    return;
-  }
-
-  if(currentUserId !== profileUserId){
-    status.className = "school-status bad";
-    status.innerText = "You can only create an instructor code on your own profile.";
     return;
   }
 
@@ -1141,12 +1170,6 @@ window.connectSchoolCode = async function(){
     return;
   }
 
-  if(currentUserId !== profileUserId){
-    status.className = "school-status bad";
-    status.innerText = "You can only connect a school code to your own profile.";
-    return;
-  }
-
   btn.disabled = true;
   btn.className = "btn btn-disabled";
   btn.innerText = "Checking...";
@@ -1192,34 +1215,75 @@ window.connectSchoolCode = async function(){
       schoolName: codeData.schoolName || "",
       instructorId: codeData.instructorId || "",
       instructorName: codeData.instructorName || "",
+      instructorEmail: codeData.instructorEmail || "",
       cohortId: codeData.cohortId || "",
       cohortName: codeData.cohortName || "",
       schoolCode: code
     };
 
     await setDoc(doc(db,"users",currentUserId),{
+      schoolCode: code,
+      cohortName: updatedApprenticeship.cohortName || "",
+      instructorId: updatedApprenticeship.instructorId || "",
+      instructorName: updatedApprenticeship.instructorName || "",
+      instructorEmail: updatedApprenticeship.instructorEmail || "",
       apprenticeship: updatedApprenticeship,
+      updatedAt: serverTimestamp()
+    },{merge:true});
+
+    await setDoc(doc(db,"instructorStudents",currentUserId),{
+      studentUid: currentUserId,
+      authUid: currentUserId,
+      uid: currentUserId,
+      studentId: currentUserId,
+      studentName: currentUserData?.fullName || currentUserData?.name || currentUserData?.displayName || "Student",
+      studentEmail: currentUserEmail || "",
+      trade: currentUserData?.trade || "",
+      role: currentUserData?.role || currentUserData?.profileType || "apprentice",
+      schoolCode: code,
+      schoolId: updatedApprenticeship.schoolId || "",
+      schoolName: updatedApprenticeship.schoolName || "",
+      cohortId: updatedApprenticeship.cohortId || "",
+      cohortName: updatedApprenticeship.cohortName || "",
+      instructorId: updatedApprenticeship.instructorId || "",
+      instructorName: updatedApprenticeship.instructorName || "",
+      instructorEmail: updatedApprenticeship.instructorEmail || "",
+      status: "active",
+      source: "profile_school_code_connect",
+      joinedAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     },{merge:true});
 
     currentUserData = {
       ...(currentUserData || {}),
+      schoolCode: code,
+      cohortName: updatedApprenticeship.cohortName || "",
+      instructorId: updatedApprenticeship.instructorId || "",
+      instructorName: updatedApprenticeship.instructorName || "",
+      instructorEmail: updatedApprenticeship.instructorEmail || "",
       apprenticeship: updatedApprenticeship
     };
 
     profileUserData = {
       ...(profileUserData || {}),
+      schoolCode: code,
+      cohortName: updatedApprenticeship.cohortName || "",
+      instructorId: updatedApprenticeship.instructorId || "",
+      instructorName: updatedApprenticeship.instructorName || "",
+      instructorEmail: updatedApprenticeship.instructorEmail || "",
       apprenticeship: updatedApprenticeship
     };
 
     try{
       const stored = JSON.parse(localStorage.getItem("ltn_user") || "{}");
+      stored.schoolCode = code;
+      stored.cohortName = updatedApprenticeship.cohortName || "";
+      stored.instructorId = updatedApprenticeship.instructorId || "";
+      stored.instructorName = updatedApprenticeship.instructorName || "";
+      stored.instructorEmail = updatedApprenticeship.instructorEmail || "";
       stored.apprenticeship = updatedApprenticeship;
       localStorage.setItem("ltn_user", JSON.stringify(stored));
-      localStorage.setItem("ltn_current_profile", JSON.stringify({
-        ...(profileUserData || {}),
-        apprenticeship: updatedApprenticeship
-      }));
+      localStorage.setItem("ltn_current_profile", JSON.stringify(profileUserData));
     }catch(e){}
 
     input.value = "";
