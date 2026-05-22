@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-trade-passport-sync-v38 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-role-gate-neutral-bg-v39 -->
   <!-- FIXES:
     1. Pulls instructor daily assignments from Firestore classAssignments.
     2. Matches assignments by student apprenticeship.schoolCode.
@@ -45,8 +45,8 @@
       margin:0;
       font-family:Arial,sans-serif;
       background:
-        radial-gradient(circle at top left,rgba(255,255,255,.28),transparent 34%),
-        linear-gradient(135deg,#ffb06f,#f27b2e 44%,#de641c);
+        radial-gradient(circle at top left,rgba(233,105,22,.10),transparent 34rem),
+        linear-gradient(180deg,#f9fbfe 0%,#f4f7fb 45%,#eef3f8 100%);
       min-height:100vh;
       color:var(--ink);
     }
@@ -195,11 +195,11 @@
     .value.small-value{font-size:21px;line-height:1.25}
 
     .section-title{
-      color:white;
+      color:var(--blue-dark);
       font-size:23px;
       font-weight:900;
       margin:28px 0 14px;
-      text-shadow:0 2px 8px rgba(0,0,0,.15);
+      text-shadow:none;
       overflow-wrap:anywhere;
     }
 
@@ -923,12 +923,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260521passportv38'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260521passportv38'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260522passportv39'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260522passportv39'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260521passportv38'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260521passportv38'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260522passportv39'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260522passportv39'">Back</button>
   </div>
 </div>
 
@@ -1228,7 +1228,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v38";
+  const LOCAL_PROGRESS_VERSION = "v39";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1421,14 +1421,32 @@
     return String(value || "").trim().toLowerCase();
   }
 
+  function getCombinedRoleText(data){
+    const apprenticeship = data && data.apprenticeship && typeof data.apprenticeship === "object" ? data.apprenticeship : {};
+    const instructor = data && data.instructor && typeof data.instructor === "object" ? data.instructor : {};
+
+    return [
+      data && data.role,
+      data && data.profileType,
+      data && data.type,
+      data && data.accountType,
+      data && data.memberType,
+      apprenticeship.role,
+      apprenticeship.profileType,
+      apprenticeship.status,
+      instructor.role,
+      instructor.profileType
+    ].map(value => normalizeRoleText(value)).filter(Boolean).join(" ");
+  }
+
   function hasExactInstructorSignal(data){
-    const role = normalizeRoleText(data.role || "");
-    const profileType = normalizeRoleText(data.profileType || "");
-    const type = normalizeRoleText(data.type || "");
-    const instructor = data.instructor || {};
+    const role = normalizeRoleText(data && data.role || "");
+    const profileType = normalizeRoleText(data && data.profileType || "");
+    const type = normalizeRoleText(data && data.type || "");
+    const instructor = data && data.instructor && typeof data.instructor === "object" ? data.instructor : {};
 
     return (
-      data.isInstructor === true ||
+      data && data.isInstructor === true ||
       instructor.isInstructor === true ||
       role === "instructor" ||
       role === "admin" ||
@@ -1436,38 +1454,49 @@
       profileType === "instructor / teacher" ||
       profileType === "teacher" ||
       profileType === "trade school" ||
+      profileType === "trade school / training center" ||
       profileType === "training center" ||
+      profileType === "school" ||
       type === "instructor" ||
       type === "teacher"
     );
   }
 
   function hasApprenticeSignal(data){
-    const role = normalizeRoleText(data.role || "");
-    const profileType = normalizeRoleText(data.profileType || "");
-    const type = normalizeRoleText(data.type || "");
-    const apprenticeship = data.apprenticeship || {};
+    const roleText = getCombinedRoleText(data || {});
+    const apprenticeship = data && data.apprenticeship && typeof data.apprenticeship === "object" ? data.apprenticeship : {};
 
     return (
-      data.isApprentice === true ||
+      data && data.isApprentice === true ||
       apprenticeship.isApprentice === true ||
-      role === "student" ||
-      role === "apprentice" ||
-      role === "apprenticeship" ||
-      profileType.includes("apprentice") ||
-      profileType.includes("student") ||
-      type.includes("apprentice") ||
-      type.includes("student")
+      apprenticeship.schoolCode ||
+      apprenticeship.program ||
+      roleText.includes("student") ||
+      roleText.includes("apprentice") ||
+      roleText.includes("apprenticeship")
     );
   }
 
   function getCurrentAccessType(data){
-    if(hasApprenticeSignal(data) && !hasExactInstructorSignal(data)){
+    const cleanData = data || {};
+    const roleText = getCombinedRoleText(cleanData);
+    const apprenticeSignal = hasApprenticeSignal(cleanData);
+    const instructorSignal = hasExactInstructorSignal(cleanData);
+
+    /*
+      Important:
+      Profile Type must win over old stale flags.
+      If a user changed from Instructor to Apprentice, older isInstructor flags may still exist.
+      Track My Progress should allow the user when their current profile text says Apprentice/Student.
+    */
+    if(apprenticeSignal || roleText.includes("student") || roleText.includes("apprentice") || roleText.includes("apprenticeship")){
       return "student";
     }
-    if(hasExactInstructorSignal(data)){
+
+    if(instructorSignal){
       return "instructor";
     }
+
     return "student";
   }
 
@@ -1477,11 +1506,11 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260521passportv38";
+      window.location.href = "/instructor/?v=20260522passportv39";
       return false;
     }
 
-    alert("Instructor Center is only for instructor accounts. You are signed in as an apprentice/student.");
+    alert("Instructor Center is only for instructor accounts. You are signed in as a student/apprentice.");
     return false;
   };
 
@@ -1491,12 +1520,12 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260521passportv38";
+      alert("Track My Progress is for students and apprentices only. Instructor accounts stay on the Dashboard or use Instructor Center.");
+      window.location.href = "/dashboard/?v=20260522passportv39";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260521passportv38";
+    window.location.href = "/apprenticeship/?v=20260522passportv39";
     return false;
   };
 
@@ -1504,8 +1533,8 @@
     const accessType = getCurrentAccessType(data || {});
 
     if(accessType === "instructor"){
-      alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260521passportv38");
+      alert("Track My Progress is for students and apprentices only. Instructor accounts stay on the Dashboard or use Instructor Center.");
+      window.location.replace("/dashboard/?v=20260522passportv39");
       return false;
     }
 
@@ -1520,6 +1549,7 @@
 
       try{
         await setDoc(doc(db,"users",currentUserId),{
+          isApprentice:true,
           apprenticeship:profile.apprenticeship,
           updatedAt:serverTimestamp()
         },{merge:true});
@@ -2031,7 +2061,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260521passportv38");
+      window.location.replace("/front/?v=secureauth20260522passportv39");
       return;
     }
 
@@ -2845,6 +2875,18 @@
         const firebaseProfile = snap.data();
         profile = {...profile,...firebaseProfile};
         mergeFirebaseProgress(firebaseProfile);
+
+        try{
+          localStorage.setItem("ltn_current_profile", JSON.stringify(profile));
+          localStorage.setItem("ltn_user", JSON.stringify(profile));
+          localStorage.setItem("ltn_auth_uid", uid);
+          if(profile.email || currentUserEmail){
+            localStorage.setItem("userEmail", profile.email || currentUserEmail);
+            localStorage.setItem("ltn_user_email", profile.email || currentUserEmail);
+          }
+        }catch(error){
+          console.warn("Could not sync profile to localStorage:", error);
+        }
       }
     }catch(error){
       console.error(error);
@@ -3164,7 +3206,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260521passportv38");
+      window.location.replace("/front/?v=secureauth20260522passportv39");
       return;
     }
 
@@ -3210,7 +3252,7 @@
     }
   },8000);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v36 - Instructor Assignment Attachments Enabled");
+  console.log("LTN Apprenticeship Dashboard Loaded v39 - Role Gate + Neutral Background Fix");
 </script>
 
 </body>
