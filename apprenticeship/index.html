@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-lite-no-passport-v43 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-instant-load-v44 -->
   <!-- FIXES:
     1. Pulls instructor daily assignments from Firestore classAssignments.
     2. Matches assignments by student apprenticeship.schoolCode.
@@ -18,7 +18,7 @@
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
     html,body{overflow-x:hidden}
-    html.auth-checking body{visibility:hidden}
+    html.auth-checking body{visibility:visible}
     html.auth-ready body{visibility:visible}
 
     :root{
@@ -923,12 +923,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260522fastv42'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260522fastv42'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260522instantv44'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260522instantv44'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260522fastv42'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260522fastv42'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260522instantv44'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260522instantv44'">Back</button>
   </div>
 </div>
 
@@ -1221,7 +1221,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v42";
+  const LOCAL_PROGRESS_VERSION = "v44";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1470,7 +1470,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260522fastv42";
+      window.location.href = "/instructor/?v=20260522instantv44";
       return false;
     }
 
@@ -1485,11 +1485,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260522fastv42";
+      window.location.href = "/instructor/?v=20260522instantv44";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260522fastv42";
+    window.location.href = "/apprenticeship/?v=20260522instantv44";
     return false;
   };
 
@@ -1498,7 +1498,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260522fastv42");
+      window.location.replace("/instructor/?v=20260522instantv44");
       return false;
     }
 
@@ -1988,7 +1988,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260522litev43");
+      window.location.replace("/front/?v=secureauth20260522instantv44");
       return;
     }
 
@@ -3142,9 +3142,65 @@
     }
   }
 
-  onAuthStateChanged(auth,async function(user){
+  function loadInstantLocalProfile(user){
+    const localProfileKeys = [
+      "ltn_current_profile",
+      "ltn_user",
+      "ltnUserProfile",
+      "ltn_profile",
+      "currentUserProfile",
+      "userProfile"
+    ];
+
+    let localProfile = {};
+
+    for(const key of localProfileKeys){
+      try{
+        const raw = localStorage.getItem(key);
+        if(!raw) continue;
+        const parsed = JSON.parse(raw);
+        if(parsed && typeof parsed === "object"){
+          localProfile = {...localProfile, ...parsed};
+        }
+      }catch(error){}
+    }
+
+    profile = {
+      ...localProfile,
+      ...profile,
+      uid:user.uid,
+      authUid:user.uid,
+      email:user.email || localProfile.email || "",
+      name:user.displayName || localProfile.name || localProfile.fullName || ""
+    };
+  }
+
+  function refreshFirebaseProfileInBackground(uid){
+    setTimeout(async function(){
+      try{
+        $("syncStatus").textContent = "Refreshing profile...";
+
+        await loadFirebaseProfile(uid);
+
+        const accessOk = await enforceApprenticeAccess(profile);
+        if(!accessOk) return;
+
+        renderProfile();
+        renderProgress();
+
+        $("syncStatus").textContent = "Profile updated";
+        setStatus("saveStatus","Track My Progress is ready. Use Refresh Instructor Data only when you need assignments or reviews.","ok");
+      }catch(error){
+        console.warn("Background profile refresh skipped:", error);
+        $("syncStatus").textContent = "Ready";
+        setStatus("saveStatus","Track My Progress opened. Some online details may refresh later.","info");
+      }
+    },100);
+  }
+
+  onAuthStateChanged(auth,function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260522litev43");
+      window.location.replace("/front/?v=secureauth20260522instantv44");
       return;
     }
 
@@ -3153,6 +3209,7 @@
 
     profile = {
       uid:user.uid,
+      authUid:user.uid,
       email:user.email || "",
       name:user.displayName || ""
     };
@@ -3160,28 +3217,20 @@
     localStorage.setItem("ltn_auth_uid",user.uid);
     if(user.email) localStorage.setItem("userEmail",user.email);
 
+    loadInstantLocalProfile(user);
     loadLocalProgressForUser(user.uid);
-
-    try{
-      await loadFirebaseProfile(user.uid);
-    }catch(error){
-      console.warn("Profile load delayed or blocked:", error);
-    }
-
-    if(!await enforceApprenticeAccess(profile)){
-      return;
-    }
 
     renderProfile();
     renderProgress();
 
-    $("syncStatus").textContent = "Profile loaded";
-    setStatus("saveStatus","Track My Progress opened fast. Click Refresh Instructor Data only when you need assignments or reviews.","ok");
+    $("syncStatus").textContent = "Opened instantly";
+    setStatus("saveStatus","Track My Progress opened. Firebase profile is refreshing in the background.","ok");
     showPage();
 
-    // v43 SPEED FIX: Do not auto-load heavy instructor data on page open.
-    // Use the Refresh Instructor Data button to load assignments/reviews/skills when needed.
-    setTimeout(function(){
+    refreshFirebaseProfileInBackground(user.uid);
+  });
+
+  setTimeout(function(){
       try{ $("syncStatus").textContent = "Loaded fast"; }catch(e){}
     }, 50);
   });
@@ -3195,7 +3244,7 @@
     }
   },2500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v43 - Lite No Trade Passport Auto Load");
+  console.log("LTN Apprenticeship Dashboard Loaded v44 - Instant Render Background Firebase Load");
 </script>
 
 </body>
