@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
-<!-- LTN PROFILE ROLE SYSTEM v21 -->
-<!-- Instructor / Apprentice display routing + automatic school code linking enabled -->
+<!-- LTN PROFILE ROLE SYSTEM v22 -->
+<!-- Instructor creates own code + Apprentice connects with instructor code -->
 
 <html lang="en">
 <head>
@@ -338,11 +338,11 @@ body{
 <div class="topbar">
   <div class="brand">LTN • LinkTradeNetwork</div>
   <div class="nav">
-    <a href="/dashboard/?v=20260515profilev21">Dashboard</a>
-    <a href="/members/?v=20260515profilev21">Members</a>
-    <a href="/apprenticeship/?v=20260515profilev21" onclick="return ltnRouteTrackProgressFromProfile(event, this.href)">Track My Progress</a>
-    <a href="/instructor/?v=20260515profilev21" onclick="return ltnRouteInstructorCenterFromProfile(event, this.href)">Instructor Center</a>
-    <a href="/front/?v=20260515profilev21">Sign Out</a>
+    <a href="/dashboard/?v=20260522profilev22">Dashboard</a>
+    <a href="/members/?v=20260522profilev22">Members</a>
+    <a href="/apprenticeship/?v=20260522profilev22" onclick="return ltnRouteTrackProgressFromProfile(event, this.href)">Track My Progress</a>
+    <a href="/instructor/?v=20260522profilev22" onclick="return ltnRouteInstructorCenterFromProfile(event, this.href)">Instructor Center</a>
+    <a href="/front/?v=20260522profilev22">Sign Out</a>
   </div>
 </div>
 
@@ -438,6 +438,27 @@ body{
           </div>
 
           <div id="schoolCodeStatus" class="school-status info"></div>
+        </div>
+
+        <div id="instructorCodeBox" class="school-code-box" style="display:none;">
+          <div class="school-code-title">Create Your Instructor / School Code</div>
+          <div class="school-code-text">
+            Create a code your students will use to connect their LinkTradeNetwork profile to your instructor dashboard.
+            Use letters and numbers only. Example: JOYCEHVAC, STC2026, MADISONELECTRIC.
+          </div>
+
+          <div class="school-code-row">
+            <input
+              id="instructorCodeInput"
+              class="school-code-input"
+              type="text"
+              placeholder="Example: JOYCEHVAC"
+              autocomplete="off"
+            />
+            <button id="instructorCodeBtn" class="btn btn-primary" onclick="createInstructorCode()">Save Instructor Code</button>
+          </div>
+
+          <div id="instructorCodeStatus" class="school-status info"></div>
         </div>
       </div>
 
@@ -545,17 +566,17 @@ window.ltnRouteTrackProgressFromProfile = async function(event, href){
 
   if(isInstructorProfile(profile)){
     alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-    window.location.href = "/instructor/?v=20260515profilev21";
+    window.location.href = "/instructor/?v=20260522profilev22";
     return false;
   }
 
   if(!isApprenticeProfile(profile)){
     alert("Track My Progress is for apprentices and students.");
-    window.location.href = "/dashboard/?v=20260515profilev21";
+    window.location.href = "/dashboard/?v=20260522profilev22";
     return false;
   }
 
-  window.location.href = href || "/apprenticeship/?v=20260515profilev21";
+  window.location.href = href || "/apprenticeship/?v=20260522profilev22";
   return false;
 };
 
@@ -566,11 +587,11 @@ window.ltnRouteInstructorCenterFromProfile = async function(event, href){
 
   if(!isInstructorProfile(profile)){
     alert("Instructor Center is only for instructor or school accounts.");
-    window.location.href = "/dashboard/?v=20260515profilev21";
+    window.location.href = "/dashboard/?v=20260522profilev22";
     return false;
   }
 
-  window.location.href = href || "/instructor/?v=20260515profilev21";
+  window.location.href = href || "/instructor/?v=20260522profilev22";
   return false;
 };
 
@@ -700,18 +721,57 @@ function getInstructorEmailFromProfile(u){
 }
 
 function updateSchoolCodeBoxVisibility(u){
-  const box = document.getElementById("schoolCodeBox");
-
-  if(!box) return;
+  const apprenticeBox = document.getElementById("schoolCodeBox");
+  const instructorBox = document.getElementById("instructorCodeBox");
 
   const isOwnProfile = currentUserId && profileUserId && currentUserId === profileUserId;
   const instructorAccount = isInstructorProfile(u);
 
-  if(isOwnProfile && !instructorAccount){
-    box.style.display = "block";
-  }else{
-    box.style.display = "none";
+  if(apprenticeBox){
+    apprenticeBox.style.display = isOwnProfile && !instructorAccount ? "block" : "none";
   }
+
+  if(instructorBox){
+    instructorBox.style.display = isOwnProfile && instructorAccount ? "block" : "none";
+
+    if(isOwnProfile && instructorAccount){
+      const existingCode = getInstructorCodeFromProfile(u);
+      const input = document.getElementById("instructorCodeInput");
+      const status = document.getElementById("instructorCodeStatus");
+      const btn = document.getElementById("instructorCodeBtn");
+
+      if(input && existingCode){
+        input.value = existingCode;
+      }
+
+      if(status && existingCode){
+        status.className = "school-status ok";
+        status.innerText = "Your current instructor code is: " + existingCode + " — share this with your students.";
+      }
+
+      if(btn && existingCode){
+        btn.innerText = "Update Instructor Code";
+      }
+    }
+  }
+}
+
+function cleanInstructorCode(value){
+  return String(value || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+}
+
+function getInstructorCodeFromProfile(u){
+  const instructor = u.instructor || {};
+  return cleanInstructorCode(
+    instructor.instructorCode ||
+    instructor.schoolCode ||
+    u.instructorCode ||
+    u.schoolCode ||
+    ""
+  );
 }
 
 function renderRoleSection(u){
@@ -733,6 +793,7 @@ function renderRoleSection(u){
         ${school ? `<strong>School:</strong> ${school}<br>` : ""}
         ${u.trade ? `<strong>Trade Specialty:</strong> ${u.trade}<br>` : ""}
         ${u.coursesTaught || instructor.courses ? `<strong>Courses:</strong> ${u.coursesTaught || instructor.courses}<br>` : ""}
+        ${getInstructorCodeFromProfile(u) ? `<strong>Instructor Code:</strong> ${getInstructorCodeFromProfile(u)}<br>` : ""}
       </div>
     `;
   }else{
@@ -874,7 +935,7 @@ async function checkConnection(){
     const msgBtn = document.getElementById("messageBtn");
     msgBtn.innerText = "Instructor Center";
     msgBtn.onclick = function(){
-      window.location.href = "/instructor/?v=20260515profilev21";
+      window.location.href = "/instructor/?v=20260522profilev22";
     };
   }
 
@@ -898,6 +959,166 @@ async function checkConnection(){
       "Connection request already sent.";
   }
 }
+
+window.createInstructorCode = async function(){
+  const input = document.getElementById("instructorCodeInput");
+  const status = document.getElementById("instructorCodeStatus");
+  const btn = document.getElementById("instructorCodeBtn");
+
+  if(!input || !status || !btn) return;
+
+  const code = cleanInstructorCode(input.value);
+
+  if(!code){
+    status.className = "school-status bad";
+    status.innerText = "Please enter an instructor code using letters and numbers only.";
+    return;
+  }
+
+  if(code.length < 4){
+    status.className = "school-status bad";
+    status.innerText = "Please make your instructor code at least 4 characters.";
+    return;
+  }
+
+  if(!currentUserId){
+    status.className = "school-status bad";
+    status.innerText = "Unable to find your user profile. Go back to dashboard and try again.";
+    return;
+  }
+
+  if(currentUserId !== profileUserId){
+    status.className = "school-status bad";
+    status.innerText = "You can only create an instructor code on your own profile.";
+    return;
+  }
+
+  const latestUserSnap = await getDoc(doc(db,"users",currentUserId));
+  const latestUserData = latestUserSnap.exists() ? latestUserSnap.data() : (currentUserData || {});
+
+  if(!isInstructorProfile(latestUserData)){
+    status.className = "school-status bad";
+    status.innerText = "Only instructor accounts can create an instructor code.";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.className = "btn btn-disabled";
+  btn.innerText = "Saving...";
+  status.className = "school-status info";
+  status.innerText = "Checking instructor code...";
+
+  try{
+    const codeRef = doc(db,"schoolCodes",code);
+    const codeSnap = await getDoc(codeRef);
+
+    if(codeSnap.exists()){
+      const codeData = codeSnap.data();
+
+      if(codeData.instructorId && codeData.instructorId !== currentUserId){
+        status.className = "school-status bad";
+        status.innerText = "That code is already being used. Please choose a different code.";
+        btn.disabled = false;
+        btn.className = "btn btn-primary";
+        btn.innerText = "Save Instructor Code";
+        return;
+      }
+    }
+
+    const instructorData = latestUserData.instructor && typeof latestUserData.instructor === "object"
+      ? latestUserData.instructor
+      : {};
+
+    const instructorName =
+      latestUserData.fullName ||
+      latestUserData.name ||
+      latestUserData.displayName ||
+      currentUserData?.fullName ||
+      currentUserData?.name ||
+      "Instructor";
+
+    const schoolName =
+      instructorData.school ||
+      instructorData.schoolName ||
+      latestUserData.schoolName ||
+      latestUserData.school ||
+      latestUserData.company ||
+      "";
+
+    const updatedInstructor = {
+      ...instructorData,
+      isInstructor: true,
+      instructorCode: code,
+      schoolCode: code,
+      schoolName: schoolName,
+      instructorName: instructorName
+    };
+
+    await setDoc(doc(db,"users",currentUserId),{
+      instructor: updatedInstructor,
+      instructorCode: code,
+      schoolCode: code,
+      updatedAt: serverTimestamp()
+    },{merge:true});
+
+    await setDoc(codeRef,{
+      active: true,
+      code: code,
+      schoolCode: code,
+      instructorId: currentUserId,
+      instructorName: instructorName,
+      instructorEmail: currentUserEmail || "",
+      schoolName: schoolName,
+      schoolId: currentUserId,
+      cohortId: code,
+      cohortName: schoolName || code,
+      trade: latestUserData.trade || "",
+      updatedAt: serverTimestamp(),
+      createdAt: codeSnap.exists() && codeSnap.data().createdAt ? codeSnap.data().createdAt : serverTimestamp()
+    },{merge:true});
+
+    currentUserData = {
+      ...(latestUserData || {}),
+      instructor: updatedInstructor,
+      instructorCode: code,
+      schoolCode: code
+    };
+
+    profileUserData = {
+      ...(profileUserData || {}),
+      instructor: updatedInstructor,
+      instructorCode: code,
+      schoolCode: code
+    };
+
+    try{
+      const stored = JSON.parse(localStorage.getItem("ltn_user") || "{}");
+      stored.instructor = updatedInstructor;
+      stored.instructorCode = code;
+      stored.schoolCode = code;
+      localStorage.setItem("ltn_user", JSON.stringify(stored));
+      localStorage.setItem("ltn_current_profile", JSON.stringify(profileUserData));
+    }catch(e){}
+
+    input.value = code;
+    status.className = "school-status ok";
+    status.innerText = "Instructor code saved: " + code + " — share this with your students.";
+    btn.disabled = false;
+    btn.className = "btn btn-primary";
+    btn.innerText = "Update Instructor Code";
+
+    await loadProfile();
+
+  }catch(error){
+    console.error("Instructor code save error:", error);
+    status.className = "school-status bad";
+    status.innerText = "Something went wrong saving this instructor code. Please try again.";
+
+    btn.disabled = false;
+    btn.className = "btn btn-primary";
+    btn.innerText = "Save Instructor Code";
+  }
+};
 
 window.connectSchoolCode = async function(){
   const input = document.getElementById("schoolCodeInput");
