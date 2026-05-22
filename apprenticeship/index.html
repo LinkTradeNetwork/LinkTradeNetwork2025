@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-instant-load-v44 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-strong-profile-v46 -->
   <!-- FIXES:
     1. Pulls instructor daily assignments from Firestore classAssignments.
     2. Matches assignments by student apprenticeship.schoolCode.
@@ -18,7 +18,7 @@
   <style>
     *{box-sizing:border-box;-webkit-text-size-adjust:100%}
     html,body{overflow-x:hidden}
-    html.auth-checking body{visibility:visible}
+    html.auth-checking body{visibility:hidden}
     html.auth-ready body{visibility:visible}
 
     :root{
@@ -923,12 +923,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260522instantv44'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260522instantv44'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260522strongv46'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260522strongv46'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260522instantv44'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260522instantv44'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260522strongv46'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260522strongv46'">Back</button>
   </div>
 </div>
 
@@ -1221,7 +1221,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v44";
+  const LOCAL_PROGRESS_VERSION = "v46";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1356,6 +1356,143 @@
     }
   }
 
+  function cleanString(value){
+    return String(value || "").trim();
+  }
+
+  function readJsonStorage(key){
+    try{
+      const raw = localStorage.getItem(key);
+      if(!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? parsed : null;
+    }catch(error){
+      return null;
+    }
+  }
+
+  function normalizeStoredProfile(data){
+    if(!data || typeof data !== "object") return {};
+
+    const apprentice = data.apprenticeship && typeof data.apprenticeship === "object" ? data.apprenticeship : {};
+    const instructor = data.instructor && typeof data.instructor === "object" ? data.instructor : {};
+
+    const normalized = {
+      ...data,
+      uid:data.uid || data.authUid || data.id || currentUserId || "",
+      authUid:data.authUid || data.uid || data.id || currentUserId || "",
+      email:cleanString(data.email || data.userEmail || data.profileEmail || currentUserEmail),
+      fullName:cleanString(data.fullName || data.name || data.displayName || data.userName || ""),
+      name:cleanString(data.name || data.fullName || data.displayName || data.userName || ""),
+      displayName:cleanString(data.displayName || data.fullName || data.name || data.userName || ""),
+      profileType:cleanString(data.profileType || data.role || data.accountType || data.memberType || "Apprentice"),
+      role:cleanString(data.role || data.profileType || "apprentice"),
+      trade:cleanString(data.trade || data.specialty || data.tradePath || ""),
+      city:cleanString(data.city || ""),
+      state:cleanString(data.state || data.region || ""),
+      country:cleanString(data.country || ""),
+      bio:cleanString(data.bio || ""),
+      schoolCode:cleanString(data.schoolCode || apprentice.schoolCode || "").toUpperCase(),
+      cohortName:cleanString(data.cohortName || apprentice.cohortName || ""),
+      instructorName:cleanString(data.instructorName || data.assignedInstructorName || apprentice.instructorName || ""),
+      instructorEmail:cleanString(data.instructorEmail || data.assignedInstructorEmail || apprentice.instructorEmail || ""),
+      apprenticeship:{
+        ...apprentice,
+        isApprentice:data.isApprentice === true || apprentice.isApprentice === true || String(data.profileType || data.role || "").toLowerCase().includes("apprentice") || String(data.profileType || data.role || "").toLowerCase().includes("student"),
+        schoolCode:cleanString(apprentice.schoolCode || data.schoolCode || "").toUpperCase(),
+        cohortName:cleanString(apprentice.cohortName || data.cohortName || ""),
+        instructorName:cleanString(apprentice.instructorName || data.instructorName || data.assignedInstructorName || ""),
+        instructorEmail:cleanString(apprentice.instructorEmail || data.instructorEmail || data.assignedInstructorEmail || ""),
+        schoolName:cleanString(apprentice.schoolName || data.schoolName || data.tradeSchool || data.school || data.trainingCenter || ""),
+        program:cleanString(apprentice.program || data.program || "")
+      },
+      instructor:{
+        ...instructor,
+        isInstructor:data.isInstructor === true || instructor.isInstructor === true
+      }
+    };
+
+    return normalized;
+  }
+
+  function mergeProfileStrong(base, incoming){
+    const a = normalizeStoredProfile(base || {});
+    const b = normalizeStoredProfile(incoming || {});
+    const merged = {...a};
+
+    Object.keys(b).forEach(key => {
+      const value = b[key];
+      if(value === undefined || value === null) return;
+      if(typeof value === "string" && value.trim() === "") return;
+      if(Array.isArray(value) && value.length === 0) return;
+      if(typeof value === "object" && !Array.isArray(value)){
+        merged[key] = {...(merged[key] || {}), ...value};
+        return;
+      }
+      merged[key] = value;
+    });
+
+    merged.apprenticeship = {
+      ...(a.apprenticeship || {}),
+      ...(b.apprenticeship || {})
+    };
+    merged.instructor = {
+      ...(a.instructor || {}),
+      ...(b.instructor || {})
+    };
+
+    if(!merged.fullName && merged.name) merged.fullName = merged.name;
+    if(!merged.name && merged.fullName) merged.name = merged.fullName;
+    if(!merged.displayName && (merged.fullName || merged.name)) merged.displayName = merged.fullName || merged.name;
+    if(!merged.email) merged.email = currentUserEmail || "";
+    if(!merged.uid) merged.uid = currentUserId || "";
+    if(!merged.authUid) merged.authUid = currentUserId || merged.uid || "";
+
+    return normalizeStoredProfile(merged);
+  }
+
+  function loadStoredProfileStrong(){
+    const keys = [
+      "ltn_current_profile",
+      "ltn_user",
+      "ltnUserProfile",
+      "ltn_profile",
+      "ltn_profile_data",
+      "currentUserProfile",
+      "userProfile"
+    ];
+
+    let found = {};
+    keys.forEach(key => {
+      const data = readJsonStorage(key);
+      if(!data) return;
+      found = mergeProfileStrong(found, data);
+    });
+
+    if(!found.email && localStorage.getItem("userEmail")){
+      found.email = localStorage.getItem("userEmail");
+    }
+
+    return normalizeStoredProfile(found);
+  }
+
+  function saveProfileCacheStrong(data){
+    const normalized = normalizeStoredProfile(data || {});
+    try{
+      localStorage.setItem("ltn_current_profile", JSON.stringify(normalized));
+      localStorage.setItem("ltn_user", JSON.stringify(normalized));
+      if(normalized.email){
+        localStorage.setItem("userEmail", normalized.email);
+        localStorage.setItem("ltn_user_email", normalized.email);
+      }
+      if(normalized.uid || normalized.authUid){
+        localStorage.setItem("ltn_auth_uid", normalized.uid || normalized.authUid);
+      }
+    }catch(error){
+      console.warn("Could not save profile cache:", error);
+    }
+  }
+
   function getProfileName(data){return data.fullName || data.name || data.displayName || data.userName || "Trade Worker"}
   function getProfileEmail(data){return data.email || data.userEmail || data.profileEmail || currentUserEmail || "Signed In User"}
   function getProfileRole(data){return data.role || data.profileType || "Apprentice"}
@@ -1470,7 +1607,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260522instantv44";
+      window.location.href = "/instructor/?v=20260522strongv46";
       return false;
     }
 
@@ -1485,11 +1622,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260522instantv44";
+      window.location.href = "/instructor/?v=20260522strongv46";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260522instantv44";
+    window.location.href = "/apprenticeship/?v=20260522strongv46";
     return false;
   };
 
@@ -1498,7 +1635,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260522instantv44");
+      window.location.replace("/instructor/?v=20260522strongv46");
       return false;
     }
 
@@ -1988,7 +2125,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260522instantv45");
+      window.location.replace("/front/?v=secureauth20260522strongv46");
       return;
     }
 
@@ -2070,7 +2207,7 @@
     try{
       await setDoc(doc(db,"users",currentUserId),payload,{merge:true});
       await syncTradePassport("progress_saved","Student progress saved");
-      setStatus("saveStatus","Saved securely. New proof stays pending until instructor verification.","ok");
+      setStatus("saveStatus","Saved securely. Trade Passport synced. New proof stays pending until instructor verification.","ok");
       $("syncStatus").textContent = "Online save complete";
     }catch(error){
       console.error(error);
@@ -2794,30 +2931,54 @@
   }
 
   async function loadFirebaseProfile(uid){
+    const foundProfiles = [];
+
     try{
-      const snap = await getDoc(doc(db,"users",uid));
-
-      if(snap.exists()){
-        const firebaseProfile = snap.data() || {};
-        profile = {
-          ...profile,
-          ...firebaseProfile,
-          uid:uid,
-          authUid:uid,
-          email:firebaseProfile.email || currentUserEmail || profile.email || ""
-        };
-
-        try{
-          localStorage.setItem("ltn_current_profile", JSON.stringify(profile));
-          localStorage.setItem("ltn_user", JSON.stringify(profile));
-        }catch(error){}
-
-        mergeFirebaseProgress(firebaseProfile);
+      if(uid){
+        const userSnap = await getDoc(doc(db,"users",uid));
+        if(userSnap.exists()){
+          foundProfiles.push({uid, authUid:uid, ...userSnap.data()});
+        }
       }
     }catch(error){
-      console.error(error);
-      setStatus("saveStatus","Could not load online profile. Check Firestore rules and sign-in status.","bad");
+      console.warn("Direct users/{uid} profile load failed:", error);
     }
+
+    try{
+      if(uid){
+        const profileSnap = await getDoc(doc(db,"profiles",uid));
+        if(profileSnap.exists()){
+          foundProfiles.push({uid, authUid:uid, ...profileSnap.data()});
+        }
+      }
+    }catch(error){
+      console.warn("Direct profiles/{uid} profile load failed:", error);
+    }
+
+    try{
+      const email = currentUserEmail || (profile && profile.email) || "";
+      if(email && foundProfiles.length === 0){
+        const qRef = query(collection(db,"users"), where("email","==",email), limit(1));
+        const snap = await getDocs(qRef);
+        snap.forEach(docSnap => {
+          foundProfiles.push({uid:docSnap.id, authUid:docSnap.id, ...docSnap.data()});
+        });
+      }
+    }catch(error){
+      console.warn("Email profile search failed:", error);
+    }
+
+    if(foundProfiles.length){
+      foundProfiles.forEach(firebaseProfile => {
+        profile = mergeProfileStrong(profile, firebaseProfile);
+        mergeFirebaseProgress(firebaseProfile);
+      });
+      saveProfileCacheStrong(profile);
+      return true;
+    }
+
+    setStatus("saveStatus","Profile opened from device cache. Online profile did not return yet.","info");
+    return false;
   }
 
   async function loadAptitudeTest(uid){
@@ -3154,102 +3315,78 @@
     }
   }
 
-  function loadInstantLocalProfile(user){
-    const localProfileKeys = [
-      "ltn_current_profile",
-      "ltn_user",
-      "ltnUserProfile",
-      "ltn_profile",
-      "currentUserProfile",
-      "userProfile"
-    ];
-
-    let localProfile = {};
-
-    for(const key of localProfileKeys){
-      try{
-        const raw = localStorage.getItem(key);
-        if(!raw) continue;
-        const parsed = JSON.parse(raw);
-        if(parsed && typeof parsed === "object"){
-          localProfile = {...localProfile, ...parsed};
-        }
-      }catch(error){}
-    }
-
-    profile = {
-      ...localProfile,
-      ...profile,
-      uid:user.uid,
-      authUid:user.uid,
-      email:user.email || localProfile.email || localProfile.userEmail || "",
-      name:user.displayName || localProfile.fullName || localProfile.name || localProfile.displayName || "",
-      fullName:localProfile.fullName || localProfile.name || localProfile.displayName || profile.fullName || profile.name || ""
-    };
-  }
-
-  function refreshFirebaseProfileInBackground(uid){
-    setTimeout(async function(){
-      try{
-        $("syncStatus").textContent = "Refreshing profile...";
-
-        await loadFirebaseProfile(uid);
-
-        const accessOk = await enforceApprenticeAccess(profile);
-        if(!accessOk) return;
-
-        renderProfile();
-        renderProgress();
-
-        $("syncStatus").textContent = "Profile updated";
-        setStatus("saveStatus","Track My Progress is ready. Use Refresh Instructor Data only when you need assignments or reviews.","ok");
-      }catch(error){
-        console.warn("Background profile refresh skipped:", error);
-        $("syncStatus").textContent = "Ready";
-        setStatus("saveStatus","Track My Progress opened. Some online details may refresh later.","info");
-      }
-    },100);
-  }
-
-  onAuthStateChanged(auth,function(user){
+  onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260522instantv45");
+      window.location.replace("/front/?v=secureauth20260522strongv46");
       return;
     }
 
     currentUserId = user.uid;
     currentUserEmail = user.email || "";
 
-    profile = {
+    const authProfile = normalizeStoredProfile({
       uid:user.uid,
       authUid:user.uid,
       email:user.email || "",
-      name:user.displayName || ""
+      fullName:user.displayName || "",
+      name:user.displayName || "",
+      displayName:user.displayName || "",
+      role:"apprentice",
+      profileType:"Apprentice",
+      isApprentice:true,
+      apprenticeship:{isApprentice:true}
+    });
+
+    const storedProfile = loadStoredProfileStrong();
+    profile = mergeProfileStrong(authProfile, storedProfile);
+    profile.uid = user.uid;
+    profile.authUid = user.uid;
+    profile.email = currentUserEmail || profile.email || "";
+    profile.isApprentice = true;
+    profile.apprenticeship = {
+      ...(profile.apprenticeship || {}),
+      isApprentice:true
     };
 
-    localStorage.setItem("ltn_auth_uid",user.uid);
-    if(user.email) localStorage.setItem("userEmail",user.email);
-
-    loadInstantLocalProfile(user);
+    saveProfileCacheStrong(profile);
     loadLocalProgressForUser(user.uid);
 
+    // STRONG INSTANT LOAD: render first from local/cache/auth so the dashboard does not stay blank.
     renderProfile();
     renderProgress();
-
-    $("syncStatus").textContent = "Opened instantly";
-    setStatus("saveStatus","Track My Progress opened. Firebase profile is refreshing in the background.","ok");
     showPage();
+    $("syncStatus").textContent = "Opening profile...";
+    setStatus("saveStatus","Track My Progress opened. Loading latest profile information...","info");
 
-    refreshFirebaseProfileInBackground(user.uid);
+    // STRONG FIREBASE REFRESH: pull users/{uid}, profiles/{uid}, and email match, then re-render.
+    try{
+      await loadFirebaseProfile(user.uid);
+      profile.uid = user.uid;
+      profile.authUid = user.uid;
+      profile.email = currentUserEmail || profile.email || "";
+      profile.isApprentice = true;
+      profile.apprenticeship = {
+        ...(profile.apprenticeship || {}),
+        isApprentice:true
+      };
+      saveProfileCacheStrong(profile);
+      renderProfile();
+      renderProgress();
+      $("syncStatus").textContent = "Profile loaded";
+      setStatus("saveStatus","Profile information loaded. Use Refresh Instructor Data only when needed.","ok");
+    }catch(error){
+      console.warn("Strong profile load failed:", error);
+      $("syncStatus").textContent = "Device profile loaded";
+      setStatus("saveStatus","Using saved profile from this device. Online profile did not load yet.","bad");
+    }
+
+    // Do not block the page with route checks or instructor data.
+    if(hasExactInstructorSignal(profile) && !hasApprenticeSignal(profile)){
+      alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
+      window.location.replace("/instructor/?v=20260522strongv46");
+      return;
+    }
   });
-
-  setTimeout(function(){
-      try{
-        if($("syncStatus") && $("syncStatus").textContent === "Opened instantly"){
-          $("syncStatus").textContent = "Loading profile...";
-        }
-      }catch(e){}
-    }, 50);
 
   setTimeout(function(){
     if(document.documentElement.classList.contains("auth-checking")){
@@ -3260,7 +3397,7 @@
     }
   },2500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v45 - Instant Profile Fix");
+  console.log("LTN Apprenticeship Dashboard Loaded v46 - Strong Profile Load");
 </script>
 
 </body>
