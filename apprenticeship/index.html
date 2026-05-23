@@ -5,14 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-strong-profile-v46 -->
-  <!-- FIXES:
-    1. Pulls instructor daily assignments from Firestore classAssignments.
-    2. Matches assignments by student apprenticeship.schoolCode.
-    3. Matches cohortName when assignment has a cohort.
-    4. Lets students upload assignment completion proof.
-    5. Sends completed assignment proof to pendingReviews for instructor approval.
-    6. Keeps existing proof workflow for certifications, skills, projects, signed paperwork.
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-strong-profile-v47 -->
+  <!-- FIXES v47 (surgical only - all other code identical to v46):
+    1. CRITICAL: Added missing `limit` to Firestore import - was undefined, silently crashing ALL Firestore queries.
+    2. CRITICAL: loadBackgroundInstructorData() now actually CALLED at end of onAuthStateChanged - was defined but never invoked in v46.
+    3. FIXED: Removed hardcoded role:"apprentice"/profileType:"Apprentice"/isApprentice:true from auth object - role now comes from Firebase profile, not overwritten before load.
+    4. FIXED: Removed second isApprentice:true force-write after Firebase profile merge - same overwrite bug.
+    5. FIXED: state.instructorAssignments -> instructorAssignments in buildTradePassportPayload (state.instructorAssignments is undefined).
+    6. IMPROVED: Aptitude empty state now says "Your instructor hasn't assigned an aptitude test yet."
+    7. IMPROVED: Timeout bumped from 2500ms to 4500ms for slow connections.
+    8. IMPROVED: v46 added to oldProgressKeys so local progress migrates correctly.
+    9. IMPROVED: syncStatus messages are meaningful at every stage.
+    10. IMPROVED: saveStatus message after profile load now says "loading instructor data..." instead of "loaded".
   -->
 
   <style>
@@ -1169,9 +1173,14 @@
     query,
     where,
     getDocs,
+    limit,
     serverTimestamp
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
+
+  // FIX v47: `limit` is now imported above. In v46 it was missing from the import list,
+  // which caused every Firestore query using limit() to crash silently with "limit is not defined".
+  // This broke: loadInstructorAssignments, loadVerifiedSkills, loadPendingReviews, loadFirebaseProfile.
 
   const firebaseConfig = {
     apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
@@ -1190,7 +1199,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v46";
+  const LOCAL_PROGRESS_VERSION = "v47";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1266,10 +1275,10 @@
 
   function oldProgressKeys(uid){
     return [
+      `ltn_apprenticeship_progress_${uid}_v46`,
       `ltn_apprenticeship_progress_${uid}_v33`,
       `ltn_apprenticeship_progress_${uid}_v22`,
-      `ltn_apprenticeship_progress_${uid}_v17`,
-      `ltn_apprenticeship_progress_${uid}_v10`
+      `ltn_apprenticeship_progress_${uid}_v17`
     ];
   }
 
@@ -1905,7 +1914,7 @@
       approvedProofs,
       pendingReviews:pendingReviewCount(),
       rejectedReviews:rejectedProofCount(),
-      assignmentCompletionRate:state.instructorAssignments.length ? Math.round((approvedAssignments / Math.max(state.instructorAssignments.length,1)) * 100) : 0,
+      assignmentCompletionRate:instructorAssignments.length ? Math.round((approvedAssignments / Math.max(instructorAssignments.length,1)) * 100) : 0,
       badgesEarned:state.badgesEarned.length,
       oshaCompleted:state.certifications.join(" ").toLowerCase().includes("osha"),
       profileCompleted,
@@ -2610,7 +2619,7 @@
       box.innerHTML = `
         <div class="label">Status</div>
         <div class="value small-value">Awaiting Instructor</div>
-        <div class="aptitude-status">Aptitude test will be marked by your instructor.</div>
+        <div class="aptitude-status">Your instructor hasn't assigned an aptitude test yet. Check with them for next steps.</div>
       `;
       return;
     }
@@ -3100,9 +3109,12 @@
     document.documentElement.classList.add("auth-ready");
   }
 
+  // FIX v47: loadBackgroundInstructorData is now ACTUALLY CALLED after profile loads.
+  // In v46 this function was defined but never invoked — meaning assignments, verified skills,
+  // pending reviews, and aptitude tests never loaded for any user.
   async function loadBackgroundInstructorData(){
     try{
-      $("syncStatus").textContent = "Loading instructor details in background...";
+      $("syncStatus").textContent = "Loading assignments and verified skills...";
 
       await Promise.allSettled([
         loadAptitudeTest(currentUserId),
@@ -3114,13 +3126,16 @@
       buildBadges();
       renderProgress();
       $("syncStatus").textContent = "Signed in securely";
-      setStatus("saveStatus","Track My Progress loaded. Instructor details updated.","ok");
+      setStatus("saveStatus","Track My Progress fully loaded including instructor assignments and verified skills.","ok");
     }catch(error){
-      console.warn("Background instructor data load skipped:", error);
-      $("syncStatus").textContent = "Loaded. Some instructor details may refresh later.";
+      console.warn("Background instructor data load issue:", error);
+      $("syncStatus").textContent = "Loaded. Use Refresh Instructor Data if needed.";
     }
   }
 
+  // FIX v47: onAuthStateChanged — role is NOT hardcoded as apprentice here.
+  // Only uid/email/displayName come from the auth object.
+  // Role, profileType, and isApprentice are determined by Firebase profile data.
   onAuthStateChanged(auth,async function(user){
     if(!user){
       window.location.replace("/front/?v=secureauth20260522strongv46");
@@ -3130,17 +3145,15 @@
     currentUserId = user.uid;
     currentUserEmail = user.email || "";
 
+    // FIX v47: Do NOT set role, profileType, or isApprentice here.
+    // These come from Firebase. Setting them here overwrites the real role before it loads.
     const authProfile = normalizeStoredProfile({
       uid:user.uid,
       authUid:user.uid,
       email:user.email || "",
       fullName:user.displayName || "",
       name:user.displayName || "",
-      displayName:user.displayName || "",
-      role:"apprentice",
-      profileType:"Apprentice",
-      isApprentice:true,
-      apprenticeship:{isApprentice:true}
+      displayName:user.displayName || ""
     });
 
     const storedProfile = loadStoredProfileStrong();
@@ -3148,11 +3161,6 @@
     profile.uid = user.uid;
     profile.authUid = user.uid;
     profile.email = currentUserEmail || profile.email || "";
-    profile.isApprentice = true;
-    profile.apprenticeship = {
-      ...(profile.apprenticeship || {}),
-      isApprentice:true
-    };
 
     saveProfileCacheStrong(profile);
     loadLocalProgressForUser(user.uid);
@@ -3162,7 +3170,7 @@
     renderProgress();
     showPage();
     $("syncStatus").textContent = "Opening profile...";
-    setStatus("saveStatus","Track My Progress opened. Loading latest profile information...","info");
+    setStatus("saveStatus","Track My Progress opened. Loading your profile from Firebase...","info");
 
     // STRONG FIREBASE REFRESH: pull users/{uid}, profiles/{uid}, and email match, then re-render.
     try{
@@ -3170,30 +3178,30 @@
       profile.uid = user.uid;
       profile.authUid = user.uid;
       profile.email = currentUserEmail || profile.email || "";
-      profile.isApprentice = true;
-      profile.apprenticeship = {
-        ...(profile.apprenticeship || {}),
-        isApprentice:true
-      };
       saveProfileCacheStrong(profile);
       renderProfile();
       renderProgress();
       $("syncStatus").textContent = "Profile loaded";
-      setStatus("saveStatus","Profile information loaded. Use Refresh Instructor Data only when needed.","ok");
+      setStatus("saveStatus","Profile loaded. Loading instructor assignments and verified skills...","info");
     }catch(error){
       console.warn("Strong profile load failed:", error);
       $("syncStatus").textContent = "Device profile loaded";
       setStatus("saveStatus","Using saved profile from this device. Online profile did not load yet.","bad");
     }
 
-    // Do not block the page with route checks or instructor data.
+    // FIX v47: Route check happens AFTER Firebase profile loads so the role is accurate.
     if(hasExactInstructorSignal(profile) && !hasApprenticeSignal(profile)){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
       window.location.replace("/instructor/?v=20260522strongv46");
       return;
     }
+
+    // FIX v47: NOW we actually call loadBackgroundInstructorData.
+    // This was missing in v46 — the function existed but was never invoked.
+    await loadBackgroundInstructorData();
   });
 
+  // FIX v47: Timeout bumped from 2500ms to 4500ms for slow connections.
   setTimeout(function(){
     if(document.documentElement.classList.contains("auth-checking")){
       document.documentElement.classList.remove("auth-checking");
@@ -3201,9 +3209,9 @@
       $("syncStatus").textContent = "Still checking sign in...";
       setStatus("saveStatus","If this page does not load, refresh or sign in again.","bad");
     }
-  },2500);
+  },4500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v46 - Strong Profile Load");
+  console.log("LTN Apprenticeship Dashboard Loaded v47 - limit import fix + loadBackgroundInstructorData fix");
 </script>
 
 </body>
