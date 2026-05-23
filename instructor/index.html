@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-20: INSTRUCTOR CENTER TRADE PASSPORT SYNC v29 -->
-<!-- LTN VERSION: instructor-center-trade-passport-sync-v29 -->
+<!-- LTN FORCE UPDATE 2026-05-23: INSTRUCTOR CENTER STABILITY FIX v30 -->
+<!-- LTN VERSION: instructor-center-stability-fix-v30 -->
 
 <style>
 :root{
@@ -1269,7 +1269,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260521instructorv29";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260523instructorv30";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1284,14 +1284,19 @@ textarea.form-control{min-height:106px;resize:vertical}
   window.LTNLogout = function(){
     window.LTNClearLocalSession();
     try{
+      if(typeof window.LTNFirebaseSignOut === "function"){
+        window.LTNFirebaseSignOut();
+        return false;
+      }
       if(window.firebase && firebase.auth){
         firebase.auth().signOut().finally(function(){
           window.location.href = window.LTN_FRONT_GATE_URL;
         });
-        return;
+        return false;
       }
     }catch(e){}
     window.location.href = window.LTN_FRONT_GATE_URL;
+    return false;
   };
 })();
 </script>
@@ -1310,11 +1315,11 @@ textarea.form-control{min-height:106px;resize:vertical}
     </button>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260521instructorv29">Dashboard</a>
-      <a href="/members/?v=20260521instructorv29">Members</a>
-      <a href="/instructor/?v=20260521instructorv29" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260521instructorv29" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260521instructorv29">Network Center</a>
+      <a href="/dashboard/?v=20260523instructorv30">Dashboard</a>
+      <a href="/members/?v=20260523instructorv30">Members</a>
+      <a href="/instructor/?v=20260523instructorv30" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260523instructorv30" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/network-center/?v=20260523instructorv30">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1362,7 +1367,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260521instructorv29">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260523instructorv30">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1839,7 +1844,8 @@ if(localStorage.getItem("ltn_access_granted") !== "true"){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import {
   getAuth,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import {
   getFirestore,
@@ -1874,6 +1880,12 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
+
+window.LTNFirebaseSignOut = function(){
+  signOut(auth).finally(function(){
+    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260523instructorv30";
+  });
+};
 
 const LOCAL_KEYS = {
   instructor:"ltn_instructor_center_profile",
@@ -1979,7 +1991,7 @@ async function findCurrentUser(){
 
   if(!authUser){
     LTNClearLocalSession();
-    window.location.replace("/front.html?v=20260520instructorAuthRequired");
+    window.location.replace("/front.html?v=20260523instructorAuthRequired");
     throw new Error("No authenticated Firebase user.");
   }
 
@@ -1999,7 +2011,7 @@ async function findCurrentUser(){
 
   if(!userSnap.exists()){
     alert("Instructor profile was not found for this signed-in account. Please complete your profile first.");
-    window.location.replace("/dashboard/?v=20260520instructorNoProfile");
+    window.location.replace("/dashboard/?v=20260523instructorNoProfile");
     throw new Error("No user profile document for current auth uid.");
   }
 
@@ -2007,7 +2019,7 @@ async function findCurrentUser(){
 
   if(!isFirestoreInstructorProfile(u)){
     alert("Instructor Center is only for instructor accounts. You are signed in as a student/apprentice/member account.");
-    window.location.replace("/dashboard/?v=20260520notInstructor");
+    window.location.replace("/dashboard/?v=20260523notInstructor");
     throw new Error("Current user is not an instructor.");
   }
 
@@ -2026,8 +2038,8 @@ async function findCurrentUser(){
     city:u.city || "",
     state:u.state || "",
     bio:u.bio || "",
-    schoolCode:String(instructorData.schoolCode || u.schoolCode || apprenticeshipData.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase(),
-    cohortName:instructorData.cohortName || u.cohortName || apprenticeshipData.cohortName || "Electrical Level 1",
+    schoolCode:String(instructorData.schoolCode || u.schoolCode || apprenticeshipData.schoolCode || "").trim().toUpperCase(),
+    cohortName:instructorData.cohortName || u.cohortName || apprenticeshipData.cohortName || "",
     profileImage:u.profileImageUrl || u.profileImage || u.photoURL || "",
     profileType:u.profileType || u.role || "Instructor / Teacher",
     role:u.role || "instructor",
@@ -2516,7 +2528,7 @@ function mergeStudents(manualStudents, linkedStudents){
 async function loadAutoLinkedStudents(){
   autoLinkedStudents = [];
 
-  const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
+  const schoolCode = String(currentProfile.schoolCode || "").trim().toUpperCase();
   const instructorEmail = normalizeEmail(currentProfile.email || currentUserEmail);
   const results = new Map();
 
@@ -2601,7 +2613,7 @@ function normalizeAptitudeTest(id, data){
 async function loadAptitudeTests(){
   aptitudeTestsByUserId = {};
 
-  const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
+  const schoolCode = String(currentProfile.schoolCode || "").trim().toUpperCase();
 
   async function addAptitudeResults(qRef){
     const snap = await getDocs(qRef);
@@ -2699,7 +2711,7 @@ async function loadVerifiedSkills(){
   studentSkillsByUserId = {};
   allVerifiedSkills = [];
 
-  const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
+  const schoolCode = String(currentProfile.schoolCode || "").trim().toUpperCase();
 
   if(!schoolCode) return;
 
@@ -2845,7 +2857,7 @@ function parseSkillStudentValue(value){
 async function loadPendingReviews(){
   pendingReviews = [];
 
-  const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
+  const schoolCode = String(currentProfile.schoolCode || "").trim().toUpperCase();
 
   try{
     const snap = await getDocs(
@@ -2957,7 +2969,7 @@ function renderPendingReviews(){
 async function loadClassAssignments(){
   firebaseAssignments = [];
 
-  const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
+  const schoolCode = String(currentProfile.schoolCode || "").trim().toUpperCase();
 
   if(!schoolCode) return;
 
@@ -3342,12 +3354,6 @@ window.InstructorCenter = {
         reviewId
       });
 
-      await syncTradePassportForStudent(existingReview.authUid || existingReview.studentUid || existingReview.uid || existingReview.studentId, {
-        type:"review_rejected",
-        title:existingReview.uploadTitle || "Student upload rejected",
-        detail:instructorComment,
-        reviewId
-      });
 
       await loadPendingReviews();
       await loadClassAssignments();
@@ -3403,8 +3409,8 @@ window.InstructorCenter = {
     document.getElementById("input-school").value = currentProfile.school || "";
     document.getElementById("input-trade").value = currentProfile.trade || "";
     document.getElementById("input-courses").value = currentProfile.courses || "";
-    document.getElementById("input-school-code").value = currentProfile.schoolCode || "STC-ELECTRICAL-2026";
-    document.getElementById("input-cohort-name").value = currentProfile.cohortName || "Electrical Level 1";
+    document.getElementById("input-school-code").value = currentProfile.schoolCode || "";
+    document.getElementById("input-cohort-name").value = currentProfile.cohortName || "";
     document.getElementById("input-city").value = currentProfile.city || "";
     document.getElementById("input-state").value = currentProfile.state || "";
     document.getElementById("input-bio").value = currentProfile.bio || "";
@@ -3419,8 +3425,8 @@ window.InstructorCenter = {
       school:document.getElementById("input-school").value.trim(),
       trade:document.getElementById("input-trade").value.trim() || "Instructor / Teacher",
       courses:document.getElementById("input-courses").value.trim(),
-      schoolCode:String(document.getElementById("input-school-code").value.trim() || "STC-ELECTRICAL-2026").toUpperCase(),
-      cohortName:document.getElementById("input-cohort-name").value.trim() || "Electrical Level 1",
+      schoolCode:String(document.getElementById("input-school-code").value.trim() || "").toUpperCase(),
+      cohortName:document.getElementById("input-cohort-name").value.trim(),
       city:document.getElementById("input-city").value.trim(),
       state:document.getElementById("input-state").value.trim(),
       bio:document.getElementById("input-bio").value.trim(),
@@ -3428,6 +3434,11 @@ window.InstructorCenter = {
       isInstructor:true,
       updatedAt:new Date().toISOString()
     };
+
+    if(!currentProfile.schoolCode){
+      alert("Please enter a School Code before saving. Students need this code to connect to your Instructor Center.");
+      return;
+    }
 
     localStorage.setItem(LOCAL_KEYS.instructor, JSON.stringify(currentProfile));
 
@@ -3481,7 +3492,7 @@ window.InstructorCenter = {
     document.getElementById("student-status").value = "active";
     document.getElementById("student-hours").value = "";
     document.getElementById("student-goal").value = "8000";
-    document.getElementById("student-cohort").value = currentProfile.cohortName || "Electrical Level 1";
+    document.getElementById("student-cohort").value = currentProfile.cohortName || "";
     document.getElementById("student-notes").value = "";
     this.openModal("student-modal", triggerBtn);
   },
@@ -3490,6 +3501,11 @@ window.InstructorCenter = {
     const name = document.getElementById("student-name").value.trim();
     if(!name){
       alert("Student name is required.");
+      return;
+    }
+
+    if(!String(currentProfile.schoolCode || "").trim()){
+      alert("Please save your Instructor School Code before adding students. This keeps students connected to the right instructor.");
       return;
     }
 
@@ -3502,8 +3518,8 @@ window.InstructorCenter = {
       status:document.getElementById("student-status").value,
       hours:Number(document.getElementById("student-hours").value || 0),
       goal:Number(document.getElementById("student-goal").value || 8000),
-      cohortName:document.getElementById("student-cohort").value.trim() || currentProfile.cohortName || "Electrical Level 1",
-      schoolCode:currentProfile.schoolCode || "STC-ELECTRICAL-2026",
+      cohortName:document.getElementById("student-cohort").value.trim() || currentProfile.cohortName || "",
+      schoolCode:String(currentProfile.schoolCode || "").trim().toUpperCase(),
       notes:document.getElementById("student-notes").value.trim(),
       school:currentProfile.school || "",
       instructorEmail:currentProfile.email || currentUserEmail || "",
@@ -3562,7 +3578,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260521instructorv29">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260523instructorv30">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -3700,7 +3716,7 @@ window.InstructorCenter = {
     document.getElementById("document-file").value = "";
     document.getElementById("document-name").value = "";
     document.getElementById("document-type").value = "Daily Assignment";
-    document.getElementById("document-cohort").value = currentProfile.cohortName || "Electrical Level 1";
+    document.getElementById("document-cohort").value = currentProfile.cohortName || "";
     document.getElementById("document-due-date").value = "";
     document.getElementById("document-instructions").value = "";
     document.getElementById("selected-document-name").innerText = "";
@@ -3721,10 +3737,15 @@ window.InstructorCenter = {
     }
 
     const assignmentType = document.getElementById("document-type").value;
-    const cohortName = document.getElementById("document-cohort").value.trim() || currentProfile.cohortName || "Electrical Level 1";
+    const cohortName = document.getElementById("document-cohort").value.trim() || currentProfile.cohortName || "";
     const dueDate = document.getElementById("document-due-date").value || "";
     const instructions = document.getElementById("document-instructions").value.trim();
-    const schoolCode = String(currentProfile.schoolCode || "STC-ELECTRICAL-2026").trim().toUpperCase();
+    const schoolCode = String(currentProfile.schoolCode || "").trim().toUpperCase();
+
+    if(!schoolCode){
+      alert("Please save your Instructor School Code before sending assignments. Students need the school code to see the assignment.");
+      return;
+    }
 
     const sendBtn = Array.from(document.querySelectorAll("#document-modal .btn-primary")).find(btn => {
       return String(btn.textContent || "").toLowerCase().includes("send");
