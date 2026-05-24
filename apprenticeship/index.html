@@ -5,12 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-training-units-v50-loader-fix -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="ltn-version" content="apprenticeship-dashboard-v50-github-cache-strong">
+
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-training-units-v50-github-cache-strong -->
   <!-- FIXES v50:
-    1. FIXED: Training unit loader now exposes window.trainingUnits for console/debug testing.
-    2. FIXED: Unit loader now supports both Firestore field styles: code/title/category and unitCode/unitTitle/unitType.
-    3. FIXED: Unit dropdowns now render immediately after units load and fall back safely instead of staying on Loading.
-    4. FIXED: Added stronger console logging for trainingUnits read success/failure.
+    1. STRONGER GitHub deployment/cache version markers and no-cache meta tags.
+    2. FIXED: trainingUnits are exposed globally as window.trainingUnits for console testing.
+    3. FIXED: training unit loader runs earlier and independently so dropdowns do not wait on instructor data.
+    4. FIXED: training unit loader supports both code/title/category fields and unitCode/unitTitle/unitType fields.
+    5. ADDED: window.LTNReloadTrainingUnits() and window.LTNDebugUnits() for fast live debugging.
   -->
   <!-- FIXES v49:
     1. ADDED: Firestore trainingUnits collection integration for unit/competency dropdowns.
@@ -1026,7 +1032,7 @@
       </div>
     </div>
     <div class="hero-stack">
-      <div class="hero-badge" id="heroRoleBadge">Progress Snapshot Saves to Members</div>
+      <div class="hero-badge" id="heroRoleBadge">Progress Snapshot Saves to Members • v50</div>
       <div class="sync-pill" id="syncStatus">Checking secure sign in...</div>
     </div>
   </div>
@@ -1313,6 +1319,8 @@
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
   const LOCAL_PROGRESS_VERSION = "v50";
+  const LTN_APP_VERSION = "apprenticeship-dashboard-v50-github-cache-strong-20260524";
+  window.LTN_APP_VERSION = LTN_APP_VERSION;
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1786,38 +1794,30 @@
 
   function defaultTrainingUnits(){
     return [
-      {code:"UEENEEE101A",title:"Apply Occupational Health and Safety Regulations",category:"core",trade:"Electrical",active:true,sortOrder:1},
-      {code:"UEENEEE102A",title:"Fabricate, Assemble and Dismantle Utilities Industry Components",category:"core",trade:"Electrical",active:true,sortOrder:2},
-      {code:"UEENEEE104A",title:"Solve Problems in D.C. Circuits",category:"core",trade:"Electrical",active:true,sortOrder:3}
+      {code:"UEENEEE101A",title:"Apply Occupational Health and Safety Regulations",category:"Core",trade:"Electrical",active:true,sortOrder:1},
+      {code:"UEENEEE102A",title:"Fabricate, Assemble and Dismantle Utilities Industry Components",category:"Core",trade:"Electrical",active:true,sortOrder:2}
     ];
-  }
-
-  function isUnitActive(value){
-    if(value === false) return false;
-    if(String(value).trim().toLowerCase() === "false") return false;
-    return true;
   }
 
   function normalizeTrainingUnit(data,id){
     const unit = data && typeof data === "object" ? data : {};
-    const code = cleanString(unit.code || unit.unitCode || unit.competencyCode || id || "").toUpperCase();
-    const title = cleanString(unit.title || unit.unitTitle || unit.name || unit.competencyTitle || "Training Unit");
+    const code = cleanString(unit.code || unit.unitCode || unit.trainingUnitCode || unit.competencyCode || id || "").toUpperCase();
+    const title = cleanString(unit.title || unit.unitTitle || unit.trainingUnitTitle || unit.competencyTitle || unit.name || "Training Unit");
     const category = cleanString(unit.category || unit.unitType || unit.type || "core").toLowerCase();
-    const sortOrder = Number(unit.sortOrder || unit.order || unit.sequence || 9999) || 9999;
 
     return {
       id:id || unit.id || code || "",
       code,
-      title,
-      category,
       unitCode:code,
+      title,
       unitTitle:title,
+      category,
       unitType:category,
-      trade:cleanString(unit.trade || unit.tradePath || unit.trainingPackage || "Electrical"),
-      qualification:cleanString(unit.qualification || ""),
+      trade:cleanString(unit.trade || unit.tradePath || "Electrical"),
+      qualification:cleanString(unit.qualification || unit.program || ""),
       schoolCode:cleanString(unit.schoolCode || ""),
-      active:isUnitActive(unit.active),
-      sortOrder
+      active:unit.active !== false,
+      sortOrder:Number(unit.sortOrder || unit.order || 9999) || 9999
     };
   }
 
@@ -1866,23 +1866,29 @@
       const el = $(id);
       if(!el) return;
       const current = el.value || "";
-
-      if(!trainingUnits.length){
-        el.innerHTML = `<option value="">No training units found</option>`;
-        return;
-      }
-
       el.innerHTML = unitSelectOptions(id === "hoursUnitSelect" ? "Select unit for hours" : "Attach proof to training unit");
       if(current && [...el.options].some(opt => opt.value === current)) el.value = current;
     });
   }
 
   async function loadTrainingUnits(){
+    const selectIds = [
+      "hoursUnitSelect",
+      "certUnitSelect",
+      "skillUnitSelect",
+      "projectUnitSelect",
+      "signedProofUnitSelect"
+    ];
+
+    selectIds.forEach(id => {
+      const el = $(id);
+      if(el) el.innerHTML = '<option value="">Loading training units...</option>';
+    });
+
     trainingUnits = [];
     window.trainingUnits = trainingUnits;
 
     try{
-      console.log("LTN v50: Loading trainingUnits from Firestore...");
       const snap = await getDocs(collection(db,"trainingUnits"));
 
       snap.forEach(docSnap => {
@@ -1890,14 +1896,15 @@
         if(unit.active !== false && unit.code) trainingUnits.push(unit);
       });
 
-      console.log("LTN v50: trainingUnits loaded:", trainingUnits.length, trainingUnits);
+      console.log("LTN trainingUnits loaded from Firestore:", trainingUnits.length, trainingUnits.map(u => u.code));
     }catch(error){
-      console.error("LTN v50: Could not load trainingUnits from Firestore:", error);
+      console.error("LTN trainingUnits Firestore load failed:", error);
+      setStatus("saveStatus","Training units did not load from Firebase. Check Firestore rules or refresh.","bad");
     }
 
     if(!trainingUnits.length){
-      console.warn("LTN v50: No Firestore trainingUnits found. Using safe fallback units.");
-      trainingUnits = defaultTrainingUnits();
+      trainingUnits = defaultTrainingUnits().map(unit => normalizeTrainingUnit(unit, unit.code));
+      console.warn("LTN trainingUnits fallback used:", trainingUnits.length);
     }
 
     trainingUnits.sort((a,b) => {
@@ -1912,7 +1919,18 @@
     return trainingUnits;
   }
 
-  window.LTNRefreshTrainingUnits = loadTrainingUnits;
+  window.LTNReloadTrainingUnits = async function(){
+    console.log("LTN manual reload of training units started...");
+    const units = await loadTrainingUnits();
+    console.log("LTN manual reload complete:", units);
+    return units;
+  };
+
+  window.LTNDebugUnits = function(){
+    console.log("LTN_APP_VERSION:", window.LTN_APP_VERSION);
+    console.log("window.trainingUnits:", window.trainingUnits);
+    return window.trainingUnits || [];
+  };
 
   function calculateTrainingUnitProgress(){
     const map = {};
@@ -3614,9 +3632,17 @@
     renderProfile();
     renderProgress();
     showPage();
-    loadTrainingUnits();
     $("syncStatus").textContent = "Opening profile...";
     setStatus("saveStatus","Track My Progress opened. Loading your profile from Firebase...","info");
+
+    // v50: Load training units immediately after sign-in, before the slower instructor background data.
+    // This prevents every dropdown from staying stuck on "Loading training units..." while other data loads.
+    try{
+      await loadTrainingUnits();
+      renderProgress();
+    }catch(unitError){
+      console.error("Initial training unit load failed:", unitError);
+    }
 
     // STRONG FIREBASE REFRESH: pull users/{uid}, profiles/{uid}, and email match, then re-render.
     try{
@@ -3657,7 +3683,7 @@
     }
   },4500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v50 - training units loader fix");
+  console.log("LTN Apprenticeship Dashboard Loaded v50 - GitHub cache strong + training units loader fix", window.LTN_APP_VERSION);
 </script>
 
 </body>
