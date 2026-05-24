@@ -5,7 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-training-units-v49 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-training-units-v50-loader-fix -->
+  <!-- FIXES v50:
+    1. FIXED: Training unit loader now exposes window.trainingUnits for console/debug testing.
+    2. FIXED: Unit loader now supports both Firestore field styles: code/title/category and unitCode/unitTitle/unitType.
+    3. FIXED: Unit dropdowns now render immediately after units load and fall back safely instead of staying on Loading.
+    4. FIXED: Added stronger console logging for trainingUnits read success/failure.
+  -->
   <!-- FIXES v49:
     1. ADDED: Firestore trainingUnits collection integration for unit/competency dropdowns.
     2. ADDED: Unit selection on hour logs, certification proofs, skill proofs, project proofs, and signed work proofs.
@@ -997,12 +1003,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260524v49'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260524v49'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260524v50'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260524v50'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260524v49'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260524v49'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260524v50'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260524v50'">Back</button>
   </div>
 </div>
 
@@ -1306,13 +1312,14 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v49";
+  const LOCAL_PROGRESS_VERSION = "v50";
 
   let currentUserId = null;
   let currentUserEmail = "";
   let profile = {};
   let instructorAssignments = [];
   let trainingUnits = [];
+  window.trainingUnits = trainingUnits;
   let state = getEmptyState();
 
   function getEmptyState(){
@@ -1702,7 +1709,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260524v49";
+      window.location.href = "/instructor/?v=20260524v50";
       return false;
     }
 
@@ -1717,11 +1724,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260524v49";
+      window.location.href = "/instructor/?v=20260524v50";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260524v49";
+    window.location.href = "/apprenticeship/?v=20260524v50";
     return false;
   };
 
@@ -1730,7 +1737,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260524v49");
+      window.location.replace("/instructor/?v=20260524v50");
       return false;
     }
 
@@ -1779,21 +1786,38 @@
 
   function defaultTrainingUnits(){
     return [
-      {code:"UEENEEE101A",title:"Apply Occupational Health and Safety Regulations",category:"Core",trade:"Electrical",active:true,sortOrder:1},
-      {code:"UEENEEE102A",title:"Fabricate, Assemble and Dismantle Utilities Industry Components",category:"Core",trade:"Electrical",active:true,sortOrder:2}
+      {code:"UEENEEE101A",title:"Apply Occupational Health and Safety Regulations",category:"core",trade:"Electrical",active:true,sortOrder:1},
+      {code:"UEENEEE102A",title:"Fabricate, Assemble and Dismantle Utilities Industry Components",category:"core",trade:"Electrical",active:true,sortOrder:2},
+      {code:"UEENEEE104A",title:"Solve Problems in D.C. Circuits",category:"core",trade:"Electrical",active:true,sortOrder:3}
     ];
+  }
+
+  function isUnitActive(value){
+    if(value === false) return false;
+    if(String(value).trim().toLowerCase() === "false") return false;
+    return true;
   }
 
   function normalizeTrainingUnit(data,id){
     const unit = data && typeof data === "object" ? data : {};
+    const code = cleanString(unit.code || unit.unitCode || unit.competencyCode || id || "").toUpperCase();
+    const title = cleanString(unit.title || unit.unitTitle || unit.name || unit.competencyTitle || "Training Unit");
+    const category = cleanString(unit.category || unit.unitType || unit.type || "core").toLowerCase();
+    const sortOrder = Number(unit.sortOrder || unit.order || unit.sequence || 9999) || 9999;
+
     return {
-      id:id || unit.id || unit.code || "",
-      code:cleanString(unit.code || id || ""),
-      title:cleanString(unit.title || unit.name || "Training Unit"),
-      category:cleanString(unit.category || "Core"),
-      trade:cleanString(unit.trade || "Electrical"),
-      active:unit.active !== false,
-      sortOrder:Number(unit.sortOrder || 9999) || 9999
+      id:id || unit.id || code || "",
+      code,
+      title,
+      category,
+      unitCode:code,
+      unitTitle:title,
+      unitType:category,
+      trade:cleanString(unit.trade || unit.tradePath || unit.trainingPackage || "Electrical"),
+      qualification:cleanString(unit.qualification || ""),
+      schoolCode:cleanString(unit.schoolCode || ""),
+      active:isUnitActive(unit.active),
+      sortOrder
     };
   }
 
@@ -1842,6 +1866,12 @@
       const el = $(id);
       if(!el) return;
       const current = el.value || "";
+
+      if(!trainingUnits.length){
+        el.innerHTML = `<option value="">No training units found</option>`;
+        return;
+      }
+
       el.innerHTML = unitSelectOptions(id === "hoursUnitSelect" ? "Select unit for hours" : "Attach proof to training unit");
       if(current && [...el.options].some(opt => opt.value === current)) el.value = current;
     });
@@ -1849,18 +1879,24 @@
 
   async function loadTrainingUnits(){
     trainingUnits = [];
+    window.trainingUnits = trainingUnits;
 
     try{
+      console.log("LTN v50: Loading trainingUnits from Firestore...");
       const snap = await getDocs(collection(db,"trainingUnits"));
+
       snap.forEach(docSnap => {
         const unit = normalizeTrainingUnit(docSnap.data() || {}, docSnap.id);
-        if(unit.active !== false) trainingUnits.push(unit);
+        if(unit.active !== false && unit.code) trainingUnits.push(unit);
       });
+
+      console.log("LTN v50: trainingUnits loaded:", trainingUnits.length, trainingUnits);
     }catch(error){
-      console.warn("Could not load training units:", error);
+      console.error("LTN v50: Could not load trainingUnits from Firestore:", error);
     }
 
     if(!trainingUnits.length){
+      console.warn("LTN v50: No Firestore trainingUnits found. Using safe fallback units.");
       trainingUnits = defaultTrainingUnits();
     }
 
@@ -1870,9 +1906,13 @@
       return String(a.code || "").localeCompare(String(b.code || ""));
     });
 
+    window.trainingUnits = trainingUnits;
     renderTrainingUnitSelectors();
     renderUnitProgress();
+    return trainingUnits;
   }
+
+  window.LTNRefreshTrainingUnits = loadTrainingUnits;
 
   function calculateTrainingUnitProgress(){
     const map = {};
@@ -2239,7 +2279,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260524v49");
+      window.location.replace("/front/?v=secureauth20260524v50");
       return;
     }
 
@@ -3543,7 +3583,7 @@
   // Role, profileType, and isApprentice are determined by Firebase profile data.
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260524v49");
+      window.location.replace("/front/?v=secureauth20260524v50");
       return;
     }
 
@@ -3574,6 +3614,7 @@
     renderProfile();
     renderProgress();
     showPage();
+    loadTrainingUnits();
     $("syncStatus").textContent = "Opening profile...";
     setStatus("saveStatus","Track My Progress opened. Loading your profile from Firebase...","info");
 
@@ -3597,7 +3638,7 @@
     // FIX v47: Route check happens AFTER Firebase profile loads so the role is accurate.
     if(hasExactInstructorSignal(profile) && !hasApprenticeSignal(profile)){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260524v49");
+      window.location.replace("/instructor/?v=20260524v50");
       return;
     }
 
@@ -3616,7 +3657,7 @@
     }
   },4500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v49 - training units integration");
+  console.log("LTN Apprenticeship Dashboard Loaded v50 - training units loader fix");
 </script>
 
 </body>
