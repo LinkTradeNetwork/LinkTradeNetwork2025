@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- LTN FULL DASHBOARD EXPORT 2026-05-22: ROLE ROUTING FIX v29 -->
+<!-- LTN FULL DASHBOARD EXPORT 2026-05-22: ROLE + PROFILE CODE FIX v30 -->
 
 <html lang="en" class="auth-checking">
 <head>
@@ -16,8 +16,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
 
-<!-- LTN FORCE UPDATE 2026-05-22: DASHBOARD ROLE ROUTING FIX v29 -->
-<!-- LTN VERSION: dashboard-role-routing-fix-v29 -->
+<!-- LTN FORCE UPDATE 2026-05-22: DASHBOARD ROLE + PROFILE CODE FIX v30 -->
+<!-- LTN VERSION: dashboard-role-profile-code-fix-v30 -->
 
 <style>
 :root{
@@ -1138,7 +1138,7 @@ textarea.form-control{min-height:104px;resize:vertical}
 (function () {
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260515roleswitchv30";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260523dashboardv30";
 
   window.LTNClearLocalSession = function () {
     [
@@ -1189,13 +1189,13 @@ textarea.form-control{min-height:104px;resize:vertical}
     </div>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260515roleswitchv30" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
-      <a href="/members/?v=20260515roleswitchv30" data-nav="members" onclick="setActiveNav(this)">Members</a>
-      <a href="/find-apprenticeships/?v=20260515roleswitchv30" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
-      <a href="/apprenticeship/?v=20260515roleswitchv30" data-nav="track-progress" onclick="return ltnRouteTrackProgressFromDashboard(event, this.href)" class="btn nav-action">Track My Progress</a>
-      <a href="/instructor/?v=20260515roleswitchv30" data-nav="instructor-center" onclick="return ltnRouteInstructorCenterFromDashboard(event, this.href)" class="btn nav-action">Instructor Center</a>
+      <a href="/dashboard/?v=20260523dashboardv30" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
+      <a href="/members/?v=20260523dashboardv30" data-nav="members" onclick="setActiveNav(this)">Members</a>
+      <a href="/find-apprenticeships/?v=20260523dashboardv30" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
+      <a href="/apprenticeship/?v=20260523dashboardv30" data-nav="track-progress" onclick="return ltnRouteTrackProgressFromDashboard(event, this.href)" class="btn nav-action">Track My Progress</a>
+      <a href="/instructor/?v=20260523dashboardv30" data-nav="instructor-center" onclick="return ltnRouteInstructorCenterFromDashboard(event, this.href)" class="btn nav-action">Instructor Center</a>
       <a href="#jobs" data-nav="jobs" onclick="setActiveNav(this)">Jobs</a>
-      <a href="/network-center/?v=20260515roleswitchv30" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
+      <a href="/network-center/?v=20260523dashboardv30" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
         Network Center
         <span id="network-badge" class="notification-badge" style="display:none">0</span>
         <span id="messages-badge" class="notification-badge" style="display:none;right:-14px">0</span>
@@ -1402,7 +1402,7 @@ textarea.form-control{min-height:104px;resize:vertical}
           <li style="margin-bottom:8px">Showcase your skills and certifications</li>
           <li>Get matched with projects in your area</li>
         </ul>
-        <a class="btn-primary" style="width:100%" href="/network-center/?v=20260515roleswitchv30">Open Network Center</a>
+        <a class="btn-primary" style="width:100%" href="/network-center/?v=20260523dashboardv30">Open Network Center</a>
       </div>
     </section>
 
@@ -1489,6 +1489,8 @@ textarea.form-control{min-height:104px;resize:vertical}
             <div class="form-group"><label>School / Training Center</label><input type="text" id="input-student-school" class="form-control" placeholder="Superior Training Centre, trade school, union program, etc."></div>
             <div class="form-group"><label>Instructor Name</label><input type="text" id="input-student-instructor-name" class="form-control" placeholder="Instructor / teacher name"></div>
             <div class="form-group"><label>Instructor Email</label><input type="email" id="input-student-instructor-email" class="form-control" placeholder="instructor@email.com"></div>
+            <div class="form-group"><label>Instructor / School Code</label><input type="text" id="input-student-instructor-code" class="form-control" placeholder="Enter the code your instructor gave you"></div>
+            <div class="small" style="margin:-6px 0 12px;color:var(--muted)">This connects your apprenticeship profile to your instructor dashboard.</div>
             <div class="form-group"><label>Employer / Contractor</label><input type="text" id="input-apprentice-employer" class="form-control" placeholder="Company or contractor name"></div>
             <div class="form-group"><label>Apprenticeship Start Date</label><input type="date" id="input-apprentice-start-date" class="form-control"></div>
             <div class="form-group"><label>Current Hours Completed</label><input type="number" id="input-apprentice-hours" class="form-control" placeholder="0" min="0" max="8000"></div>
@@ -1502,6 +1504,8 @@ textarea.form-control{min-height:104px;resize:vertical}
           </label>
           <div id="instructor-fields" style="display:none;margin-top:14px">
             <div class="form-group"><label>School / Training Center</label><input type="text" id="input-instructor-school" class="form-control" placeholder="Superior Training Centre, trade school, union program, etc."></div>
+            <div class="form-group"><label>Your Instructor Code</label><input type="text" id="input-instructor-code" class="form-control" placeholder="Example: LTN-1234"></div>
+            <div class="small" style="margin:-6px 0 12px;color:var(--muted)">Give this code to students so their uploads and progress can connect to you.</div>
             <div class="form-group"><label>Courses / Trades Taught</label><input type="text" id="input-instructor-courses" class="form-control" placeholder="Electrical, HVAC, Plumbing, Low Voltage, Safety, etc."></div>
           </div>
         </div>
@@ -1907,6 +1911,9 @@ async function saveProfileToFirestore(profile) {
     profileImage: profile.profileImageUrl || profile.profileImage || profile.photoURL || "",
     photoURL: profile.profileImageUrl || profile.profileImage || profile.photoURL || "",
     ltnVerified: profile.ltnVerified === true,
+    instructorCode: profile.instructorCode || (profile.instructor || {}).instructorCode || (profile.apprenticeship || {}).instructorCode || "",
+    schoolCode: profile.schoolCode || (profile.instructor || {}).schoolCode || (profile.apprenticeship || {}).schoolCode || "",
+    assignedInstructorCode: profile.assignedInstructorCode || (profile.apprenticeship || {}).instructorCode || (profile.apprenticeship || {}).schoolCode || "",
     isApprentice: ltnIsApprenticeProfile(profile),
     isInstructor: ltnIsInstructorProfile(profile),
     apprenticeship: { ...(profile.apprenticeship || {}), isApprentice: ltnIsApprenticeProfile(profile), hours: apprenticeHours },
@@ -2387,6 +2394,17 @@ function ltnNormalizeRole(value) {
   return String(value || "").trim().toLowerCase();
 }
 
+function ltnCleanCode(value) {
+  return String(value || "").trim().toUpperCase().replace(/\s+/g, "-").replace(/[^A-Z0-9_-]/g, "");
+}
+
+function ltnGenerateInstructorCode(profile) {
+  const baseName = String((profile && (profile.fullName || profile.name)) || "LTN").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4) || "LTN";
+  const email = String((profile && profile.email) || ltnGetCurrentEmail() || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const tail = (email.slice(-4) || String(Date.now()).slice(-4));
+  return ltnCleanCode("LTN-" + baseName + "-" + tail);
+}
+
 function ltnRoleFromProfile(profile) {
   profile = profile || {};
   const app = profile.apprenticeship || {};
@@ -2547,6 +2565,10 @@ function ltnBuildApprenticeProfile(profile) {
     location: [city, state, country && country !== "United States" ? country : ""].filter(Boolean).join(", "),
     program: app.program || "",
     school: app.school || app.program || "",
+    instructorName: app.instructorName || profile.instructorName || profile.assignedInstructorName || "",
+    instructorEmail: app.instructorEmail || profile.instructorEmail || profile.assignedInstructorEmail || "",
+    instructorCode: ltnCleanCode(app.instructorCode || app.schoolCode || profile.assignedInstructorCode || profile.instructorCode || profile.schoolCode || ""),
+    schoolCode: ltnCleanCode(app.schoolCode || app.instructorCode || profile.assignedInstructorCode || profile.schoolCode || ""),
     employer: app.employer || "",
     contractor: app.employer || "",
     startDate: app.startDate || "",
@@ -2628,7 +2650,12 @@ function ltnSaveProfileEverywhere(profile) {
     localStorage.setItem("apprenticeEmail", apprenticeProfile.email || "");
     localStorage.setItem("apprenticeTrade", apprenticeProfile.trade || "");
     localStorage.setItem("apprenticeProgram", apprenticeProfile.program || "");
-    localStorage.setItem("apprenticeSchool", apprenticeProfile.program || "");
+    localStorage.setItem("apprenticeSchool", apprenticeProfile.school || apprenticeProfile.program || "");
+    localStorage.setItem("apprenticeInstructorName", apprenticeProfile.instructorName || "");
+    localStorage.setItem("apprenticeInstructorEmail", apprenticeProfile.instructorEmail || "");
+    localStorage.setItem("apprenticeInstructorCode", apprenticeProfile.instructorCode || "");
+    localStorage.setItem("assignedInstructorCode", apprenticeProfile.instructorCode || "");
+    localStorage.setItem("schoolCode", apprenticeProfile.schoolCode || apprenticeProfile.instructorCode || "");
     localStorage.setItem("apprenticeEmployer", apprenticeProfile.employer || "");
     localStorage.setItem("apprenticeStartDate", apprenticeProfile.startDate || "");
     localStorage.setItem("apprenticeCountry", apprenticeProfile.country || "United States");
@@ -2708,6 +2735,8 @@ function ltnProfileFromOpenFormOrSaved() {
       school: ((document.getElementById("input-student-school") || {}).value || (saved.apprenticeship || {}).school || saved.studentSchool || saved.school || "").trim(),
       instructorName: ((document.getElementById("input-student-instructor-name") || {}).value || (saved.apprenticeship || {}).instructorName || saved.instructorName || saved.assignedInstructorName || "").trim(),
       instructorEmail: (((document.getElementById("input-student-instructor-email") || {}).value || (saved.apprenticeship || {}).instructorEmail || saved.instructorEmail || saved.assignedInstructorEmail || "").trim()).toLowerCase(),
+      instructorCode: ltnCleanCode(((document.getElementById("input-student-instructor-code") || {}).value || (saved.apprenticeship || {}).instructorCode || (saved.apprenticeship || {}).schoolCode || saved.assignedInstructorCode || saved.instructorCode || saved.schoolCode || "")),
+      schoolCode: ltnCleanCode(((document.getElementById("input-student-instructor-code") || {}).value || (saved.apprenticeship || {}).schoolCode || (saved.apprenticeship || {}).instructorCode || saved.assignedInstructorCode || saved.schoolCode || "")),
       employer: ((document.getElementById("input-apprentice-employer") || {}).value || (saved.apprenticeship || {}).employer || "").trim(),
       startDate: (document.getElementById("input-apprentice-start-date") || {}).value || (saved.apprenticeship || {}).startDate || "",
       hours: Number((document.getElementById("input-apprentice-hours") || {}).value || (saved.apprenticeship || {}).hours || saved.hoursCompleted || saved.totalHours || 0) || 0
@@ -2736,6 +2765,8 @@ function ltnBuildInstructorProfile(profile) {
     profileType: profile.profileType || "Instructor / Teacher",
     trade,
     school: instr.school || "",
+    instructorCode: ltnCleanCode(instr.instructorCode || instr.schoolCode || profile.instructorCode || profile.schoolCode || ltnGenerateInstructorCode(profile)),
+    schoolCode: ltnCleanCode(instr.schoolCode || instr.instructorCode || profile.schoolCode || profile.instructorCode || ltnGenerateInstructorCode(profile)),
     courses: instr.courses || "",
     country,
     city,
@@ -2764,6 +2795,9 @@ function ltnSaveInstructorEverywhere(profile) {
   localStorage.setItem("instructorName", instructorProfile.fullName || "");
   localStorage.setItem("instructorEmail", instructorProfile.email || "");
   localStorage.setItem("instructorSchool", instructorProfile.school || "");
+  localStorage.setItem("instructorCode", instructorProfile.instructorCode || "");
+  localStorage.setItem("schoolCode", instructorProfile.schoolCode || instructorProfile.instructorCode || "");
+  localStorage.setItem("ltn_instructor_code", instructorProfile.instructorCode || "");
   localStorage.setItem("instructorCourses", instructorProfile.courses || "");
 }
 
@@ -2848,7 +2882,7 @@ window.ltnRouteTrackProgressFromDashboard = async function(event, targetUrl) {
   ltnSaveProfileEverywhere(profile);
   try { await saveProfileToFirestore(profile); } catch (e) { console.warn("Apprenticeship handoff Firebase save failed:", e); }
 
-  window.location.href = targetUrl || "/apprenticeship/?v=20260515roleswitchv30";
+  window.location.href = targetUrl || "/apprenticeship/?v=20260523dashboardv30";
   return false;
 };
 
@@ -2877,7 +2911,7 @@ window.ltnRouteInstructorCenterFromDashboard = async function(event, targetUrl) 
     console.warn("Instructor route save skipped:", e);
   }
 
-  window.location.href = targetUrl || "/instructor/?v=20260515roleswitchv30";
+  window.location.href = targetUrl || "/instructor/?v=20260523dashboardv30";
   return false;
 };
 
@@ -3313,12 +3347,14 @@ const ProfileManager = {
     if (byId("input-student-school")) byId("input-student-school").value = app.school || p.school || p.studentSchool || "";
     if (byId("input-student-instructor-name")) byId("input-student-instructor-name").value = app.instructorName || p.instructorName || p.assignedInstructorName || "";
     if (byId("input-student-instructor-email")) byId("input-student-instructor-email").value = app.instructorEmail || p.instructorEmail || p.assignedInstructorEmail || "";
+    if (byId("input-student-instructor-code")) byId("input-student-instructor-code").value = app.instructorCode || app.schoolCode || p.assignedInstructorCode || p.instructorCode || p.schoolCode || "";
     if (byId("input-apprentice-employer")) byId("input-apprentice-employer").value = app.employer || "";
     if (byId("input-apprentice-start-date")) byId("input-apprentice-start-date").value = app.startDate || "";
     if (byId("input-apprentice-hours")) byId("input-apprentice-hours").value = app.hours || 0;
 
     if (byId("input-is-instructor")) byId("input-is-instructor").checked = !!instr.isInstructor || p.profileType === "Instructor / Teacher";
     if (byId("input-instructor-school")) byId("input-instructor-school").value = instr.school || "";
+    if (byId("input-instructor-code")) byId("input-instructor-code").value = instr.instructorCode || instr.schoolCode || p.instructorCode || p.schoolCode || ltnGenerateInstructorCode(p);
     if (byId("input-instructor-courses")) byId("input-instructor-courses").value = instr.courses || "";
 
     this.toggleApprenticeFields();
@@ -3366,6 +3402,8 @@ const ProfileManager = {
         school: (document.getElementById("input-student-school") || {}).value ? document.getElementById("input-student-school").value.trim() : "",
         instructorName: (document.getElementById("input-student-instructor-name") || {}).value ? document.getElementById("input-student-instructor-name").value.trim() : "",
         instructorEmail: (document.getElementById("input-student-instructor-email") || {}).value ? document.getElementById("input-student-instructor-email").value.trim().toLowerCase() : "",
+        instructorCode: ltnCleanCode((document.getElementById("input-student-instructor-code") || {}).value || current.assignedInstructorCode || (current.apprenticeship || {}).instructorCode || ""),
+        schoolCode: ltnCleanCode((document.getElementById("input-student-instructor-code") || {}).value || current.schoolCode || (current.apprenticeship || {}).schoolCode || ""),
         employer: (document.getElementById("input-apprentice-employer") || {}).value ? document.getElementById("input-apprentice-employer").value.trim() : "",
         startDate: (document.getElementById("input-apprentice-start-date") || {}).value || "",
         hours: Number((document.getElementById("input-apprentice-hours") || {}).value || 0)
@@ -3373,12 +3411,14 @@ const ProfileManager = {
       instructor: {
         isInstructor: !!(document.getElementById("input-is-instructor") && document.getElementById("input-is-instructor").checked),
         school: (document.getElementById("input-instructor-school") || {}).value ? document.getElementById("input-instructor-school").value.trim() : "",
+        instructorCode: ltnCleanCode((document.getElementById("input-instructor-code") || {}).value || current.instructorCode || (current.instructor || {}).instructorCode || ltnGenerateInstructorCode({ ...current, email, fullName: (document.getElementById("input-name") || {}).value || current.fullName || current.name || "" })),
+        schoolCode: ltnCleanCode((document.getElementById("input-instructor-code") || {}).value || current.schoolCode || (current.instructor || {}).schoolCode || ""),
         courses: (document.getElementById("input-instructor-courses") || {}).value ? document.getElementById("input-instructor-courses").value.trim() : ""
       }
     };
 
     /*
-      ROLE ROUTING FIX v29:
+      ROLE + PROFILE CODE FIX v30:
       A user may switch from Instructor to Apprentice or Apprentice to Instructor.
       The old opposite flag must be cleared or routing will keep treating the account
       as the previous role.
@@ -3403,6 +3443,17 @@ const ProfileManager = {
     profile.instructorEmail = profile.apprenticeship.instructorEmail || "";
     profile.assignedInstructorEmail = profile.apprenticeship.instructorEmail || "";
     profile.assignedInstructorName = profile.apprenticeship.instructorName || "";
+    profile.assignedInstructorCode = profile.apprenticeship.instructorCode || profile.apprenticeship.schoolCode || "";
+    profile.instructorCode = profile.instructor.isInstructor ? (profile.instructor.instructorCode || ltnGenerateInstructorCode(profile)) : profile.assignedInstructorCode;
+    profile.schoolCode = profile.instructor.isInstructor ? (profile.instructor.schoolCode || profile.instructor.instructorCode || profile.instructorCode) : (profile.apprenticeship.schoolCode || profile.apprenticeship.instructorCode || "");
+    if (profile.instructor.isInstructor) {
+      profile.instructor.instructorCode = profile.instructorCode;
+      profile.instructor.schoolCode = profile.schoolCode || profile.instructorCode;
+    }
+    if (profile.apprenticeship.isApprentice) {
+      profile.apprenticeship.instructorCode = profile.assignedInstructorCode;
+      profile.apprenticeship.schoolCode = profile.schoolCode || profile.assignedInstructorCode;
+    }
     profile.isApprentice = profile.apprenticeship.isApprentice === true;
     profile.isInstructor = profile.instructor.isInstructor === true;
 
@@ -5814,6 +5865,3 @@ function restoreActiveNav() {
   window.LTNSyncRoleUI = syncRoleUI;
 })();
 </script>
-
-</body>
-</html>
