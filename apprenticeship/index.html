@@ -5,7 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-strong-profile-v48 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-training-units-v49 -->
+  <!-- FIXES v49:
+    1. ADDED: Firestore trainingUnits collection integration for unit/competency dropdowns.
+    2. ADDED: Unit selection on hour logs, certification proofs, skill proofs, project proofs, and signed work proofs.
+    3. ADDED: Unit Progress Snapshot showing hours and proof counts by unit.
+    4. ADDED: trainingUnitProgress saved back into users/{uid} and apprenticeshipProgress for instructor/member use.
+  -->
   <!-- FIXES v48 (surgical only - all other code identical to v47):
     1. CRITICAL: users/{uid} is now treated as the source of truth for profile name changes from Edit Profile.
     2. FIXED: stale profiles/{uid} records can no longer overwrite a newer users/{uid} name like Jill Summer.
@@ -871,6 +877,84 @@
       margin-top:10px;
     }
 
+
+
+    .unit-helper{
+      background:#eef6ff;
+      border:1px solid #cbe0f4;
+      color:#24517b;
+      border-radius:12px;
+      padding:11px 12px;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.45;
+      margin-top:12px;
+    }
+
+    .unit-progress-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:12px;
+      margin-top:16px;
+    }
+
+    .unit-progress-card{
+      background:linear-gradient(135deg,#ffffff,#fff7ed);
+      border:1px solid var(--orange-border);
+      border-radius:14px;
+      padding:14px;
+      min-width:0;
+    }
+
+    .unit-progress-card strong{
+      display:block;
+      color:var(--ink);
+      font-size:15px;
+      line-height:1.3;
+      word-break:break-word;
+    }
+
+    .unit-progress-code{
+      display:inline-flex;
+      width:max-content;
+      max-width:100%;
+      background:var(--orange);
+      color:white;
+      border-radius:999px;
+      padding:5px 9px;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+
+    .unit-progress-meta{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .unit-progress-meta div{
+      background:white;
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:9px;
+    }
+
+    .unit-progress-meta b{
+      display:block;
+      font-size:18px;
+      color:var(--ink);
+    }
+
+    .unit-progress-meta span{
+      display:block;
+      font-size:10px;
+      color:var(--muted);
+      font-weight:900;
+      text-transform:uppercase;
+    }
+
     @media(max-width:900px){
       .hero{grid-template-columns:1fr}
       .hero-stack{align-items:flex-start}
@@ -913,12 +997,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260522strongv46'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260522strongv46'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260524v49'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260524v49'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260522strongv46'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260522strongv46'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260524v49'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260524v49'">Back</button>
   </div>
 </div>
 
@@ -1008,8 +1092,12 @@
 
       <div class="form-row">
         <input id="hoursInput" class="form-control" type="number" min="0.25" step="0.25" placeholder="Hours worked">
-        <input id="hoursNoteInput" class="form-control" type="text" maxlength="120" placeholder="What did you work on?">
+        <select id="hoursUnitSelect" class="form-control">
+          <option value="">Loading training units...</option>
+        </select>
       </div>
+      <input id="hoursNoteInput" class="form-control" type="text" maxlength="120" placeholder="What did you work on?" style="margin-top:0;margin-bottom:12px">
+      <div class="unit-helper">Select the training unit/competency this work belongs to. This helps instructors see progress by unit.</div>
 
       <button id="addHoursBtn" class="button" onclick="addHours()">+ Add Hours Worked</button>
       <div id="saveStatus" class="save-status info"></div>
@@ -1021,6 +1109,15 @@
       <div class="small">LTN uses 8000 hours as a simple industry benchmark, not a legal licensing requirement.</div>
       <div class="profile-details" id="profileDetails"></div>
     </div>
+  </div>
+
+  <div class="section-title">Training Unit Progress</div>
+
+  <div class="card">
+    <div class="label">Competency / Unit Tracking</div>
+    <div class="value small-value">Hours and Evidence by Unit</div>
+    <div class="small">Training units are loaded from Firebase collection <b>trainingUnits</b>. Hours and proof uploads tied to a unit will show here.</div>
+    <div id="unitProgressList" class="unit-progress-grid"></div>
   </div>
 
   <div class="section-title">Progress Snapshot</div>
@@ -1100,6 +1197,7 @@
       <div class="value small-value">Add Certification</div>
       <div class="small">Example: OSHA 10, OSHA 30, CPR, Forklift, NCCER</div>
       <input id="certInput" class="form-control" style="margin-top:14px" type="text" maxlength="100" placeholder="Certification name">
+      <select id="certUnitSelect" class="form-control" style="margin-top:10px"><option value="">Loading training units...</option></select>
       <input id="certFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
       <div class="file-help">Upload certificate, signed document, PDF, or photo proof. Max 10 MB.</div>
       <button id="certBtn" class="button" onclick="addCertification()" style="margin-top:12px">+ Add Certification Proof</button>
@@ -1111,6 +1209,7 @@
       <div class="value small-value">Add Skill Learned</div>
       <div class="small">Example: conduit bending, pipe fitting, wiring, blueprint reading</div>
       <input id="skillInput" class="form-control" style="margin-top:14px" type="text" maxlength="100" placeholder="Skill learned">
+      <select id="skillUnitSelect" class="form-control" style="margin-top:10px"><option value="">Loading training units...</option></select>
       <input id="skillFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
       <div class="file-help">Upload instructor proof, employer sign-off, worksheet, PDF, or photo. Max 10 MB.</div>
       <button id="skillBtn" class="button" onclick="addSkill()" style="margin-top:12px">+ Add Skill Proof</button>
@@ -1122,6 +1221,7 @@
       <div class="value small-value">Add Project Completed</div>
       <div class="small">Example: commercial rough-in, panel install, HVAC changeout</div>
       <input id="projectInput" class="form-control" style="margin-top:14px" type="text" maxlength="100" placeholder="Project completed">
+      <select id="projectUnitSelect" class="form-control" style="margin-top:10px"><option value="">Loading training units...</option></select>
       <input id="projectFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
       <div class="file-help">Upload signed project paperwork, employer verification, PDF, or job proof. Max 10 MB.</div>
       <button id="projectBtn" class="button" onclick="addProject()" style="margin-top:12px">+ Add Project Proof</button>
@@ -1133,6 +1233,7 @@
       <div class="value small-value">Upload Signed Paperwork</div>
       <div class="small">Upload signed timesheets, instructor approval, employer verification, or jobsite documents.</div>
       <input id="signedProofTitleInput" class="form-control" style="margin-top:14px" type="text" maxlength="100" placeholder="Proof description">
+      <select id="signedProofUnitSelect" class="form-control" style="margin-top:10px"><option value="">Loading training units...</option></select>
       <input id="signedProofFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
       <div class="file-help">Accepted: PDF, JPG, PNG, HEIC. Max 10 MB.</div>
       <button id="signedProofBtn" class="button" onclick="addSignedProof()" style="margin-top:12px">+ Upload Signed Work Proof</button>
@@ -1205,12 +1306,13 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v48";
+  const LOCAL_PROGRESS_VERSION = "v49";
 
   let currentUserId = null;
   let currentUserEmail = "";
   let profile = {};
   let instructorAssignments = [];
+  let trainingUnits = [];
   let state = getEmptyState();
 
   function getEmptyState(){
@@ -1281,6 +1383,7 @@
 
   function oldProgressKeys(uid){
     return [
+      `ltn_apprenticeship_progress_${uid}_v48`,
       `ltn_apprenticeship_progress_${uid}_v47`,
       `ltn_apprenticeship_progress_${uid}_v46`,
       `ltn_apprenticeship_progress_${uid}_v33`,
@@ -1599,7 +1702,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260522strongv46";
+      window.location.href = "/instructor/?v=20260524v49";
       return false;
     }
 
@@ -1614,11 +1717,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260522strongv46";
+      window.location.href = "/instructor/?v=20260524v49";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260522strongv46";
+    window.location.href = "/apprenticeship/?v=20260524v49";
     return false;
   };
 
@@ -1627,7 +1730,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260522strongv46");
+      window.location.replace("/instructor/?v=20260524v49");
       return false;
     }
 
@@ -1673,9 +1776,187 @@
     return "New Apprentice";
   }
 
+
+  function defaultTrainingUnits(){
+    return [
+      {code:"UEENEEE101A",title:"Apply Occupational Health and Safety Regulations",category:"Core",trade:"Electrical",active:true,sortOrder:1},
+      {code:"UEENEEE102A",title:"Fabricate, Assemble and Dismantle Utilities Industry Components",category:"Core",trade:"Electrical",active:true,sortOrder:2}
+    ];
+  }
+
+  function normalizeTrainingUnit(data,id){
+    const unit = data && typeof data === "object" ? data : {};
+    return {
+      id:id || unit.id || unit.code || "",
+      code:cleanString(unit.code || id || ""),
+      title:cleanString(unit.title || unit.name || "Training Unit"),
+      category:cleanString(unit.category || "Core"),
+      trade:cleanString(unit.trade || "Electrical"),
+      active:unit.active !== false,
+      sortOrder:Number(unit.sortOrder || 9999) || 9999
+    };
+  }
+
+  function getUnitByCode(code){
+    const cleanCode = cleanString(code).toUpperCase();
+    return trainingUnits.find(unit => String(unit.code || "").toUpperCase() === cleanCode) || null;
+  }
+
+  function selectedUnitFromSelect(selectId){
+    const el = $(selectId);
+    if(!el || !el.value) return {unitCode:"",unitTitle:""};
+    const unit = getUnitByCode(el.value);
+    return {
+      unitCode:unit ? unit.code : el.value,
+      unitTitle:unit ? unit.title : ""
+    };
+  }
+
+  function unitLabelFromData(item){
+    if(!item) return "";
+    const code = cleanString(item.unitCode || item.trainingUnitCode || item.competencyCode || "");
+    const title = cleanString(item.unitTitle || item.trainingUnitTitle || item.competencyTitle || "");
+    if(code && title) return `${code} - ${title}`;
+    return code || title || "";
+  }
+
+  function unitSelectOptions(placeholder){
+    const options = [`<option value="">${safe(placeholder || "Select training unit")}</option>`];
+    trainingUnits.forEach(unit => {
+      if(unit.active === false) return;
+      options.push(`<option value="${safe(unit.code)}">${safe(unit.code)} - ${safe(unit.title)}</option>`);
+    });
+    return options.join("");
+  }
+
+  function renderTrainingUnitSelectors(){
+    const selectIds = [
+      "hoursUnitSelect",
+      "certUnitSelect",
+      "skillUnitSelect",
+      "projectUnitSelect",
+      "signedProofUnitSelect"
+    ];
+
+    selectIds.forEach(id => {
+      const el = $(id);
+      if(!el) return;
+      const current = el.value || "";
+      el.innerHTML = unitSelectOptions(id === "hoursUnitSelect" ? "Select unit for hours" : "Attach proof to training unit");
+      if(current && [...el.options].some(opt => opt.value === current)) el.value = current;
+    });
+  }
+
+  async function loadTrainingUnits(){
+    trainingUnits = [];
+
+    try{
+      const snap = await getDocs(collection(db,"trainingUnits"));
+      snap.forEach(docSnap => {
+        const unit = normalizeTrainingUnit(docSnap.data() || {}, docSnap.id);
+        if(unit.active !== false) trainingUnits.push(unit);
+      });
+    }catch(error){
+      console.warn("Could not load training units:", error);
+    }
+
+    if(!trainingUnits.length){
+      trainingUnits = defaultTrainingUnits();
+    }
+
+    trainingUnits.sort((a,b) => {
+      const orderDiff = Number(a.sortOrder || 9999) - Number(b.sortOrder || 9999);
+      if(orderDiff !== 0) return orderDiff;
+      return String(a.code || "").localeCompare(String(b.code || ""));
+    });
+
+    renderTrainingUnitSelectors();
+    renderUnitProgress();
+  }
+
+  function calculateTrainingUnitProgress(){
+    const map = {};
+
+    function ensureUnit(code,title){
+      const cleanCode = cleanString(code || "UNASSIGNED").toUpperCase();
+      const unit = cleanCode !== "UNASSIGNED" ? getUnitByCode(cleanCode) : null;
+      const finalTitle = title || (unit ? unit.title : "Not Assigned to Unit");
+
+      if(!map[cleanCode]){
+        map[cleanCode] = {
+          code:cleanCode,
+          title:finalTitle,
+          hours:0,
+          hourLogs:0,
+          proofs:0,
+          approved:0,
+          pending:0,
+          rejected:0
+        };
+      }
+      return map[cleanCode];
+    }
+
+    state.hourLogs.forEach(log => {
+      const unit = ensureUnit(log.unitCode || log.trainingUnitCode || "UNASSIGNED", log.unitTitle || log.trainingUnitTitle || "");
+      unit.hours += Number(log.hours || 0) || 0;
+      unit.hourLogs += 1;
+    });
+
+    const proofArrays = [state.certificationProofs,state.skillProofs,state.projectProofs,state.signedWorkProofs,state.assignmentSubmissions];
+    proofArrays.forEach(arr => {
+      normalizeArray(arr).forEach(proof => {
+        const code = proof.unitCode || proof.trainingUnitCode || proof.competencyCode || "UNASSIGNED";
+        const title = proof.unitTitle || proof.trainingUnitTitle || proof.competencyTitle || "";
+        const unit = ensureUnit(code,title);
+        unit.proofs += 1;
+        const status = getProofStatus(proof);
+        if(status === "verified" || status === "approved") unit.approved += 1;
+        else if(status === "rejected") unit.rejected += 1;
+        else unit.pending += 1;
+      });
+    });
+
+    return Object.values(map).sort((a,b) => {
+      if(a.code === "UNASSIGNED") return 1;
+      if(b.code === "UNASSIGNED") return -1;
+      const aUnit = getUnitByCode(a.code);
+      const bUnit = getUnitByCode(b.code);
+      const orderDiff = Number(aUnit?.sortOrder || 9999) - Number(bUnit?.sortOrder || 9999);
+      if(orderDiff !== 0) return orderDiff;
+      return a.code.localeCompare(b.code);
+    });
+  }
+
+  function renderUnitProgress(){
+    const box = $("unitProgressList");
+    if(!box) return;
+
+    const rows = calculateTrainingUnitProgress();
+
+    if(!rows.length){
+      box.innerHTML = `<div class="empty">No unit progress yet. Add hours or upload proof and select a training unit.</div>`;
+      return;
+    }
+
+    box.innerHTML = rows.map(unit => `
+      <div class="unit-progress-card">
+        <div class="unit-progress-code">${safe(unit.code)}</div>
+        <strong>${safe(unit.title)}</strong>
+        <div class="unit-progress-meta">
+          <div><b>${safe(Number(unit.hours || 0).toLocaleString())}</b><span>Hours</span></div>
+          <div><b>${safe(unit.proofs)}</b><span>Proofs</span></div>
+          <div><b>${safe(unit.approved)}</b><span>Approved</span></div>
+          <div><b>${safe(unit.pending)}</b><span>Pending</span></div>
+        </div>
+      </div>
+    `).join("");
+  }
+
   function buildBadges(){
     const badges = [];
 
+    if(calculateTrainingUnitProgress().some(unit => unit.code !== "UNASSIGNED")) badges.push("Training Unit Progress Started");
     if(state.hoursCompleted >= 1000) badges.push("1,000 Hour Club");
     if(state.hoursCompleted >= 2000) badges.push("2,000 Hour Club");
     if(state.hoursCompleted >= 4000) badges.push("4,000 Hour Club");
@@ -1866,6 +2147,10 @@
       proofFileType:proof.fileType || "",
       proofFileSize:Number(proof.fileSize || 0),
       proofUploadedAt:proof.uploadedAt || nowIso,
+      unitCode:proof.unitCode || extraData.unitCode || "",
+      unitTitle:proof.unitTitle || extraData.unitTitle || "",
+      trainingUnitCode:proof.unitCode || extraData.unitCode || "",
+      trainingUnitTitle:proof.unitTitle || extraData.unitTitle || "",
 
       instructorComment:"",
       approvedBy:"",
@@ -1954,7 +2239,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260522strongv46");
+      window.location.replace("/front/?v=secureauth20260524v49");
       return;
     }
 
@@ -1965,6 +2250,7 @@
     const progressPercent = Math.min(100,Math.round((state.hoursCompleted / BENCHMARK_HOURS) * 100));
     const currentLevel = getLevel(state.hoursCompleted);
     const nowIso = new Date().toISOString();
+    const trainingUnitProgress = calculateTrainingUnitProgress();
 
     const payload = {
       uid:currentUserId,
@@ -2008,6 +2294,7 @@
       assignmentSubmissions:state.assignmentSubmissions,
       jobsiteUploads:proofCount(),
       signedProofCount:proofCount(),
+      trainingUnitProgress,
       approvedProofCount:approvedProofCount(),
       pendingReviewCount:pendingReviewCount(),
       rejectedProofCount:rejectedProofCount(),
@@ -2039,6 +2326,7 @@
         assignmentSubmissions:state.assignmentSubmissions,
         jobsiteUploads:proofCount(),
         signedProofCount:proofCount(),
+        trainingUnitProgress,
         approvedProofCount:approvedProofCount(),
         pendingReviewCount:pendingReviewCount(),
         rejectedProofCount:rejectedProofCount(),
@@ -2126,6 +2414,7 @@
 
     renderStudentAssignments();
     renderMemberPreview();
+    renderUnitProgress();
     renderHourLog();
     renderCerts();
     renderSkills();
@@ -2350,6 +2639,11 @@
     try{
       const proof = withPendingVerification(await uploadProofFile("assignment-proof",file), "assignment-proof");
 
+      const assignmentUnitInfo = {
+        unitCode:assignment.unitCode || assignment.trainingUnitCode || assignment.competencyCode || "",
+        unitTitle:assignment.unitTitle || assignment.trainingUnitTitle || assignment.competencyTitle || ""
+      };
+
       const submission = {
         assignmentId:assignment.id,
         assignmentTitle:assignment.title || assignment.name || "Assignment",
@@ -2360,6 +2654,7 @@
         schoolCode:getSchoolCode(profile),
         cohortName:getCohortName(profile),
         studentNote:note,
+        ...assignmentUnitInfo,
         ...proof
       };
 
@@ -2376,7 +2671,8 @@
           studentNote:note,
           instructorId:assignment.instructorId || getInstructorId(profile) || "",
           instructorName:assignment.instructorName || getInstructorName(profile) || "",
-          instructorEmail:assignment.instructorEmail || getInstructorEmail(profile) || ""
+          instructorEmail:assignment.instructorEmail || getInstructorEmail(profile) || "",
+          ...assignmentUnitInfo
         }
       );
 
@@ -2696,6 +2992,7 @@
           <div>
             <strong>${safe(Number(log.hours || 0).toLocaleString())} hours</strong>
             <span>${safe(log.note || "Hours worked")} • ${safe(log.date || "")}</span>
+            ${unitLabelFromData(log) ? `<span>Unit: ${safe(unitLabelFromData(log))}</span>` : ""}
           </div>
           <button class="delete-small" onclick="deleteHourLog(${realIndex})">Delete</button>
         </div>`;
@@ -2709,7 +3006,8 @@
       ? state.certifications.map((item,index) => {
           const proof = state.certificationProofs[index] || null;
           const fileText = proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Certification earned</span>`;
-          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofStatusHtml(proof)}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteCertification(${index})">Delete</button></div>`;
+          const unitText = unitLabelFromData(proof) ? `<span>Unit: ${safe(unitLabelFromData(proof))}</span>` : "";
+          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${unitText}${proofStatusHtml(proof)}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteCertification(${index})">Delete</button></div>`;
         }).join("")
       : `<div class="empty">No certifications added yet.</div>`;
   }
@@ -2721,7 +3019,8 @@
       ? state.skillsLearned.map((item,index) => {
           const proof = state.skillProofs[index] || null;
           const fileText = proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Skill learned</span>`;
-          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofStatusHtml(proof)}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteSkill(${index})">Delete</button></div>`;
+          const unitText = unitLabelFromData(proof) ? `<span>Unit: ${safe(unitLabelFromData(proof))}</span>` : "";
+          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${unitText}${proofStatusHtml(proof)}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteSkill(${index})">Delete</button></div>`;
         }).join("")
       : `<div class="empty">No skills added yet.</div>`;
   }
@@ -2733,7 +3032,8 @@
       ? state.projects.map((item,index) => {
           const proof = state.projectProofs[index] || null;
           const fileText = proof && proof.fileName ? `<span>Uploaded file: ${safe(proof.fileName)}</span>` : `<span>Project completed</span>`;
-          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${proofStatusHtml(proof)}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteProject(${index})">Delete</button></div>`;
+          const unitText = unitLabelFromData(proof) ? `<span>Unit: ${safe(unitLabelFromData(proof))}</span>` : "";
+          return `<div class="list-item"><div><strong>${safe(item)}</strong>${fileText}${unitText}${proofStatusHtml(proof)}${proofLinkHtml(proof)}</div><button class="delete-small" onclick="deleteProject(${index})">Delete</button></div>`;
         }).join("")
       : `<div class="empty">No projects added yet.</div>`;
   }
@@ -2748,6 +3048,7 @@
             <div>
               <strong>${safe(proof.title || "Signed work proof")}</strong>
               <span>${safe(proof.fileName || "Uploaded document")}</span>
+              ${unitLabelFromData(proof) ? `<span>Unit: ${safe(unitLabelFromData(proof))}</span>` : ""}
               ${proofStatusHtml(proof)}
               ${proofLinkHtml(proof)}
             </div>
@@ -2901,7 +3202,8 @@
       loadInstructorAssignments(),
       loadVerifiedSkills(),
       loadPendingReviews(),
-      loadAptitudeTest(currentUserId)
+      loadAptitudeTest(currentUserId),
+      loadTrainingUnits()
     ]);
     renderProgress();
     $("syncStatus").textContent = "Instructor data refreshed";
@@ -2913,6 +3215,7 @@
     const btn = $("addHoursBtn");
     const hours = Number(input.value || 0);
     const note = noteInput.value.trim();
+    const unitInfo = selectedUnitFromSelect("hoursUnitSelect");
 
     if(!hours || hours <= 0){
       alert("Please enter hours worked.");
@@ -2931,6 +3234,8 @@
         hours,
         note:note || "Hours worked",
         date:new Date().toLocaleDateString(),
+        unitCode:unitInfo.unitCode,
+        unitTitle:unitInfo.unitTitle,
         createdAt:new Date().toISOString()
       });
 
@@ -2973,6 +3278,7 @@
     const btn = $(options.buttonId);
     const value = input.value.trim();
     const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+    const unitInfo = options.unitSelectId ? selectedUnitFromSelect(options.unitSelectId) : {unitCode:"",unitTitle:""};
 
     if(!value){
       alert(options.emptyMessage);
@@ -2989,14 +3295,18 @@
     setStatus("saveStatus",options.uploadingMessage,"info");
 
     try{
-      const proof = withPendingVerification(await uploadProofFile(options.storageCategory || options.category,file), options.category);
+      const proof = {
+        ...withPendingVerification(await uploadProofFile(options.storageCategory || options.category,file), options.category),
+        ...unitInfo
+      };
       options.onSuccess(value,proof);
 
-      await createPendingReview(options.reviewType || "Student Upload", value, proof);
+      await createPendingReview(options.reviewType || "Student Upload", value, proof, unitInfo);
       await syncTradePassport("proof_uploaded", options.reviewType || "Student proof uploaded");
 
       input.value = "";
       if(fileInput) fileInput.value = "";
+      if(options.unitSelectId && $(options.unitSelectId)) $(options.unitSelectId).value = "";
 
       renderProgress();
       await saveToFirebase();
@@ -3017,6 +3327,7 @@
       inputId:"certInput",
       fileInputId:"certFileInput",
       buttonId:"certBtn",
+      unitSelectId:"certUnitSelect",
       category:"certifications",
       storageCategory:"certifications",
       reviewType:"Certification Upload",
@@ -3044,6 +3355,7 @@
       inputId:"skillInput",
       fileInputId:"skillFileInput",
       buttonId:"skillBtn",
+      unitSelectId:"skillUnitSelect",
       category:"skills",
       storageCategory:"skills",
       reviewType:"Skill Upload",
@@ -3071,6 +3383,7 @@
       inputId:"projectInput",
       fileInputId:"projectFileInput",
       buttonId:"projectBtn",
+      unitSelectId:"projectUnitSelect",
       category:"projects",
       storageCategory:"projects",
       reviewType:"Project Upload",
@@ -3099,6 +3412,7 @@
     const btn = $("signedProofBtn");
     const title = (titleInput.value || "").trim();
     const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+    const unitInfo = selectedUnitFromSelect("signedProofUnitSelect");
 
     if(!title){
       alert("Please enter a proof description.");
@@ -3115,19 +3429,23 @@
     setStatus("saveStatus","Uploading signed work proof...","info");
 
     try{
-      const proof = withPendingVerification(await uploadProofFile("signed-work-proof",file), "signed-work-proof");
+      const proof = {
+        ...withPendingVerification(await uploadProofFile("signed-work-proof",file), "signed-work-proof"),
+        ...unitInfo
+      };
 
       state.signedWorkProofs.push({
         title,
         ...proof
       });
 
-      await createPendingReview("Signed Work Proof", title, proof);
+      await createPendingReview("Signed Work Proof", title, proof, unitInfo);
       await syncTradePassport("signed_proof_uploaded", "Signed work proof uploaded");
 
       state.jobsiteUploads = state.signedWorkProofs.length;
       titleInput.value = "";
       if(fileInput) fileInput.value = "";
+      if($("signedProofUnitSelect")) $("signedProofUnitSelect").value = "";
 
       renderProgress();
       await saveToFirebase();
@@ -3206,7 +3524,8 @@
         loadAptitudeTest(currentUserId),
         loadVerifiedSkills(),
         loadPendingReviews(),
-        loadInstructorAssignments()
+        loadInstructorAssignments(),
+        loadTrainingUnits()
       ]);
 
       buildBadges();
@@ -3224,7 +3543,7 @@
   // Role, profileType, and isApprentice are determined by Firebase profile data.
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260522strongv46");
+      window.location.replace("/front/?v=secureauth20260524v49");
       return;
     }
 
@@ -3278,7 +3597,7 @@
     // FIX v47: Route check happens AFTER Firebase profile loads so the role is accurate.
     if(hasExactInstructorSignal(profile) && !hasApprenticeSignal(profile)){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260522strongv46");
+      window.location.replace("/instructor/?v=20260524v49");
       return;
     }
 
@@ -3297,7 +3616,7 @@
     }
   },4500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v48 - profile name source-of-truth fix");
+  console.log("LTN Apprenticeship Dashboard Loaded v49 - training units integration");
 </script>
 
 </body>
