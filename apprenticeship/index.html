@@ -4,18 +4,18 @@
   <title>LTN Apprenticeship Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
+
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="ltn-version" content="apprenticeship-dashboard-v50-github-strong">
+  <meta name="ltn-version" content="apprenticeship-dashboard-training-units-v51-clean">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-training-units-v51-failsafe -->
-  <!-- FIXES v50 GITHUB STRONG:
-    1. STRONG: Global window.trainingUnits now always updates after Firebase/fallback load.
-    2. STRONG: Added window.LTNDebugUnits() console checker for GitHub deployment testing.
-    3. STRONG: Added no-cache meta tags and v50 console markers.
-    4. STRONG: Training unit loader runs earlier and has fallback rendering if Firebase is slow.
-    5. STRONG: Field names support both LTN format (code/title/category) and RTO format (unitCode/unitTitle/unitType).
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-training-units-v51-clean -->
+  <!-- FIXES v51 CLEAN:
+    1. STRONG FIX: trainingUnits now loads built-in fallback units immediately, then refreshes from Firestore.
+    2. STRONG FIX: window.trainingUnits is always set for Console debugging and dropdown rendering.
+    3. STRONG FIX: window.LTNDebugUnits() added to confirm the live page is using v51 and units are loaded.
+    4. STRONG FIX: GitHub cache version updated from v49 to v51 clean across routing.
   -->
   <!-- FIXES v49:
     1. ADDED: Firestore trainingUnits collection integration for unit/competency dropdowns.
@@ -1008,12 +1008,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260524v51failsafe'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260524v51failsafe'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260524trainingv51'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260524trainingv51'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260524v51failsafe'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260524v51failsafe'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260524trainingv51'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260524trainingv51'">Back</button>
   </div>
 </div>
 
@@ -1324,14 +1324,9 @@
   let profile = {};
   let instructorAssignments = [];
   let trainingUnits = [];
+  window.trainingUnits = trainingUnits;
+  window.LTN_VERSION = "apprenticeship-dashboard-training-units-v51-clean";
   let state = getEmptyState();
-
-  window.LTN_VERSION = "apprenticeship-dashboard-v51-failsafe";
-  window.trainingUnits = [];
-  window.LTN_TRAINING_UNITS = [];
-  window.LTNDebugUnits = function(){
-    return {version:window.LTN_VERSION, source:"not-loaded-yet", count:0, units:[]};
-  };
 
   function getEmptyState(){
     return {
@@ -1401,7 +1396,6 @@
 
   function oldProgressKeys(uid){
     return [
-      `ltn_apprenticeship_progress_${uid}_v49`,
       `ltn_apprenticeship_progress_${uid}_v48`,
       `ltn_apprenticeship_progress_${uid}_v47`,
       `ltn_apprenticeship_progress_${uid}_v46`,
@@ -1721,7 +1715,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260524v51failsafe";
+      window.location.href = "/instructor/?v=20260524trainingv51";
       return false;
     }
 
@@ -1736,11 +1730,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260524v51failsafe";
+      window.location.href = "/instructor/?v=20260524trainingv51";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260524v51failsafe";
+    window.location.href = "/apprenticeship/?v=20260524trainingv51";
     return false;
   };
 
@@ -1749,7 +1743,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260524v51failsafe");
+      window.location.replace("/instructor/?v=20260524trainingv51");
       return false;
     }
 
@@ -1797,7 +1791,6 @@
 
 
   function defaultTrainingUnits(){
-    // v51 FAILSAFE: Full built-in unit list so GitHub/Firebase delays can never leave dropdowns stuck.
     return [
       {code:"UEENEEE101A",title:"Apply Occupational Health and Safety Regulations",category:"core",trade:"Electrical",active:true,sortOrder:1},
       {code:"UEENEEE102A",title:"Fabricate, Assemble and Dismantle Utilities Industry Components",category:"core",trade:"Electrical",active:true,sortOrder:2},
@@ -1825,19 +1818,12 @@
 
   function normalizeTrainingUnit(data,id){
     const unit = data && typeof data === "object" ? data : {};
-    const code = cleanString(unit.code || unit.unitCode || unit.competencyCode || id || "").toUpperCase();
-    const title = cleanString(unit.title || unit.unitTitle || unit.competencyTitle || unit.name || "Training Unit");
-    const category = cleanString(unit.category || unit.unitType || unit.type || "core").toLowerCase();
-    const trade = cleanString(unit.trade || unit.trainingPackage || unit.qualificationTrade || "Electrical");
     return {
-      id:id || unit.id || code || "",
-      code,
-      unitCode:code,
-      title,
-      unitTitle:title,
-      category,
-      unitType:category,
-      trade,
+      id:id || unit.id || unit.code || unit.unitCode || "",
+      code:cleanString(unit.code || unit.unitCode || unit.competencyCode || id || "").toUpperCase(),
+      title:cleanString(unit.title || unit.unitTitle || unit.competencyTitle || unit.name || "Training Unit"),
+      category:cleanString(unit.category || unit.unitType || unit.type || "core").toLowerCase(),
+      trade:cleanString(unit.trade || unit.tradeType || "Electrical"),
       active:unit.active !== false,
       sortOrder:Number(unit.sortOrder || unit.order || 9999) || 9999
     };
@@ -1893,51 +1879,32 @@
     });
   }
 
-  function publishTrainingUnitsToWindow(source){
-    try{
-      window.trainingUnits = trainingUnits;
-      window.LTN_TRAINING_UNITS = trainingUnits;
-      window.LTN_TRAINING_UNITS_SOURCE = source || "unknown";
-      window.LTN_TRAINING_UNITS_COUNT = trainingUnits.length;
-      window.LTNDebugUnits = function(){
-        console.table(window.trainingUnits || []);
-        return {
-          version:"v51-failsafe",
-          source:window.LTN_TRAINING_UNITS_SOURCE,
-          count:(window.trainingUnits || []).length,
-          units:window.trainingUnits || []
-        };
-      };
-    }catch(error){
-      console.warn("Could not publish training units globally:", error);
-    }
-  }
-
   async function loadTrainingUnits(){
-    console.log("LTN v51: loading trainingUnits from Firestore...");
+    /*
+      v51 CLEAN STRONG LOADER:
+      1. Immediately loads fallback units so GitHub/cache/Firebase delays cannot leave the dropdown stuck.
+      2. Then attempts Firestore trainingUnits.
+      3. Always writes to window.trainingUnits so Console can verify with window.LTNDebugUnits().
+    */
+    trainingUnits = defaultTrainingUnits();
+    window.trainingUnits = trainingUnits;
+    renderTrainingUnitSelectors();
+    renderUnitProgress();
 
-    // Start with visible built-in units first. Do not clear the dropdown while Firestore loads.
-    if(!trainingUnits.length){
-      forceRenderDefaultTrainingUnits("pre-firestore-built-in-v51");
-    }
-
-    let firestoreUnits = [];
     try{
       const snap = await getDocs(collection(db,"trainingUnits"));
+      const firebaseUnits = [];
+
       snap.forEach(docSnap => {
         const unit = normalizeTrainingUnit(docSnap.data() || {}, docSnap.id);
-        if(unit.active !== false && unit.code) firestoreUnits.push(unit);
+        if(unit.active !== false && unit.code) firebaseUnits.push(unit);
       });
-      console.log("LTN v51: Firestore trainingUnits loaded", firestoreUnits.length);
-    }catch(error){
-      console.warn("LTN v51: Could not load trainingUnits from Firestore. Keeping built-in fallback units.", error);
-    }
 
-    if(firestoreUnits.length){
-      trainingUnits = firestoreUnits;
-    }else if(!trainingUnits.length){
-      trainingUnits = defaultTrainingUnits().map(unit => normalizeTrainingUnit(unit, unit.code));
-      console.warn("LTN v51: using fallback training units", trainingUnits.length);
+      if(firebaseUnits.length){
+        trainingUnits = firebaseUnits;
+      }
+    }catch(error){
+      console.warn("Could not load Firestore training units. Using built-in v51 units:", error);
     }
 
     trainingUnits.sort((a,b) => {
@@ -1946,51 +1913,12 @@
       return String(a.code || "").localeCompare(String(b.code || ""));
     });
 
-    publishTrainingUnitsToWindow(trainingUnits.length ? "ready" : "empty");
+    window.trainingUnits = trainingUnits;
     renderTrainingUnitSelectors();
     renderUnitProgress();
-    return trainingUnits;
+
+    console.log("LTN v51 training units loaded:", trainingUnits.length, trainingUnits);
   }
-
-  function emergencyRenderTrainingUnitsIfStillLoading(){
-    const hoursSelect = $("hoursUnitSelect");
-    const stillLoading = hoursSelect && String(hoursSelect.innerHTML || "").toLowerCase().includes("loading training units");
-    if(stillLoading){
-      console.warn("LTN v50: emergency unit render fired because dropdown was still loading.");
-      if(!trainingUnits.length) trainingUnits = defaultTrainingUnits().map(unit => normalizeTrainingUnit(unit, unit.code));
-      publishTrainingUnitsToWindow("emergency-fallback");
-      renderTrainingUnitSelectors();
-      renderUnitProgress();
-    }
-  }
-
-
-  function forceRenderDefaultTrainingUnits(reason){
-    // v51 FAILSAFE: This runs without waiting for auth or Firestore. It guarantees selectors populate.
-    if(!trainingUnits.length){
-      trainingUnits = defaultTrainingUnits().map(unit => normalizeTrainingUnit(unit, unit.code));
-      trainingUnits.sort((a,b) => Number(a.sortOrder || 9999) - Number(b.sortOrder || 9999));
-    }
-    publishTrainingUnitsToWindow(reason || "forced-default");
-    renderTrainingUnitSelectors();
-    renderUnitProgress();
-    return trainingUnits;
-  }
-
-  window.LTNForceUnits = function(){
-    return forceRenderDefaultTrainingUnits("manual-console-force");
-  };
-
-  // v51 FAILSAFE: render unit dropdowns immediately from built-in units, then Firebase may refresh them later.
-  queueMicrotask(function(){
-    try{ forceRenderDefaultTrainingUnits("instant-built-in-v51"); }
-    catch(error){ console.warn("LTN v51 instant unit render failed:", error); }
-  });
-
-  document.addEventListener("DOMContentLoaded", function(){
-    try{ forceRenderDefaultTrainingUnits("dom-ready-built-in-v51"); }
-    catch(error){ console.warn("LTN v51 DOM unit render failed:", error); }
-  });
 
   function calculateTrainingUnitProgress(){
     const map = {};
@@ -2357,7 +2285,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260524v51failsafe");
+      window.location.replace("/front/?v=secureauth20260524trainingv51");
       return;
     }
 
@@ -3656,12 +3584,22 @@
     }
   }
 
+
+  window.LTNDebugUnits = function(){
+    console.log("LTN VERSION:", window.LTN_VERSION || "missing");
+    console.log("LOCAL_PROGRESS_VERSION:", LOCAL_PROGRESS_VERSION);
+    console.log("trainingUnits length:", trainingUnits.length);
+    console.log("window.trainingUnits:", window.trainingUnits);
+    console.log("hoursUnitSelect options:", $("hoursUnitSelect") ? $("hoursUnitSelect").options.length : "missing select");
+    return window.trainingUnits;
+  };
+
   // FIX v47: onAuthStateChanged — role is NOT hardcoded as apprentice here.
   // Only uid/email/displayName come from the auth object.
   // Role, profileType, and isApprentice are determined by Firebase profile data.
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260524v51failsafe");
+      window.location.replace("/front/?v=secureauth20260524trainingv51");
       return;
     }
 
@@ -3692,8 +3630,6 @@
     renderProfile();
     renderProgress();
     showPage();
-    loadTrainingUnits().catch(error => console.warn("LTN v50 early unit load failed:", error));
-    setTimeout(emergencyRenderTrainingUnitsIfStillLoading, 3500);
     $("syncStatus").textContent = "Opening profile...";
     setStatus("saveStatus","Track My Progress opened. Loading your profile from Firebase...","info");
 
@@ -3717,7 +3653,7 @@
     // FIX v47: Route check happens AFTER Firebase profile loads so the role is accurate.
     if(hasExactInstructorSignal(profile) && !hasApprenticeSignal(profile)){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260524v51failsafe");
+      window.location.replace("/instructor/?v=20260524trainingv51");
       return;
     }
 
@@ -3736,9 +3672,8 @@
     }
   },4500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v51 FAILSAFE - training units force render enabled");
-  console.log("LTN v51 test: run window.LTNDebugUnits() in Console after page loads");
+  console.log("LTN Apprenticeship Dashboard Loaded v51 CLEAN - original full code patched, not rebuilt");
 </script>
 
 </body>
-</html>
+</html> 
