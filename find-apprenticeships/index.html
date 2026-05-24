@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Find Apprenticeships | LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE VERSION: find-apprenticeships-strong-firebase-role-routing-20260517-v20 -->
+<!-- LTN FORCE UPDATE VERSION: find-apprenticeships-strong-firebase-role-routing-20260523-v21 -->
 
 <style>
 :root{
@@ -280,6 +280,37 @@ button:hover,.btn:hover{
   line-height:1.5;
 }
 
+.application-status{
+  margin-top:14px;
+  padding:12px 14px;
+  border-radius:12px;
+  font-size:14px;
+  font-weight:700;
+  display:none;
+}
+
+.application-status.ok{
+  display:block;
+  background:#ecfdf5;
+  color:#047857;
+  border:1px solid #a7f3d0;
+}
+
+.application-status.bad{
+  display:block;
+  background:#fef2f2;
+  color:#b91c1c;
+  border:1px solid #fecaca;
+}
+
+.application-status.info{
+  display:block;
+  background:#eff6ff;
+  color:#1d4ed8;
+  border:1px solid #bfdbfe;
+}
+
+
 @media(max-width:700px){
   .hero h1{font-size:28px}
   .topbar{align-items:flex-start}
@@ -290,10 +321,10 @@ button:hover,.btn:hover{
 
 <body>
 
-<!-- LTN STRONG FIREBASE AUTH + ROLE GATE v20 -->
+<!-- LTN STRONG FIREBASE AUTH + ROLE GATE v21 -->
 <script>
 (function () {
-  window.LTN_FIND_APP_VERSION = "20260517findappv20strong";
+  window.LTN_FIND_APP_VERSION = "20260523findappv21strong";
   window.LTN_FRONT_GATE_URL = "/front.html?v=" + window.LTN_FIND_APP_VERSION;
   window.LTN_CURRENT_ACCESS_TYPE = "unknown";
   window.LTN_CURRENT_USER_PROFILE = null;
@@ -310,7 +341,13 @@ button:hover,.btn:hover{
       "ltn_profile_data",
       "currentUserProfile",
       "userProfile",
-      "ltn_user"
+      "ltn_user",
+      "ltn_access_granted",
+      "userName",
+      "ltn_apprentice_email",
+      "ltn_instructor_profile",
+      "instructorProfile",
+      "currentInstructor"
     ].forEach(function(key){
       try{ localStorage.removeItem(key); }catch(e){}
     });
@@ -322,12 +359,12 @@ button:hover,.btn:hover{
   <div class="logo">LTN • Find Apprenticeships</div>
 
   <nav class="nav">
-    <a href="/dashboard/?v=20260517findappv20strong">Dashboard</a>
-    <a href="/members/?v=20260517findappv20strong">Members</a>
-    <a href="/apprenticeship/?v=20260517findappv20strong" onclick="return ltnRouteTrackProgressFromFind(event, this.href)">Track My Progress</a>
-    <a href="/instructor/?v=20260517findappv20strong" onclick="return ltnRouteInstructorCenterFromFind(event, this.href)">Instructor Center</a>
-    <a href="/find-apprenticeships/?v=20260517findappv20strong" class="active">Find Apprenticeships</a>
-    <a href="/network-center/?v=20260517findappv20strong">Network Center</a>
+    <a href="/dashboard/?v=20260523findappv21strong">Dashboard</a>
+    <a href="/members/?v=20260523findappv21strong">Members</a>
+    <a href="/apprenticeship/?v=20260523findappv21strong" onclick="return ltnRouteTrackProgressFromFind(event, this.href)">Track My Progress</a>
+    <a href="/instructor/?v=20260523findappv21strong" onclick="return ltnRouteInstructorCenterFromFind(event, this.href)">Instructor Center</a>
+    <a href="/find-apprenticeships/?v=20260523findappv21strong" class="active">Find Apprenticeships</a>
+    <a href="/network-center/?v=20260523findappv21strong">Network Center</a>
   <a href="#" onclick="logoutUser();return false;">Logout</a>
   </nav>
 </header>
@@ -386,7 +423,7 @@ button:hover,.btn:hover{
     <div class="actions">
       <button onclick="applyFilters()">Search</button>
       <button class="btn-secondary" onclick="resetFilters()">Reset</button>
-      <a href="/dashboard/?v=20260517findappv20strong" class="btn btn-secondary">Back to Dashboard</a>
+      <a href="/dashboard/?v=20260523findappv21strong" class="btn btn-secondary">Back to Dashboard</a>
     </div>
   </section>
 
@@ -399,8 +436,10 @@ button:hover,.btn:hover{
     <div class="empty">Loading apprenticeship opportunities...</div>
   </section>
 
+  <div id="application-status" class="application-status"></div>
+
   <section class="note">
-    <strong>Note:</strong> This page pulls live jobs from Firebase when available. Starter sample listings now include United States, Australia, and India so LinkTradeNetwork feels ready for global trade workforce expansion.
+    <strong>Note:</strong> This page pulls live jobs from Firebase when available. Starter sample listings include United States, Australia, and India so LinkTradeNetwork feels ready for global trade workforce expansion.
   </section>
 
 </main>
@@ -415,6 +454,7 @@ import {
   collection,
   getDocs,
   addDoc,
+  setDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
@@ -492,7 +532,13 @@ window.ltnRouteTrackProgressFromFind = function(event, href){
     return false;
   }
 
-  window.location.href = href || "/apprenticeship/?v=20260517findappv20strong";
+  if(window.LTN_CURRENT_ACCESS_TYPE !== "student"){
+    showNotAllowed("Track My Progress is for apprentice/student accounts. Open Edit Profile on the dashboard and mark yourself as an apprentice first.");
+    window.location.href = "/dashboard/?v=20260523findappv21strong";
+    return false;
+  }
+
+  window.location.href = href || "/apprenticeship/?v=20260523findappv21strong";
   return false;
 };
 
@@ -509,7 +555,7 @@ window.ltnRouteInstructorCenterFromFind = function(event, href){
     return false;
   }
 
-  window.location.href = href || "/instructor/?v=20260517findappv20strong";
+  window.location.href = href || "/instructor/?v=20260523findappv21strong";
   return false;
 };
 
@@ -523,19 +569,29 @@ async function loadCurrentUserProfile(user){
   if(!user) return null;
 
   const cleanEmail = String(user.email || "").trim().toLowerCase();
+  const baseProfile = {
+    uid:user.uid,
+    authUid:user.uid,
+    email:cleanEmail,
+    lastLoginAt:serverTimestamp(),
+    updatedAt:serverTimestamp()
+  };
 
   try{
     localStorage.setItem("ltn_auth_uid", user.uid || "");
     if(cleanEmail){
       localStorage.setItem("userEmail", cleanEmail);
       localStorage.setItem("ltn_user_email", cleanEmail);
+      localStorage.setItem("ltn_access_granted", "true");
     }
   }catch(e){}
 
   try{
-    const snap = await getDoc(doc(db, "users", user.uid));
+    const ref = doc(db, "users", user.uid);
+    const snap = await getDoc(ref);
 
     if(snap.exists()){
+      await setDoc(ref, baseProfile, { merge:true });
       return {
         id:user.uid,
         uid:user.uid,
@@ -544,6 +600,22 @@ async function loadCurrentUserProfile(user){
         ...snap.data()
       };
     }
+
+    await setDoc(ref, {
+      ...baseProfile,
+      role:"member",
+      profileType:"Member",
+      createdAt:serverTimestamp()
+    }, { merge:true });
+
+    return {
+      id:user.uid,
+      uid:user.uid,
+      authUid:user.uid,
+      email:cleanEmail,
+      role:"member",
+      profileType:"Member"
+    };
   }catch(error){
     console.warn("Could not load signed-in user profile:", error);
   }
@@ -931,7 +1003,7 @@ function renderJobs(jobs){
   }
 
   results.innerHTML = jobs.map(job => {
-    const profileLink = job.posterId ? `/profile.html?id=${encodeURIComponent(job.posterId)}` : "/members/";
+    const profileLink = job.posterId ? `/profile.html?id=${encodeURIComponent(job.posterId)}&v=20260523findappv21strong` : "/members/?v=20260523findappv21strong";
     const photoHtml = job.photo
       ? `<img src="${escapeHtml(job.photo)}" alt="${escapeHtml(job.company)}" onerror="this.remove();this.parentElement.innerText='${getInitials(job.company)}';">`
       : getInitials(job.company);
@@ -962,7 +1034,7 @@ function renderJobs(jobs){
             <div class="actions">
               <button onclick="markInterested('${escapeHtml(job.id)}')">Apply / Interested</button>
               <a class="btn btn-secondary" href="${profileLink}">View Profile</a>
-              <a class="btn btn-secondary" href="/apprenticeship/?v=20260517findappv20strong" onclick="return ltnRouteTrackProgressFromFind(event, this.href)">Track My Progress</a>
+              <a class="btn btn-secondary" href="/apprenticeship/?v=20260523findappv21strong" onclick="return ltnRouteTrackProgressFromFind(event, this.href)">Track My Progress</a>
             </div>
           </div>
         </div>
@@ -1022,6 +1094,32 @@ window.resetFilters = function(){
   applyFilters();
 };
 
+
+function setApplicationStatus(message, type){
+  const box = document.getElementById("application-status");
+  if(!box) return;
+  box.className = "application-status " + (type || "info");
+  box.textContent = message || "";
+}
+
+function saveLocalInterest(job, uid, email){
+  try{
+    const key = "ltn_find_apprenticeship_interests";
+    const existing = JSON.parse(localStorage.getItem(key) || "[]");
+    existing.unshift({
+      jobId:job.id,
+      jobTitle:job.title,
+      company:job.company,
+      country:job.country || "",
+      applicantUid:uid || "",
+      applicantEmail:email || "",
+      status:"interested",
+      savedAt:new Date().toISOString()
+    });
+    localStorage.setItem(key, JSON.stringify(existing.slice(0, 50)));
+  }catch(e){}
+}
+
 window.markInterested = async function(jobId){
   const job = allJobs.find(j => j.id === jobId);
 
@@ -1031,30 +1129,48 @@ window.markInterested = async function(jobId){
   }
 
   if(job.isSample){
+    setApplicationStatus("This is a sample listing. Live applications will work on real Firebase job posts.", "info");
     alert("This is a sample listing. Live applications will work on Firebase jobs.");
     return;
   }
 
-  let email = currentAuthUser && currentAuthUser.email ? String(currentAuthUser.email).trim().toLowerCase() : "";
   const uid = currentAuthUser && currentAuthUser.uid ? currentAuthUser.uid : "";
+  let email = currentAuthUser && currentAuthUser.email ? String(currentAuthUser.email).trim().toLowerCase() : "";
 
   if(!email && currentUserProfile && currentUserProfile.email){
     email = String(currentUserProfile.email).trim().toLowerCase();
   }
 
-  await addDoc(collection(db, "applications"), {
+  if(!uid){
+    alert("Please sign in again before applying.");
+    window.location.replace(window.LTN_FRONT_GATE_URL || "/front.html");
+    return;
+  }
+
+  const payload = {
     jobId: job.id,
     jobTitle: job.title,
     company: job.company,
     country: job.country || "",
-    applicantUid: uid || "unknown",
+    trade: job.trade || "",
+    applicantUid: uid,
     applicantEmail: email || "unknown",
     applicantRole: window.LTN_CURRENT_ACCESS_TYPE || "unknown",
     status: "interested",
+    source: "find_apprenticeships",
     createdAt: serverTimestamp()
-  });
+  };
 
-  alert("Interest sent. This will show in Firebase applications.");
+  try{
+    await addDoc(collection(db, "applications"), payload);
+    setApplicationStatus("Interest sent successfully. The employer/application record was saved.", "ok");
+    alert("Interest sent. This will show in Firebase applications.");
+  }catch(error){
+    console.error("Application save failed:", error);
+    saveLocalInterest(job, uid, email);
+    setApplicationStatus("Your interest was saved locally, but Firebase did not accept the application write. Add an applications rule in Firestore if you want this saved online.", "bad");
+    alert("Interest saved locally, but Firebase did not accept the application record. Check Firestore rules for the applications collection.");
+  }
 };
 
 async function loadUsers(){
