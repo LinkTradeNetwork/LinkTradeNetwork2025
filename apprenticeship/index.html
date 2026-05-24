@@ -5,8 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-strong-profile-v47 -->
-  <!-- FIXES v47 (surgical only - all other code identical to v46):
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-strong-profile-v48 -->
+  <!-- FIXES v48 (surgical only - all other code identical to v47):
+    1. CRITICAL: users/{uid} is now treated as the source of truth for profile name changes from Edit Profile.
+    2. FIXED: stale profiles/{uid} records can no longer overwrite a newer users/{uid} name like Jill Summer.
+    3. FIXED: Track My Progress now saves fullName/name/displayName back into users/{uid} when progress saves.
+    4. IMPROVED: local profile cache mirrors userName/fullName so dashboard handoff stays consistent.
+  -->
+  <!-- PRIOR v47 FIXES:
     1. CRITICAL: Added missing `limit` to Firestore import - was undefined, silently crashing ALL Firestore queries.
     2. CRITICAL: loadBackgroundInstructorData() now actually CALLED at end of onAuthStateChanged - was defined but never invoked in v46.
     3. FIXED: Removed hardcoded role:"apprentice"/profileType:"Apprentice"/isApprentice:true from auth object - role now comes from Firebase profile, not overwritten before load.
@@ -1199,7 +1205,7 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v47";
+  const LOCAL_PROGRESS_VERSION = "v48";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1275,6 +1281,7 @@
 
   function oldProgressKeys(uid){
     return [
+      `ltn_apprenticeship_progress_${uid}_v47`,
       `ltn_apprenticeship_progress_${uid}_v46`,
       `ltn_apprenticeship_progress_${uid}_v33`,
       `ltn_apprenticeship_progress_${uid}_v22`,
@@ -1462,6 +1469,13 @@
       if(normalized.email){
         localStorage.setItem("userEmail", normalized.email);
         localStorage.setItem("ltn_user_email", normalized.email);
+      }
+      const profileName = normalized.fullName || normalized.name || normalized.displayName || "";
+      if(profileName){
+        localStorage.setItem("userName", profileName);
+        localStorage.setItem("fullName", profileName);
+        localStorage.setItem("ltn_user_name", profileName);
+        localStorage.setItem("ltn_full_name", profileName);
       }
       if(normalized.uid || normalized.authUid){
         localStorage.setItem("ltn_auth_uid", normalized.uid || normalized.authUid);
@@ -1954,7 +1968,28 @@
 
     const payload = {
       uid:currentUserId,
-      email:currentUserEmail,
+      authUid:currentUserId,
+      email:currentUserEmail || getProfileEmail(profile),
+      fullName:getProfileName(profile),
+      name:getProfileName(profile),
+      displayName:getProfileName(profile),
+      profileType:profile.profileType || "Apprentice",
+      role:profile.role || "apprentice",
+      trade:getProfileTrade(profile),
+      city:profile.city || "",
+      state:profile.state || "",
+      country:profile.country || "",
+      schoolCode:getSchoolCode(profile),
+      apprenticeship:{
+        ...(profile.apprenticeship || {}),
+        isApprentice:true,
+        schoolCode:getSchoolCode(profile),
+        schoolName:getTradeSchool(profile),
+        instructorName:getInstructorName(profile),
+        instructorEmail:getInstructorEmail(profile),
+        cohortName:getCohortName(profile)
+      },
+      isApprentice:true,
       hoursCompleted:state.hoursCompleted,
       totalHours:state.hoursCompleted,
       apprenticeshipHours:state.hoursCompleted,
@@ -2746,24 +2781,21 @@
   }
 
   async function loadFirebaseProfile(uid){
-    const foundProfiles = [];
-
-    try{
-      if(uid){
-        const userSnap = await getDoc(doc(db,"users",uid));
-        if(userSnap.exists()){
-          foundProfiles.push({uid, authUid:uid, ...userSnap.data()});
-        }
-      }
-    }catch(error){
-      console.warn("Direct users/{uid} profile load failed:", error);
-    }
+    /*
+      v48 SOURCE OF TRUTH FIX:
+      Edit Profile saves the latest name to users/{uid}. Older copies can still exist in
+      profiles/{uid} or email-matched legacy records. We load those first for fallback fields,
+      then ALWAYS merge users/{uid} last so a new name like "Jill Summer" cannot be overwritten
+      by an older "Student01" profile copy.
+    */
+    const fallbackProfiles = [];
+    let primaryUserProfile = null;
 
     try{
       if(uid){
         const profileSnap = await getDoc(doc(db,"profiles",uid));
         if(profileSnap.exists()){
-          foundProfiles.push({uid, authUid:uid, ...profileSnap.data()});
+          fallbackProfiles.push({uid, authUid:uid, ...profileSnap.data(), source:"profiles_uid"});
         }
       }
     }catch(error){
@@ -2772,23 +2804,77 @@
 
     try{
       const email = currentUserEmail || (profile && profile.email) || "";
-      if(email && foundProfiles.length === 0){
-        const qRef = query(collection(db,"users"), where("email","==",email), limit(1));
+      if(email){
+        const qRef = query(collection(db,"users"), where("email","==",email), limit(3));
         const snap = await getDocs(qRef);
         snap.forEach(docSnap => {
-          foundProfiles.push({uid:docSnap.id, authUid:docSnap.id, ...docSnap.data()});
+          const data = docSnap.data() || {};
+          if(docSnap.id !== uid){
+            fallbackProfiles.push({uid:docSnap.id, authUid:docSnap.id, ...data, source:"legacy_email_user"});
+          }
         });
       }
     }catch(error){
       console.warn("Email profile search failed:", error);
     }
 
-    if(foundProfiles.length){
-      foundProfiles.forEach(firebaseProfile => {
+    try{
+      if(uid){
+        const userSnap = await getDoc(doc(db,"users",uid));
+        if(userSnap.exists()){
+          primaryUserProfile = {uid, authUid:uid, ...userSnap.data(), source:"users_uid_primary"};
+        }
+      }
+    }catch(error){
+      console.warn("Direct users/{uid} profile load failed:", error);
+    }
+
+    if(fallbackProfiles.length || primaryUserProfile){
+      fallbackProfiles.forEach(firebaseProfile => {
         profile = mergeProfileStrong(profile, firebaseProfile);
         mergeFirebaseProgress(firebaseProfile);
       });
+
+      if(primaryUserProfile){
+        profile = mergeProfileStrong(profile, primaryUserProfile);
+        mergeFirebaseProgress(primaryUserProfile);
+      }
+
+      profile.uid = currentUserId || profile.uid || "";
+      profile.authUid = currentUserId || profile.authUid || profile.uid || "";
+      profile.email = currentUserEmail || profile.email || "";
+
       saveProfileCacheStrong(profile);
+
+      /*
+        If the primary user doc has the updated name, mirror it into profiles/{uid} too.
+        This prevents the old profile record from causing the same mismatch later.
+      */
+      try{
+        if(primaryUserProfile && currentUserId){
+          const latestName = getProfileName(profile);
+          await setDoc(doc(db,"profiles",currentUserId),{
+            uid:currentUserId,
+            authUid:currentUserId,
+            email:getProfileEmail(profile),
+            fullName:latestName,
+            name:latestName,
+            displayName:latestName,
+            profileType:profile.profileType || "Apprentice",
+            role:profile.role || "apprentice",
+            trade:getProfileTrade(profile),
+            city:profile.city || "",
+            state:profile.state || "",
+            country:profile.country || "",
+            schoolCode:getSchoolCode(profile),
+            apprenticeship:profile.apprenticeship || {},
+            updatedAt:serverTimestamp()
+          },{merge:true});
+        }
+      }catch(syncError){
+        console.warn("Could not mirror latest profile name to profiles/{uid}:", syncError);
+      }
+
       return true;
     }
 
@@ -3211,7 +3297,7 @@
     }
   },4500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v47 - limit import fix + loadBackgroundInstructorData fix");
+  console.log("LTN Apprenticeship Dashboard Loaded v48 - profile name source-of-truth fix");
 </script>
 
 </body>
