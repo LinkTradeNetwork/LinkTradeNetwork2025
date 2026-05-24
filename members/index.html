@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="auth-checking">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LTN Members</title>
 
-  <!-- LTN FORCE UPDATE VERSION: members-strong-firebase-role-routing-20260517-v7 -->
+  <!-- LTN FORCE UPDATE VERSION: members-strong-firebase-role-routing-20260523-v8-auth-stable -->
 
   <style>
     *{
@@ -15,6 +15,14 @@
 
     html,body{
       overflow-x:hidden;
+    }
+
+    html.auth-checking body{
+      visibility:hidden;
+    }
+
+    html.auth-ready body{
+      visibility:visible;
     }
 
     body{
@@ -333,6 +341,18 @@
       line-height:1.5;
     }
 
+    .member-count{
+      margin-top:12px;
+      color:#64748b;
+      font-size:13px;
+      font-weight:800;
+      text-align:right;
+    }
+
+    .nav .active{
+      color:#ffd3aa;
+    }
+
     @media(max-width:760px){
       .topbar{
         flex-direction:column;
@@ -389,12 +409,43 @@
 
 <script>
 (function () {
-  const accessGranted = localStorage.getItem("ltn_access_granted") === "true";
+  document.documentElement.classList.add("auth-checking");
 
-  if (!accessGranted) {
-    window.location.replace("/front.html?v=membersblocked-strongrolefix-v7");
-    return;
-  }
+  window.LTN_FRONT_GATE_URL = "/front.html?v=members-auth-v8";
+
+  window.LTNRevealMembersPage = function(reason){
+    try{
+      document.documentElement.classList.remove("auth-checking");
+      document.documentElement.classList.add("auth-ready");
+      if(reason) console.log("LTN Members visible:", reason);
+    }catch(e){}
+  };
+
+  window.LTNClearLocalSession = function(){
+    [
+      "ltn_access_granted","ltn_current_profile","ltnUserProfile","ltn_profile",
+      "currentUserProfile","userProfile","userEmail","profileEmail","ltn_user",
+      "userName","ltn_apprentice_email","ltn_user_email","ltn_auth_uid"
+    ].forEach(function(key){
+      try{ localStorage.removeItem(key); }catch(e){}
+    });
+  };
+
+  window.addEventListener("error", function(e){
+    console.error("LTN Members script error:", e && e.message ? e.message : e);
+    if(window.LTNRevealMembersPage) window.LTNRevealMembersPage("window-error");
+  });
+
+  window.addEventListener("unhandledrejection", function(e){
+    console.error("LTN Members promise error:", e && e.reason ? e.reason : e);
+    if(window.LTNRevealMembersPage) window.LTNRevealMembersPage("promise-error");
+  });
+
+  setTimeout(function(){
+    if(document.documentElement.classList.contains("auth-checking")){
+      if(window.LTNRevealMembersPage) window.LTNRevealMembersPage("safe-timeout");
+    }
+  }, 4500);
 })();
 </script>
 
@@ -402,10 +453,11 @@
   <div class="logo">LTN • LinkTradeNetwork</div>
 
   <div class="nav">
-    <a href="/dashboard/?v=20260517membersstrongrolefixv7">Dashboard</a>
-    <a href="/members/?v=20260517membersstrongrolefixv7">Members</a>
-    <a href="/apprenticeship/?v=20260517membersstrongrolefixv7" onclick="return ltnRouteTrackProgressFromMembers(event, this.href)">Track My Progress</a>
-    <a href="/instructor/?v=20260517membersstrongrolefixv7" onclick="return ltnRouteInstructorCenterFromMembers(event, this.href)">Instructor Center</a>
+    <a href="/dashboard/?v=20260523membersv8">Dashboard</a>
+    <a href="/members/?v=20260523membersv8" class="active">Members</a>
+    <a href="/apprenticeship/?v=20260523membersv8" onclick="return ltnRouteTrackProgressFromMembers(event, this.href)">Track My Progress</a>
+    <a href="/instructor/?v=20260523membersv8" onclick="return ltnRouteInstructorCenterFromMembers(event, this.href)">Instructor Center</a>
+    <a href="/network-center/?v=20260523membersv8">Network Center</a>
     <button onclick="logoutUser()">Logout</button>
   </div>
 </div>
@@ -419,6 +471,7 @@
 
   <div class="search-box">
     <input id="searchInput" type="text" placeholder="Search by name, trade, city, state, country, role, certification, skill, or apprenticeship level...">
+    <div id="memberCount" class="member-count">Loading members...</div>
   </div>
 
   <div id="membersGrid" class="grid">
@@ -446,6 +499,8 @@
   const auth = getAuth(app);
 
   let members = [];
+  let currentAuthUser = null;
+  let currentAccess = null;
 
   function readLTNProfile(){
     const keys = [
@@ -558,7 +613,7 @@
       setTimeout(() => {
         try{ unsubscribe(); }catch(e){}
         resolve(auth.currentUser || null);
-      }, 3000);
+      }, 4500);
     });
   }
 
@@ -634,11 +689,11 @@
 
     if(access.accessType !== "student"){
       alert("Track My Progress is for apprentices and students. Open Edit Profile and mark yourself as an apprentice/student first.");
-      window.location.href = "/dashboard/?v=20260517membersstrongrolefixv7";
+      window.location.href = "/dashboard/?v=20260523membersv8";
       return false;
     }
 
-    window.location.href = href || "/apprenticeship/?v=20260517membersstrongrolefixv7";
+    window.location.href = href || "/apprenticeship/?v=20260523membersv8";
     return false;
   };
 
@@ -657,7 +712,7 @@
       return false;
     }
 
-    window.location.href = href || "/instructor/?v=20260517membersstrongrolefixv7";
+    window.location.href = href || "/instructor/?v=20260523membersv8";
     return false;
   };
 
@@ -666,19 +721,9 @@
       await signOut(auth);
     }catch(e){}
 
-    localStorage.removeItem("ltn_access_granted");
-    localStorage.removeItem("ltn_current_profile");
-    localStorage.removeItem("ltnUserProfile");
-    localStorage.removeItem("ltn_profile");
-    localStorage.removeItem("currentUserProfile");
-    localStorage.removeItem("userProfile");
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("profileEmail");
-    localStorage.removeItem("ltn_user");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("ltn_apprentice_email");
+    if(window.LTNClearLocalSession) window.LTNClearLocalSession();
 
-    window.location.replace("/front.html?v=loggedoutmembers-strongrolefix-v7");
+    window.location.replace("/front.html?v=loggedoutmembers-v8");
   };
 
   function safe(value){
@@ -722,6 +767,17 @@
     );
   }
 
+  function toArray(value){
+    if(Array.isArray(value)) return value.filter(Boolean);
+    if(typeof value === "string"){
+      return value
+        .split(/[,\n]/)
+        .map(item => item.trim())
+        .filter(Boolean);
+    }
+    return [];
+  }
+
   function isLTNVerified(member){
     return (
       member.ltnVerified === true ||
@@ -759,27 +815,21 @@
       Math.min(100, Math.round((hours / 8000) * 100))
     ) || 0;
 
-    const certifications = Array.isArray(member.certifications)
-      ? member.certifications
-      : Array.isArray(p.certifications)
-        ? p.certifications
-        : [];
+    const certifications = toArray(member.certifications).length
+      ? toArray(member.certifications)
+      : toArray(p.certifications);
 
-    const skills = Array.isArray(member.skillsLearned)
-      ? member.skillsLearned
-      : Array.isArray(member.skills)
-        ? member.skills
-        : Array.isArray(p.skillsLearned)
-          ? p.skillsLearned
-          : [];
+    const skills = toArray(member.skillsLearned).length
+      ? toArray(member.skillsLearned)
+      : toArray(member.skills).length
+        ? toArray(member.skills)
+        : toArray(p.skillsLearned);
 
-    const badges = Array.isArray(member.badgesEarned)
-      ? member.badgesEarned
-      : Array.isArray(member.badges)
-        ? member.badges
-        : Array.isArray(p.badgesEarned)
-          ? p.badgesEarned
-          : [];
+    const badges = toArray(member.badgesEarned).length
+      ? toArray(member.badgesEarned)
+      : toArray(member.badges).length
+        ? toArray(member.badges)
+        : toArray(p.badgesEarned);
 
     const projectsCompleted = Number(
       member.projectsCompleted ??
@@ -894,7 +944,13 @@
 
   function renderMembers(list){
     const grid = document.getElementById("membersGrid");
+    const countEl = document.getElementById("memberCount");
     grid.innerHTML = "";
+
+    if(countEl){
+      const totalText = members.length ? `Showing ${list.length} of ${members.length} members` : "No members loaded";
+      countEl.textContent = totalText;
+    }
 
     if(list.length === 0){
       grid.innerHTML = `<div class="empty">No members found yet.</div>`;
@@ -923,7 +979,7 @@
         <div class="avatar">
           ${
             photo
-              ? `<img src="${safe(photo)}" alt="${safe(name)}" onerror="this.remove(); this.parentElement.innerText='${safe(getInitials(name))}';">`
+              ? `<img src="${safe(photo)}" alt="${safe(name)}" onerror="this.parentElement.textContent='${safe(getInitials(name))}';">`
               : safe(getInitials(name))
           }
         </div>
@@ -941,7 +997,7 @@
 
         ${renderAchievements(member)}
 
-        <button class="btn" onclick="window.location.href='/profile.html?id=${safeUrl(member.id)}&v=20260517membersstrongrolefixv7'">
+        <button class="btn" onclick="window.location.href='/profile.html?id=${safeUrl(member.id)}&v=20260523membersv8'">
           View Profile
         </button>
       `;
@@ -951,20 +1007,71 @@
   }
 
   async function loadMembers(){
+    const grid = document.getElementById("membersGrid");
+
     try{
+      const user = await waitForAuthUser();
+
+      if(!user || !user.uid){
+        if(window.LTNClearLocalSession) window.LTNClearLocalSession();
+        window.location.replace("/front.html?v=members-auth-required-v8");
+        return;
+      }
+
+      currentAuthUser = user;
+      localStorage.setItem("ltn_access_granted", "true");
+      localStorage.setItem("ltn_auth_uid", user.uid || "");
+      if(user.email){
+        localStorage.setItem("userEmail", String(user.email).trim().toLowerCase());
+        localStorage.setItem("ltn_user_email", String(user.email).trim().toLowerCase());
+      }
+
+      currentAccess = await getCurrentFirebaseProfile();
+
+      if(window.LTNRevealMembersPage) window.LTNRevealMembersPage("firebase-auth-ready");
+
       const usersSnap = await getDocs(collection(db, "users"));
       members = [];
 
       usersSnap.forEach(docSnap => {
-        members.push({ id: docSnap.id, ...docSnap.data() });
+        const data = docSnap.data() || {};
+        const member = {
+          id: docSnap.id,
+          uid: data.uid || data.authUid || docSnap.id,
+          authUid: data.authUid || data.uid || docSnap.id,
+          ...data
+        };
+
+        const name = member.fullName || member.name || member.displayName || "";
+        const email = member.email || "";
+        const hasUsefulProfile = !!(
+          name ||
+          member.trade ||
+          member.profileType ||
+          member.role ||
+          member.city ||
+          member.state ||
+          member.profileImageUrl ||
+          member.bio
+        );
+
+        if(hasUsefulProfile) members.push(member);
+      });
+
+      members.sort((a,b) => {
+        const aName = String(a.fullName || a.name || a.email || "").toLowerCase();
+        const bName = String(b.fullName || b.name || b.email || "").toLowerCase();
+        return aName.localeCompare(bName);
       });
 
       renderMembers(members);
 
     }catch(error){
       console.error(error);
-      document.getElementById("membersGrid").innerHTML =
-        `<div class="empty">Could not load members. Please refresh the page.</div>`;
+      if(window.LTNRevealMembersPage) window.LTNRevealMembersPage("load-error");
+      grid.innerHTML = `<div class="empty">Could not load members. Please refresh the page.</div>`;
+      const countEl = document.getElementById("memberCount");
+      if(countEl) countEl.textContent = "Members could not load";
     }
   }
 
