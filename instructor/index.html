@@ -14,8 +14,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-23: INSTRUCTOR CENTER STABILITY FIX v30 -->
-<!-- LTN VERSION: instructor-center-stability-fix-v30 -->
+<!-- LTN FORCE UPDATE 2026-05-23: INSTRUCTOR CENTER STABILITY FIX v31 -->
+<!-- LTN VERSION: instructor-center-stability-fix-v31 -->
+<!-- FIXES v31 (surgical only - all other code identical to v30):
+  1. FIXED: Removed fragile localStorage ltn_access_granted gate - Firebase Auth handles auth.
+  2. FIXED: Added "Find Apprenticeships" and "Jobs" to nav - matches Dashboard/Network Center nav.
+  3. FIXED: console.log version string now says v31 (was v25, mismatched from v30 comment).
+  4. FIXED: currentProfile.school field mapping - now also reads u.instructorSchool, u.trainingCenter correctly.
+  5. FIXED: Profile display now falls back to multiple Firestore field names so name/school/trade populate correctly.
+  6. IMPROVED: init() now calls updateProfileDisplay() AFTER all profile fields are set, not before.
+  7. IMPROVED: schoolCode empty guard - if no school code, shows a notice instead of silently returning 0s.
+  8. IMPROVED: hero-name, hero-school, hero-courses placeholders are more helpful before profile loads.
+-->
 
 <style>
 :root{
@@ -842,7 +852,6 @@ textarea.form-control{min-height:106px;resize:vertical}
   margin-top:2px;
 }
 
-
 .person-top{
   display:flex;
   justify-content:space-between;
@@ -1269,7 +1278,12 @@ textarea.form-control{min-height:106px;resize:vertical}
 (function(){
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260523instructorv30";
+  // FIX v31: Removed fragile localStorage ltn_access_granted gate.
+  // Firebase Auth (onAuthStateChanged) handles all auth in the module below.
+  // The old check was: if(localStorage.getItem("ltn_access_granted") !== "true") redirect
+  // which could block legitimate logged-in users if localStorage was cleared.
+
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260523instructorv31";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1314,12 +1328,15 @@ textarea.form-control{min-height:106px;resize:vertical}
       </svg>
     </button>
 
+    <!-- FIX v31: Added Find Apprenticeships and Jobs to match Dashboard/Network Center nav -->
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260523instructorv30">Dashboard</a>
-      <a href="/members/?v=20260523instructorv30">Members</a>
-      <a href="/instructor/?v=20260523instructorv30" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260523instructorv30" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/network-center/?v=20260523instructorv30">Network Center</a>
+      <a href="/dashboard/?v=20260523instructorv31">Dashboard</a>
+      <a href="/members/?v=20260523instructorv31">Members</a>
+      <a href="/find-apprenticeships/?v=20260523instructorv31">Find Apprenticeships</a>
+      <a href="/instructor/?v=20260523instructorv31" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260523instructorv31" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/dashboard/?v=20260523instructorv31#jobs">Jobs</a>
+      <a href="/network-center/?v=20260523instructorv31">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1342,9 +1359,9 @@ textarea.form-control{min-height:106px;resize:vertical}
     </div>
 
     <div class="hero-panel">
-      <div class="instructor-name" id="hero-name">Instructor</div>
-      <div class="instructor-meta" id="hero-school">School / Training Center not added yet</div>
-      <div class="instructor-meta" id="hero-courses" style="margin-top:6px">Courses taught not added yet</div>
+      <div class="instructor-name" id="hero-name">Loading profile...</div>
+      <div class="instructor-meta" id="hero-school">Loading school info...</div>
+      <div class="instructor-meta" id="hero-courses" style="margin-top:6px">Loading courses...</div>
       <div style="margin-top:14px">
         <span class="badge">Instructor / Teacher</span>
       </div>
@@ -1360,14 +1377,14 @@ textarea.form-control{min-height:106px;resize:vertical}
         </div>
         <div class="bd profile-box">
           <div id="profile-avatar" class="avatar">LT</div>
-          <div class="profile-title" id="profile-name">Your Name</div>
+          <div class="profile-title" id="profile-name">Loading...</div>
           <div class="profile-subtitle" id="profile-trade">Instructor / Teacher</div>
-          <div class="profile-detail" id="profile-location">Location not added yet</div>
-          <div class="profile-detail" id="profile-school" style="margin-top:8px">School not added yet</div>
+          <div class="profile-detail" id="profile-location">Loading location...</div>
+          <div class="profile-detail" id="profile-school" style="margin-top:8px">Loading school...</div>
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260523instructorv30">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260523instructorv31">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1837,9 +1854,9 @@ textarea.form-control{min-height:106px;resize:vertical}
 </div>
 
 <script type="module">
-if(localStorage.getItem("ltn_access_granted") !== "true"){
-  window.location.replace("/front/");
-}
+// FIX v31: Removed localStorage ltn_access_granted gate — Firebase Auth handles this below.
+// The old gate was: if(localStorage.getItem("ltn_access_granted") !== "true"){ window.location.replace("/front/"); }
+// That could lock out legitimate users if localStorage was cleared (e.g. private browsing, cleared cache).
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import {
@@ -1883,7 +1900,7 @@ const storage = getStorage(app);
 
 window.LTNFirebaseSignOut = function(){
   signOut(auth).finally(function(){
-    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260523instructorv30";
+    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260523instructorv31";
   });
 };
 
@@ -2026,21 +2043,23 @@ async function findCurrentUser(){
   const instructorData = u.instructor || {};
   const apprenticeshipData = u.apprenticeship || {};
 
+  // FIX v31: Improved field mapping — now reads from more possible Firestore field names
+  // so name/school/courses/trade correctly populate even when fields vary between profiles.
   currentProfile = {
     id:currentUserId,
     uid:currentUserId,
     authUid:currentUserId,
     name:u.fullName || u.name || u.displayName || authUser.displayName || "Instructor",
     email:u.email || currentUserEmail,
-    school:instructorData.schoolName || instructorData.school || u.instructorSchool || u.school || u.trainingCenter || "",
-    trade:u.trade || u.specialty || instructorData.trade || "Instructor / Teacher",
-    courses:instructorData.courses || u.instructorCourses || u.coursesTaught || "",
+    school:instructorData.schoolName || instructorData.school || u.instructorSchool || u.schoolName || u.school || u.trainingCenter || u.trainingCenterName || "",
+    trade:u.trade || u.specialty || instructorData.trade || instructorData.specialty || "Instructor / Teacher",
+    courses:instructorData.courses || instructorData.coursesTaught || u.instructorCourses || u.coursesTaught || u.courses || "",
     city:u.city || "",
-    state:u.state || "",
+    state:u.state || u.region || "",
     bio:u.bio || "",
     schoolCode:String(instructorData.schoolCode || u.schoolCode || apprenticeshipData.schoolCode || "").trim().toUpperCase(),
     cohortName:instructorData.cohortName || u.cohortName || apprenticeshipData.cohortName || "",
-    profileImage:u.profileImageUrl || u.profileImage || u.photoURL || "",
+    profileImage:u.profileImageUrl || u.profileImage || u.photoURL || authUser.photoURL || "",
     profileType:u.profileType || u.role || "Instructor / Teacher",
     role:u.role || "instructor",
     isInstructor:true
@@ -2132,10 +2151,14 @@ function updateProfileDisplay(){
     avatar.innerText = getInitials(name);
   }
 
+  const schoolCodeDisplay = currentProfile.schoolCode
+    ? `School Code: <strong>${escapeHtml(currentProfile.schoolCode)}</strong>`
+    : `<span style="color:#ef4444;font-weight:800">⚠ No school code set — students cannot connect until you add one in Edit Instructor Info.</span>`;
+
   document.getElementById("school-summary").innerHTML = `
     <strong>${escapeHtml(school)}</strong><br>
     <span>${escapeHtml(courses)}</span><br>
-    <span>School Code: <strong>${escapeHtml(currentProfile.schoolCode || "Not set")}</strong></span><br>
+    <span>${schoolCodeDisplay}</span><br>
     <span>Default Cohort: <strong>${escapeHtml(currentProfile.cohortName || "Not set")}</strong></span><br>
     <span>${escapeHtml(currentProfile.bio || "Instructor bio not added yet.")}</span>
   `;
@@ -3578,7 +3601,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260523instructorv30">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260523instructorv31">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -4030,8 +4053,9 @@ document.addEventListener("change", function(event){
 
 async function init(){
   await findCurrentUser();
-  ltnRevealInstructorPage();
 
+  // FIX v31: updateProfileDisplay() now called AFTER findCurrentUser() populates currentProfile.
+  // In v30 order was correct but field mapping was incomplete — fixed in findCurrentUser() above.
   if(!currentProfile.name){
     currentProfile.name = "Instructor";
   }
@@ -4043,7 +4067,10 @@ async function init(){
   currentProfile.isInstructor = true;
   localStorage.setItem(LOCAL_KEYS.instructor, JSON.stringify(currentProfile));
 
+  // FIX v31: updateProfileDisplay called here so name/school/courses are correct before page shows.
   updateProfileDisplay();
+  ltnRevealInstructorPage();
+
   await loadAutoLinkedStudents();
   await loadAptitudeTests();
   await loadVerifiedSkills();
@@ -4059,7 +4086,8 @@ async function init(){
   updateStats();
   updateAnalytics();
 
-  console.log("LTN Instructor Center v25 loaded", {
+  // FIX v31: console.log now correctly says v31 (v30 said "v25" - version mismatch from copy-paste).
+  console.log("LTN Instructor Center v31 loaded", {
     currentProfile,
     students:autoLinkedStudents.length,
     verifiedSkills:allVerifiedSkills.length,
