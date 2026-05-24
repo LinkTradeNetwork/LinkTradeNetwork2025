@@ -8,9 +8,17 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="ltn-version" content="apprenticeship-dashboard-training-units-v51-clean">
+  <meta name="ltn-version" content="apprenticeship-dashboard-training-units-v52-full-clean">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-training-units-v51-clean -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-training-units-v52-full-clean -->
+  <!-- FIXES v52 FULL CLEAN:
+    1. FORCE UPDATE: all dashboard route cache strings updated from v51 to v52.
+    2. STRONG FIX: total proof count now includes certifications, skills, projects, signed work proof, and assignment submissions.
+    3. STRONG FIX: approved/pending/rejected totals now fall back to local proof status if pendingReviews has not loaded yet.
+    4. STRONG FIX: enforceApprenticeAccess() is now called after Firebase profile load.
+    5. STRONG FIX: window.LTNDebugSave() added to confirm live page version, user, proof counts, training units, and save key.
+    6. PRESERVED: original v51 dashboard structure and Firebase workflow kept intact.
+  -->
   <!-- FIXES v51 CLEAN:
     1. STRONG FIX: trainingUnits now loads built-in fallback units immediately, then refreshes from Firestore.
     2. STRONG FIX: window.trainingUnits is always set for Console debugging and dropdown rendering.
@@ -662,7 +670,6 @@
       font-weight:900;
     }
 
-
     .danger-zone{
       background:var(--danger-soft);
       border:1px solid #fecdd3;
@@ -888,8 +895,6 @@
       margin-top:10px;
     }
 
-
-
     .unit-helper{
       background:#eef6ff;
       border:1px solid #cbe0f4;
@@ -1008,12 +1013,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260524trainingv51'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260524trainingv51'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260524trainingv52'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260524trainingv52'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260524trainingv51'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260524trainingv51'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260524trainingv52'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260524trainingv52'">Back</button>
   </div>
 </div>
 
@@ -1059,7 +1064,6 @@
       <div class="label">Trade School / Training Center</div>
       <div class="value small-value" id="userTradeSchool">Not added</div>
       <div class="small">Connected to your progress profile</div>
-
     </div>
 
     <div class="card">
@@ -1296,10 +1300,6 @@
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
 
-  // FIX v47: `limit` is now imported above. In v46 it was missing from the import list,
-  // which caused every Firestore query using limit() to crash silently with "limit is not defined".
-  // This broke: loadInstructorAssignments, loadVerifiedSkills, loadPendingReviews, loadFirebaseProfile.
-
   const firebaseConfig = {
     apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
     authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
@@ -1317,7 +1317,8 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v51";
+  const LOCAL_PROGRESS_VERSION = "v52";
+  const LTN_PAGE_VERSION = "apprenticeship-dashboard-training-units-v52-full-clean";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1325,7 +1326,7 @@
   let instructorAssignments = [];
   let trainingUnits = [];
   window.trainingUnits = trainingUnits;
-  window.LTN_VERSION = "apprenticeship-dashboard-training-units-v51-clean";
+  window.LTN_VERSION = LTN_PAGE_VERSION;
   let state = getEmptyState();
 
   function getEmptyState(){
@@ -1396,6 +1397,9 @@
 
   function oldProgressKeys(uid){
     return [
+      `ltn_apprenticeship_progress_${uid}_v51`,
+      `ltn_apprenticeship_progress_${uid}_v50`,
+      `ltn_apprenticeship_progress_${uid}_v49`,
       `ltn_apprenticeship_progress_${uid}_v48`,
       `ltn_apprenticeship_progress_${uid}_v47`,
       `ltn_apprenticeship_progress_${uid}_v46`,
@@ -1471,8 +1475,7 @@
       return null;
     }
   }
-
-  function normalizeStoredProfile(data){
+    function normalizeStoredProfile(data){
     if(!data || typeof data !== "object") return {};
 
     const apprentice = data.apprenticeship && typeof data.apprenticeship === "object" ? data.apprenticeship : {};
@@ -1715,7 +1718,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260524trainingv51";
+      window.location.href = "/instructor/?v=20260524trainingv52";
       return false;
     }
 
@@ -1730,11 +1733,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260524trainingv51";
+      window.location.href = "/instructor/?v=20260524trainingv52";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260524trainingv51";
+    window.location.href = "/apprenticeship/?v=20260524trainingv52";
     return false;
   };
 
@@ -1743,7 +1746,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260524trainingv51");
+      window.location.replace("/instructor/?v=20260524trainingv52");
       return false;
     }
 
@@ -1759,6 +1762,7 @@
       try{
         await setDoc(doc(db,"users",currentUserId),{
           apprenticeship:profile.apprenticeship,
+          isApprentice:true,
           updatedAt:serverTimestamp()
         },{merge:true});
       }catch(error){
@@ -1788,7 +1792,6 @@
     if(hours > 0) return "Level 1 Apprentice";
     return "New Apprentice";
   }
-
 
   function defaultTrainingUnits(){
     return [
@@ -1880,12 +1883,6 @@
   }
 
   async function loadTrainingUnits(){
-    /*
-      v51 CLEAN STRONG LOADER:
-      1. Immediately loads fallback units so GitHub/cache/Firebase delays cannot leave the dropdown stuck.
-      2. Then attempts Firestore trainingUnits.
-      3. Always writes to window.trainingUnits so Console can verify with window.LTNDebugUnits().
-    */
     trainingUnits = defaultTrainingUnits();
     window.trainingUnits = trainingUnits;
     renderTrainingUnitSelectors();
@@ -1904,7 +1901,7 @@
         trainingUnits = firebaseUnits;
       }
     }catch(error){
-      console.warn("Could not load Firestore training units. Using built-in v51 units:", error);
+      console.warn("Could not load Firestore training units. Using built-in v52 units:", error);
     }
 
     trainingUnits.sort((a,b) => {
@@ -1917,7 +1914,17 @@
     renderTrainingUnitSelectors();
     renderUnitProgress();
 
-    console.log("LTN v51 training units loaded:", trainingUnits.length, trainingUnits);
+    console.log("LTN v52 training units loaded:", trainingUnits.length, trainingUnits);
+  }
+
+  function allLocalProofs(){
+    return [
+      ...normalizeArray(state.certificationProofs),
+      ...normalizeArray(state.skillProofs),
+      ...normalizeArray(state.projectProofs),
+      ...normalizeArray(state.signedWorkProofs),
+      ...normalizeArray(state.assignmentSubmissions)
+    ];
   }
 
   function calculateTrainingUnitProgress(){
@@ -1999,6 +2006,39 @@
     `).join("");
   }
 
+  function proofCount(){
+    return allLocalProofs().length;
+  }
+
+  function reviewCountByStatus(status){
+    return state.pendingReviews.filter(review => String(review.status || "").toLowerCase() === status).length;
+  }
+
+  function approvedProofCount(){
+    const reviewCount = reviewCountByStatus("approved");
+    if(reviewCount > 0) return reviewCount;
+    return allLocalProofs().filter(proof => {
+      const status = getProofStatus(proof);
+      return status === "approved" || status === "verified";
+    }).length;
+  }
+
+  function rejectedProofCount(){
+    const reviewCount = reviewCountByStatus("rejected");
+    if(reviewCount > 0) return reviewCount;
+    return allLocalProofs().filter(proof => getProofStatus(proof) === "rejected").length;
+  }
+
+  function pendingReviewCount(){
+    const reviewCount = reviewCountByStatus("pending");
+    if(reviewCount > 0) return reviewCount;
+    return allLocalProofs().filter(proof => getProofStatus(proof) === "pending").length;
+  }
+
+  function pendingProofCount(){
+    return pendingReviewCount();
+  }
+
   function buildBadges(){
     const badges = [];
 
@@ -2020,10 +2060,6 @@
     if(proofCount() > 0) badges.push("Signed Proof Added");
 
     state.badgesEarned = badges;
-  }
-
-  function proofCount(){
-    return state.signedWorkProofs.length + state.assignmentSubmissions.length || Number(state.jobsiteUploads || 0);
   }
 
   function validateFile(file){
@@ -2119,34 +2155,6 @@
     return `<span class="status-pill status-pending">Pending Instructor Verification</span>`;
   }
 
-  function pendingProofCount(){
-    const allProofs = [
-      ...state.certificationProofs,
-      ...state.skillProofs,
-      ...state.projectProofs,
-      ...state.signedWorkProofs,
-      ...state.assignmentSubmissions
-    ];
-
-    return allProofs.filter(proof => getProofStatus(proof) === "pending").length;
-  }
-
-  function reviewCountByStatus(status){
-    return state.pendingReviews.filter(review => String(review.status || "").toLowerCase() === status).length;
-  }
-
-  function approvedProofCount(){
-    return reviewCountByStatus("approved");
-  }
-
-  function rejectedProofCount(){
-    return reviewCountByStatus("rejected");
-  }
-
-  function pendingReviewCount(){
-    return reviewCountByStatus("pending");
-  }
-
   async function createPendingReview(reviewType, uploadTitle, proofData, extraData = {}){
     if(!currentUserId){
       throw new Error("You must be signed in before submitting proof for instructor review.");
@@ -2204,14 +2212,13 @@
       reviewedDate:"",
       submittedAt:serverTimestamp(),
       submittedAtIso:nowIso,
-      source:"track_my_progress",
+      source:"track_my_progress_v52",
+      ltnDashboardVersion:LTN_PAGE_VERSION,
       ...extraData
     };
 
     await addDoc(collection(db,"pendingReviews"), reviewPayload);
   }
-
-
 
   function calculateEmployerReadyScore(metrics){
     let score = 0;
@@ -2265,7 +2272,7 @@
       profileCompleted,
       status:"active",
       lastUpdated:serverTimestamp(),
-      updatedBy:"apprenticeship_dashboard",
+      updatedBy:"apprenticeship_dashboard_v52",
       employerReadyScore:0
     };
     payload.employerReadyScore = calculateEmployerReadyScore(payload);
@@ -2273,19 +2280,16 @@
   }
 
   async function syncTradePassport(activityType = "student_sync", title = "Trade Passport updated"){
-    // v43 SPEED FIX: Trade Passport auto-sync disabled on Track My Progress.
-    // This removes extra Firestore writes that were slowing the page down.
     return;
   }
 
   function renderTradePassport(){
-    // v43 SPEED FIX: Employer-ready Trade Passport section removed for faster loading.
     return;
   }
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260524trainingv51");
+      window.location.replace("/front/?v=secureauth20260524trainingv52");
       return;
     }
 
@@ -2340,6 +2344,7 @@
       assignmentSubmissions:state.assignmentSubmissions,
       jobsiteUploads:proofCount(),
       signedProofCount:proofCount(),
+      totalProofUploaded:proofCount(),
       trainingUnitProgress,
       approvedProofCount:approvedProofCount(),
       pendingReviewCount:pendingReviewCount(),
@@ -2354,6 +2359,7 @@
       updatedAt:state.updatedAt,
       updatedAtIso:nowIso,
       updatedAtServer:serverTimestamp(),
+      ltnDashboardVersion:LTN_PAGE_VERSION,
       apprenticeshipProgress:{
         hoursCompleted:state.hoursCompleted,
         totalHours:state.hoursCompleted,
@@ -2372,6 +2378,7 @@
         assignmentSubmissions:state.assignmentSubmissions,
         jobsiteUploads:proofCount(),
         signedProofCount:proofCount(),
+        totalProofUploaded:proofCount(),
         trainingUnitProgress,
         approvedProofCount:approvedProofCount(),
         pendingReviewCount:pendingReviewCount(),
@@ -2382,7 +2389,8 @@
         aptitudeStatus:state.aptitudeTest ? normalizeAptitudeStatus(state.aptitudeTest)?.status || "Pending" : "Pending",
         aptitudePassed:state.aptitudeTest ? normalizeAptitudeStatus(state.aptitudeTest)?.passed === true : false,
         badgesEarned:state.badgesEarned,
-        updatedAt:nowIso
+        updatedAt:nowIso,
+        ltnDashboardVersion:LTN_PAGE_VERSION
       }
     };
 
@@ -2391,7 +2399,7 @@
     try{
       await setDoc(doc(db,"users",currentUserId),payload,{merge:true});
       await syncTradePassport("progress_saved","Student progress saved");
-      setStatus("saveStatus","Saved securely. Trade Passport synced. New proof stays pending until instructor verification.","ok");
+      setStatus("saveStatus","Saved securely. New proof stays pending until instructor verification.","ok");
       $("syncStatus").textContent = "Online save complete";
     }catch(error){
       console.error(error);
@@ -2399,8 +2407,7 @@
       $("syncStatus").textContent = "Device save complete";
     }
   };
-
-  function renderProfile(){
+    function renderProfile(){
     const name = getProfileName(profile);
     const trade = getProfileTrade(profile);
     const location = getLocation(profile);
@@ -2426,6 +2433,7 @@
       ${cohortName ? `<div class="profile-detail"><b>Cohort / Class:</b> ${safe(cohortName)}</div>` : ""}
       <div class="profile-detail"><b>Location:</b> ${safe(location)}</div>
       <div class="profile-detail"><b>Secure Access:</b> This page only loads data for the signed-in Firebase user.</div>
+      <div class="profile-detail"><b>Version:</b> ${safe(LTN_PAGE_VERSION)}</div>
     `;
   }
 
@@ -3103,8 +3111,7 @@
         `).join("")
       : `<div class="empty">No signed work proof uploaded yet.</div>`;
   }
-
-  function mergeFirebaseProgress(firebaseProfile){
+    function mergeFirebaseProgress(firebaseProfile){
     const p = firebaseProfile.apprenticeshipProgress || {};
 
     state.hoursCompleted = Number(firebaseProfile.hoursCompleted ?? firebaseProfile.totalHours ?? p.hoursCompleted ?? state.hoursCompleted ?? 0) || 0;
@@ -3117,7 +3124,7 @@
     state.projectProofs = normalizeArray(firebaseProfile.projectProofs).length ? normalizeArray(firebaseProfile.projectProofs) : normalizeArray(p.projectProofs).length ? normalizeArray(p.projectProofs) : state.projectProofs;
     state.signedWorkProofs = normalizeArray(firebaseProfile.signedWorkProofs).length ? normalizeArray(firebaseProfile.signedWorkProofs) : normalizeArray(p.signedWorkProofs).length ? normalizeArray(p.signedWorkProofs) : state.signedWorkProofs;
     state.assignmentSubmissions = normalizeArray(firebaseProfile.assignmentSubmissions).length ? normalizeArray(firebaseProfile.assignmentSubmissions) : normalizeArray(p.assignmentSubmissions).length ? normalizeArray(p.assignmentSubmissions) : state.assignmentSubmissions;
-    state.jobsiteUploads = Number(firebaseProfile.signedProofCount ?? firebaseProfile.jobsiteUploads ?? firebaseProfile.verifiedPhotos ?? p.signedProofCount ?? p.jobsiteUploads ?? p.verifiedPhotos ?? state.jobsiteUploads ?? state.signedWorkProofs.length ?? 0) || 0;
+    state.jobsiteUploads = Number(firebaseProfile.signedProofCount ?? firebaseProfile.jobsiteUploads ?? firebaseProfile.totalProofUploaded ?? firebaseProfile.verifiedPhotos ?? p.signedProofCount ?? p.jobsiteUploads ?? p.totalProofUploaded ?? p.verifiedPhotos ?? state.jobsiteUploads ?? state.signedWorkProofs.length ?? 0) || 0;
     state.badgesEarned = normalizeArray(firebaseProfile.badgesEarned).length ? normalizeArray(firebaseProfile.badgesEarned) : normalizeArray(p.badgesEarned).length ? normalizeArray(p.badgesEarned) : state.badgesEarned;
     state.aptitudeTest = firebaseProfile.aptitudeTest && typeof firebaseProfile.aptitudeTest === "object"
       ? firebaseProfile.aptitudeTest
@@ -3128,13 +3135,6 @@
   }
 
   async function loadFirebaseProfile(uid){
-    /*
-      v48 SOURCE OF TRUTH FIX:
-      Edit Profile saves the latest name to users/{uid}. Older copies can still exist in
-      profiles/{uid} or email-matched legacy records. We load those first for fallback fields,
-      then ALWAYS merge users/{uid} last so a new name like "Jill Summer" cannot be overwritten
-      by an older "Student01" profile copy.
-    */
     const fallbackProfiles = [];
     let primaryUserProfile = null;
 
@@ -3193,10 +3193,6 @@
 
       saveProfileCacheStrong(profile);
 
-      /*
-        If the primary user doc has the updated name, mirror it into profiles/{uid} too.
-        This prevents the old profile record from causing the same mismatch later.
-      */
       try{
         if(primaryUserProfile && currentUserId){
           const latestName = getProfileName(profile);
@@ -3215,6 +3211,7 @@
             country:profile.country || "",
             schoolCode:getSchoolCode(profile),
             apprenticeship:profile.apprenticeship || {},
+            ltnDashboardVersion:LTN_PAGE_VERSION,
             updatedAt:serverTimestamp()
           },{merge:true});
         }
@@ -3488,7 +3485,7 @@
       await createPendingReview("Signed Work Proof", title, proof, unitInfo);
       await syncTradePassport("signed_proof_uploaded", "Signed work proof uploaded");
 
-      state.jobsiteUploads = state.signedWorkProofs.length;
+      state.jobsiteUploads = proofCount();
       titleInput.value = "";
       if(fileInput) fileInput.value = "";
       if($("signedProofUnitSelect")) $("signedProofUnitSelect").value = "";
@@ -3510,7 +3507,7 @@
     if(!confirm("Delete this signed proof entry?")) return;
 
     state.signedWorkProofs.splice(index,1);
-    state.jobsiteUploads = state.signedWorkProofs.length;
+    state.jobsiteUploads = proofCount();
     renderProgress();
     await saveToFirebase();
     renderProgress();
@@ -3535,10 +3532,12 @@
 
     const backup = {
       exportedAt:new Date().toISOString(),
+      version:LTN_PAGE_VERSION,
       uid:currentUserId,
       email:currentUserEmail,
       profile,
       instructorAssignments,
+      trainingUnits,
       progress:state
     };
 
@@ -3547,7 +3546,7 @@
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = `ltn-apprenticeship-progress-${currentUserId}.json`;
+    link.download = `ltn-apprenticeship-progress-${currentUserId}-v52.json`;
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -3559,9 +3558,6 @@
     document.documentElement.classList.add("auth-ready");
   }
 
-  // FIX v47: loadBackgroundInstructorData is now ACTUALLY CALLED after profile loads.
-  // In v46 this function was defined but never invoked — meaning assignments, verified skills,
-  // pending reviews, and aptitude tests never loaded for any user.
   async function loadBackgroundInstructorData(){
     try{
       $("syncStatus").textContent = "Loading assignments and verified skills...";
@@ -3577,13 +3573,12 @@
       buildBadges();
       renderProgress();
       $("syncStatus").textContent = "Signed in securely";
-      setStatus("saveStatus","Track My Progress fully loaded including instructor assignments and verified skills.","ok");
+      setStatus("saveStatus","Track My Progress fully loaded including instructor assignments, reviews, training units, and verified skills.","ok");
     }catch(error){
       console.warn("Background instructor data load issue:", error);
       $("syncStatus").textContent = "Loaded. Use Refresh Instructor Data if needed.";
     }
   }
-
 
   window.LTNDebugUnits = function(){
     console.log("LTN VERSION:", window.LTN_VERSION || "missing");
@@ -3594,20 +3589,38 @@
     return window.trainingUnits;
   };
 
-  // FIX v47: onAuthStateChanged — role is NOT hardcoded as apprentice here.
-  // Only uid/email/displayName come from the auth object.
-  // Role, profileType, and isApprentice are determined by Firebase profile data.
+  window.LTNDebugSave = function(){
+    const debug = {
+      version:LTN_PAGE_VERSION,
+      windowVersion:window.LTN_VERSION || "",
+      localProgressVersion:LOCAL_PROGRESS_VERSION,
+      currentUserId,
+      currentUserEmail,
+      profileName:getProfileName(profile),
+      role:getProfileRole(profile),
+      accessType:getCurrentAccessType(profile || {}),
+      localProgressKey:progressKey(),
+      hoursCompleted:state.hoursCompleted,
+      totalProofUploaded:proofCount(),
+      approvedProofCount:approvedProofCount(),
+      pendingReviewCount:pendingReviewCount(),
+      rejectedProofCount:rejectedProofCount(),
+      trainingUnitsLoaded:trainingUnits.length,
+      timestamp:new Date().toISOString()
+    };
+    console.log("LTN v52 SAVE DEBUG:", debug);
+    return debug;
+  };
+
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260524trainingv51");
+      window.location.replace("/front/?v=secureauth20260524trainingv52");
       return;
     }
 
     currentUserId = user.uid;
     currentUserEmail = user.email || "";
 
-    // FIX v47: Do NOT set role, profileType, or isApprentice here.
-    // These come from Firebase. Setting them here overwrites the real role before it loads.
     const authProfile = normalizeStoredProfile({
       uid:user.uid,
       authUid:user.uid,
@@ -3626,14 +3639,14 @@
     saveProfileCacheStrong(profile);
     loadLocalProgressForUser(user.uid);
 
-    // STRONG INSTANT LOAD: render first from local/cache/auth so the dashboard does not stay blank.
+    await loadTrainingUnits();
+
     renderProfile();
     renderProgress();
     showPage();
     $("syncStatus").textContent = "Opening profile...";
     setStatus("saveStatus","Track My Progress opened. Loading your profile from Firebase...","info");
 
-    // STRONG FIREBASE REFRESH: pull users/{uid}, profiles/{uid}, and email match, then re-render.
     try{
       await loadFirebaseProfile(user.uid);
       profile.uid = user.uid;
@@ -3643,26 +3656,19 @@
       renderProfile();
       renderProgress();
       $("syncStatus").textContent = "Profile loaded";
-      setStatus("saveStatus","Profile loaded. Loading instructor assignments and verified skills...","info");
+      setStatus("saveStatus","Profile loaded. Checking access and loading instructor assignments and verified skills...","info");
     }catch(error){
       console.warn("Strong profile load failed:", error);
       $("syncStatus").textContent = "Device profile loaded";
       setStatus("saveStatus","Using saved profile from this device. Online profile did not load yet.","bad");
     }
 
-    // FIX v47: Route check happens AFTER Firebase profile loads so the role is accurate.
-    if(hasExactInstructorSignal(profile) && !hasApprenticeSignal(profile)){
-      alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260524trainingv51");
-      return;
-    }
+    const allowed = await enforceApprenticeAccess(profile);
+    if(!allowed) return;
 
-    // FIX v47: NOW we actually call loadBackgroundInstructorData.
-    // This was missing in v46 — the function existed but was never invoked.
     await loadBackgroundInstructorData();
   });
 
-  // FIX v47: Timeout bumped from 2500ms to 4500ms for slow connections.
   setTimeout(function(){
     if(document.documentElement.classList.contains("auth-checking")){
       document.documentElement.classList.remove("auth-checking");
@@ -3672,8 +3678,8 @@
     }
   },4500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v51 CLEAN - original full code patched, not rebuilt");
+  console.log("LTN Apprenticeship Dashboard Loaded v52 FULL CLEAN - original full code patched");
 </script>
 
 </body>
-</html> 
+</html>
