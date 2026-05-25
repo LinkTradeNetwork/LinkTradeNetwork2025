@@ -5,21 +5,6 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6CYFMPH84F"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <script>
-(function(){
-  // LTN v57: If any old instructor link is opened, force the browser to the clean production cache version.
-  try{
-    var cleanVersion = "20260525v57";
-    var params = new URLSearchParams(window.location.search || "");
-    var currentVersion = String(params.get("v") || "");
-    if(currentVersion && currentVersion !== cleanVersion){
-      params.set("v", cleanVersion);
-      var nextUrl = window.location.pathname + "?" + params.toString() + window.location.hash;
-      window.history.replaceState({}, document.title, nextUrl);
-    }
-  }catch(e){}
-})();
-</script>
-<script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag("js", new Date());
@@ -31,18 +16,18 @@
 <title>Instructor Center • LinkTradeNetwork</title>
 
 <!--
-GITHUB COMMIT v57:
-fix(instructor): force instructor index v57 and prevent stale avatar cache
-- Renamed all page cache versions to 20260525v57
-- Kept instructor route/name as /instructor/ and output file as instructor.html
-- Changed auth-checking display behavior so a stalled Firebase import cannot leave a white screen
-- Added a small blank-page guard while preserving Firebase instructor authorization checks
+GITHUB COMMIT v59:
+fix(instructor): restore full instructor page and force profile image carryover
+- Updated all cache versions to 20260525v59
+- Kept instructor route as /instructor/index.html
+- Added aggressive profile image lookup from Firestore, nested instructor/profile fields, Auth photoURL, localStorage, and Firebase Storage paths
+- Prevents stale avatar initials when a saved profile photo exists
 -->
 
-<!-- GITHUB COMMIT: fix(instructor): professional cache version and blank page repair -->
-<!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER PRODUCTION v57 -->
-<!-- LTN VERSION: instructor-center-production-v57 -->
-<!-- FIXES v57:
+<!-- GITHUB COMMIT: fix(instructor): force instructor profile image carryover v59 -->
+<!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER FULL PROFILE IMAGE v59 -->
+<!-- LTN VERSION: instructor-center-full-profile-image-v59 -->
+<!-- FIXES v52:
   1. Replaced old public cache/version labels so the URL no longer needs to show production.
   2. Fixed blank page JavaScript crash caused by duplicate const exportBtn inside the student progress modal function.
   3. Kept Trade Passport PDF export and instructor workflow intact.
@@ -1434,7 +1419,7 @@ textarea.form-control{min-height:106px;resize:vertical}
   // The old check was: if(localStorage.getItem("ltn_access_granted") !== "true") redirect
   // which could block legitimate logged-in users if localStorage was cleared.
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525v57";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525v59";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1466,7 +1451,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 })();
 </script>
 <script>
-/* LTN v57 blank-page guard: keeps Instructor visible even if a Firebase/CDN import stalls. */
+/* LTN v59 blank-page guard: keeps Instructor visible even if a Firebase/CDN import stalls. */
 window.setTimeout(function(){
   try{
     document.documentElement.classList.remove("auth-checking");
@@ -1490,13 +1475,13 @@ window.setTimeout(function(){
 
     <!-- FIX v31: Added Find Apprenticeships and Jobs to match Dashboard/Network Center nav -->
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260525v57">Dashboard</a>
-      <a href="/members/?v=20260525v57">Members</a>
-      <a href="/find-apprenticeships/?v=20260525v57">Find Apprenticeships</a>
-      <a href="/instructor/?v=20260525v57" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260525v57" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/dashboard/?v=20260525v57#jobs">Jobs</a>
-      <a href="/network-center/?v=20260525v57">Network Center</a>
+      <a href="/dashboard/?v=20260525v59">Dashboard</a>
+      <a href="/members/?v=20260525v59">Members</a>
+      <a href="/find-apprenticeships/?v=20260525v59">Find Apprenticeships</a>
+      <a href="/instructor/?v=20260525v59" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260525v59" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/dashboard/?v=20260525v59#jobs">Jobs</a>
+      <a href="/network-center/?v=20260525v59">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1544,7 +1529,7 @@ window.setTimeout(function(){
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260525v57">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260525v59">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -2064,7 +2049,8 @@ import {
   getStorage,
   ref,
   uploadBytes,
-  getDownloadURL
+  getDownloadURL,
+  listAll
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
 
 const firebaseConfig = {
@@ -2081,7 +2067,7 @@ const storage = getStorage(app);
 
 window.LTNFirebaseSignOut = function(){
   signOut(auth).finally(function(){
-    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525v57";
+    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525v59";
   });
 };
 
@@ -2109,6 +2095,168 @@ function safeJsonParse(value, fallback){
 
 function normalizeEmail(value){
   return String(value || "").trim().toLowerCase();
+}
+
+function cleanProfileImageUrl(value){
+  const raw = String(value || "").trim();
+  if(!raw) return "";
+  if(raw === "null" || raw === "undefined") return "";
+  return raw;
+}
+
+function looksLikeImageUrl(value){
+  const raw = cleanProfileImageUrl(value);
+  if(!raw) return false;
+  return (
+    raw.startsWith("http://") ||
+    raw.startsWith("https://") ||
+    raw.startsWith("data:image/") ||
+    raw.startsWith("blob:") ||
+    raw.startsWith("gs://") ||
+    raw.includes("firebasestorage.googleapis.com") ||
+    raw.includes("cloudinary.com") ||
+    raw.includes("profile") ||
+    raw.includes("avatar") ||
+    raw.includes("photo") ||
+    raw.includes("image")
+  );
+}
+
+function firstProfileImageFromObject(obj, depth = 0){
+  if(!obj || typeof obj !== "object" || depth > 4) return "";
+
+  const priorityKeys = [
+    "profileImageUrl","profileImageURL","profileImage","profilePhotoUrl","profilePhotoURL","profilePhoto",
+    "photoURL","photoUrl","photo","avatarUrl","avatarURL","avatar","imageUrl","imageURL","image",
+    "pictureUrl","pictureURL","picture","headshotUrl","headshotURL","headshot","logoUrl","logoURL","logo"
+  ];
+
+  for(const key of priorityKeys){
+    const value = obj[key];
+    if(typeof value === "string" && looksLikeImageUrl(value)) return cleanProfileImageUrl(value);
+    if(value && typeof value === "object"){
+      const nested = firstProfileImageFromObject(value, depth + 1);
+      if(nested) return nested;
+    }
+  }
+
+  const nestedKeys = ["profile","instructor","member","user","account","publicProfile","photo","avatar","image"];
+  for(const key of nestedKeys){
+    if(obj[key] && typeof obj[key] === "object"){
+      const nested = firstProfileImageFromObject(obj[key], depth + 1);
+      if(nested) return nested;
+    }
+  }
+
+  return "";
+}
+
+function getLocalProfileImageUrl(){
+  const directKeys = [
+    "profileImageUrl","profileImage","profilePhotoUrl","profilePhoto","photoURL","photoUrl",
+    "avatarUrl","avatar","userPhoto","ltn_profile_image","ltn_profile_photo","ltn_avatar_url"
+  ];
+
+  for(const key of directKeys){
+    try{
+      const value = localStorage.getItem(key);
+      if(value && looksLikeImageUrl(value)) return cleanProfileImageUrl(value);
+    }catch(e){}
+  }
+
+  const objectKeys = [
+    LOCAL_KEYS.instructor,
+    "ltn_current_profile","ltnUserProfile","ltn_profile","ltn_profile_data",
+    "currentUserProfile","userProfile","ltn_user","currentUser","firebaseUser"
+  ];
+
+  for(const key of objectKeys){
+    try{
+      const data = safeJsonParse(localStorage.getItem(key), null);
+      const found = firstProfileImageFromObject(data);
+      if(found) return found;
+    }catch(e){}
+  }
+
+  return "";
+}
+
+function cacheBustProfileImageUrl(url){
+  const raw = cleanProfileImageUrl(url);
+  if(!raw) return "";
+  if(raw.startsWith("data:image/") || raw.startsWith("blob:")) return raw;
+  const stamp = currentUserId || Date.now();
+  return raw + (raw.includes("?") ? "&" : "?") + "ltnAvatarV=20260525v59_" + encodeURIComponent(stamp);
+}
+
+async function resolveProfileImageUrl(rawUrl){
+  let url = cleanProfileImageUrl(rawUrl);
+  if(!url) return "";
+
+  if(url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:image/") || url.startsWith("blob:")){
+    return url;
+  }
+
+  try{
+    return await getDownloadURL(ref(storage, url));
+  }catch(e){
+    return url;
+  }
+}
+
+async function findProfileImageInStorage(uid){
+  if(!uid) return "";
+
+  const exactPaths = [
+    `profileImages/${uid}.jpg`,
+    `profileImages/${uid}.jpeg`,
+    `profileImages/${uid}.png`,
+    `profileImages/${uid}.webp`,
+    `profilePhotos/${uid}.jpg`,
+    `profilePhotos/${uid}.jpeg`,
+    `profilePhotos/${uid}.png`,
+    `profilePhotos/${uid}.webp`,
+    `avatars/${uid}.jpg`,
+    `avatars/${uid}.jpeg`,
+    `avatars/${uid}.png`,
+    `avatars/${uid}.webp`,
+    `users/${uid}/profile.jpg`,
+    `users/${uid}/profile.jpeg`,
+    `users/${uid}/profile.png`,
+    `users/${uid}/profile.webp`,
+    `users/${uid}/avatar.jpg`,
+    `users/${uid}/avatar.jpeg`,
+    `users/${uid}/avatar.png`,
+    `users/${uid}/avatar.webp`
+  ];
+
+  for(const path of exactPaths){
+    try{
+      const url = await getDownloadURL(ref(storage, path));
+      if(url) return url;
+    }catch(e){}
+  }
+
+  const folders = [
+    `profileImages/${uid}`,
+    `profilePhotos/${uid}`,
+    `avatars/${uid}`,
+    `users/${uid}`,
+    `userProfiles/${uid}`
+  ];
+
+  for(const folder of folders){
+    try{
+      const result = await listAll(ref(storage, folder));
+      const item = (result.items || []).find(fileRef => /\.(jpg|jpeg|png|webp|gif)$/i.test(fileRef.name)) || (result.items || [])[0];
+      if(item){
+        const url = await getDownloadURL(item);
+        if(url) return url;
+      }
+    }catch(e){}
+  }
+
+  return "";
 }
 
 function getStoredUser(){
@@ -2190,7 +2338,7 @@ async function findCurrentUser(){
 
   if(!authUser){
     LTNClearLocalSession();
-    window.location.replace("/front.html?v=20260525v57");
+    window.location.replace("/front.html?v=20260525v59");
     throw new Error("No authenticated Firebase user.");
   }
 
@@ -2210,7 +2358,7 @@ async function findCurrentUser(){
 
   if(!userSnap.exists()){
     alert("Instructor profile was not found for this signed-in account. Please complete your profile first.");
-    window.location.replace("/dashboard/?v=20260525v57");
+    window.location.replace("/dashboard/?v=20260525v59");
     throw new Error("No user profile document for current auth uid.");
   }
 
@@ -2218,7 +2366,7 @@ async function findCurrentUser(){
 
   if(!isFirestoreInstructorProfile(u)){
     alert("Instructor Center is only for instructor accounts. You are signed in as a student/apprentice/member account.");
-    window.location.replace("/dashboard/?v=20260525v57");
+    window.location.replace("/dashboard/?v=20260525v59");
     throw new Error("Current user is not an instructor.");
   }
 
@@ -2241,11 +2389,26 @@ async function findCurrentUser(){
     bio:u.bio || "",
     schoolCode:String(instructorData.schoolCode || u.schoolCode || apprenticeshipData.schoolCode || "").trim().toUpperCase(),
     cohortName:instructorData.cohortName || u.cohortName || apprenticeshipData.cohortName || "",
-    profileImage:u.profileImageUrl || u.profileImage || u.photoURL || authUser.photoURL || "",
+    profileImage:"",
     profileType:u.profileType || u.role || "Instructor / Teacher",
     role:u.role || "instructor",
     isInstructor:true
   };
+
+  let profileImageCandidate =
+    firstProfileImageFromObject(u) ||
+    firstProfileImageFromObject(instructorData) ||
+    getLocalProfileImageUrl() ||
+    cleanProfileImageUrl(authUser.photoURL || "");
+
+  profileImageCandidate = await resolveProfileImageUrl(profileImageCandidate);
+
+  if(!profileImageCandidate){
+    profileImageCandidate = await findProfileImageInStorage(currentUserId);
+  }
+
+  currentProfile.profileImage = profileImageCandidate || "";
+  currentProfile.profileImageUrl = profileImageCandidate || "";
 
   try{
     localStorage.setItem(LOCAL_KEYS.instructor, JSON.stringify(currentProfile));
@@ -2327,34 +2490,29 @@ function updateProfileDisplay(){
   document.getElementById("profile-school").innerText = school;
 
   const avatar = document.getElementById("profile-avatar");
-  const initials = getInitials(name);
+  const profileImageUrl =
+    cleanProfileImageUrl(currentProfile.profileImage) ||
+    cleanProfileImageUrl(currentProfile.profileImageUrl) ||
+    getLocalProfileImageUrl();
 
-  // LTN v57 avatar fix:
-  // Always show initials first, then load the newest Firebase image only after it is fully ready.
-  // This prevents the old cached picture from flashing for 1-2 seconds.
   avatar.innerHTML = "";
-  avatar.textContent = initials;
+  avatar.innerText = getInitials(name);
 
-  if(currentProfile.profileImage){
-    const profileImageUrl = String(currentProfile.profileImage || "").trim();
-    const cacheJoiner = profileImageUrl.includes("?") ? "&" : "?";
-    const cacheSafeUrl = profileImageUrl + cacheJoiner + "ltnAvatarRefresh=20260525v57";
+  if(profileImageUrl){
     const img = new Image();
-
+    img.alt = name;
+    img.decoding = "async";
+    img.loading = "eager";
+    img.referrerPolicy = "no-referrer";
     img.onload = function(){
       avatar.innerHTML = "";
       avatar.appendChild(img);
     };
-
     img.onerror = function(){
       avatar.innerHTML = "";
-      avatar.textContent = initials;
+      avatar.innerText = getInitials(name);
     };
-
-    img.alt = name;
-    img.decoding = "async";
-    img.loading = "eager";
-    img.src = cacheSafeUrl;
+    img.src = cacheBustProfileImageUrl(profileImageUrl);
   }
 
   const schoolCodeDisplay = currentProfile.schoolCode
@@ -3900,8 +4058,13 @@ window.InstructorCenter = {
             trade:currentProfile.trade,
             courses:currentProfile.courses,
             schoolCode:currentProfile.schoolCode,
-            cohortName:currentProfile.cohortName
+            cohortName:currentProfile.cohortName,
+          profileImageUrl:currentProfile.profileImage || currentProfile.profileImageUrl || "",
+          profileImage:currentProfile.profileImage || currentProfile.profileImageUrl || ""
           },
+          profileImageUrl:currentProfile.profileImage || currentProfile.profileImageUrl || "",
+          profileImage:currentProfile.profileImage || currentProfile.profileImageUrl || "",
+          photoURL:currentProfile.profileImage || currentProfile.profileImageUrl || "",
           updatedAt:serverTimestamp()
         },{merge:true});
       }catch(err){
@@ -4832,6 +4995,23 @@ async function init(){
 
   // FIX v31: updateProfileDisplay called here so name/school/courses are correct before page shows.
   updateProfileDisplay();
+
+  // FIX v59: If the profile picture was written by another page after this page loaded,
+  // pull it one more time from localStorage/Firebase Storage and refresh only the avatar.
+  setTimeout(async function(){
+    try{
+      if(!currentProfile.profileImage){
+        const lateImage = await resolveProfileImageUrl(getLocalProfileImageUrl()) || await findProfileImageInStorage(currentUserId);
+        if(lateImage){
+          currentProfile.profileImage = lateImage;
+          currentProfile.profileImageUrl = lateImage;
+          localStorage.setItem(LOCAL_KEYS.instructor, JSON.stringify(currentProfile));
+          updateProfileDisplay();
+        }
+      }
+    }catch(e){}
+  }, 500);
+
   ltnRevealInstructorPage();
 
   await loadAutoLinkedStudents();
