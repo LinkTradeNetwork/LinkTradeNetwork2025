@@ -16,21 +16,21 @@
 <title>Instructor Center • LinkTradeNetwork</title>
 
 <!--
-GITHUB COMMIT v52:
-fix(instructor): remove failsafe cache label and prevent blank instructor page
-- Renamed all page cache versions to 20260525v52
-- Kept instructor route/name as /instructor/ and output file as instructor.html
-- Changed auth-checking display behavior so a stalled Firebase import cannot leave a white screen
-- Added a small blank-page guard while preserving Firebase instructor authorization checks
+GITHUB COMMIT v53:
+fix(instructor): update instructor folder index cache version and prevent avatar image flash
+- Updated instructor folder route cache version to 20260525v53
+- Kept the live route as /instructor/index.html
+- Prevented old cached profile image from flashing before the newest Firebase profile image loads
+- Preserved Trade Passport PDF export, blank-page protection, and existing instructor workflow
 -->
 
-<!-- GITHUB COMMIT: fix(instructor): professional cache version and blank page repair -->
-<!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER PROFESSIONAL v52 -->
-<!-- LTN VERSION: instructor-center-professional-v52 -->
-<!-- FIXES v52:
-  1. Replaced old public cache/version labels so the URL no longer needs to show failsafe.
-  2. Fixed blank page JavaScript crash caused by duplicate const exportBtn inside the student progress modal function.
-  3. Kept Trade Passport PDF export and instructor workflow intact.
+<!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER v53 -->
+<!-- LTN VERSION: instructor-v53 -->
+<!-- FIXES v53:
+  1. Updated all page cache links from 20260525v53 to 20260525v53.
+  2. Kept the page named for the instructor folder index file.
+  3. Improved avatar loading so initials show first and the Firebase profile image appears only after it fully loads.
+  4. Kept Trade Passport PDF export and instructor workflow intact.
 -->
 <!-- FIXES v35:
   1. ADDED: Trade Passport PDF export from the student progress modal.
@@ -1419,7 +1419,7 @@ textarea.form-control{min-height:106px;resize:vertical}
   // The old check was: if(localStorage.getItem("ltn_access_granted") !== "true") redirect
   // which could block legitimate logged-in users if localStorage was cleared.
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525v52";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525v53";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1451,7 +1451,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 })();
 </script>
 <script>
-/* LTN v52 blank-page guard: keeps Instructor visible even if a Firebase/CDN import stalls. */
+/* LTN v53 blank-page guard: keeps Instructor visible even if a Firebase/CDN import stalls. */
 window.setTimeout(function(){
   try{
     document.documentElement.classList.remove("auth-checking");
@@ -1475,13 +1475,13 @@ window.setTimeout(function(){
 
     <!-- FIX v31: Added Find Apprenticeships and Jobs to match Dashboard/Network Center nav -->
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260525v52">Dashboard</a>
-      <a href="/members/?v=20260525v52">Members</a>
-      <a href="/find-apprenticeships/?v=20260525v52">Find Apprenticeships</a>
-      <a href="/instructor/?v=20260525v52" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260525v52" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/dashboard/?v=20260525v52#jobs">Jobs</a>
-      <a href="/network-center/?v=20260525v52">Network Center</a>
+      <a href="/dashboard/?v=20260525v53">Dashboard</a>
+      <a href="/members/?v=20260525v53">Members</a>
+      <a href="/find-apprenticeships/?v=20260525v53">Find Apprenticeships</a>
+      <a href="/instructor/?v=20260525v53" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260525v53" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/dashboard/?v=20260525v53#jobs">Jobs</a>
+      <a href="/network-center/?v=20260525v53">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1529,7 +1529,7 @@ window.setTimeout(function(){
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260525v52">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260525v53">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -2066,7 +2066,7 @@ const storage = getStorage(app);
 
 window.LTNFirebaseSignOut = function(){
   signOut(auth).finally(function(){
-    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525v52";
+    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525v53";
   });
 };
 
@@ -2175,7 +2175,7 @@ async function findCurrentUser(){
 
   if(!authUser){
     LTNClearLocalSession();
-    window.location.replace("/front.html?v=20260525v52");
+    window.location.replace("/front.html?v=20260525v53");
     throw new Error("No authenticated Firebase user.");
   }
 
@@ -2195,7 +2195,7 @@ async function findCurrentUser(){
 
   if(!userSnap.exists()){
     alert("Instructor profile was not found for this signed-in account. Please complete your profile first.");
-    window.location.replace("/dashboard/?v=20260525v52");
+    window.location.replace("/dashboard/?v=20260525v53");
     throw new Error("No user profile document for current auth uid.");
   }
 
@@ -2203,7 +2203,7 @@ async function findCurrentUser(){
 
   if(!isFirestoreInstructorProfile(u)){
     alert("Instructor Center is only for instructor accounts. You are signed in as a student/apprentice/member account.");
-    window.location.replace("/dashboard/?v=20260525v52");
+    window.location.replace("/dashboard/?v=20260525v53");
     throw new Error("Current user is not an instructor.");
   }
 
@@ -2312,10 +2312,25 @@ function updateProfileDisplay(){
   document.getElementById("profile-school").innerText = school;
 
   const avatar = document.getElementById("profile-avatar");
+  const initials = getInitials(name);
+
+  // FIX v53: Prevent old cached instructor photo from flashing first.
+  // Show initials immediately, then swap to the newest Firebase image only after it fully loads.
+  avatar.innerHTML = "";
+  avatar.textContent = initials;
+
   if(currentProfile.profileImage){
-    avatar.innerHTML = `<img src="${escapeHtml(currentProfile.profileImage)}" alt="${escapeHtml(name)}">`;
-  }else{
-    avatar.innerText = getInitials(name);
+    const img = new Image();
+    img.alt = name;
+    img.onload = function(){
+      avatar.innerHTML = "";
+      avatar.appendChild(img);
+    };
+    img.onerror = function(){
+      avatar.innerHTML = "";
+      avatar.textContent = initials;
+    };
+    img.src = currentProfile.profileImage;
   }
 
   const schoolCodeDisplay = currentProfile.schoolCode
