@@ -14,14 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER WORKPLACE VERIFICATION FIX v33 -->
-<!-- LTN VERSION: instructor-center-workplace-verification-v33 -->
-<!-- FIXES v33:
-  1. ADDED: Workplace Verification details display in Pending Student Reviews.
-  2. ADDED: Employer Company, Supervisor Name, Workplace Activity, and On-Site Hours visibility for uploaded student proof.
-  3. FIXED: Approval workflow no longer creates a rejection trade-passport activity during approval.
-  4. PRESERVED: Original Instructor Center v32 structure and assignment sync workflow.
--->
+<!-- LTN FORCE UPDATE 2026-05-24: INSTRUCTOR CENTER STUDENT PROGRESS MODAL FIX v34 -->
+<!-- LTN VERSION: instructor-center-student-progress-modal-v34 -->
 <!-- FIXES v31 (surgical only - all other code identical to v30):
   1. FIXED: Removed fragile localStorage ltn_access_granted gate - Firebase Auth handles auth.
   2. FIXED: Added "Find Apprenticeships" and "Jobs" to nav - matches Dashboard/Network Center nav.
@@ -1064,54 +1058,6 @@ textarea.form-control{min-height:106px;resize:vertical}
   margin-top:3px;
 }
 
-
-.workplace-verification-box{
-  margin-top:12px;
-  background:#f8fafc;
-  border:1px solid #dbe3ee;
-  border-radius:14px;
-  padding:12px;
-}
-
-.workplace-verification-title{
-  color:#243b5a;
-  font-size:12px;
-  font-weight:950;
-  text-transform:uppercase;
-  letter-spacing:.04em;
-  margin-bottom:8px;
-}
-
-.workplace-verification-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
-  gap:8px;
-}
-
-.workplace-verification-item{
-  background:white;
-  border:1px solid var(--line);
-  border-radius:10px;
-  padding:9px 10px;
-}
-
-.workplace-verification-item span{
-  display:block;
-  color:#64748b;
-  font-size:10px;
-  font-weight:900;
-  text-transform:uppercase;
-  letter-spacing:.04em;
-}
-
-.workplace-verification-item b{
-  display:block;
-  color:#182230;
-  font-size:13px;
-  margin-top:2px;
-  word-break:break-word;
-}
-
 .pending-review-comment{margin-top:12px}
 
 .pending-review-comment textarea{
@@ -1269,6 +1215,121 @@ textarea.form-control{min-height:106px;resize:vertical}
 
 .search-row .form-control{flex:1;min-width:220px}
 
+
+.student-progress-summary{
+  background:linear-gradient(135deg,#fff7ed,#ffffff);
+  border:1px solid #fed7aa;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:16px;
+}
+
+.student-progress-summary h3{
+  margin:0 0 4px;
+  font-size:21px;
+  color:var(--ink);
+  font-weight:950;
+}
+
+.student-progress-summary p{
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:750;
+}
+
+.student-progress-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;
+  margin:14px 0;
+}
+
+.student-progress-metric{
+  background:#f8fafc;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px;
+}
+
+.student-progress-metric strong{
+  display:block;
+  color:var(--accent);
+  font-size:24px;
+  line-height:1;
+  font-weight:950;
+}
+
+.student-progress-metric span{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-top:5px;
+}
+
+.student-progress-section{
+  margin-top:14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  background:white;
+}
+
+.student-progress-section-title{
+  padding:12px 14px;
+  background:#f8fafc;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+  font-weight:950;
+  color:var(--accent);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.student-progress-section-body{
+  padding:14px;
+}
+
+.student-progress-item{
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px 12px;
+  margin-top:8px;
+  background:#fbfdff;
+}
+
+.student-progress-item:first-child{margin-top:0}
+
+.student-progress-item strong{
+  display:block;
+  color:var(--ink);
+  font-size:14px;
+  font-weight:950;
+}
+
+.student-progress-item span{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:750;
+  line-height:1.4;
+  margin-top:3px;
+}
+
+.student-progress-proof-link{
+  display:inline-flex;
+  margin-top:6px;
+  color:var(--brand2);
+  font-size:12px;
+  font-weight:950;
+  text-decoration:none;
+}
+
+.student-progress-proof-link:hover{text-decoration:underline}
+
 @media(max-width:980px){
   .hero{grid-template-columns:1fr}
   .grid{grid-template-columns:1fr}
@@ -1337,7 +1398,7 @@ textarea.form-control{min-height:106px;resize:vertical}
   // The old check was: if(localStorage.getItem("ltn_access_granted") !== "true") redirect
   // which could block legitimate logged-in users if localStorage was cleared.
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525workplacev33";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525studentprogressv34";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1384,13 +1445,13 @@ textarea.form-control{min-height:106px;resize:vertical}
 
     <!-- FIX v31: Added Find Apprenticeships and Jobs to match Dashboard/Network Center nav -->
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260525workplacev33">Dashboard</a>
-      <a href="/members/?v=20260525workplacev33">Members</a>
-      <a href="/find-apprenticeships/?v=20260525workplacev33">Find Apprenticeships</a>
-      <a href="/instructor/?v=20260525workplacev33" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260525workplacev33" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/dashboard/?v=20260525workplacev33#jobs">Jobs</a>
-      <a href="/network-center/?v=20260525workplacev33">Network Center</a>
+      <a href="/dashboard/?v=20260525studentprogressv34">Dashboard</a>
+      <a href="/members/?v=20260525studentprogressv34">Members</a>
+      <a href="/find-apprenticeships/?v=20260525studentprogressv34">Find Apprenticeships</a>
+      <a href="/instructor/?v=20260525studentprogressv34" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260525studentprogressv34" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/dashboard/?v=20260525studentprogressv34#jobs">Jobs</a>
+      <a href="/network-center/?v=20260525studentprogressv34">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1438,7 +1499,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260525workplacev33">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260525studentprogressv34">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1907,6 +1968,26 @@ textarea.form-control{min-height:106px;resize:vertical}
   </div>
 </div>
 
+
+<!-- Student Progress Detail Modal -->
+<div class="modal-backdrop" id="student-progress-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Student Progress</h2>
+      <button class="modal-close" onclick="InstructorCenter.closeModal('student-progress-modal')">&times;</button>
+    </div>
+    <div class="modal-body" id="student-progress-modal-body">
+      <div class="empty-state">
+        <h3>Loading student progress...</h3>
+        <p>Please wait while the student record loads.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="InstructorCenter.closeModal('student-progress-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 // FIX v31: Removed localStorage ltn_access_granted gate — Firebase Auth handles this below.
 // The old gate was: if(localStorage.getItem("ltn_access_granted") !== "true"){ window.location.replace("/front/"); }
@@ -1954,7 +2035,7 @@ const storage = getStorage(app);
 
 window.LTNFirebaseSignOut = function(){
   signOut(auth).finally(function(){
-    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525workplacev33";
+    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525studentprogressv34";
   });
 };
 
@@ -2062,7 +2143,7 @@ async function findCurrentUser(){
 
   if(!authUser){
     LTNClearLocalSession();
-    window.location.replace("/front.html?v=20260523instructorAuthRequired");
+    window.location.replace("/front.html?v=20260525instructorAuthRequiredv34");
     throw new Error("No authenticated Firebase user.");
   }
 
@@ -2082,7 +2163,7 @@ async function findCurrentUser(){
 
   if(!userSnap.exists()){
     alert("Instructor profile was not found for this signed-in account. Please complete your profile first.");
-    window.location.replace("/dashboard/?v=20260523instructorNoProfile");
+    window.location.replace("/dashboard/?v=20260525instructorNoProfilev34");
     throw new Error("No user profile document for current auth uid.");
   }
 
@@ -2090,7 +2171,7 @@ async function findCurrentUser(){
 
   if(!isFirestoreInstructorProfile(u)){
     alert("Instructor Center is only for instructor accounts. You are signed in as a student/apprentice/member account.");
-    window.location.replace("/dashboard/?v=20260523notInstructor");
+    window.location.replace("/dashboard/?v=20260525notInstructorv34");
     throw new Error("Current user is not an instructor.");
   }
 
@@ -2987,93 +3068,6 @@ async function loadPendingReviews(){
   });
 }
 
-
-function getFirstValue(item, keys){
-  for(const key of keys){
-    if(item && item[key] !== undefined && item[key] !== null && String(item[key]).trim() !== ""){
-      return item[key];
-    }
-  }
-  return "";
-}
-
-function renderWorkplaceVerificationHtml(item){
-  const employerCompany = getFirstValue(item, [
-    "employerCompany",
-    "companyName",
-    "workplaceCompany",
-    "employer",
-    "company"
-  ]);
-
-  const supervisorName = getFirstValue(item, [
-    "supervisorName",
-    "siteSupervisor",
-    "workplaceSupervisor",
-    "employerSupervisor",
-    "supervisor"
-  ]);
-
-  const workplaceActivity = getFirstValue(item, [
-    "workplaceActivity",
-    "activityType",
-    "activity",
-    "workActivity",
-    "taskDescription"
-  ]);
-
-  const onSiteHours = getFirstValue(item, [
-    "onSiteHours",
-    "onsiteHours",
-    "workplaceHours",
-    "verifiedHours",
-    "hoursVerified",
-    "hours"
-  ]);
-
-  const hasWorkplaceData = !!(
-    String(employerCompany || "").trim() ||
-    String(supervisorName || "").trim() ||
-    String(workplaceActivity || "").trim() ||
-    String(onSiteHours || "").trim()
-  );
-
-  if(!hasWorkplaceData) return "";
-
-  return `
-    <div class="workplace-verification-box">
-      <div class="workplace-verification-title">Workplace Verification</div>
-      <div class="workplace-verification-grid">
-        ${employerCompany ? `
-          <div class="workplace-verification-item">
-            <span>Employer Company</span>
-            <b>${escapeHtml(employerCompany)}</b>
-          </div>
-        ` : ""}
-        ${supervisorName ? `
-          <div class="workplace-verification-item">
-            <span>Supervisor Name</span>
-            <b>${escapeHtml(supervisorName)}</b>
-          </div>
-        ` : ""}
-        ${workplaceActivity ? `
-          <div class="workplace-verification-item">
-            <span>Workplace Activity</span>
-            <b>${escapeHtml(workplaceActivity)}</b>
-          </div>
-        ` : ""}
-        ${onSiteHours ? `
-          <div class="workplace-verification-item">
-            <span>On-Site Hours</span>
-            <b>${escapeHtml(onSiteHours)}</b>
-          </div>
-        ` : ""}
-      </div>
-    </div>
-  `;
-}
-
-
 function renderPendingReviews(){
   const wrap = document.getElementById("pending-reviews-list");
   const badge = document.getElementById("pending-review-count");
@@ -3115,8 +3109,6 @@ function renderPendingReviews(){
             ${item.proofFileUrl ? `<a class="btn btn-secondary" style="min-height:34px;padding:8px 12px;font-size:12px" href="${escapeHtml(item.proofFileUrl)}" target="_blank">View Proof</a>` : ""}
           </div>
         </div>
-
-        ${renderWorkplaceVerificationHtml(item)}
 
         <div class="pending-review-comment">
           <textarea id="review-comment-${item.id}" placeholder="Add instructor comment before approving or rejecting..."></textarea>
@@ -3544,15 +3536,7 @@ window.InstructorCenter = {
         reviewedAt:serverTimestamp(),
         reviewedByUid:currentUserId || "",
         approvedByUid:currentUserId || "",
-        approvedAt:serverTimestamp(),
-        workplaceVerified:!!(
-          existingReview.employerCompany ||
-          existingReview.companyName ||
-          existingReview.supervisorName ||
-          existingReview.workplaceActivity ||
-          existingReview.onSiteHours ||
-          existingReview.workplaceHours
-        )
+        approvedAt:serverTimestamp()
       });
 
       await syncTradePassportForStudent(existingReview.authUid || existingReview.studentUid || existingReview.uid || existingReview.studentId, {
@@ -3562,6 +3546,13 @@ window.InstructorCenter = {
         reviewId
       });
 
+
+      await syncTradePassportForStudent(existingReview.authUid || existingReview.studentUid || existingReview.uid || existingReview.studentId, {
+        type:"review_rejected",
+        title:existingReview.uploadTitle || "Student upload needs correction",
+        detail:instructorComment,
+        reviewId
+      });
 
       await loadPendingReviews();
       await loadClassAssignments();
@@ -3788,7 +3779,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260525workplacev33">View Progress</a>` : ""}
+              ${s.userId ? `<button class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick=\'InstructorCenter.openStudentProgressModal(${JSON.stringify(buildSkillStudentValue(s))})\'>View Progress</button>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -3802,6 +3793,179 @@ window.InstructorCenter = {
         </div>
       `;
     }).join("");
+  },
+
+
+  async openStudentProgressModal(studentValue, triggerBtn = null){
+    const parsed = parseSkillStudentValue(studentValue) || {};
+    const uid = String(parsed.authUid || parsed.userId || "").trim();
+    const body = document.getElementById("student-progress-modal-body");
+
+    if(!body){
+      alert("Student progress window is not available on this page.");
+      return;
+    }
+
+    body.innerHTML = `
+      <div class="empty-state">
+        <h3>Loading student progress...</h3>
+        <p>Pulling hours, proof uploads, workplace evidence, and instructor approvals.</p>
+      </div>
+    `;
+
+    this.openModal("student-progress-modal", triggerBtn);
+
+    const rosterStudent =
+      mergeStudents(getStudents(), autoLinkedStudents).find(student => {
+        const ids = [
+          student.authUid,
+          student.userId,
+          student.uid,
+          student.id
+        ].map(v => String(v || "").trim());
+        return ids.includes(uid) || String(student.email || "").toLowerCase() === String(parsed.email || "").toLowerCase();
+      }) || {};
+
+    let userData = {};
+    let progress = {};
+    let reviews = [];
+    let skills = [];
+
+    if(uid){
+      try{
+        const userSnap = await getDoc(doc(db,"users",uid));
+        if(userSnap.exists()){
+          userData = userSnap.data() || {};
+          progress = userData.apprenticeshipProgress || {};
+        }
+      }catch(error){
+        console.warn("Could not load student user progress:", error);
+      }
+
+      try{
+        const reviewSnap = await getDocs(query(collection(db,"pendingReviews"), where("authUid","==",uid), limit(300)));
+        reviewSnap.forEach(docSnap => reviews.push({id:docSnap.id,...(docSnap.data() || {})}));
+      }catch(error){
+        console.warn("Could not load student reviews:", error);
+      }
+
+      try{
+        const skillSnap = await getDocs(query(collection(db,"studentSkills"), where("authUid","==",uid), limit(300)));
+        skillSnap.forEach(docSnap => skills.push({id:docSnap.id,...(docSnap.data() || {})}));
+      }catch(error){
+        console.warn("Could not load student skills:", error);
+      }
+    }
+
+    if(!reviews.length && parsed.email){
+      reviews = pendingReviews.filter(review => {
+        return String(review.studentEmail || review.submittedByEmail || "").toLowerCase() === String(parsed.email || "").toLowerCase();
+      });
+    }
+
+    if(!skills.length && uid && studentSkillsByUserId[uid]){
+      skills = studentSkillsByUserId[uid] || [];
+    }
+
+    const name = userData.fullName || userData.name || userData.displayName || rosterStudent.name || parsed.name || "Student";
+    const email = userData.email || rosterStudent.email || parsed.email || "";
+    const trade = userData.trade || userData.specialty || rosterStudent.trade || "Trade not added";
+    const school = userData.schoolName || userData.tradeSchool || userData.school || rosterStudent.school || currentProfile.school || "";
+    const cohort = userData.cohortName || (userData.apprenticeship || {}).cohortName || rosterStudent.cohortName || parsed.cohortName || "";
+    const schoolCode = userData.schoolCode || (userData.apprenticeship || {}).schoolCode || rosterStudent.schoolCode || parsed.schoolCode || currentProfile.schoolCode || "";
+    const hours = Number(userData.hoursCompleted || userData.totalHours || userData.apprenticeshipHours || progress.hoursCompleted || progress.totalHours || rosterStudent.hours || 0) || 0;
+    const goal = Number((userData.apprenticeship || {}).goalHours || userData.goalHours || rosterStudent.goal || 8000) || 8000;
+    const percent = Math.max(0, Math.min(100, Math.round((hours / Math.max(goal,1)) * 100)));
+
+    const approved = reviews.filter(review => getReviewStatus(review) === "approved").length;
+    const rejected = reviews.filter(review => getReviewStatus(review) === "rejected").length;
+    const pending = reviews.filter(review => getReviewStatus(review) !== "approved" && getReviewStatus(review) !== "rejected").length;
+    const verifiedSkillCount = skills.filter(skill => skill.approved === true || String(skill.status || "").toLowerCase() === "approved").length || skills.length;
+
+    const workplaceReviews = reviews.filter(review => {
+      return review.employerCompany || review.supervisorName || review.workplaceActivity || Number(review.onSiteHours || review.workplaceHours || 0) > 0;
+    });
+
+    const recentReviewHtml = reviews.length
+      ? reviews.slice(0,8).map(review => {
+          const status = getReviewStatus(review);
+          const proofUrl = review.proofFileUrl || review.fileUrl || review.downloadURL || "";
+          const unit = review.unitCode || review.trainingUnitCode || review.competencyCode || "";
+          const workplaceLine = [
+            review.employerCompany ? "Employer: " + review.employerCompany : "",
+            review.supervisorName ? "Supervisor: " + review.supervisorName : "",
+            review.workplaceActivity ? "Activity: " + review.workplaceActivity : "",
+            Number(review.onSiteHours || review.workplaceHours || 0) ? "On-site hours: " + Number(review.onSiteHours || review.workplaceHours || 0) : ""
+          ].filter(Boolean).join(" • ");
+
+          return `
+            <div class="student-progress-item">
+              <strong>${escapeHtml(review.uploadTitle || review.title || review.reviewType || "Student Upload")}</strong>
+              <span>Status: ${escapeHtml(status)}${unit ? " • Unit: " + escapeHtml(unit) : ""}</span>
+              ${workplaceLine ? `<span>${escapeHtml(workplaceLine)}</span>` : ""}
+              ${proofUrl ? `<a class="student-progress-proof-link" href="${escapeHtml(proofUrl)}" target="_blank" rel="noopener">View uploaded proof</a>` : ""}
+            </div>
+          `;
+        }).join("")
+      : `<div class="empty-state"><h3>No uploads found yet</h3><p>Student uploads will appear here after evidence is submitted.</p></div>`;
+
+    const skillHtml = skills.length
+      ? skills.slice(0,8).map(skill => `
+          <div class="student-progress-item">
+            <strong>${escapeHtml(skill.skillName || skill.name || skill.title || "Verified Skill")}</strong>
+            <span>${escapeHtml(skill.verificationLevel || skill.status || "Instructor Verified")} ${skill.hoursVerified ? "• " + escapeHtml(skill.hoursVerified) + " verified hours" : ""}</span>
+            ${skill.instructorComment || skill.notes ? `<span>${escapeHtml(skill.instructorComment || skill.notes)}</span>` : ""}
+          </div>
+        `).join("")
+      : `<div class="empty-state"><h3>No verified skills yet</h3><p>Approved skills will appear here after instructor signoff.</p></div>`;
+
+    const workplaceHtml = workplaceReviews.length
+      ? workplaceReviews.slice(0,8).map(review => `
+          <div class="student-progress-item">
+            <strong>${escapeHtml(review.workplaceActivity || review.uploadTitle || "Workplace Evidence")}</strong>
+            <span>${review.employerCompany ? "Employer: " + escapeHtml(review.employerCompany) : "Employer not added"}</span>
+            <span>${review.supervisorName ? "Supervisor: " + escapeHtml(review.supervisorName) : "Supervisor not added"}${Number(review.onSiteHours || review.workplaceHours || 0) ? " • " + Number(review.onSiteHours || review.workplaceHours || 0) + " on-site hours" : ""}</span>
+          </div>
+        `).join("")
+      : `<div class="empty-state"><h3>No workplace verification yet</h3><p>Employer and supervisor details will appear here when the apprentice adds workplace evidence.</p></div>`;
+
+    body.innerHTML = `
+      <div class="student-progress-summary">
+        <h3>${escapeHtml(name)}</h3>
+        <p>${escapeHtml(trade)}${email ? " • " + escapeHtml(email) : ""}</p>
+        <p>${escapeHtml(school || "School not added")}${cohort ? " • " + escapeHtml(cohort) : ""}${schoolCode ? " • " + escapeHtml(schoolCode) : ""}</p>
+      </div>
+
+      <div class="student-progress-grid">
+        <div class="student-progress-metric"><strong>${hours.toLocaleString()}</strong><span>Hours</span></div>
+        <div class="student-progress-metric"><strong>${percent}%</strong><span>Progress</span></div>
+        <div class="student-progress-metric"><strong>${approved}</strong><span>Approved Proofs</span></div>
+        <div class="student-progress-metric"><strong>${pending}</strong><span>Pending Reviews</span></div>
+        <div class="student-progress-metric"><strong>${rejected}</strong><span>Needs Correction</span></div>
+        <div class="student-progress-metric"><strong>${verifiedSkillCount}</strong><span>Verified Skills</span></div>
+      </div>
+
+      <div class="progress-line"><div class="progress-fill" style="width:${percent}%"></div></div>
+      <div class="progress-note">
+        <span>${hours.toLocaleString()} / ${goal.toLocaleString()} hours</span>
+        <span>${percent}%</span>
+      </div>
+
+      <div class="student-progress-section">
+        <div class="student-progress-section-title">Workplace Verification</div>
+        <div class="student-progress-section-body">${workplaceHtml}</div>
+      </div>
+
+      <div class="student-progress-section">
+        <div class="student-progress-section-title">Recent Uploads / Instructor Reviews</div>
+        <div class="student-progress-section-body">${recentReviewHtml}</div>
+      </div>
+
+      <div class="student-progress-section">
+        <div class="student-progress-section-title">Verified Skills</div>
+        <div class="student-progress-section-body">${skillHtml}</div>
+      </div>
+    `;
   },
 
   openSkillApprovalModal(preselectedStudentValue = null, triggerBtn = null){
