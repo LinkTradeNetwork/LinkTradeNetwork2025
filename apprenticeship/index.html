@@ -11,6 +11,11 @@
   <meta name="ltn-version" content="apprenticeship-dashboard-assignment-sync-v53">
 
   <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-assignment-sync-v53 -->
+  <!-- FIXES v54:
+    1. FIXED: After adding hours, the training unit dropdown resets back to "Select unit for hours".
+    2. FIXED: Removed Firebase wording from the Training Unit Progress section so users do not see platform backend details.
+    3. PRESERVED: Original v52 dashboard structure and workflow kept intact.
+  -->
   <!-- FIXES v52 FULL CLEAN:
     1. FORCE UPDATE: all dashboard route cache strings updated from v51 to v52.
     2. STRONG FIX: total proof count now includes certifications, skills, projects, signed work proof, and assignment submissions.
@@ -1131,7 +1136,7 @@
   <div class="card">
     <div class="label">Competency / Unit Tracking</div>
     <div class="value small-value">Hours and Evidence by Unit</div>
-    <div class="small">Training units are loaded from Firebase collection <b>trainingUnits</b>. Hours and proof uploads tied to a unit will show here.</div>
+    <div class="small">Hours and proof uploads tied to a training unit will show here.</div>
     <div id="unitProgressList" class="unit-progress-grid"></div>
   </div>
 
@@ -2293,7 +2298,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260524trainingv52");
+      window.location.replace("/front/?v=secureauth20260524unitresetv54");
       return;
     }
 
@@ -3319,6 +3324,8 @@
 
       input.value = "";
       noteInput.value = "";
+      const hoursUnitSelect = $("hoursUnitSelect");
+      if(hoursUnitSelect) hoursUnitSelect.value = "";
       renderProgress();
       await saveToFirebase();
       renderProgress();
@@ -3649,7 +3656,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260524trainingv52");
+      window.location.replace("/front/?v=secureauth20260524unitresetv54");
       return;
     }
 
