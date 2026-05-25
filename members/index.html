@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LTN Members</title>
 
-  <!-- LTN FORCE UPDATE VERSION: members-strong-firebase-role-routing-20260523-v8-auth-stable -->
+  <!-- LTN FORCE UPDATE VERSION: members-assignment-sync-20260524-v9 -->
 
   <style>
     *{
@@ -453,11 +453,11 @@
   <div class="logo">LTN • LinkTradeNetwork</div>
 
   <div class="nav">
-    <a href="/dashboard/?v=20260523membersv8">Dashboard</a>
-    <a href="/members/?v=20260523membersv8" class="active">Members</a>
-    <a href="/apprenticeship/?v=20260523membersv8" onclick="return ltnRouteTrackProgressFromMembers(event, this.href)">Track My Progress</a>
-    <a href="/instructor/?v=20260523membersv8" onclick="return ltnRouteInstructorCenterFromMembers(event, this.href)">Instructor Center</a>
-    <a href="/network-center/?v=20260523membersv8">Network Center</a>
+    <a href="/dashboard/?v=20260524membersv9">Dashboard</a>
+    <a href="/members/?v=20260524membersv9" class="active">Members</a>
+    <a href="/apprenticeship/?v=20260524membersv9" onclick="return ltnRouteTrackProgressFromMembers(event, this.href)">Track My Progress</a>
+    <a href="/instructor/?v=20260524membersv9" onclick="return ltnRouteInstructorCenterFromMembers(event, this.href)">Instructor Center</a>
+    <a href="/network-center/?v=20260524membersv9">Network Center</a>
     <button onclick="logoutUser()">Logout</button>
   </div>
 </div>
@@ -689,11 +689,11 @@
 
     if(access.accessType !== "student"){
       alert("Track My Progress is for apprentices and students. Open Edit Profile and mark yourself as an apprentice/student first.");
-      window.location.href = "/dashboard/?v=20260523membersv8";
+      window.location.href = "/dashboard/?v=20260524membersv9";
       return false;
     }
 
-    window.location.href = href || "/apprenticeship/?v=20260523membersv8";
+    window.location.href = href || "/apprenticeship/?v=20260524membersv9";
     return false;
   };
 
@@ -712,7 +712,7 @@
       return false;
     }
 
-    window.location.href = href || "/instructor/?v=20260523membersv8";
+    window.location.href = href || "/instructor/?v=20260524membersv9";
     return false;
   };
 
@@ -799,6 +799,10 @@
 
   function getProgress(member){
     const p = member.apprenticeshipProgress || {};
+    const approvedProofCount = Number(member.approvedProofCount ?? p.approvedProofCount ?? member.verifiedPhotos ?? p.verifiedPhotos ?? 0) || 0;
+    const verifiedSkillCount = Number(member.verifiedSkillCount ?? p.verifiedSkillCount ?? p.verifiedSkills ?? 0) || 0;
+    const assignmentCompletionRate = Number(p.assignmentCompletionRate ?? member.assignmentCompletionRate ?? 0) || 0;
+    const employerReadyScore = Number(member.employerReadyScore ?? p.employerReadyScore ?? 0) || 0;
 
     const hours = Number(
       member.hoursCompleted ??
@@ -860,7 +864,11 @@
       badges,
       projectsCompleted,
       jobsiteUploads,
-      apprenticeLevel
+      apprenticeLevel,
+      approvedProofCount,
+      verifiedSkillCount,
+      assignmentCompletionRate,
+      employerReadyScore
     };
   }
 
@@ -872,6 +880,8 @@
       progress.badges.length > 0 ||
       progress.projectsCompleted > 0 ||
       progress.jobsiteUploads > 0 ||
+      progress.approvedProofCount > 0 ||
+      progress.verifiedSkillCount > 0 ||
       progress.apprenticeLevel
     );
   }
@@ -918,6 +928,16 @@
           <div class="achievement-stat">
             <strong>${safe(progress.jobsiteUploads)}</strong>
             <span>Jobsite Proof</span>
+          </div>
+
+          <div class="achievement-stat">
+            <strong>${safe(progress.approvedProofCount || 0)}</strong>
+            <span>Approved Proofs</span>
+          </div>
+
+          <div class="achievement-stat">
+            <strong>${safe(progress.verifiedSkillCount || 0)}</strong>
+            <span>Verified Skills</span>
           </div>
         </div>
 
@@ -997,7 +1017,7 @@
 
         ${renderAchievements(member)}
 
-        <button class="btn" onclick="window.location.href='/profile.html?id=${safeUrl(member.id)}&v=20260523membersv8'">
+        <button class="btn" onclick="window.location.href='/profile.html?id=${safeUrl(member.id)}&v=20260524membersv9'">
           View Profile
         </button>
       `;
