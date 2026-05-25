@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LTN Members</title>
 
-  <!-- LTN FORCE UPDATE VERSION: members-assignment-sync-20260524-v9 -->
+  <!-- LTN FORCE UPDATE VERSION: members-verified-progress-20260525-v10 -->
 
   <style>
     *{
@@ -312,6 +312,120 @@
       word-break:break-word;
     }
 
+
+    .verified-progress-box{
+      background:linear-gradient(135deg,#f0fdf4,#ffffff);
+      border:1px solid #bbf7d0;
+      border-radius:16px;
+      padding:14px;
+      margin-top:14px;
+    }
+
+    .verified-progress-title{
+      font-size:13px;
+      font-weight:900;
+      color:#166534;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+      margin-bottom:10px;
+      display:flex;
+      align-items:center;
+      gap:7px;
+      flex-wrap:wrap;
+    }
+
+    .verified-progress-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .verified-progress-stat{
+      background:white;
+      border:1px solid #bbf7d0;
+      border-radius:12px;
+      padding:10px;
+      min-width:0;
+    }
+
+    .verified-progress-stat strong{
+      display:block;
+      color:#14532d;
+      font-size:18px;
+      line-height:1.1;
+      word-break:break-word;
+    }
+
+    .verified-progress-stat span{
+      display:block;
+      color:#166534;
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      margin-top:3px;
+      line-height:1.25;
+      word-break:break-word;
+    }
+
+    .unit-box{
+      background:#fffaf5;
+      border:1px solid #ffd3aa;
+      border-radius:16px;
+      padding:14px;
+      margin-top:14px;
+    }
+
+    .unit-box-title{
+      font-size:13px;
+      font-weight:900;
+      color:#9a3412;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+      margin-bottom:10px;
+    }
+
+    .unit-list{
+      display:grid;
+      gap:8px;
+    }
+
+    .unit-row{
+      background:white;
+      border:1px solid #f8d5b4;
+      border-radius:12px;
+      padding:10px;
+    }
+
+    .unit-row strong{
+      display:block;
+      color:#1e293b;
+      font-size:13px;
+      line-height:1.3;
+      word-break:break-word;
+    }
+
+    .unit-row span{
+      display:block;
+      color:#64748b;
+      font-size:12px;
+      font-weight:800;
+      margin-top:4px;
+      line-height:1.3;
+    }
+
+    .empty-progress-note{
+      margin-top:12px;
+      background:#f8fafc;
+      border:1px dashed #cbd5e1;
+      border-radius:12px;
+      padding:11px;
+      color:#64748b;
+      font-size:13px;
+      font-weight:700;
+      line-height:1.4;
+    }
+
+
     .btn{
       display:inline-block;
       background:#ea6a00;
@@ -411,7 +525,7 @@
 (function () {
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=members-auth-v8";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=members-auth-v10";
 
   window.LTNRevealMembersPage = function(reason){
     try{
@@ -453,18 +567,18 @@
   <div class="logo">LTN • LinkTradeNetwork</div>
 
   <div class="nav">
-    <a href="/dashboard/?v=20260524membersv9">Dashboard</a>
-    <a href="/members/?v=20260524membersv9" class="active">Members</a>
-    <a href="/apprenticeship/?v=20260524membersv9" onclick="return ltnRouteTrackProgressFromMembers(event, this.href)">Track My Progress</a>
-    <a href="/instructor/?v=20260524membersv9" onclick="return ltnRouteInstructorCenterFromMembers(event, this.href)">Instructor Center</a>
-    <a href="/network-center/?v=20260524membersv9">Network Center</a>
+    <a href="/dashboard/?v=20260525membersv10">Dashboard</a>
+    <a href="/members/?v=20260525membersv10" class="active">Members</a>
+    <a href="/apprenticeship/?v=20260525membersv10" onclick="return ltnRouteTrackProgressFromMembers(event, this.href)">Track My Progress</a>
+    <a href="/instructor/?v=20260525membersv10" onclick="return ltnRouteInstructorCenterFromMembers(event, this.href)">Instructor Center</a>
+    <a href="/network-center/?v=20260525membersv10">Network Center</a>
     <button onclick="logoutUser()">Logout</button>
   </div>
 </div>
 
 <section class="hero">
   <h1>Trade Members</h1>
-  <p>See skilled trade workers, apprentices, instructors, contractors, and employers joining LinkTradeNetwork — including hours, certifications, skills, and jobsite proof.</p>
+  <p>See skilled trade workers, apprentices, instructors, contractors, and employers joining LinkTradeNetwork — including verified hours, approved skills, completed units, certifications, and field evidence.</p>
 </section>
 
 <div class="wrap">
@@ -689,11 +803,11 @@
 
     if(access.accessType !== "student"){
       alert("Track My Progress is for apprentices and students. Open Edit Profile and mark yourself as an apprentice/student first.");
-      window.location.href = "/dashboard/?v=20260524membersv9";
+      window.location.href = "/dashboard/?v=20260525membersv10";
       return false;
     }
 
-    window.location.href = href || "/apprenticeship/?v=20260524membersv9";
+    window.location.href = href || "/apprenticeship/?v=20260525membersv10";
     return false;
   };
 
@@ -712,7 +826,7 @@
       return false;
     }
 
-    window.location.href = href || "/instructor/?v=20260524membersv9";
+    window.location.href = href || "/instructor/?v=20260525membersv10";
     return false;
   };
 
@@ -723,7 +837,7 @@
 
     if(window.LTNClearLocalSession) window.LTNClearLocalSession();
 
-    window.location.replace("/front.html?v=loggedoutmembers-v8");
+    window.location.replace("/front.html?v=loggedoutmembers-v10");
   };
 
   function safe(value){
@@ -799,8 +913,58 @@
 
   function getProgress(member){
     const p = member.apprenticeshipProgress || {};
-    const approvedProofCount = Number(member.approvedProofCount ?? p.approvedProofCount ?? member.verifiedPhotos ?? p.verifiedPhotos ?? 0) || 0;
-    const verifiedSkillCount = Number(member.verifiedSkillCount ?? p.verifiedSkillCount ?? p.verifiedSkills ?? 0) || 0;
+    const unitProgressRaw =
+      member.trainingUnitProgress ||
+      member.unitProgress ||
+      p.trainingUnitProgress ||
+      p.unitProgress ||
+      {};
+
+    const approvedProofCount = Number(
+      member.approvedProofCount ??
+      p.approvedProofCount ??
+      member.verifiedPhotos ??
+      p.verifiedPhotos ??
+      0
+    ) || 0;
+
+    const pendingProofCount = Number(
+      member.pendingProofCount ??
+      p.pendingProofCount ??
+      member.pendingReviewCount ??
+      p.pendingReviewCount ??
+      0
+    ) || 0;
+
+    const rejectedProofCount = Number(
+      member.rejectedProofCount ??
+      p.rejectedProofCount ??
+      0
+    ) || 0;
+
+    const verifiedSkillCount = Number(
+      member.verifiedSkillCount ??
+      p.verifiedSkillCount ??
+      p.verifiedSkills ??
+      0
+    ) || 0;
+
+    const approvedUnitCount = Number(
+      member.approvedUnitCount ??
+      p.approvedUnitCount ??
+      member.completedUnitCount ??
+      p.completedUnitCount ??
+      0
+    ) || 0;
+
+    const assignmentSubmissionCount = Number(
+      member.assignmentSubmissionCount ??
+      p.assignmentSubmissionCount ??
+      member.completedAssignments ??
+      p.completedAssignments ??
+      0
+    ) || 0;
+
     const assignmentCompletionRate = Number(p.assignmentCompletionRate ?? member.assignmentCompletionRate ?? 0) || 0;
     const employerReadyScore = Number(member.employerReadyScore ?? p.employerReadyScore ?? 0) || 0;
 
@@ -810,6 +974,14 @@
       member.apprenticeshipHours ??
       p.hoursCompleted ??
       p.totalHours ??
+      0
+    ) || 0;
+
+    const verifiedHours = Number(
+      member.verifiedHours ??
+      p.verifiedHours ??
+      member.approvedHours ??
+      p.approvedHours ??
       0
     ) || 0;
 
@@ -835,15 +1007,19 @@
         ? toArray(member.badges)
         : toArray(p.badgesEarned);
 
+    const approvedUnits = normalizeUnitProgress(unitProgressRaw);
+
     const projectsCompleted = Number(
       member.projectsCompleted ??
       p.projectsCompleted ??
       0
     ) || 0;
 
-    const jobsiteUploads = Number(
+    const fieldEvidence = Number(
+      member.fieldEvidence ??
       member.jobsiteUploads ??
       member.verifiedPhotos ??
+      p.fieldEvidence ??
       p.jobsiteUploads ??
       p.verifiedPhotos ??
       0
@@ -858,18 +1034,60 @@
 
     return {
       hours,
+      verifiedHours,
       progressPercent: Math.max(0, Math.min(100, progressPercent)),
       certifications,
       skills,
       badges,
+      approvedUnits,
       projectsCompleted,
-      jobsiteUploads,
+      jobsiteUploads:fieldEvidence,
       apprenticeLevel,
       approvedProofCount,
+      pendingProofCount,
+      rejectedProofCount,
       verifiedSkillCount,
+      approvedUnitCount: approvedUnitCount || approvedUnits.filter(unit => unit.approved > 0).length,
+      assignmentSubmissionCount,
       assignmentCompletionRate,
       employerReadyScore
     };
+  }
+
+  function normalizeUnitProgress(value){
+    const rows = [];
+
+    if(Array.isArray(value)){
+      value.forEach(item => {
+        if(!item || typeof item !== "object") return;
+        rows.push({
+          code:item.unitCode || item.code || item.trainingUnitCode || item.competencyCode || "UNIT",
+          title:item.unitTitle || item.title || item.trainingUnitTitle || item.competencyTitle || "Training Unit",
+          hours:Number(item.hours || item.totalHours || 0) || 0,
+          proofs:Number(item.proofs || item.proofCount || item.totalProofs || 0) || 0,
+          approved:Number(item.approved || item.approvedProofs || item.approvedCount || 0) || 0,
+          pending:Number(item.pending || item.pendingProofs || item.pendingCount || 0) || 0
+        });
+      });
+    }else if(value && typeof value === "object"){
+      Object.keys(value).forEach(key => {
+        const item = value[key] || {};
+        if(typeof item !== "object") return;
+        rows.push({
+          code:item.unitCode || item.code || key || "UNIT",
+          title:item.unitTitle || item.title || item.trainingUnitTitle || item.competencyTitle || "Training Unit",
+          hours:Number(item.hours || item.totalHours || 0) || 0,
+          proofs:Number(item.proofs || item.proofCount || item.totalProofs || 0) || 0,
+          approved:Number(item.approved || item.approvedProofs || item.approvedCount || 0) || 0,
+          pending:Number(item.pending || item.pendingProofs || item.pendingCount || 0) || 0
+        });
+      });
+    }
+
+    return rows
+      .filter(unit => unit.hours > 0 || unit.proofs > 0 || unit.approved > 0 || unit.pending > 0)
+      .sort((a,b) => String(a.code).localeCompare(String(b.code)))
+      .slice(0,5);
   }
 
   function hasAchievements(progress){
@@ -881,9 +1099,67 @@
       progress.projectsCompleted > 0 ||
       progress.jobsiteUploads > 0 ||
       progress.approvedProofCount > 0 ||
+      progress.pendingProofCount > 0 ||
       progress.verifiedSkillCount > 0 ||
+      progress.approvedUnitCount > 0 ||
+      progress.assignmentSubmissionCount > 0 ||
+      progress.approvedUnits.length > 0 ||
       progress.apprenticeLevel
     );
+  }
+
+  function renderVerifiedProgress(progress){
+    if(
+      progress.approvedProofCount <= 0 &&
+      progress.verifiedSkillCount <= 0 &&
+      progress.approvedUnitCount <= 0 &&
+      progress.assignmentSubmissionCount <= 0 &&
+      progress.verifiedHours <= 0
+    ){
+      return "";
+    }
+
+    return `
+      <div class="verified-progress-box">
+        <div class="verified-progress-title">✓ Instructor Verified Progress</div>
+        <div class="verified-progress-grid">
+          <div class="verified-progress-stat">
+            <strong>${safe((progress.verifiedHours || 0).toLocaleString())}</strong>
+            <span>Verified Hours</span>
+          </div>
+          <div class="verified-progress-stat">
+            <strong>${safe(progress.approvedProofCount || 0)}</strong>
+            <span>Approved Evidence</span>
+          </div>
+          <div class="verified-progress-stat">
+            <strong>${safe(progress.verifiedSkillCount || 0)}</strong>
+            <span>Verified Skills</span>
+          </div>
+          <div class="verified-progress-stat">
+            <strong>${safe(progress.approvedUnitCount || 0)}</strong>
+            <span>Approved Units</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderApprovedUnits(progress){
+    if(!progress.approvedUnits.length) return "";
+
+    return `
+      <div class="unit-box">
+        <div class="unit-box-title">Approved Unit Progress</div>
+        <div class="unit-list">
+          ${progress.approvedUnits.map(unit => `
+            <div class="unit-row">
+              <strong>${safe(unit.code)} — ${safe(unit.title)}</strong>
+              <span>${safe(unit.hours.toLocaleString())} hours • ${safe(unit.approved)} approved • ${safe(unit.pending)} pending</span>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
   }
 
   function renderAchievements(member){
@@ -927,7 +1203,7 @@
 
           <div class="achievement-stat">
             <strong>${safe(progress.jobsiteUploads)}</strong>
-            <span>Jobsite Proof</span>
+            <span>Field Evidence</span>
           </div>
 
           <div class="achievement-stat">
@@ -940,6 +1216,9 @@
             <span>Verified Skills</span>
           </div>
         </div>
+
+        ${renderVerifiedProgress(progress)}
+        ${renderApprovedUnits(progress)}
 
         <div class="progress-mini">
           <div class="progress-mini-top">
@@ -1017,7 +1296,7 @@
 
         ${renderAchievements(member)}
 
-        <button class="btn" onclick="window.location.href='/profile.html?id=${safeUrl(member.id)}&v=20260524membersv9'">
+        <button class="btn" onclick="window.location.href='/profile.html?id=${safeUrl(member.id)}&v=20260525membersv10'">
           View Profile
         </button>
       `;
@@ -1034,7 +1313,7 @@
 
       if(!user || !user.uid){
         if(window.LTNClearLocalSession) window.LTNClearLocalSession();
-        window.location.replace("/front.html?v=members-auth-required-v8");
+        window.location.replace("/front.html?v=members-auth-required-v10");
         return;
       }
 
@@ -1119,6 +1398,10 @@
         ${progress.certifications.join(" ")}
         ${progress.skills.join(" ")}
         ${progress.badges.join(" ")}
+        ${progress.approvedUnits.map(unit => `${unit.code} ${unit.title}`).join(" ")}
+        ${progress.approvedProofCount || ""}
+        ${progress.verifiedSkillCount || ""}
+        ${progress.approvedUnitCount || ""}
       `.toLowerCase();
 
       return text.includes(term);
