@@ -14,8 +14,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-24: INSTRUCTOR CENTER STUDENT PROGRESS MODAL FIX v34 -->
-<!-- LTN VERSION: instructor-center-student-progress-modal-v34 -->
+<!-- LTN FORCE UPDATE 2026-05-24: INSTRUCTOR CENTER TRADE PASSPORT EXPORT v35 -->
+<!-- LTN VERSION: instructor-center-trade-passport-export-v35 -->
+<!-- FIXES v35:
+  1. ADDED: Trade Passport PDF export from the student progress modal.
+  2. ADDED: printable employer/school-ready progress report with hours, verified skills, approved proof, workplace verification, and review summary.
+  3. PRESERVED: v34 student progress modal fix and existing instructor workflow.
+-->
 <!-- FIXES v31 (surgical only - all other code identical to v30):
   1. FIXED: Removed fragile localStorage ltn_access_granted gate - Firebase Auth handles auth.
   2. FIXED: Added "Find Apprenticeships" and "Jobs" to nav - matches Dashboard/Network Center nav.
@@ -1983,6 +1988,7 @@ textarea.form-control{min-height:106px;resize:vertical}
       </div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-primary" id="student-progress-export-btn" style="display:none" onclick="InstructorCenter.exportCurrentStudentTradePassport()">Export Trade Passport PDF</button>
       <button class="btn btn-secondary" onclick="InstructorCenter.closeModal('student-progress-modal')">Close</button>
     </div>
   </div>
@@ -2055,6 +2061,7 @@ let aptitudeTestsByUserId = {};
 let pendingReviews = [];
 let firebaseAssignments = [];
 let selectedCohortFilter = "all";
+let currentStudentTradePassport = null;
 
 function safeJsonParse(value, fallback){
   try{return JSON.parse(value || "");}catch(e){return fallback;}
@@ -3440,6 +3447,164 @@ function tradePassportMiniHtml(student){
   `;
 }
 
+
+function formatPassportDate(value){
+  if(!value) return "";
+  try{
+    if(value && typeof value.toDate === "function") return value.toDate().toLocaleDateString();
+    const d = new Date(value);
+    if(!isNaN(d.getTime())) return d.toLocaleDateString();
+  }catch(e){}
+  return String(value || "");
+}
+
+function getPassportReviewTitle(review){
+  return review.uploadTitle || review.title || review.reviewType || review.assignmentTitle || review.skillName || "Student Evidence";
+}
+
+function buildTradePassportPrintHtml(passport){
+  const reviews = Array.isArray(passport.reviews) ? passport.reviews : [];
+  const skills = Array.isArray(passport.skills) ? passport.skills : [];
+  const workplace = Array.isArray(passport.workplaceReviews) ? passport.workplaceReviews : [];
+  const approvedReviews = reviews.filter(review => getReviewStatus(review) === "approved");
+  const pendingReviewsLocal = reviews.filter(review => getReviewStatus(review) !== "approved" && getReviewStatus(review) !== "rejected");
+  const rejectedReviews = reviews.filter(review => getReviewStatus(review) === "rejected");
+  const generated = new Date().toLocaleString();
+
+  const evidenceRows = reviews.length
+    ? reviews.slice(0,24).map(review => {
+        const status = getReviewStatus(review);
+        const unit = review.unitCode || review.trainingUnitCode || review.competencyCode || "";
+        const proofUrl = review.proofFileUrl || review.fileUrl || review.downloadURL || "";
+        const date = formatPassportDate(review.approvedAt || review.submittedAt || review.createdAt || review.updatedAt);
+        return `
+          <tr>
+            <td>${escapeHtml(getPassportReviewTitle(review))}</td>
+            <td>${escapeHtml(unit || "Not assigned")}</td>
+            <td>${escapeHtml(status)}</td>
+            <td>${escapeHtml(date || "")}</td>
+            <td>${proofUrl ? "Proof attached" : "No file link"}</td>
+          </tr>
+        `;
+      }).join("")
+    : `<tr><td colspan="5">No evidence uploads found yet.</td></tr>`;
+
+  const workplaceRows = workplace.length
+    ? workplace.slice(0,16).map(review => `
+        <tr>
+          <td>${escapeHtml(review.workplaceActivity || getPassportReviewTitle(review))}</td>
+          <td>${escapeHtml(review.employerCompany || "Not added")}</td>
+          <td>${escapeHtml(review.supervisorName || "Not added")}</td>
+          <td>${escapeHtml(String(review.onSiteHours || review.workplaceHours || ""))}</td>
+          <td>${escapeHtml(getReviewStatus(review))}</td>
+        </tr>
+      `).join("")
+    : `<tr><td colspan="5">No workplace verification records found yet.</td></tr>`;
+
+  const skillRows = skills.length
+    ? skills.slice(0,18).map(skill => `
+        <tr>
+          <td>${escapeHtml(skill.skillName || skill.name || skill.title || "Verified Skill")}</td>
+          <td>${escapeHtml(skill.verificationLevel || skill.status || "Instructor Verified")}</td>
+          <td>${escapeHtml(String(skill.hoursVerified || ""))}</td>
+          <td>${escapeHtml(skill.assignmentTitle || skill.assignment || "")}</td>
+          <td>${escapeHtml(skill.instructorComment || skill.notes || "")}</td>
+        </tr>
+      `).join("")
+    : `<tr><td colspan="5">No verified skills found yet.</td></tr>`;
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Trade Passport - ${escapeHtml(passport.name || "Student")}</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:Arial,sans-serif;color:#172033;margin:0;background:#f3f6fb}
+  .page{max-width:980px;margin:24px auto;background:#fff;padding:34px;border:1px solid #dbe3ee;border-radius:18px}
+  .top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-bottom:4px solid #ea6a00;padding-bottom:18px;margin-bottom:18px}
+  .brand{font-size:22px;font-weight:900;color:#243b5a}
+  .tag{display:inline-block;background:#fff3e8;border:1px solid #ffd1ad;color:#9a3412;border-radius:999px;padding:7px 11px;font-weight:900;font-size:12px;margin-top:8px}
+  h1{margin:0;font-size:30px;color:#172033}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:#243b5a;border-bottom:1px solid #dbe3ee;padding-bottom:7px;margin:24px 0 10px}
+  .muted{color:#64748b;font-size:13px;font-weight:700;line-height:1.45}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+  .metric{border:1px solid #dbe3ee;border-radius:12px;padding:12px;background:#f8fafc}
+  .metric strong{display:block;font-size:24px;color:#243b5a;line-height:1}
+  .metric span{display:block;margin-top:5px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#64748b;font-weight:900}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
+  th{background:#243b5a;color:#fff;text-align:left;padding:9px;border:1px solid #243b5a}
+  td{padding:9px;border:1px solid #dbe3ee;vertical-align:top}
+  tr:nth-child(even) td{background:#fbfdff}
+  .summary{background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:12px;margin-top:12px;color:#7c2d12;font-size:13px;line-height:1.45}
+  .footer{margin-top:24px;padding-top:12px;border-top:1px solid #dbe3ee;color:#64748b;font-size:11px;line-height:1.4}
+  @media print{body{background:#fff}.page{margin:0;max-width:none;border:0;border-radius:0}.no-print{display:none}.grid{grid-template-columns:repeat(4,1fr)} }
+  @media(max-width:760px){.top{display:block}.grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top">
+    <div>
+      <div class="brand">LinkTradeNetwork</div>
+      <div class="tag">Trade Passport</div>
+    </div>
+    <div style="text-align:right">
+      <h1>${escapeHtml(passport.name || "Student")}</h1>
+      <div class="muted">${escapeHtml(passport.trade || "Trade not added")}${passport.email ? " • " + escapeHtml(passport.email) : ""}</div>
+      <div class="muted">${escapeHtml(passport.school || "School not added")}${passport.cohort ? " • " + escapeHtml(passport.cohort) : ""}${passport.schoolCode ? " • " + escapeHtml(passport.schoolCode) : ""}</div>
+      <div class="muted">Generated: ${escapeHtml(generated)}</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="metric"><strong>${Number(passport.hours || 0).toLocaleString()}</strong><span>Hours</span></div>
+    <div class="metric"><strong>${escapeHtml(String(passport.percent || 0))}%</strong><span>Progress</span></div>
+    <div class="metric"><strong>${approvedReviews.length}</strong><span>Approved Proofs</span></div>
+    <div class="metric"><strong>${skills.length}</strong><span>Verified Skills</span></div>
+    <div class="metric"><strong>${pendingReviewsLocal.length}</strong><span>Pending Reviews</span></div>
+    <div class="metric"><strong>${rejectedReviews.length}</strong><span>Needs Correction</span></div>
+    <div class="metric"><strong>${workplace.length}</strong><span>Workplace Records</span></div>
+    <div class="metric"><strong>${Number(passport.goal || 8000).toLocaleString()}</strong><span>Goal Hours</span></div>
+  </div>
+
+  <div class="summary">
+    This Trade Passport summarizes student progress, instructor-reviewed evidence, workplace verification, and verified skills for school, employer, and apprenticeship review.
+  </div>
+
+  <h2>Workplace Verification</h2>
+  <table>
+    <thead><tr><th>Activity</th><th>Employer</th><th>Supervisor</th><th>On-Site Hours</th><th>Status</th></tr></thead>
+    <tbody>${workplaceRows}</tbody>
+  </table>
+
+  <h2>Evidence / Instructor Reviews</h2>
+  <table>
+    <thead><tr><th>Evidence</th><th>Unit</th><th>Status</th><th>Date</th><th>File</th></tr></thead>
+    <tbody>${evidenceRows}</tbody>
+  </table>
+
+  <h2>Verified Skills</h2>
+  <table>
+    <thead><tr><th>Skill</th><th>Verification</th><th>Hours</th><th>Assignment / Lab</th><th>Instructor Comment</th></tr></thead>
+    <tbody>${skillRows}</tbody>
+  </table>
+
+  <div class="footer">
+    LinkTradeNetwork Trade Passport export. Use the browser Print button and choose “Save as PDF” to create the PDF file.
+  </div>
+
+  <div class="no-print" style="margin-top:18px;display:flex;gap:10px;justify-content:flex-end">
+    <button onclick="window.print()" style="background:#ea6a00;color:white;border:0;border-radius:999px;padding:11px 18px;font-weight:900;cursor:pointer">Print / Save as PDF</button>
+    <button onclick="window.close()" style="background:#eef3f8;color:#243b5a;border:1px solid #dbe3ee;border-radius:999px;padding:11px 18px;font-weight:900;cursor:pointer">Close</button>
+  </div>
+</div>
+</body>
+</html>
+  `;
+}
+
 window.InstructorCenter = {
   applyCohortFilter(){
     const select = document.getElementById("cohort-filter");
@@ -3806,6 +3971,12 @@ window.InstructorCenter = {
       return;
     }
 
+    const exportBtn = document.getElementById("student-progress-export-btn");
+    if(exportBtn){
+      exportBtn.style.display = "none";
+      exportBtn.disabled = true;
+    }
+
     body.innerHTML = `
       <div class="empty-state">
         <h3>Loading student progress...</h3>
@@ -3929,6 +4100,21 @@ window.InstructorCenter = {
         `).join("")
       : `<div class="empty-state"><h3>No workplace verification yet</h3><p>Employer and supervisor details will appear here when the apprentice adds workplace evidence.</p></div>`;
 
+    currentStudentTradePassport = {
+      name, email, trade, school, cohort, schoolCode, hours, goal, percent,
+      reviews, skills, workplaceReviews,
+      instructorName:currentProfile.name || "",
+      instructorEmail:currentProfile.email || "",
+      generatedAt:new Date().toISOString()
+    };
+    this.currentStudentTradePassport = currentStudentTradePassport;
+
+    const exportBtn = document.getElementById("student-progress-export-btn");
+    if(exportBtn){
+      exportBtn.style.display = "inline-flex";
+      exportBtn.disabled = false;
+    }
+
     body.innerHTML = `
       <div class="student-progress-summary">
         <h3>${escapeHtml(name)}</h3>
@@ -3966,6 +4152,36 @@ window.InstructorCenter = {
         <div class="student-progress-section-body">${skillHtml}</div>
       </div>
     `;
+  },
+
+  exportCurrentStudentTradePassport(){
+    const passport = this.currentStudentTradePassport || currentStudentTradePassport;
+
+    if(!passport){
+      alert("Open a student progress record first, then export the Trade Passport.");
+      return;
+    }
+
+    const html = buildTradePassportPrintHtml(passport);
+    const printWindow = window.open("", "_blank");
+
+    if(!printWindow){
+      alert("Popup blocked. Please allow popups for LinkTradeNetwork and try again.");
+      return;
+    }
+
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+
+    setTimeout(() => {
+      try{
+        printWindow.focus();
+        printWindow.print();
+      }catch(error){
+        console.warn("Could not auto-open print dialog:", error);
+      }
+    }, 500);
   },
 
   openSkillApprovalModal(preselectedStudentValue = null, triggerBtn = null){
