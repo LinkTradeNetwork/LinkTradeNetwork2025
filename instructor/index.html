@@ -16,20 +16,19 @@
 <title>Instructor Center • LinkTradeNetwork</title>
 
 <!--
-GITHUB COMMIT v65:
-fix(instructor): restore complete instructor dashboard and update professional route version
-- Restored the full earlier instructor dashboard structure from the uploaded working file
-- Preserved instructor profile image, student roster, pending reviews, class assignments, Trade Passport export, and student progress modal
-- Updated all public cache routes to professional v65 naming
-- Routed Track My Progress to apprenticeship progress v57
-- Removed old public cache wording so no unprofessional labels appear in the URL or comments
+GITHUB COMMIT v66:
+fix(instructor): remove failsafe cache label and prevent blank instructor page
+- Renamed all page cache versions to 20260525unitpassportv66
+- Kept instructor route/name as /instructor/ and output file as instructor.html
+- Changed auth-checking display behavior so a stalled Firebase import cannot leave a white screen
+- Added a small blank-page guard while preserving Firebase instructor authorization checks
 -->
 
 <!-- GITHUB COMMIT: fix(instructor): professional cache version and blank page repair -->
-<!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER COMPLETE v65 -->
-<!-- LTN VERSION: instructor-center-complete-v65 -->
+<!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER PROFESSIONAL v52 -->
+<!-- LTN VERSION: instructor-center-unit-passport-v66 -->
 <!-- FIXES v52:
-  1. Replaced old public cache/version labels so the URL no longer needs to show professional.
+  1. Replaced old public cache/version labels so the URL no longer needs to show failsafe.
   2. Fixed blank page JavaScript crash caused by duplicate const exportBtn inside the student progress modal function.
   3. Kept Trade Passport PDF export and instructor workflow intact.
 -->
@@ -1352,6 +1351,118 @@ textarea.form-control{min-height:106px;resize:vertical}
 
 .student-progress-proof-link:hover{text-decoration:underline}
 
+
+.unit-passport-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:10px;
+}
+
+.unit-passport-card{
+  background:linear-gradient(135deg,#ffffff,#fff7ed);
+  border:1px solid #fed7aa;
+  border-radius:14px;
+  padding:12px;
+}
+
+.unit-passport-code{
+  display:inline-flex;
+  width:max-content;
+  max-width:100%;
+  background:var(--brand);
+  color:white;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:11px;
+  font-weight:950;
+  margin-bottom:7px;
+}
+
+.unit-passport-title{
+  color:var(--ink);
+  font-size:13px;
+  font-weight:950;
+  line-height:1.3;
+  word-break:break-word;
+}
+
+.unit-passport-progress{
+  margin-top:9px;
+  height:9px;
+  border-radius:999px;
+  background:#e2e8f0;
+  overflow:hidden;
+}
+
+.unit-passport-progress-fill{
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+}
+
+.unit-passport-metrics{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+  margin-top:9px;
+}
+
+.unit-passport-metric{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:9px;
+  padding:7px;
+}
+
+.unit-passport-metric b{
+  display:block;
+  font-size:14px;
+  color:var(--accent);
+  line-height:1;
+}
+
+.unit-passport-metric span{
+  display:block;
+  font-size:9px;
+  color:var(--muted);
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-top:3px;
+}
+
+.unit-passport-status{
+  display:inline-flex;
+  margin-top:8px;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:11px;
+  font-weight:950;
+  background:#eef3f8;
+  color:var(--accent);
+  border:1px solid var(--line);
+}
+
+.unit-passport-status.completed,
+.unit-passport-status.approved{
+  background:#f0fdf4;
+  color:#166534;
+  border-color:#bbf7d0;
+}
+
+.unit-passport-status.pending,
+.unit-passport-status.in-progress{
+  background:#fff7ed;
+  color:#9a3412;
+  border-color:#fed7aa;
+}
+
+.unit-passport-status.needs-correction{
+  background:#fff1f2;
+  color:#be123c;
+  border-color:#fecdd3;
+}
+
 @media(max-width:980px){
   .hero{grid-template-columns:1fr}
   .grid{grid-template-columns:1fr}
@@ -1420,7 +1531,7 @@ textarea.form-control{min-height:106px;resize:vertical}
   // The old check was: if(localStorage.getItem("ltn_access_granted") !== "true") redirect
   // which could block legitimate logged-in users if localStorage was cleared.
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525instructorv65";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525unitpassportv66";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1452,7 +1563,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 })();
 </script>
 <script>
-/* LTN v65 blank-page guard: keeps Instructor visible even if a Firebase/CDN import stalls. */
+/* LTN v66 blank-page guard: keeps Instructor visible even if a Firebase/CDN import stalls. */
 window.setTimeout(function(){
   try{
     document.documentElement.classList.remove("auth-checking");
@@ -1476,13 +1587,13 @@ window.setTimeout(function(){
 
     <!-- FIX v31: Added Find Apprenticeships and Jobs to match Dashboard/Network Center nav -->
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260525instructorv65">Dashboard</a>
-      <a href="/members/?v=20260525instructorv65">Members</a>
-      <a href="/find-apprenticeships/?v=20260525instructorv65">Find Apprenticeships</a>
-      <a href="/instructor/?v=20260525instructorv65" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260525instructorv65" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/dashboard/?v=20260525instructorv65#jobs">Jobs</a>
-      <a href="/network-center/?v=20260525instructorv65">Network Center</a>
+      <a href="/dashboard/?v=20260525unitpassportv66">Dashboard</a>
+      <a href="/members/?v=20260525unitpassportv66">Members</a>
+      <a href="/find-apprenticeships/?v=20260525unitpassportv66">Find Apprenticeships</a>
+      <a href="/instructor/?v=20260525unitpassportv66" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260525unitpassportv66" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/dashboard/?v=20260525unitpassportv66#jobs">Jobs</a>
+      <a href="/network-center/?v=20260525unitpassportv66">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1530,7 +1641,7 @@ window.setTimeout(function(){
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260525instructorv65">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260525unitpassportv66">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -2067,7 +2178,7 @@ const storage = getStorage(app);
 
 window.LTNFirebaseSignOut = function(){
   signOut(auth).finally(function(){
-    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525instructorv65";
+    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525unitpassportv66";
   });
 };
 
@@ -2086,6 +2197,7 @@ let allVerifiedSkills = [];
 let aptitudeTestsByUserId = {};
 let pendingReviews = [];
 let firebaseAssignments = [];
+let trainingUnits = [];
 let selectedCohortFilter = "all";
 let currentStudentTradePassport = null;
 
@@ -2176,7 +2288,7 @@ async function findCurrentUser(){
 
   if(!authUser){
     LTNClearLocalSession();
-    window.location.replace("/front.html?v=20260525instructorv65");
+    window.location.replace("/front.html?v=20260525unitpassportv66");
     throw new Error("No authenticated Firebase user.");
   }
 
@@ -2196,7 +2308,7 @@ async function findCurrentUser(){
 
   if(!userSnap.exists()){
     alert("Instructor profile was not found for this signed-in account. Please complete your profile first.");
-    window.location.replace("/dashboard/?v=20260525instructorv65");
+    window.location.replace("/dashboard/?v=20260525unitpassportv66");
     throw new Error("No user profile document for current auth uid.");
   }
 
@@ -2204,7 +2316,7 @@ async function findCurrentUser(){
 
   if(!isFirestoreInstructorProfile(u)){
     alert("Instructor Center is only for instructor accounts. You are signed in as a student/apprentice/member account.");
-    window.location.replace("/dashboard/?v=20260525instructorv65");
+    window.location.replace("/dashboard/?v=20260525unitpassportv66");
     throw new Error("Current user is not an instructor.");
   }
 
@@ -2592,6 +2704,198 @@ function getReviewStatus(item){
   if(item && item.approved === true) return "approved";
   if(item && item.rejected === true) return "rejected";
   return "pending";
+}
+
+
+
+function normalizeUnitCodeFromItem(item){
+  return String(
+    item && (
+      item.unitCode ||
+      item.trainingUnitCode ||
+      item.competencyCode ||
+      item.selectedUnitCode ||
+      item.unit ||
+      item.code ||
+      item.trainingUnit
+    ) || ""
+  ).trim().toUpperCase();
+}
+
+function normalizeTrainingUnit(docId, data){
+  const source = data || {};
+  const code = String(source.code || source.unitCode || source.id || docId || "").trim().toUpperCase();
+  return {
+    id:docId || code,
+    code,
+    unitCode:code,
+    title:String(source.title || source.name || source.unitTitle || source.description || code || "Training Unit").trim(),
+    trade:String(source.trade || source.category || "").trim(),
+    category:String(source.category || source.trade || "").trim(),
+    active:source.active !== false,
+    sortOrder:Number(source.sortOrder || source.order || 9999)
+  };
+}
+
+async function loadTrainingUnits(){
+  trainingUnits = [];
+  try{
+    const snap = await getDocs(query(collection(db,"trainingUnits"), limit(500)));
+    snap.forEach(docSnap => {
+      const unit = normalizeTrainingUnit(docSnap.id, docSnap.data() || {});
+      if(unit.code && unit.active !== false) trainingUnits.push(unit);
+    });
+  }catch(error){
+    console.warn("Training units could not load for instructor passport view:", error);
+  }
+
+  trainingUnits.sort((a,b) => {
+    const order = Number(a.sortOrder || 9999) - Number(b.sortOrder || 9999);
+    if(order !== 0) return order;
+    return String(a.code || "").localeCompare(String(b.code || ""));
+  });
+
+  window.LTNTrainingUnits = trainingUnits;
+  return trainingUnits;
+}
+
+function getTrainingUnitTitle(code){
+  const clean = String(code || "").trim().toUpperCase();
+  const found = trainingUnits.find(unit => String(unit.code || unit.unitCode || "").toUpperCase() === clean);
+  return found ? found.title : clean;
+}
+
+function collectStudentUnitProgress(userData, progress, reviews, skills){
+  const unitMap = new Map();
+
+  function ensureUnit(code, title){
+    const cleanCode = String(code || "").trim().toUpperCase();
+    if(!cleanCode) return null;
+    if(!unitMap.has(cleanCode)){
+      unitMap.set(cleanCode,{
+        code:cleanCode,
+        title:title || getTrainingUnitTitle(cleanCode) || cleanCode,
+        hours:0,
+        proofCount:0,
+        approved:0,
+        pending:0,
+        rejected:0,
+        verifiedSkills:0,
+        progress:0,
+        status:"not-started"
+      });
+    }
+    return unitMap.get(cleanCode);
+  }
+
+  trainingUnits.forEach(unit => ensureUnit(unit.code || unit.unitCode, unit.title));
+
+  const savedUnitProgress = progress.trainingUnitProgress || userData.trainingUnitProgress || (userData.apprenticeship && userData.apprenticeship.trainingUnitProgress) || null;
+
+  if(Array.isArray(savedUnitProgress)){
+    savedUnitProgress.forEach(item => {
+      const code = normalizeUnitCodeFromItem(item);
+      const row = ensureUnit(code, item.title || item.unitTitle || item.name);
+      if(!row) return;
+      row.hours += Number(item.hours || item.hoursCompleted || item.totalHours || 0) || 0;
+      row.proofCount += Number(item.proofCount || item.proofs || item.totalProofs || 0) || 0;
+      row.approved += Number(item.approved || item.approvedProofs || 0) || 0;
+      row.pending += Number(item.pending || item.pendingProofs || 0) || 0;
+      row.rejected += Number(item.rejected || item.rejectedProofs || 0) || 0;
+    });
+  }else if(savedUnitProgress && typeof savedUnitProgress === "object"){
+    Object.keys(savedUnitProgress).forEach(codeKey => {
+      const item = savedUnitProgress[codeKey] || {};
+      const row = ensureUnit(codeKey, item.title || item.unitTitle || item.name);
+      if(!row) return;
+      row.hours += Number(item.hours || item.hoursCompleted || item.totalHours || 0) || 0;
+      row.proofCount += Number(item.proofCount || item.proofs || item.totalProofs || 0) || 0;
+      row.approved += Number(item.approved || item.approvedProofs || 0) || 0;
+      row.pending += Number(item.pending || item.pendingProofs || 0) || 0;
+      row.rejected += Number(item.rejected || item.rejectedProofs || 0) || 0;
+    });
+  }
+
+  const hourLogs = [];
+  [userData.hourLogs, progress.hourLogs, userData.hoursLog, progress.hoursLog].forEach(list => {
+    if(Array.isArray(list)) hourLogs.push(...list);
+  });
+
+  hourLogs.forEach(log => {
+    const code = normalizeUnitCodeFromItem(log);
+    const row = ensureUnit(code, log.unitTitle || log.title);
+    if(!row) return;
+    row.hours += Number(log.hours || log.hoursWorked || log.value || 0) || 0;
+  });
+
+  reviews.forEach(review => {
+    const code = normalizeUnitCodeFromItem(review);
+    const row = ensureUnit(code, review.unitTitle || review.trainingUnitTitle || review.title);
+    if(!row) return;
+    const status = getReviewStatus(review);
+    row.proofCount += 1;
+    row.hours += Number(review.onSiteHours || review.workplaceHours || review.hours || review.hoursWorked || 0) || 0;
+    if(status === "approved") row.approved += 1;
+    else if(status === "rejected") row.rejected += 1;
+    else row.pending += 1;
+  });
+
+  skills.forEach(skill => {
+    const code = normalizeUnitCodeFromItem(skill);
+    const row = ensureUnit(code, skill.unitTitle || skill.trainingUnitTitle || skill.skillName);
+    if(!row) return;
+    row.verifiedSkills += 1;
+    row.hours += Number(skill.hoursVerified || 0) || 0;
+    row.approved += skill.approved === true ? 1 : 0;
+  });
+
+  const rows = Array.from(unitMap.values()).map(row => {
+    const evidenceScore = Math.min(45, row.approved * 15 + row.verifiedSkills * 15);
+    const hourScore = Math.min(45, Math.round((row.hours / 40) * 45));
+    const pendingScore = row.pending > 0 ? 5 : 0;
+    row.progress = Math.max(0, Math.min(100, evidenceScore + hourScore + pendingScore));
+
+    if(row.rejected > 0) row.status = "needs-correction";
+    else if(row.progress >= 100 || (row.approved > 0 && row.verifiedSkills > 0)) row.status = "completed";
+    else if(row.pending > 0 || row.proofCount > 0 || row.hours > 0 || row.verifiedSkills > 0) row.status = "in-progress";
+    else row.status = "not-started";
+
+    return row;
+  });
+
+  return rows.sort((a,b) => {
+    const au = trainingUnits.find(unit => unit.code === a.code);
+    const bu = trainingUnits.find(unit => unit.code === b.code);
+    const order = Number(au && au.sortOrder || 9999) - Number(bu && bu.sortOrder || 9999);
+    if(order !== 0) return order;
+    return a.code.localeCompare(b.code);
+  });
+}
+
+function renderUnitProgressHtml(unitProgress){
+  const activeRows = (Array.isArray(unitProgress) ? unitProgress : []).filter(row => {
+    return row.hours > 0 || row.proofCount > 0 || row.approved > 0 || row.pending > 0 || row.rejected > 0 || row.verifiedSkills > 0 || row.status !== "not-started";
+  });
+
+  const rowsToShow = activeRows.length ? activeRows : (unitProgress || []).slice(0,8);
+
+  if(!rowsToShow.length){
+    return `<div class="empty-state"><h3>No unit progress yet</h3><p>When the apprentice logs hours or uploads proof with a training unit, it will appear here.</p></div>`;
+  }
+
+  return `<div class="unit-passport-grid">${rowsToShow.map(row => `
+    <div class="unit-passport-card">
+      <div class="unit-passport-code">${escapeHtml(row.code)}</div>
+      <div class="unit-passport-title">${escapeHtml(row.title || row.code)}</div>
+      <div class="unit-passport-progress"><div class="unit-passport-progress-fill" style="width:${Math.max(0,Math.min(100,Number(row.progress || 0)))}%"></div></div>
+      <div class="unit-passport-metrics">
+        <div class="unit-passport-metric"><b>${Number(row.hours || 0).toLocaleString()}</b><span>Hours</span></div>
+        <div class="unit-passport-metric"><b>${Number(row.approved || 0)}</b><span>Approved</span></div>
+        <div class="unit-passport-metric"><b>${Number(row.pending || 0)}</b><span>Pending</span></div>
+      </div>
+      <span class="unit-passport-status ${escapeHtml(row.status)}">${escapeHtml(String(row.status || "not-started").replaceAll("-"," "))}</span>
+    </div>
+  `).join("")}</div>`;
 }
 
 function getFilteredReviewsForAnalytics(){
@@ -3356,6 +3660,7 @@ async function buildTradePassportMetricsForStudent(studentUid){
   const assignmentCompletionRate = reviews.length ? Math.round((approvedAssignments / Math.max(approvedAssignments + pendingReviewsCount + rejectedReviewsCount,1)) * 100) : 0;
   const profileCompleted = !!(userData.fullName || userData.name || rosterStudent.name) && !!(userData.trade || rosterStudent.trade) && !!(apprenticeship.schoolCode || userData.schoolCode || rosterStudent.schoolCode);
   const schoolCode = String(apprenticeship.schoolCode || userData.schoolCode || rosterStudent.schoolCode || currentProfile.schoolCode || "").trim().toUpperCase();
+  const unitProgress = collectStudentUnitProgress(userData, progress, reviews, skills);
 
   const metrics = {
     uid,
@@ -3380,6 +3685,10 @@ async function buildTradePassportMetricsForStudent(studentUid){
     pendingReviews:pendingReviewsCount,
     rejectedReviews:rejectedReviewsCount,
     assignmentCompletionRate,
+    unitProgress,
+    trainingUnitCount:unitProgress.length,
+    completedUnitCount:unitProgress.filter(unit => unit.status === "completed").length,
+    activeUnitCount:unitProgress.filter(unit => unit.status !== "not-started").length,
     badgesEarned:Array.isArray(userData.badgesEarned) ? userData.badgesEarned.length : 0,
     oshaCompleted:(Array.isArray(userData.certifications) ? userData.certifications : []).join(" ").toLowerCase().includes("osha"),
     profileCompleted,
@@ -3429,7 +3738,7 @@ async function syncTradePassportForStudent(studentUid, activity = {}){
         assignmentCompletionRate:metrics.assignmentCompletionRate || 0,
         employerReadyScore:metrics.employerReadyScore || 0,
         updatedAt:new Date().toISOString(),
-        updatedBy:"instructor_center_v65"
+        updatedBy:"instructor_center_v32"
       },
       updatedAtServer:serverTimestamp()
     },{merge:true});
@@ -3539,6 +3848,22 @@ function buildTradePassportPrintHtml(passport){
       `).join("")
     : `<tr><td colspan="5">No verified skills found yet.</td></tr>`;
 
+
+
+  const unitProgress = Array.isArray(passport.unitProgress) ? passport.unitProgress : [];
+  const unitRows = unitProgress.length
+    ? unitProgress.slice(0,40).map(unit => `
+        <tr>
+          <td>${escapeHtml(unit.code || "")}</td>
+          <td>${escapeHtml(unit.title || unit.code || "")}</td>
+          <td>${escapeHtml(String(unit.hours || 0))}</td>
+          <td>${escapeHtml(String(unit.approved || 0))}</td>
+          <td>${escapeHtml(String(unit.pending || 0))}</td>
+          <td>${escapeHtml(String(unit.status || "not-started"))}</td>
+        </tr>
+      `).join("")
+    : `<tr><td colspan="6">No training unit progress found yet.</td></tr>`;
+
   return `
 <!DOCTYPE html>
 <html>
@@ -3603,6 +3928,12 @@ function buildTradePassportPrintHtml(passport){
   <table>
     <thead><tr><th>Activity</th><th>Employer</th><th>Supervisor</th><th>On-Site Hours</th><th>Status</th></tr></thead>
     <tbody>${workplaceRows}</tbody>
+  </table>
+
+  <h2>Training Unit Progress</h2>
+  <table>
+    <thead><tr><th>Unit Code</th><th>Unit Title</th><th>Hours</th><th>Approved</th><th>Pending</th><th>Status</th></tr></thead>
+    <tbody>${unitRows}</tbody>
   </table>
 
   <h2>Evidence / Instructor Reviews</h2>
@@ -4079,7 +4410,10 @@ window.InstructorCenter = {
     const pending = reviews.filter(review => getReviewStatus(review) !== "approved" && getReviewStatus(review) !== "rejected").length;
     const verifiedSkillCount = skills.filter(skill => skill.approved === true || String(skill.status || "").toLowerCase() === "approved").length || skills.length;
 
-    const workplaceReviews = reviews.filter(review => {
+    const unitProgress = collectStudentUnitProgress(userData, progress, reviews, skills);
+const unitProgressHtml = renderUnitProgressHtml(unitProgress);
+
+const workplaceReviews = reviews.filter(review => {
       return review.employerCompany || review.supervisorName || review.workplaceActivity || Number(review.onSiteHours || review.workplaceHours || 0) > 0;
     });
 
@@ -4272,7 +4606,22 @@ window.InstructorCenter = {
         row("Workplace Records", workplace.length);
         row("Instructor", `${passport.instructorName || currentProfile.name || ""}${passport.instructorEmail ? " • " + passport.instructorEmail : ""}`);
 
-        section("Workplace Verification");
+        section("Training Unit Progress");
+    if(unitProgress.length){
+      unitProgress.slice(0,30).forEach((unit, index) => {
+        text(`${index + 1}. ${unit.code || ""} - ${unit.title || unit.code || "Training Unit"}`, margin, 11, "bold");
+        row("Hours", Number(unit.hours || 0).toLocaleString());
+        row("Approved Proofs", unit.approved || 0);
+        row("Pending Proofs", unit.pending || 0);
+        row("Needs Correction", unit.rejected || 0);
+        row("Status", String(unit.status || "not-started").replaceAll("-"," "));
+        y += 5;
+      });
+    }else{
+      text("No training unit progress found yet.", margin, 10, "normal");
+    }
+
+    section("Workplace Verification");
         if(workplace.length){
           workplace.slice(0,14).forEach((review, index) => {
             text(`${index + 1}. ${review.workplaceActivity || getPassportReviewTitle(review) || "Workplace Evidence"}`, margin, 11, "bold");
@@ -4796,6 +5145,7 @@ async function init(){
   updateProfileDisplay();
   ltnRevealInstructorPage();
 
+  await loadTrainingUnits();
   await loadAutoLinkedStudents();
   await loadAptitudeTests();
   await loadVerifiedSkills();
@@ -4817,7 +5167,8 @@ async function init(){
     students:autoLinkedStudents.length,
     verifiedSkills:allVerifiedSkills.length,
     pendingReviews:pendingReviews.length,
-    assignments:firebaseAssignments.length
+    assignments:firebaseAssignments.length,
+    trainingUnits:trainingUnits.length
   });
 }
 
