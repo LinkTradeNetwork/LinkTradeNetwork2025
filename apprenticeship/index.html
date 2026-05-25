@@ -8,9 +8,15 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="ltn-version" content="apprenticeship-dashboard-recent-activity-v56">
+  <meta name="ltn-version" content="apprenticeship-dashboard-unit-sync-v57">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-recent-activity-v56 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-unit-sync-v57 -->
+  <!-- FIXES v57:
+    1. FIXED: Training unit dropdowns now support existing Firestore fields: code, title, trade, active, category, sortOrder.
+    2. ADDED: Immediate built-in unit fallback so dropdowns never sit on Loading training units.
+    3. CLEANED: Updated cache/version naming to professional progressv57 labels with no production wording.
+    4. PRESERVED: Recent Activity feed, workplace verification, instructor reviews, and proof upload workflow.
+  -->
   <!-- FIXES v56:
     1. ADDED: Recent Activity feed showing hours, proof uploads, assignments, instructor reviews, and verified skills.
     2. ADDED: Activity records save into users/{uid} and apprenticeshipProgress for instructor/member dashboards.
@@ -1193,12 +1199,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260525activityv56'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260525activityv56'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260525progressv57'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260525progressv57'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260525activityv56'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260525activityv56'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260525progressv57'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260525progressv57'">Back</button>
   </div>
 </div>
 
@@ -1549,8 +1555,8 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v56";
-  const LTN_PAGE_VERSION = "apprenticeship-dashboard-recent-activity-v56";
+  const LOCAL_PROGRESS_VERSION = "v57";
+  const LTN_PAGE_VERSION = "apprenticeship-dashboard-unit-sync-v57";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1954,7 +1960,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260525activityv56";
+      window.location.href = "/instructor/?v=20260525progressv57";
       return false;
     }
 
@@ -1969,11 +1975,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260525activityv56";
+      window.location.href = "/instructor/?v=20260525progressv57";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260525activityv56";
+    window.location.href = "/apprenticeship/?v=20260525progressv57";
     return false;
   };
 
@@ -1982,7 +1988,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260525activityv56");
+      window.location.replace("/instructor/?v=20260525progressv57");
       return false;
     }
 
@@ -2057,13 +2063,17 @@
 
   function normalizeTrainingUnit(data,id){
     const unit = data && typeof data === "object" ? data : {};
+    const code = cleanString(unit.code || unit.unitCode || unit.competencyCode || unit.unit || id || "").toUpperCase();
+    const title = cleanString(unit.title || unit.unitTitle || unit.competencyTitle || unit.name || unit.description || "Training Unit");
     return {
-      id:id || unit.id || unit.code || unit.unitCode || "",
-      code:cleanString(unit.code || unit.unitCode || unit.competencyCode || id || "").toUpperCase(),
-      title:cleanString(unit.title || unit.unitTitle || unit.competencyTitle || unit.name || "Training Unit"),
+      id:id || unit.id || code || "",
+      code:code,
+      unitCode:code,
+      title:title,
+      unitTitle:title,
       category:cleanString(unit.category || unit.unitType || unit.type || "core").toLowerCase(),
       trade:cleanString(unit.trade || unit.tradeType || "Electrical"),
-      active:unit.active !== false,
+      active:unit.active !== false && unit.active !== "false",
       sortOrder:Number(unit.sortOrder || unit.order || 9999) || 9999
     };
   }
@@ -2119,7 +2129,8 @@
   }
 
   async function loadTrainingUnits(){
-    trainingUnits = defaultTrainingUnits();
+    // v57: show built-in units immediately so users never get stuck on "Loading training units..."
+    trainingUnits = defaultTrainingUnits().map(unit => normalizeTrainingUnit(unit, unit.code));
     window.trainingUnits = trainingUnits;
     renderTrainingUnitSelectors();
     renderUnitProgress();
@@ -2137,7 +2148,7 @@
         trainingUnits = firebaseUnits;
       }
     }catch(error){
-      console.warn("Could not load Firestore training units. Using built-in v52 units:", error);
+      console.warn("Could not load Firestore training units. Using built-in v57 units:", error);
     }
 
     trainingUnits.sort((a,b) => {
@@ -2150,7 +2161,17 @@
     renderTrainingUnitSelectors();
     renderUnitProgress();
 
-    console.log("LTN v52 training units loaded:", trainingUnits.length, trainingUnits);
+    console.log("LTN v57 training units loaded:", trainingUnits.length, trainingUnits);
+  }
+
+  // v57: immediate dropdown hydration before profile/auth finishes.
+  try{
+    trainingUnits = defaultTrainingUnits().map(unit => normalizeTrainingUnit(unit, unit.code));
+    window.trainingUnits = trainingUnits;
+    renderTrainingUnitSelectors();
+    renderUnitProgress();
+  }catch(error){
+    console.warn("Initial training unit fallback did not render yet:", error);
   }
 
   function allLocalProofs(){
@@ -2782,7 +2803,7 @@
 
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260525activityv56");
+      window.location.replace("/front/?v=secureauth20260525progressv57");
       return;
     }
 
@@ -4201,7 +4222,7 @@
 
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260525activityv56");
+      window.location.replace("/front/?v=secureauth20260525progressv57");
       return;
     }
 
@@ -4266,7 +4287,7 @@
     }
   },4500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v55 WORKPLACE VERIFICATION - original full code patched");
+  console.log("LTN Apprenticeship Dashboard Loaded v57 PROFESSIONAL UNIT SYNC");
 </script>
 
 </body>
