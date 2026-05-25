@@ -14,8 +14,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-24: INSTRUCTOR CENTER TRADE PASSPORT EXPORT v35 -->
-<!-- LTN VERSION: instructor-center-trade-passport-export-v35 -->
+<!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER SAFE TRADE PASSPORT EXPORT v37 -->
+<!-- LTN VERSION: instructor-center-safe-trade-passport-export-v37 -->
+<!-- FIXES v37:
+  1. SAFE REPAIR: Rebuilt from last working v35 Instructor Center so dashboard does not white-screen.
+  2. FIXED: Export Trade Passport PDF button is visible in the Student Progress modal footer.
+  3. ADDED: Safety reveal guard so page does not stay blank if a browser/cache issue delays auth.
+  4. PRESERVED: v35 student progress modal, review cards, workplace verification, and print/export logic.
+-->
 <!-- FIXES v35:
   1. ADDED: Trade Passport PDF export from the student progress modal.
   2. ADDED: printable employer/school-ready progress report with hours, verified skills, approved proof, workplace verification, and review summary.
@@ -1432,6 +1438,30 @@ textarea.form-control{min-height:106px;resize:vertical}
     window.location.href = window.LTN_FRONT_GATE_URL;
     return false;
   };
+
+  window.LTNRevealInstructorCenterSafe = function(reason){
+    try{
+      document.documentElement.classList.remove("auth-checking");
+      document.documentElement.classList.add("auth-ready");
+      if(reason) console.log("LTN Instructor Center visible:", reason);
+    }catch(e){}
+  };
+
+  window.addEventListener("error", function(e){
+    console.error("LTN Instructor Center script error:", e && e.message ? e.message : e);
+    if(window.LTNRevealInstructorCenterSafe) window.LTNRevealInstructorCenterSafe("window-error");
+  });
+
+  window.addEventListener("unhandledrejection", function(e){
+    console.error("LTN Instructor Center promise error:", e && e.reason ? e.reason : e);
+    if(window.LTNRevealInstructorCenterSafe) window.LTNRevealInstructorCenterSafe("promise-error");
+  });
+
+  setTimeout(function(){
+    if(document.documentElement.classList.contains("auth-checking")){
+      if(window.LTNRevealInstructorCenterSafe) window.LTNRevealInstructorCenterSafe("safe-timeout");
+    }
+  }, 5500);
 })();
 </script>
 
@@ -1987,8 +2017,8 @@ textarea.form-control{min-height:106px;resize:vertical}
         <p>Please wait while the student record loads.</p>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" id="student-progress-export-btn" style="display:none" onclick="InstructorCenter.exportCurrentStudentTradePassport()">Export Trade Passport PDF</button>
+    <div class="modal-footer" style="justify-content:space-between;flex-wrap:wrap">
+      <button class="btn btn-primary" id="student-progress-export-btn" style="display:inline-flex" onclick="InstructorCenter.exportCurrentStudentTradePassport()">Export Trade Passport PDF</button>
       <button class="btn btn-secondary" onclick="InstructorCenter.closeModal('student-progress-modal')">Close</button>
     </div>
   </div>
@@ -3973,8 +4003,9 @@ window.InstructorCenter = {
 
     const exportBtn = document.getElementById("student-progress-export-btn");
     if(exportBtn){
-      exportBtn.style.display = "none";
+      exportBtn.style.display = "inline-flex";
       exportBtn.disabled = true;
+      exportBtn.textContent = "Loading Trade Passport...";
     }
 
     body.innerHTML = `
@@ -4113,6 +4144,7 @@ window.InstructorCenter = {
     if(exportBtn){
       exportBtn.style.display = "inline-flex";
       exportBtn.disabled = false;
+      exportBtn.textContent = "Export Trade Passport PDF";
     }
 
     body.innerHTML = `
@@ -4120,6 +4152,10 @@ window.InstructorCenter = {
         <h3>${escapeHtml(name)}</h3>
         <p>${escapeHtml(trade)}${email ? " • " + escapeHtml(email) : ""}</p>
         <p>${escapeHtml(school || "School not added")}${cohort ? " • " + escapeHtml(cohort) : ""}${schoolCode ? " • " + escapeHtml(schoolCode) : ""}</p>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin:14px 0 18px">
+        <button class="btn btn-primary" onclick="InstructorCenter.exportCurrentStudentTradePassport()">Export Trade Passport PDF</button>
       </div>
 
       <div class="student-progress-grid">
@@ -4606,6 +4642,10 @@ window.ltnInstructorBlockTrackProgress = function(event){
 };
 
 function ltnRevealInstructorPage(){
+  if(window.LTNRevealInstructorCenterSafe){
+    window.LTNRevealInstructorCenterSafe("firebase-ready");
+    return;
+  }
   try{
     document.documentElement.classList.remove("auth-checking");
     document.documentElement.classList.add("auth-ready");
