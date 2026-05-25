@@ -14,8 +14,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-23: INSTRUCTOR CENTER STABILITY FIX v31 -->
-<!-- LTN VERSION: instructor-center-stability-fix-v31 -->
+<!-- LTN FORCE UPDATE 2026-05-24: INSTRUCTOR CENTER ASSIGNMENT SYNC FIX v32 -->
+<!-- LTN VERSION: instructor-center-assignment-sync-v32 -->
 <!-- FIXES v31 (surgical only - all other code identical to v30):
   1. FIXED: Removed fragile localStorage ltn_access_granted gate - Firebase Auth handles auth.
   2. FIXED: Added "Find Apprenticeships" and "Jobs" to nav - matches Dashboard/Network Center nav.
@@ -1283,7 +1283,7 @@ textarea.form-control{min-height:106px;resize:vertical}
   // The old check was: if(localStorage.getItem("ltn_access_granted") !== "true") redirect
   // which could block legitimate logged-in users if localStorage was cleared.
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260523instructorv31";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260524assignmentsyncv32";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1330,13 +1330,13 @@ textarea.form-control{min-height:106px;resize:vertical}
 
     <!-- FIX v31: Added Find Apprenticeships and Jobs to match Dashboard/Network Center nav -->
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260523instructorv31">Dashboard</a>
-      <a href="/members/?v=20260523instructorv31">Members</a>
-      <a href="/find-apprenticeships/?v=20260523instructorv31">Find Apprenticeships</a>
-      <a href="/instructor/?v=20260523instructorv31" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260523instructorv31" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/dashboard/?v=20260523instructorv31#jobs">Jobs</a>
-      <a href="/network-center/?v=20260523instructorv31">Network Center</a>
+      <a href="/dashboard/?v=20260524assignmentsyncv32">Dashboard</a>
+      <a href="/members/?v=20260524assignmentsyncv32">Members</a>
+      <a href="/find-apprenticeships/?v=20260524assignmentsyncv32">Find Apprenticeships</a>
+      <a href="/instructor/?v=20260524assignmentsyncv32" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260524assignmentsyncv32" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/dashboard/?v=20260524assignmentsyncv32#jobs">Jobs</a>
+      <a href="/network-center/?v=20260524assignmentsyncv32">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1384,7 +1384,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260523instructorv31">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260524assignmentsyncv32">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1900,7 +1900,7 @@ const storage = getStorage(app);
 
 window.LTNFirebaseSignOut = function(){
   signOut(auth).finally(function(){
-    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260523instructorv31";
+    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260524assignmentsyncv32";
   });
 };
 
@@ -3235,6 +3235,37 @@ async function syncTradePassportForStudent(studentUid, activity = {}){
 
     await setDoc(doc(db,"tradePassports",uid),metrics,{merge:true});
 
+    await setDoc(doc(db,"users",uid),{
+      uid,
+      authUid:uid,
+      schoolCode:metrics.schoolCode || "",
+      verifiedSkillCount:metrics.verifiedSkills || 0,
+      approvedProofCount:metrics.approvedProofs || 0,
+      pendingReviewCount:metrics.pendingReviews || 0,
+      rejectedProofCount:metrics.rejectedReviews || 0,
+      verifiedPhotos:metrics.approvedProofs || 0,
+      employerReadyScore:metrics.employerReadyScore || 0,
+      apprenticeshipProgress:{
+        currentHours:metrics.currentHours || 0,
+        hoursCompleted:metrics.currentHours || 0,
+        totalHours:metrics.currentHours || 0,
+        totalHoursRequired:metrics.totalHoursRequired || 8000,
+        progressPercent:metrics.progressPercent || 0,
+        approvedAssignments:metrics.approvedAssignments || 0,
+        verifiedAssignments:metrics.verifiedAssignments || 0,
+        verifiedSkills:metrics.verifiedSkills || 0,
+        certifications:metrics.certifications || 0,
+        approvedProofCount:metrics.approvedProofs || 0,
+        pendingReviewCount:metrics.pendingReviews || 0,
+        rejectedReviewCount:metrics.rejectedReviews || 0,
+        assignmentCompletionRate:metrics.assignmentCompletionRate || 0,
+        employerReadyScore:metrics.employerReadyScore || 0,
+        updatedAt:new Date().toISOString(),
+        updatedBy:"instructor_center_v32"
+      },
+      updatedAtServer:serverTimestamp()
+    },{merge:true});
+
     await addDoc(collection(db,"tradePassportActivity"),{
       authUid:uid,
       studentUid:uid,
@@ -3367,7 +3398,10 @@ window.InstructorCenter = {
         approvedBy:currentProfile.name || "Instructor",
         instructorComment,
         reviewedDate,
-        reviewedAt:serverTimestamp()
+        reviewedAt:serverTimestamp(),
+        reviewedByUid:currentUserId || "",
+        approvedByUid:currentUserId || "",
+        approvedAt:serverTimestamp()
       });
 
       await syncTradePassportForStudent(existingReview.authUid || existingReview.studentUid || existingReview.uid || existingReview.studentId, {
@@ -3377,6 +3411,13 @@ window.InstructorCenter = {
         reviewId
       });
 
+
+      await syncTradePassportForStudent(existingReview.authUid || existingReview.studentUid || existingReview.uid || existingReview.studentId, {
+        type:"review_rejected",
+        title:existingReview.uploadTitle || "Student upload needs correction",
+        detail:instructorComment,
+        reviewId
+      });
 
       await loadPendingReviews();
       await loadClassAssignments();
@@ -3408,7 +3449,9 @@ window.InstructorCenter = {
         approvedBy:currentProfile.name || "Instructor",
         instructorComment,
         reviewedDate,
-        reviewedAt:serverTimestamp()
+        reviewedAt:serverTimestamp(),
+        reviewedByUid:currentUserId || "",
+        approvedByUid:currentUserId || ""
       });
 
       await loadPendingReviews();
@@ -3601,7 +3644,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260523instructorv31">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260524assignmentsyncv32">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -4087,7 +4130,7 @@ async function init(){
   updateAnalytics();
 
   // FIX v31: console.log now correctly says v31 (v30 said "v25" - version mismatch from copy-paste).
-  console.log("LTN Instructor Center v31 loaded", {
+  console.log("LTN Instructor Center v32 assignment sync loaded", {
     currentProfile,
     students:autoLinkedStudents.length,
     verifiedSkills:allVerifiedSkills.length,
