@@ -8,9 +8,15 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="ltn-version" content="apprenticeship-dashboard-assignment-sync-v53">
+  <meta name="ltn-version" content="apprenticeship-dashboard-workplace-verification-v55">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-assignment-sync-v53 -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-workplace-verification-v55 -->
+  <!-- FIXES v55:
+    1. ADDED: Workplace Verification fields for employer company, supervisor name, workplace activity, and on-site hours.
+    2. ADDED: Workplace Verification data saves with certification, skill, project, signed work proof, and assignment submissions.
+    3. ADDED: Workplace Verification data is sent into instructor pending reviews for approval workflow.
+    4. PRESERVED: Original dashboard structure, unit tracking, and approval syncing workflow.
+  -->
   <!-- FIXES v54:
     1. FIXED: After adding hours, the training unit dropdown resets back to "Select unit for hours".
     2. FIXED: Removed Firebase wording from the Training Unit Progress section so users do not see platform backend details.
@@ -976,12 +982,57 @@
       text-transform:uppercase;
     }
 
+
+    .workplace-box{
+      margin-top:12px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+    }
+
+    .workplace-box-title{
+      color:var(--blue-dark);
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      margin-bottom:8px;
+    }
+
+    .workplace-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .workplace-note{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.35;
+      margin-top:8px;
+    }
+
+    .workplace-summary{
+      margin-top:10px;
+      background:#eef6ff;
+      border:1px solid #cbe0f4;
+      color:#24517b;
+      border-radius:10px;
+      padding:9px 10px;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
     @media(max-width:900px){
       .hero{grid-template-columns:1fr}
       .hero-stack{align-items:flex-start}
       .card.big{grid-column:span 1}
       .form-row{grid-template-columns:1fr}
       .assignment-upload-grid{grid-template-columns:1fr}
+      .workplace-grid{grid-template-columns:1fr}
     }
 
     @media(max-width:750px){
@@ -1018,12 +1069,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260524assignmentsyncv53'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260524assignmentsyncv53'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260525workplacev55'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260525workplacev55'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260524assignmentsyncv53'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260524assignmentsyncv53'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260525workplacev55'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260525workplacev55'">Back</button>
   </div>
 </div>
 
@@ -1220,6 +1271,16 @@
       <select id="certUnitSelect" class="form-control" style="margin-top:10px"><option value="">Loading training units...</option></select>
       <input id="certFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
       <div class="file-help">Upload certificate, signed document, PDF, or photo proof. Max 10 MB.</div>
+      <div class="workplace-box">
+        <div class="workplace-box-title">Workplace Verification</div>
+        <div class="workplace-grid">
+          <input id="certEmployerCompanyInput" class="form-control" type="text" maxlength="100" placeholder="Employer company">
+          <input id="certSupervisorNameInput" class="form-control" type="text" maxlength="100" placeholder="Supervisor name">
+          <input id="certActivityInput" class="form-control" type="text" maxlength="120" placeholder="Workplace activity">
+          <input id="certOnsiteHoursInput" class="form-control" type="number" min="0" step="0.25" placeholder="On-site hours">
+        </div>
+        <div class="workplace-note">Optional: add workplace details so your instructor can see how this evidence connects to real jobsite activity.</div>
+      </div>
       <button id="certBtn" class="button" onclick="addCertification()" style="margin-top:12px">+ Add Certification Proof</button>
       <div id="certList" class="list-box"></div>
     </div>
@@ -1232,6 +1293,16 @@
       <select id="skillUnitSelect" class="form-control" style="margin-top:10px"><option value="">Loading training units...</option></select>
       <input id="skillFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
       <div class="file-help">Upload instructor proof, employer sign-off, worksheet, PDF, or photo. Max 10 MB.</div>
+      <div class="workplace-box">
+        <div class="workplace-box-title">Workplace Verification</div>
+        <div class="workplace-grid">
+          <input id="skillEmployerCompanyInput" class="form-control" type="text" maxlength="100" placeholder="Employer company">
+          <input id="skillSupervisorNameInput" class="form-control" type="text" maxlength="100" placeholder="Supervisor name">
+          <input id="skillActivityInput" class="form-control" type="text" maxlength="120" placeholder="Workplace activity">
+          <input id="skillOnsiteHoursInput" class="form-control" type="number" min="0" step="0.25" placeholder="On-site hours">
+        </div>
+        <div class="workplace-note">Optional: add workplace details so your instructor can see how this evidence connects to real jobsite activity.</div>
+      </div>
       <button id="skillBtn" class="button" onclick="addSkill()" style="margin-top:12px">+ Add Skill Proof</button>
       <div id="skillList" class="list-box"></div>
     </div>
@@ -1244,6 +1315,16 @@
       <select id="projectUnitSelect" class="form-control" style="margin-top:10px"><option value="">Loading training units...</option></select>
       <input id="projectFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
       <div class="file-help">Upload signed project paperwork, employer verification, PDF, or job proof. Max 10 MB.</div>
+      <div class="workplace-box">
+        <div class="workplace-box-title">Workplace Verification</div>
+        <div class="workplace-grid">
+          <input id="projectEmployerCompanyInput" class="form-control" type="text" maxlength="100" placeholder="Employer company">
+          <input id="projectSupervisorNameInput" class="form-control" type="text" maxlength="100" placeholder="Supervisor name">
+          <input id="projectActivityInput" class="form-control" type="text" maxlength="120" placeholder="Workplace activity">
+          <input id="projectOnsiteHoursInput" class="form-control" type="number" min="0" step="0.25" placeholder="On-site hours">
+        </div>
+        <div class="workplace-note">Optional: add workplace details so your instructor can see how this evidence connects to real jobsite activity.</div>
+      </div>
       <button id="projectBtn" class="button" onclick="addProject()" style="margin-top:12px">+ Add Project Proof</button>
       <div id="projectList" class="list-box"></div>
     </div>
@@ -1256,6 +1337,16 @@
       <select id="signedProofUnitSelect" class="form-control" style="margin-top:10px"><option value="">Loading training units...</option></select>
       <input id="signedProofFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
       <div class="file-help">Accepted: PDF, JPG, PNG, HEIC. Max 10 MB.</div>
+      <div class="workplace-box">
+        <div class="workplace-box-title">Workplace Verification</div>
+        <div class="workplace-grid">
+          <input id="signedProofEmployerCompanyInput" class="form-control" type="text" maxlength="100" placeholder="Employer company">
+          <input id="signedProofSupervisorNameInput" class="form-control" type="text" maxlength="100" placeholder="Supervisor name">
+          <input id="signedProofActivityInput" class="form-control" type="text" maxlength="120" placeholder="Workplace activity">
+          <input id="signedProofOnsiteHoursInput" class="form-control" type="number" min="0" step="0.25" placeholder="On-site hours">
+        </div>
+        <div class="workplace-note">Optional: add workplace details so your instructor can see how this evidence connects to real jobsite activity.</div>
+      </div>
       <button id="signedProofBtn" class="button" onclick="addSignedProof()" style="margin-top:12px">+ Upload Signed Work Proof</button>
       <div id="signedProofList" class="list-box"></div>
     </div>
@@ -1323,8 +1414,8 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v53";
-  const LTN_PAGE_VERSION = "apprenticeship-dashboard-assignment-sync-v53";
+  const LOCAL_PROGRESS_VERSION = "v55";
+  const LTN_PAGE_VERSION = "apprenticeship-dashboard-workplace-verification-v55";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1726,7 +1817,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260524assignmentsyncv53";
+      window.location.href = "/instructor/?v=20260525workplacev55";
       return false;
     }
 
@@ -1741,11 +1832,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260524assignmentsyncv53";
+      window.location.href = "/instructor/?v=20260525workplacev55";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260524assignmentsyncv53";
+    window.location.href = "/apprenticeship/?v=20260525workplacev55";
     return false;
   };
 
@@ -1754,7 +1845,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260524assignmentsyncv53");
+      window.location.replace("/instructor/?v=20260525workplacev55");
       return false;
     }
 
@@ -2162,6 +2253,75 @@
 
     return `<span class="status-pill status-pending">Pending Instructor Verification</span>`;
   }
+
+
+  function getInputValue(id){
+    const el = $(id);
+    return el ? String(el.value || "").trim() : "";
+  }
+
+  function collectWorkplaceVerification(prefix){
+    const employerCompany = getInputValue(prefix + "EmployerCompanyInput");
+    const supervisorName = getInputValue(prefix + "SupervisorNameInput");
+    const workplaceActivity = getInputValue(prefix + "ActivityInput");
+    const onsiteHours = Number(getInputValue(prefix + "OnsiteHoursInput") || 0) || 0;
+
+    const hasWorkplaceData = !!(employerCompany || supervisorName || workplaceActivity || onsiteHours);
+
+    return {
+      employerCompany,
+      supervisorName,
+      workplaceActivity,
+      onsiteHours,
+      workplaceVerified:false,
+      workplaceVerificationStatus:hasWorkplaceData ? "pending" : "",
+      hasWorkplaceData
+    };
+  }
+
+  function collectAssignmentWorkplaceVerification(assignmentId){
+    const employerCompany = getInputValue("assignment-employer-" + assignmentId);
+    const supervisorName = getInputValue("assignment-supervisor-" + assignmentId);
+    const workplaceActivity = getInputValue("assignment-activity-" + assignmentId);
+    const onsiteHours = Number(getInputValue("assignment-onsite-hours-" + assignmentId) || 0) || 0;
+
+    const hasWorkplaceData = !!(employerCompany || supervisorName || workplaceActivity || onsiteHours);
+
+    return {
+      employerCompany,
+      supervisorName,
+      workplaceActivity,
+      onsiteHours,
+      workplaceVerified:false,
+      workplaceVerificationStatus:hasWorkplaceData ? "pending" : "",
+      hasWorkplaceData
+    };
+  }
+
+  function clearWorkplaceVerificationFields(prefix){
+    [prefix + "EmployerCompanyInput", prefix + "SupervisorNameInput", prefix + "ActivityInput", prefix + "OnsiteHoursInput"].forEach(id => {
+      const el = $(id);
+      if(el) el.value = "";
+    });
+  }
+
+  function clearAssignmentWorkplaceFields(assignmentId){
+    ["assignment-employer-","assignment-supervisor-","assignment-activity-","assignment-onsite-hours-"].forEach(prefix => {
+      const el = $(prefix + assignmentId);
+      if(el) el.value = "";
+    });
+  }
+
+  function workplaceSummaryHtml(data){
+    if(!data || !data.hasWorkplaceData) return "";
+    const rows = [];
+    if(data.employerCompany) rows.push("Company: " + safe(data.employerCompany));
+    if(data.supervisorName) rows.push("Supervisor: " + safe(data.supervisorName));
+    if(data.workplaceActivity) rows.push("Activity: " + safe(data.workplaceActivity));
+    if(data.onsiteHours) rows.push("On-Site Hours: " + safe(data.onsiteHours));
+    return rows.length ? `<div class="workplace-summary">${rows.join("<br>")}</div>` : "";
+  }
+
 
   async function createPendingReview(reviewType, uploadTitle, proofData, extraData = {}){
     if(!currentUserId){
@@ -2667,6 +2827,16 @@
                 <input class="form-control" type="text" id="assignment-note-${safe(item.id)}" maxlength="120" placeholder="Short note to instructor">
                 <input class="file-control" type="file" id="assignment-file-${safe(item.id)}" accept=".pdf,.jpg,.jpeg,.png,.heic">
               </div>
+              <div class="workplace-box">
+                <div class="workplace-box-title">Workplace Verification</div>
+                <div class="workplace-grid">
+                  <input class="form-control" type="text" id="assignment-employer-${safe(item.id)}" maxlength="100" placeholder="Employer company">
+                  <input class="form-control" type="text" id="assignment-supervisor-${safe(item.id)}" maxlength="100" placeholder="Supervisor name">
+                  <input class="form-control" type="text" id="assignment-activity-${safe(item.id)}" maxlength="120" placeholder="Workplace activity">
+                  <input class="form-control" type="number" id="assignment-onsite-hours-${safe(item.id)}" min="0" step="0.25" placeholder="On-site hours">
+                </div>
+                <div class="workplace-note">Optional: add jobsite details for workplace learning evidence.</div>
+              </div>
               <button class="button" id="assignment-btn-${safe(item.id)}" onclick="submitAssignmentProof('${safe(item.id)}')" style="margin-top:10px">${reviewStatus === "rejected" ? "Resubmit Assignment Proof" : "Submit Assignment Proof"}</button>
               <div class="assignment-upload-status info" id="assignment-status-${safe(item.id)}"></div>
             </div>
@@ -2689,6 +2859,7 @@
     const statusId = "assignment-status-" + assignmentId;
     const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
     const note = noteInput ? noteInput.value.trim() : "";
+    const workplaceInfo = collectAssignmentWorkplaceVerification(assignmentId);
 
     const validationError = validateFile(file);
     if(validationError){
@@ -2718,6 +2889,7 @@
         cohortName:getCohortName(profile),
         studentNote:note,
         ...assignmentUnitInfo,
+        ...workplaceInfo,
         ...proof
       };
 
@@ -2733,7 +2905,8 @@
           instructorId:assignment.instructorId || getInstructorId(profile) || "",
           instructorName:assignment.instructorName || getInstructorName(profile) || "",
           instructorEmail:assignment.instructorEmail || getInstructorEmail(profile) || "",
-          ...assignmentUnitInfo
+          ...assignmentUnitInfo,
+          ...workplaceInfo
         }
       );
 
@@ -2744,6 +2917,7 @@
 
       if(fileInput) fileInput.value = "";
       if(noteInput) noteInput.value = "";
+      clearAssignmentWorkplaceFields(assignmentId);
 
       await saveToFirebase();
       await syncTradePassport("assignment_submitted", "Assignment proof submitted");
@@ -3364,6 +3538,15 @@
     const value = input.value.trim();
     const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
     const unitInfo = options.unitSelectId ? selectedUnitFromSelect(options.unitSelectId) : {unitCode:"",unitTitle:""};
+    const workplaceInfo = options.workplacePrefix ? collectWorkplaceVerification(options.workplacePrefix) : {
+      employerCompany:"",
+      supervisorName:"",
+      workplaceActivity:"",
+      onsiteHours:0,
+      workplaceVerified:false,
+      workplaceVerificationStatus:"",
+      hasWorkplaceData:false
+    };
 
     if(!value){
       alert(options.emptyMessage);
@@ -3382,16 +3565,18 @@
     try{
       const proof = {
         ...withPendingVerification(await uploadProofFile(options.storageCategory || options.category,file), options.category),
-        ...unitInfo
+        ...unitInfo,
+        ...workplaceInfo
       };
       options.onSuccess(value,proof);
 
-      await createPendingReview(options.reviewType || "Student Upload", value, proof, unitInfo);
+      await createPendingReview(options.reviewType || "Student Upload", value, proof, {...unitInfo, ...workplaceInfo});
       await syncTradePassport("proof_uploaded", options.reviewType || "Student proof uploaded");
 
       input.value = "";
       if(fileInput) fileInput.value = "";
       if(options.unitSelectId && $(options.unitSelectId)) $(options.unitSelectId).value = "";
+      if(options.workplacePrefix) clearWorkplaceVerificationFields(options.workplacePrefix);
 
       renderProgress();
       await saveToFirebase();
@@ -3413,6 +3598,7 @@
       fileInputId:"certFileInput",
       buttonId:"certBtn",
       unitSelectId:"certUnitSelect",
+      workplacePrefix:"cert",
       category:"certifications",
       storageCategory:"certifications",
       reviewType:"Certification Upload",
@@ -3441,6 +3627,7 @@
       fileInputId:"skillFileInput",
       buttonId:"skillBtn",
       unitSelectId:"skillUnitSelect",
+      workplacePrefix:"skill",
       category:"skills",
       storageCategory:"skills",
       reviewType:"Skill Upload",
@@ -3469,6 +3656,7 @@
       fileInputId:"projectFileInput",
       buttonId:"projectBtn",
       unitSelectId:"projectUnitSelect",
+      workplacePrefix:"project",
       category:"projects",
       storageCategory:"projects",
       reviewType:"Project Upload",
@@ -3498,6 +3686,7 @@
     const title = (titleInput.value || "").trim();
     const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
     const unitInfo = selectedUnitFromSelect("signedProofUnitSelect");
+    const workplaceInfo = collectWorkplaceVerification("signedProof");
 
     if(!title){
       alert("Please enter a proof description.");
@@ -3516,7 +3705,8 @@
     try{
       const proof = {
         ...withPendingVerification(await uploadProofFile("signed-work-proof",file), "signed-work-proof"),
-        ...unitInfo
+        ...unitInfo,
+        ...workplaceInfo
       };
 
       state.signedWorkProofs.push({
@@ -3524,13 +3714,14 @@
         ...proof
       });
 
-      await createPendingReview("Signed Work Proof", title, proof, unitInfo);
+      await createPendingReview("Signed Work Proof", title, proof, {...unitInfo, ...workplaceInfo});
       await syncTradePassport("signed_proof_uploaded", "Signed work proof uploaded");
 
       state.jobsiteUploads = proofCount();
       titleInput.value = "";
       if(fileInput) fileInput.value = "";
       if($("signedProofUnitSelect")) $("signedProofUnitSelect").value = "";
+      clearWorkplaceVerificationFields("signedProof");
 
       renderProgress();
       await saveToFirebase();
@@ -3721,7 +3912,7 @@
     }
   },4500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v53 ASSIGNMENT SYNC - original full code patched");
+  console.log("LTN Apprenticeship Dashboard Loaded v55 WORKPLACE VERIFICATION - original full code patched");
 </script>
 
 </body>
