@@ -16,17 +16,18 @@
 <title>Instructor Center • LinkTradeNetwork</title>
 
 <!--
-GITHUB COMMIT v60:
-fix(instructor): restore full instructor page and force profile image carryover
-- Updated all cache versions to 20260525activityv60
+GITHUB COMMIT v61:
+feat(instructor): show student training unit progress in progress modal
+- Updated all cache versions to 20260525unitprogressv61
 - Kept instructor route as /instructor/index.html
-- Added aggressive profile image lookup from Firestore, nested instructor/profile fields, Auth photoURL, localStorage, and Firebase Storage paths
-- Prevents stale avatar initials when a saved profile photo exists
+- Added Training Unit Progress inside the Student Progress modal
+- Shows unit code, title, hours, proofs, approved, pending, needs correction, and progress percent
+- Preserved recent activity feed, profile image handling, PDF export, pending reviews, assignments, and roster workflow
 -->
 
 <!-- GITHUB COMMIT: fix(instructor): force instructor profile image carryover v60 -->
-<!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER ACTIVITY SYNC v60 -->
-<!-- LTN VERSION: instructor-center-full-profile-image-v60 -->
+<!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER UNIT PROGRESS v61 -->
+<!-- LTN VERSION: instructor-center-unit-progress-v61 -->
 <!-- FIXES v52:
   1. Replaced old public cache/version labels so the URL no longer needs to show production.
   2. Fixed blank page JavaScript crash caused by duplicate const exportBtn inside the student progress modal function.
@@ -1351,6 +1352,102 @@ textarea.form-control{min-height:106px;resize:vertical}
 
 .student-progress-proof-link:hover{text-decoration:underline}
 
+
+.student-unit-progress-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:10px;
+}
+
+.student-unit-progress-card{
+  border:1px solid #fed7aa;
+  background:linear-gradient(135deg,#fff7ed,#ffffff);
+  border-radius:14px;
+  padding:12px;
+}
+
+.student-unit-progress-top{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:flex-start;
+  margin-bottom:8px;
+}
+
+.student-unit-code{
+  display:inline-flex;
+  width:max-content;
+  max-width:100%;
+  background:var(--brand);
+  color:white;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.02em;
+}
+
+.student-unit-progress-percent{
+  color:var(--accent);
+  font-size:13px;
+  font-weight:950;
+  white-space:nowrap;
+}
+
+.student-unit-title{
+  color:var(--ink);
+  font-size:13px;
+  font-weight:950;
+  line-height:1.3;
+  min-height:34px;
+}
+
+.student-unit-bar{
+  height:8px;
+  border-radius:999px;
+  background:#e2e8f0;
+  overflow:hidden;
+  margin:10px 0;
+}
+
+.student-unit-fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  border-radius:999px;
+}
+
+.student-unit-metrics{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+}
+
+.student-unit-metric{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px;
+}
+
+.student-unit-metric strong{
+  display:block;
+  color:var(--accent);
+  font-size:16px;
+  font-weight:950;
+  line-height:1;
+}
+
+.student-unit-metric span{
+  display:block;
+  color:var(--muted);
+  font-size:9px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-top:4px;
+}
+
 .instructor-activity-list{
   display:flex;
   flex-direction:column;
@@ -1522,7 +1619,7 @@ textarea.form-control{min-height:106px;resize:vertical}
   // The old check was: if(localStorage.getItem("ltn_access_granted") !== "true") redirect
   // which could block legitimate logged-in users if localStorage was cleared.
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525activityv60";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525unitprogressv61";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1554,7 +1651,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 })();
 </script>
 <script>
-/* LTN v60 blank-page guard: keeps Instructor visible even if a Firebase/CDN import stalls. */
+/* LTN v61 blank-page guard: keeps Instructor visible even if a Firebase/CDN import stalls. */
 window.setTimeout(function(){
   try{
     document.documentElement.classList.remove("auth-checking");
@@ -1578,13 +1675,13 @@ window.setTimeout(function(){
 
     <!-- FIX v31: Added Find Apprenticeships and Jobs to match Dashboard/Network Center nav -->
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260525activityv60">Dashboard</a>
-      <a href="/members/?v=20260525activityv60">Members</a>
-      <a href="/find-apprenticeships/?v=20260525activityv60">Find Apprenticeships</a>
-      <a href="/instructor/?v=20260525activityv60" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260525activityv60" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/dashboard/?v=20260525activityv60#jobs">Jobs</a>
-      <a href="/network-center/?v=20260525activityv60">Network Center</a>
+      <a href="/dashboard/?v=20260525unitprogressv61">Dashboard</a>
+      <a href="/members/?v=20260525unitprogressv61">Members</a>
+      <a href="/find-apprenticeships/?v=20260525unitprogressv61">Find Apprenticeships</a>
+      <a href="/instructor/?v=20260525unitprogressv61" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260525unitprogressv61" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/dashboard/?v=20260525unitprogressv61#jobs">Jobs</a>
+      <a href="/network-center/?v=20260525unitprogressv61">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1632,7 +1729,7 @@ window.setTimeout(function(){
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260525activityv60">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260525unitprogressv61">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -2187,7 +2284,7 @@ const storage = getStorage(app);
 
 window.LTNFirebaseSignOut = function(){
   signOut(auth).finally(function(){
-    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525activityv60";
+    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525unitprogressv61";
   });
 };
 
@@ -2306,7 +2403,7 @@ function cacheBustProfileImageUrl(url){
   if(!raw) return "";
   if(raw.startsWith("data:image/") || raw.startsWith("blob:")) return raw;
   const stamp = currentUserId || Date.now();
-  return raw + (raw.includes("?") ? "&" : "?") + "ltnAvatarV=20260525activityv60_" + encodeURIComponent(stamp);
+  return raw + (raw.includes("?") ? "&" : "?") + "ltnAvatarV=20260525unitprogressv61_" + encodeURIComponent(stamp);
 }
 
 async function resolveProfileImageUrl(rawUrl){
@@ -2458,7 +2555,7 @@ async function findCurrentUser(){
 
   if(!authUser){
     LTNClearLocalSession();
-    window.location.replace("/front.html?v=20260525activityv60");
+    window.location.replace("/front.html?v=20260525unitprogressv61");
     throw new Error("No authenticated Firebase user.");
   }
 
@@ -2478,7 +2575,7 @@ async function findCurrentUser(){
 
   if(!userSnap.exists()){
     alert("Instructor profile was not found for this signed-in account. Please complete your profile first.");
-    window.location.replace("/dashboard/?v=20260525activityv60");
+    window.location.replace("/dashboard/?v=20260525unitprogressv61");
     throw new Error("No user profile document for current auth uid.");
   }
 
@@ -2486,7 +2583,7 @@ async function findCurrentUser(){
 
   if(!isFirestoreInstructorProfile(u)){
     alert("Instructor Center is only for instructor accounts. You are signed in as a student/apprentice/member account.");
-    window.location.replace("/dashboard/?v=20260525activityv60");
+    window.location.replace("/dashboard/?v=20260525unitprogressv61");
     throw new Error("Current user is not an instructor.");
   }
 
@@ -2585,6 +2682,10 @@ function escapeHtml(value){
     .replaceAll(">","&gt;")
     .replaceAll('"',"&quot;")
     .replaceAll("'","&#039;");
+}
+
+function normalizeArray(value){
+  return Array.isArray(value) ? value : [];
 }
 
 function statusBadge(status){
@@ -4545,6 +4646,198 @@ window.InstructorCenter = {
   },
 
 
+function getUnitCodeFromItem(item){
+  if(!item || typeof item !== "object") return "";
+  return String(
+    item.unitCode ||
+    item.trainingUnitCode ||
+    item.competencyCode ||
+    item.code ||
+    item.relatedTo ||
+    item.unit ||
+    ""
+  ).trim().toUpperCase();
+}
+
+function getUnitTitleFromCode(code){
+  const clean = String(code || "").trim().toUpperCase();
+  if(!clean) return "Not Assigned to Unit";
+
+  const unitSource = (window.trainingUnits && Array.isArray(window.trainingUnits)) ? window.trainingUnits : [];
+  const found = unitSource.find(unit => {
+    const unitCode = String(unit.unitCode || unit.code || unit.id || "").trim().toUpperCase();
+    return unitCode === clean;
+  });
+
+  return found ? String(found.title || found.name || clean) : clean;
+}
+
+function getAllKnownStudentUnits(userData, progress, reviews){
+  const set = new Set();
+
+  const unitProgress = userData.trainingUnitProgress || progress.trainingUnitProgress || {};
+  if(Array.isArray(unitProgress)){
+    unitProgress.forEach(item => {
+      const code = getUnitCodeFromItem(item);
+      if(code) set.add(code);
+    });
+  }else if(unitProgress && typeof unitProgress === "object"){
+    Object.keys(unitProgress).forEach(code => {
+      if(String(code || "").trim()) set.add(String(code).trim().toUpperCase());
+    });
+  }
+
+  normalizeArray(userData.hourLogs).concat(normalizeArray(progress.hourLogs)).forEach(item => {
+    const code = getUnitCodeFromItem(item);
+    if(code) set.add(code);
+  });
+
+  normalizeArray(userData.certificationProofs).concat(normalizeArray(progress.certificationProofs)).forEach(item => {
+    const code = getUnitCodeFromItem(item);
+    if(code) set.add(code);
+  });
+
+  normalizeArray(userData.skillProofs).concat(normalizeArray(progress.skillProofs)).forEach(item => {
+    const code = getUnitCodeFromItem(item);
+    if(code) set.add(code);
+  });
+
+  normalizeArray(userData.projectProofs).concat(normalizeArray(progress.projectProofs)).forEach(item => {
+    const code = getUnitCodeFromItem(item);
+    if(code) set.add(code);
+  });
+
+  normalizeArray(userData.signedWorkProofs).concat(normalizeArray(progress.signedWorkProofs)).forEach(item => {
+    const code = getUnitCodeFromItem(item);
+    if(code) set.add(code);
+  });
+
+  normalizeArray(userData.assignmentSubmissions).concat(normalizeArray(progress.assignmentSubmissions)).forEach(item => {
+    const code = getUnitCodeFromItem(item);
+    if(code) set.add(code);
+  });
+
+  normalizeArray(reviews).forEach(item => {
+    const code = getUnitCodeFromItem(item);
+    if(code) set.add(code);
+  });
+
+  return Array.from(set).sort();
+}
+
+function buildStudentUnitProgress(userData, progress, reviews){
+  const units = getAllKnownStudentUnits(userData, progress, reviews);
+  const unitProgressSource = userData.trainingUnitProgress || progress.trainingUnitProgress || {};
+  const rows = {};
+
+  function ensure(code){
+    const clean = String(code || "UNASSIGNED").trim().toUpperCase() || "UNASSIGNED";
+    if(!rows[clean]){
+      rows[clean] = {
+        code:clean,
+        title:clean === "UNASSIGNED" ? "Not Assigned to Unit" : getUnitTitleFromCode(clean),
+        hours:0,
+        proofs:0,
+        approved:0,
+        pending:0,
+        rejected:0,
+        progress:0
+      };
+    }
+    return rows[clean];
+  }
+
+  units.forEach(ensure);
+
+  if(Array.isArray(unitProgressSource)){
+    unitProgressSource.forEach(item => {
+      const code = getUnitCodeFromItem(item) || "UNASSIGNED";
+      const row = ensure(code);
+      row.title = item.title || item.unitTitle || row.title;
+      row.hours += Number(item.hours || item.hoursCompleted || item.totalHours || 0) || 0;
+      row.proofs += Number(item.proofs || item.proofCount || item.totalProofs || 0) || 0;
+      row.approved += Number(item.approved || item.approvedProofs || 0) || 0;
+      row.pending += Number(item.pending || item.pendingProofs || 0) || 0;
+      row.rejected += Number(item.rejected || item.needsCorrection || item.rejectedProofs || 0) || 0;
+      row.progress = Math.max(row.progress, Number(item.progress || item.progressPercent || 0) || 0);
+    });
+  }else if(unitProgressSource && typeof unitProgressSource === "object"){
+    Object.entries(unitProgressSource).forEach(([code,item]) => {
+      const row = ensure(code || getUnitCodeFromItem(item) || "UNASSIGNED");
+      if(item && typeof item === "object"){
+        row.title = item.title || item.unitTitle || row.title;
+        row.hours += Number(item.hours || item.hoursCompleted || item.totalHours || 0) || 0;
+        row.proofs += Number(item.proofs || item.proofCount || item.totalProofs || 0) || 0;
+        row.approved += Number(item.approved || item.approvedProofs || 0) || 0;
+        row.pending += Number(item.pending || item.pendingProofs || 0) || 0;
+        row.rejected += Number(item.rejected || item.needsCorrection || item.rejectedProofs || 0) || 0;
+        row.progress = Math.max(row.progress, Number(item.progress || item.progressPercent || 0) || 0);
+      }
+    });
+  }
+
+  normalizeArray(userData.hourLogs).concat(normalizeArray(progress.hourLogs)).forEach(item => {
+    const row = ensure(getUnitCodeFromItem(item) || "UNASSIGNED");
+    row.hours += Number(item.hours || item.hoursWorked || item.amount || 0) || 0;
+  });
+
+  normalizeArray(userData.certificationProofs)
+    .concat(normalizeArray(progress.certificationProofs), normalizeArray(userData.skillProofs), normalizeArray(progress.skillProofs), normalizeArray(userData.projectProofs), normalizeArray(progress.projectProofs), normalizeArray(userData.signedWorkProofs), normalizeArray(progress.signedWorkProofs), normalizeArray(userData.assignmentSubmissions), normalizeArray(progress.assignmentSubmissions))
+    .forEach(item => {
+      const row = ensure(getUnitCodeFromItem(item) || "UNASSIGNED");
+      row.proofs += 1;
+    });
+
+  normalizeArray(reviews).forEach(review => {
+    const row = ensure(getUnitCodeFromItem(review) || "UNASSIGNED");
+    const status = getReviewStatus(review);
+    row.proofs += 1;
+    if(status === "approved") row.approved += 1;
+    else if(status === "rejected") row.rejected += 1;
+    else row.pending += 1;
+  });
+
+  return Object.values(rows).map(row => {
+    const proofProgress = row.proofs ? Math.min(100, row.approved * 25 + row.pending * 5) : 0;
+    const hourProgress = Math.min(100, Math.round((row.hours / 40) * 100));
+    row.progress = Math.max(row.progress, Math.min(100, Math.round((hourProgress + proofProgress) / 2)));
+    return row;
+  }).sort((a,b) => {
+    if(a.code === "UNASSIGNED") return 1;
+    if(b.code === "UNASSIGNED") return -1;
+    return a.code.localeCompare(b.code);
+  });
+}
+
+function renderStudentUnitProgress(unitRows){
+  const rows = normalizeArray(unitRows);
+  if(!rows.length){
+    return emptyState(
+      "No unit progress yet",
+      "When the apprentice logs hours or uploads evidence tied to a training unit, progress by unit will appear here."
+    );
+  }
+
+  return `<div class="student-unit-progress-grid">${rows.map(row => `
+    <div class="student-unit-progress-card">
+      <div class="student-unit-progress-top">
+        <span class="student-unit-code">${escapeHtml(row.code)}</span>
+        <span class="student-unit-progress-percent">${Math.max(0, Math.min(100, Math.round(row.progress || 0)))}%</span>
+      </div>
+      <div class="student-unit-title">${escapeHtml(row.title || row.code)}</div>
+      <div class="student-unit-bar"><div class="student-unit-fill" style="width:${Math.max(0, Math.min(100, Math.round(row.progress || 0)))}%"></div></div>
+      <div class="student-unit-metrics">
+        <div class="student-unit-metric"><strong>${Number(row.hours || 0).toLocaleString()}</strong><span>Hours</span></div>
+        <div class="student-unit-metric"><strong>${Number(row.proofs || 0)}</strong><span>Proofs</span></div>
+        <div class="student-unit-metric"><strong>${Number(row.approved || 0)}</strong><span>Approved</span></div>
+        <div class="student-unit-metric"><strong>${Number(row.pending || 0)}</strong><span>Pending</span></div>
+        <div class="student-unit-metric"><strong>${Number(row.rejected || 0)}</strong><span>Correction</span></div>
+        <div class="student-unit-metric"><strong>${Math.max(0, Math.min(100, Math.round(row.progress || 0)))}%</strong><span>Progress</span></div>
+      </div>
+    </div>
+  `).join("")}</div>`;
+}
+
   async openStudentProgressModal(studentValue, triggerBtn = null){
     const parsed = parseSkillStudentValue(studentValue) || {};
     const uid = String(parsed.authUid || parsed.userId || "").trim();
@@ -4693,6 +4986,9 @@ window.InstructorCenter = {
       12
     );
 
+    const unitProgressRows = buildStudentUnitProgress(userData, progress, reviews);
+    const unitProgressHtml = renderStudentUnitProgress(unitProgressRows);
+
 
     const workplaceHtml = workplaceReviews.length
       ? workplaceReviews.slice(0,8).map(review => `
@@ -4706,7 +5002,7 @@ window.InstructorCenter = {
 
     currentStudentTradePassport = {
       name, email, trade, school, cohort, schoolCode, hours, goal, percent,
-      reviews, skills, workplaceReviews,
+      reviews, skills, workplaceReviews, unitProgressRows,
       instructorName:currentProfile.name || "",
       instructorEmail:currentProfile.email || "",
       generatedAt:new Date().toISOString()
@@ -4739,6 +5035,11 @@ window.InstructorCenter = {
       <div class="progress-note">
         <span>${hours.toLocaleString()} / ${goal.toLocaleString()} hours</span>
         <span>${percent}%</span>
+      </div>
+
+      <div class="student-progress-section">
+        <div class="student-progress-section-title">Training Unit Progress</div>
+        <div class="student-progress-section-body">${unitProgressHtml}</div>
       </div>
 
       <div class="student-progress-section">
@@ -4780,6 +5081,7 @@ window.InstructorCenter = {
     const reviews = Array.isArray(passport.reviews) ? passport.reviews : [];
     const skills = Array.isArray(passport.skills) ? passport.skills : [];
     const workplace = Array.isArray(passport.workplaceReviews) ? passport.workplaceReviews : [];
+    const unitProgressRows = Array.isArray(passport.unitProgressRows) ? passport.unitProgressRows : [];
     const approvedReviews = reviews.filter(review => getReviewStatus(review) === "approved");
     const pendingReviewsLocal = reviews.filter(review => getReviewStatus(review) !== "approved" && getReviewStatus(review) !== "rejected");
     const rejectedReviews = reviews.filter(review => getReviewStatus(review) === "rejected");
@@ -4854,6 +5156,22 @@ window.InstructorCenter = {
         row("Verified Skills", skills.length);
         row("Workplace Records", workplace.length);
         row("Instructor", `${passport.instructorName || currentProfile.name || ""}${passport.instructorEmail ? " • " + passport.instructorEmail : ""}`);
+
+        section("Training Unit Progress");
+        if(unitProgressRows.length){
+          unitProgressRows.slice(0,12).forEach((unit,index) => {
+            text((index + 1) + ". " + (unit.code || "UNASSIGNED") + " - " + (unit.title || "Training Unit"), margin, 10, "bold");
+            row("Hours", Number(unit.hours || 0).toLocaleString());
+            row("Proofs", Number(unit.proofs || 0));
+            row("Approved", Number(unit.approved || 0));
+            row("Pending", Number(unit.pending || 0));
+            row("Needs Correction", Number(unit.rejected || 0));
+            row("Progress", Math.max(0, Math.min(100, Math.round(unit.progress || 0))) + "%");
+            y += 6;
+          });
+        }else{
+          text("No training unit progress records found yet.", margin, 10, "normal");
+        }
 
         section("Workplace Verification");
         if(workplace.length){
