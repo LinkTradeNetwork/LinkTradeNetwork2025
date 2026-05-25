@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- LTN FULL DASHBOARD EXPORT 2026-05-25: PROFILE IMAGE FIRESTORE SYNC FIX v31 -->
+<!-- LTN FULL DASHBOARD EXPORT 2026-05-25: PROFILE IMAGE FIRESTORE SYNC AND ROUTING FIX v32 -->
 
 <html lang="en" class="auth-checking">
 <head>
@@ -16,10 +16,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkTradeNetwork • Skilled Trades</title>
 
-<!-- GITHUB COMMIT v31: fix(profile): sync profile image to users uid and instructor profile fields -->
+<!-- GITHUB COMMIT v32: fix(profile): sync profile image and route apprenticeship to progress v57 -->
 
-<!-- LTN FORCE UPDATE 2026-05-25: DASHBOARD PROFILE IMAGE FIRESTORE SYNC FIX v31 -->
-<!-- LTN VERSION: dashboard-profile-image-firestore-sync-v31 -->
+<!-- LTN FORCE UPDATE 2026-05-25: PROFILE IMAGE SYNC AND ROUTING FIX v32 -->
+<!-- LTN VERSION: profile-image-sync-routing-v32 -->
 
 <style>
 :root{
@@ -1140,7 +1140,7 @@ textarea.form-control{min-height:104px;resize:vertical}
 (function () {
   document.documentElement.classList.add("auth-checking");
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525profileImageSyncv31";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525signinroutesv28";
 
   window.LTNClearLocalSession = function () {
     [
@@ -1191,13 +1191,13 @@ textarea.form-control{min-height:104px;resize:vertical}
     </div>
 
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260525profileImageSyncv31" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
-      <a href="/members/?v=20260525profileImageSyncv31" data-nav="members" onclick="setActiveNav(this)">Members</a>
-      <a href="/find-apprenticeships/?v=20260525profileImageSyncv31" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
-      <a href="/apprenticeship/?v=20260525profileImageSyncv31" data-nav="track-progress" onclick="return ltnRouteTrackProgressFromDashboard(event, this.href)" class="btn nav-action">Track My Progress</a>
+      <a href="/dashboard/?v=20260525routesv57" data-nav="dashboard" onclick="setActiveNav(this)">Dashboard</a>
+      <a href="/members/?v=20260525routesv57" data-nav="members" onclick="setActiveNav(this)">Members</a>
+      <a href="/find-apprenticeships/?v=20260525routesv57" data-nav="find-apprenticeships" onclick="setActiveNav(this)" class="btn nav-action">Find Apprenticeships</a>
+      <a href="/apprenticeship/?v=20260525progressv57" data-nav="track-progress" onclick="return ltnRouteTrackProgressFromDashboard(event, this.href)" class="btn nav-action">Track My Progress</a>
       <a href="/instructor/?v=20260525profileImageSyncv31" data-nav="instructor-center" onclick="return ltnRouteInstructorCenterFromDashboard(event, this.href)" class="btn nav-action">Instructor Center</a>
       <a href="#jobs" data-nav="jobs" onclick="setActiveNav(this)">Jobs</a>
-      <a href="/network-center/?v=20260525profileImageSyncv31" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
+      <a href="/network-center/?v=20260525routesv57" data-nav="network-center" onclick="setActiveNav(this)" class="btn nav-action" style="position:relative">
         Network Center
         <span id="network-badge" class="notification-badge" style="display:none">0</span>
         <span id="messages-badge" class="notification-badge" style="display:none;right:-14px">0</span>
@@ -1404,7 +1404,7 @@ textarea.form-control{min-height:104px;resize:vertical}
           <li style="margin-bottom:8px">Showcase your skills and certifications</li>
           <li>Get matched with projects in your area</li>
         </ul>
-        <a class="btn-primary" style="width:100%" href="/network-center/?v=20260525profileImageSyncv31">Open Network Center</a>
+        <a class="btn-primary" style="width:100%" href="/network-center/?v=20260525routesv57">Open Network Center</a>
       </div>
     </section>
 
@@ -3014,7 +3014,7 @@ window.ltnRouteTrackProgressFromDashboard = async function(event, targetUrl) {
   ltnSaveProfileEverywhere(profile);
   try { await saveProfileToFirestore(profile); } catch (e) { console.warn("Apprenticeship handoff Firebase save failed:", e); }
 
-  window.location.href = targetUrl || "/apprenticeship/?v=20260525profileImageSyncv31";
+  window.location.href = targetUrl || "/apprenticeship/?v=20260525progressv57";
   return false;
 };
 
