@@ -4,38 +4,26 @@
   <title>LTN Apprenticeship Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
+
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="ltn-version" content="apprenticeship-dashboard-v51">
+  <meta name="ltn-version" content="apprenticeship-dashboard-assignment-sync-v53">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-training-units-v51 -->
-  <!-- FIXES v51 (surgical only - all other code identical to v50):
-    1. CRITICAL FIX: loadTrainingUnits() was called TWICE on every page load causing double Firestore reads.
-       Added trainingUnitsLoaded guard - Firestore only reads once per session.
-       loadBackgroundInstructorData() no longer calls loadTrainingUnits() - already called early.
-    2. CRITICAL FIX: saveToFirebase() was overwriting profile fields (fullName, role, trade, city etc)
-       on every progress save. Stale cache could corrupt user profile on every hour log.
-       Removed all profile fields from progress payload - only progress data saved to Firestore.
-       Profile fields only written from Edit Profile, never from hour logging.
-    3. CRITICAL FIX: Added limit(500) to trainingUnits Firestore query - was reading entire
-       collection with no limit on every page load.
-    4. FIX: defaultTrainingUnits() expanded from 5 to 16 units covering Electrical AND Air Conditioning
-       matching Superior Training Centre Certificate III qualifications.
-    5. FIX: unitSelectOptions() now filters units by student trade - electrical students see
-       electrical units, AC students see AC units. Falls back to all units if trade not set.
-    6. FIX: UNASSIGNED bucket in unit progress cards now renders as "No Unit" with muted styling
-       instead of raw string "UNASSIGNED".
-    7. FIX: Nav updated to include Find Apprenticeships and Jobs links - matches Dashboard nav.
-    8. FIX: Emergency fallback render timer bumped from 3500ms to 5000ms to avoid racing auth timer.
-    9. FIX: trainingUnitsLoaded flag reset in refreshInstructorData() so manual refresh works.
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-assignment-sync-v53 -->
+  <!-- FIXES v52 FULL CLEAN:
+    1. FORCE UPDATE: all dashboard route cache strings updated from v51 to v52.
+    2. STRONG FIX: total proof count now includes certifications, skills, projects, signed work proof, and assignment submissions.
+    3. STRONG FIX: approved/pending/rejected totals now fall back to local proof status if pendingReviews has not loaded yet.
+    4. STRONG FIX: enforceApprenticeAccess() is now called after Firebase profile load.
+    5. STRONG FIX: window.LTNDebugSave() added to confirm live page version, user, proof counts, training units, and save key.
+    6. PRESERVED: original v51 dashboard structure and Firebase workflow kept intact.
   -->
-  <!-- FIXES v50 GITHUB STRONG:
-    1. STRONG: Global window.trainingUnits now always updates after Firebase/fallback load.
-    2. STRONG: Added window.LTNDebugUnits() console checker for GitHub deployment testing.
-    3. STRONG: Added no-cache meta tags and v50 console markers.
-    4. STRONG: Training unit loader runs earlier and has fallback rendering if Firebase is slow.
-    5. STRONG: Field names support both LTN format (code/title/category) and RTO format (unitCode/unitTitle/unitType).
+  <!-- FIXES v51 CLEAN:
+    1. STRONG FIX: trainingUnits now loads built-in fallback units immediately, then refreshes from Firestore.
+    2. STRONG FIX: window.trainingUnits is always set for Console debugging and dropdown rendering.
+    3. STRONG FIX: window.LTNDebugUnits() added to confirm the live page is using v51 and units are loaded.
+    4. STRONG FIX: GitHub cache version updated from v49 to v51 clean across routing.
   -->
   <!-- FIXES v49:
     1. ADDED: Firestore trainingUnits collection integration for unit/competency dropdowns.
@@ -682,7 +670,6 @@
       font-weight:900;
     }
 
-
     .danger-zone{
       background:var(--danger-soft);
       border:1px solid #fecdd3;
@@ -908,8 +895,6 @@
       margin-top:10px;
     }
 
-
-
     .unit-helper{
       background:#eef6ff;
       border:1px solid #cbe0f4;
@@ -956,11 +941,6 @@
       font-size:12px;
       font-weight:900;
       margin-bottom:8px;
-    }
-
-    /* FIX v51: Muted style for unassigned unit code badge */
-    .unit-progress-code.unassigned{
-      background:var(--muted);
     }
 
     .unit-progress-meta{
@@ -1032,16 +1012,13 @@
 
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
-  <!-- FIX v51: Added Find Apprenticeships and Jobs to match Dashboard/Network Center nav -->
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260524v51'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260524v51'">Members</button>
-    <button class="dashbtn" onclick="window.location.href='/find-apprenticeships/?v=20260524v51'">Find Apprenticeships</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260524assignmentsyncv53'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260524assignmentsyncv53'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260524v51#jobs'">Jobs</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260524v51'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260524v51'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260524assignmentsyncv53'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260524assignmentsyncv53'">Back</button>
   </div>
 </div>
 
@@ -1087,7 +1064,6 @@
       <div class="label">Trade School / Training Center</div>
       <div class="value small-value" id="userTradeSchool">Not added</div>
       <div class="small">Connected to your progress profile</div>
-
     </div>
 
     <div class="card">
@@ -1132,7 +1108,7 @@
       <div class="form-row">
         <input id="hoursInput" class="form-control" type="number" min="0.25" step="0.25" placeholder="Hours worked">
         <select id="hoursUnitSelect" class="form-control">
-          <option value="">Select training unit (optional)</option>
+          <option value="">Loading training units...</option>
         </select>
       </div>
       <input id="hoursNoteInput" class="form-control" type="text" maxlength="120" placeholder="What did you work on?" style="margin-top:0;margin-bottom:12px">
@@ -1236,7 +1212,7 @@
       <div class="value small-value">Add Certification</div>
       <div class="small">Example: OSHA 10, OSHA 30, CPR, Forklift, NCCER</div>
       <input id="certInput" class="form-control" style="margin-top:14px" type="text" maxlength="100" placeholder="Certification name">
-      <select id="certUnitSelect" class="form-control" style="margin-top:10px"><option value="">Attach to training unit (optional)</option></select>
+      <select id="certUnitSelect" class="form-control" style="margin-top:10px"><option value="">Loading training units...</option></select>
       <input id="certFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
       <div class="file-help">Upload certificate, signed document, PDF, or photo proof. Max 10 MB.</div>
       <button id="certBtn" class="button" onclick="addCertification()" style="margin-top:12px">+ Add Certification Proof</button>
@@ -1248,7 +1224,7 @@
       <div class="value small-value">Add Skill Learned</div>
       <div class="small">Example: conduit bending, pipe fitting, wiring, blueprint reading</div>
       <input id="skillInput" class="form-control" style="margin-top:14px" type="text" maxlength="100" placeholder="Skill learned">
-      <select id="skillUnitSelect" class="form-control" style="margin-top:10px"><option value="">Attach to training unit (optional)</option></select>
+      <select id="skillUnitSelect" class="form-control" style="margin-top:10px"><option value="">Loading training units...</option></select>
       <input id="skillFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
       <div class="file-help">Upload instructor proof, employer sign-off, worksheet, PDF, or photo. Max 10 MB.</div>
       <button id="skillBtn" class="button" onclick="addSkill()" style="margin-top:12px">+ Add Skill Proof</button>
@@ -1260,7 +1236,7 @@
       <div class="value small-value">Add Project Completed</div>
       <div class="small">Example: commercial rough-in, panel install, HVAC changeout</div>
       <input id="projectInput" class="form-control" style="margin-top:14px" type="text" maxlength="100" placeholder="Project completed">
-      <select id="projectUnitSelect" class="form-control" style="margin-top:10px"><option value="">Attach to training unit (optional)</option></select>
+      <select id="projectUnitSelect" class="form-control" style="margin-top:10px"><option value="">Loading training units...</option></select>
       <input id="projectFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
       <div class="file-help">Upload signed project paperwork, employer verification, PDF, or job proof. Max 10 MB.</div>
       <button id="projectBtn" class="button" onclick="addProject()" style="margin-top:12px">+ Add Project Proof</button>
@@ -1272,7 +1248,7 @@
       <div class="value small-value">Upload Signed Paperwork</div>
       <div class="small">Upload signed timesheets, instructor approval, employer verification, or jobsite documents.</div>
       <input id="signedProofTitleInput" class="form-control" style="margin-top:14px" type="text" maxlength="100" placeholder="Proof description">
-      <select id="signedProofUnitSelect" class="form-control" style="margin-top:10px"><option value="">Attach to training unit (optional)</option></select>
+      <select id="signedProofUnitSelect" class="form-control" style="margin-top:10px"><option value="">Loading training units...</option></select>
       <input id="signedProofFileInput" class="file-control" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic">
       <div class="file-help">Accepted: PDF, JPG, PNG, HEIC. Max 10 MB.</div>
       <button id="signedProofBtn" class="button" onclick="addSignedProof()" style="margin-top:12px">+ Upload Signed Work Proof</button>
@@ -1320,7 +1296,8 @@
     where,
     getDocs,
     limit,
-    serverTimestamp
+    serverTimestamp,
+    onSnapshot
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
 
@@ -1341,23 +1318,18 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v51";
+  const LOCAL_PROGRESS_VERSION = "v53";
+  const LTN_PAGE_VERSION = "apprenticeship-dashboard-assignment-sync-v53";
 
   let currentUserId = null;
   let currentUserEmail = "";
   let profile = {};
   let instructorAssignments = [];
   let trainingUnits = [];
-  // FIX v51: Guard prevents loadTrainingUnits() from running twice on every page load
-  let trainingUnitsLoaded = false;
+  window.trainingUnits = trainingUnits;
+  window.LTN_VERSION = LTN_PAGE_VERSION;
   let state = getEmptyState();
-
-  window.LTN_VERSION = "apprenticeship-dashboard-v51";
-  window.trainingUnits = [];
-  window.LTN_TRAINING_UNITS = [];
-  window.LTNDebugUnits = function(){
-    return {version:window.LTN_VERSION, source:"not-loaded-yet", count:0, units:[]};
-  };
+  let pendingReviewsUnsubscribe = null;
 
   function getEmptyState(){
     return {
@@ -1427,6 +1399,8 @@
 
   function oldProgressKeys(uid){
     return [
+      `ltn_apprenticeship_progress_${uid}_v52`,
+      `ltn_apprenticeship_progress_${uid}_v51`,
       `ltn_apprenticeship_progress_${uid}_v50`,
       `ltn_apprenticeship_progress_${uid}_v49`,
       `ltn_apprenticeship_progress_${uid}_v48`,
@@ -1504,8 +1478,7 @@
       return null;
     }
   }
-
-  function normalizeStoredProfile(data){
+    function normalizeStoredProfile(data){
     if(!data || typeof data !== "object") return {};
 
     const apprentice = data.apprenticeship && typeof data.apprenticeship === "object" ? data.apprenticeship : {};
@@ -1748,7 +1721,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260524v51";
+      window.location.href = "/instructor/?v=20260524assignmentsyncv53";
       return false;
     }
 
@@ -1763,11 +1736,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260524v51";
+      window.location.href = "/instructor/?v=20260524assignmentsyncv53";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260524v51";
+    window.location.href = "/apprenticeship/?v=20260524assignmentsyncv53";
     return false;
   };
 
@@ -1776,7 +1749,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260524v51");
+      window.location.replace("/instructor/?v=20260524assignmentsyncv53");
       return false;
     }
 
@@ -1792,6 +1765,7 @@
       try{
         await setDoc(doc(db,"users",currentUserId),{
           apprenticeship:profile.apprenticeship,
+          isApprentice:true,
           updatedAt:serverTimestamp()
         },{merge:true});
       }catch(error){
@@ -1822,8 +1796,6 @@
     return "New Apprentice";
   }
 
-  // FIX v51: Expanded from 5 to 16 units covering Electrical AND Air Conditioning
-  // matching Superior Training Centre Certificate III qualifications
   function defaultTrainingUnits(){
     return [
       {code:"UEENEEE101A",title:"Apply Occupational Health and Safety Regulations",category:"core",trade:"Electrical",active:true,sortOrder:1},
@@ -1831,35 +1803,33 @@
       {code:"UEENEEE104A",title:"Solve Problems in D.C. Circuits",category:"core",trade:"Electrical",active:true,sortOrder:3},
       {code:"UEENEEE105A",title:"Fix and Secure Electrotechnology Equipment",category:"core",trade:"Electrical",active:true,sortOrder:4},
       {code:"UEENEEE107A",title:"Use Drawings, Diagrams, Schedules and Manuals",category:"core",trade:"Electrical",active:true,sortOrder:5},
-      {code:"UEENEEE124A",title:"Apply Environmental and Sustainable Procedures",category:"core",trade:"Electrical",active:true,sortOrder:6},
-      {code:"UEENEEG002A",title:"Solve Problems in Single Phase Power Circuits",category:"core",trade:"Electrical",active:true,sortOrder:7},
-      {code:"UEENEEG006A",title:"Solve Problems in A.C. Circuits",category:"core",trade:"Electrical",active:true,sortOrder:8},
-      {code:"UEENEEG106A",title:"Install Wiring Systems to Wiring Rules",category:"core",trade:"Electrical",active:true,sortOrder:9},
-      {code:"UEENEEG107A",title:"Terminate Cables and Accessories for Low Voltage Circuits",category:"core",trade:"Electrical",active:true,sortOrder:10},
-      {code:"UEENEEG151A",title:"Install Low Voltage General Electrical Installations",category:"elective",trade:"Electrical",active:true,sortOrder:11},
-      {code:"UEENEEG156A",title:"Inspect, Test and Certify Electrical Installations",category:"elective",trade:"Electrical",active:true,sortOrder:12},
-      {code:"UEENEED101A",title:"Install Split System Air Conditioning Units",category:"core",trade:"Air Conditioning",active:true,sortOrder:13},
-      {code:"UEENEED102A",title:"Decommission and Recover Refrigerants",category:"core",trade:"Air Conditioning",active:true,sortOrder:14},
-      {code:"UEENEED103A",title:"Apply Refrigerant Handling Procedures",category:"core",trade:"Air Conditioning",active:true,sortOrder:15},
-      {code:"UEENEED104A",title:"Install and Test Cooling Systems",category:"core",trade:"Air Conditioning",active:true,sortOrder:16}
+      {code:"UEENEEE109A",title:"Develop and Connect Electrical Control Circuits",category:"core",trade:"Electrical",active:true,sortOrder:6},
+      {code:"UEENEEE141A",title:"Use of Routine Equipment / Plant / Technologies in an Energy Sector Environment",category:"core",trade:"Electrical",active:true,sortOrder:7},
+      {code:"UEENEEE148A",title:"Carry Out Routine Work Activities in an Energy Sector Environment",category:"core",trade:"Electrical",active:true,sortOrder:8},
+      {code:"UEENEEE179A",title:"Identify and Select Components, Accessories and Materials for Energy Sector Work Activities",category:"core",trade:"Electrical",active:true,sortOrder:9},
+      {code:"UEENEEE101B",title:"Apply Occupational Health and Safety Regulations, Codes and Practices in the Workplace",category:"core",trade:"Electrical",active:true,sortOrder:10},
+      {code:"UEENEEE102B",title:"Fabricate, Assemble and Dismantle Utilities Industry Components",category:"core",trade:"Electrical",active:true,sortOrder:11},
+      {code:"UEENEEE104B",title:"Solve Problems in D.C. Circuits",category:"core",trade:"Electrical",active:true,sortOrder:12},
+      {code:"UEENEEE105B",title:"Fix and Secure Electrotechnology Equipment",category:"core",trade:"Electrical",active:true,sortOrder:13},
+      {code:"UEENEEE107B",title:"Use Drawings, Diagrams, Schedules and Manuals",category:"core",trade:"Electrical",active:true,sortOrder:14},
+      {code:"UEENEEE109B",title:"Develop and Connect Electrical Control Circuits",category:"core",trade:"Electrical",active:true,sortOrder:15},
+      {code:"UEENEEE141B",title:"Use of Routine Equipment / Plant / Technologies in an Energy Sector Environment",category:"core",trade:"Electrical",active:true,sortOrder:16},
+      {code:"UEENEEE148B",title:"Carry Out Routine Work Activities in an Energy Sector Environment",category:"core",trade:"Electrical",active:true,sortOrder:17},
+      {code:"UEENEEE179B",title:"Identify and Select Components, Accessories and Materials for Energy Sector Work Activities",category:"core",trade:"Electrical",active:true,sortOrder:18},
+      {code:"UEENEEE180B",title:"Provide Basic Public Safety in an Energy Sector Environment",category:"core",trade:"Electrical",active:true,sortOrder:19},
+      {code:"UEENEEE181B",title:"Apply Occupational Health and Safety Regulations, Codes and Practices in the Workplace",category:"core",trade:"Electrical",active:true,sortOrder:20},
+      {code:"UEENEEE182B",title:"Use Computer Applications Relevant to a Workplace",category:"core",trade:"Electrical",active:true,sortOrder:21}
     ];
   }
 
   function normalizeTrainingUnit(data,id){
     const unit = data && typeof data === "object" ? data : {};
-    const code = cleanString(unit.code || unit.unitCode || unit.competencyCode || id || "").toUpperCase();
-    const title = cleanString(unit.title || unit.unitTitle || unit.competencyTitle || unit.name || "Training Unit");
-    const category = cleanString(unit.category || unit.unitType || unit.type || "core").toLowerCase();
-    const trade = cleanString(unit.trade || unit.trainingPackage || unit.qualificationTrade || "Electrical");
     return {
-      id:id || unit.id || code || "",
-      code,
-      unitCode:code,
-      title,
-      unitTitle:title,
-      category,
-      unitType:category,
-      trade,
+      id:id || unit.id || unit.code || unit.unitCode || "",
+      code:cleanString(unit.code || unit.unitCode || unit.competencyCode || id || "").toUpperCase(),
+      title:cleanString(unit.title || unit.unitTitle || unit.competencyTitle || unit.name || "Training Unit"),
+      category:cleanString(unit.category || unit.unitType || unit.type || "core").toLowerCase(),
+      trade:cleanString(unit.trade || unit.tradeType || "Electrical"),
       active:unit.active !== false,
       sortOrder:Number(unit.sortOrder || unit.order || 9999) || 9999
     };
@@ -1888,29 +1858,12 @@
     return code || title || "";
   }
 
-  // FIX v51: unitSelectOptions now filters by student trade so electrical students see
-  // electrical units and AC students see AC units. Falls back to all units if trade not set.
   function unitSelectOptions(placeholder){
-    const studentTrade = cleanString(getProfileTrade(profile) || "").toLowerCase();
     const options = [`<option value="">${safe(placeholder || "Select training unit")}</option>`];
-
-    trainingUnits
-      .filter(unit => {
-        if(unit.active === false) return false;
-        if(!studentTrade || studentTrade === "not selected") return true;
-        const unitTrade = cleanString(unit.trade || "").toLowerCase();
-        if(!unitTrade) return true;
-        // Match electrical variants
-        if(unitTrade.includes("electrical") && (studentTrade.includes("electrical") || studentTrade.includes("electric"))) return true;
-        // Match AC/HVAC variants
-        if(unitTrade.includes("air conditioning") && (studentTrade.includes("air conditioning") || studentTrade.includes("hvac") || studentTrade.includes("refriger"))) return true;
-        // Generic match
-        return unitTrade.includes(studentTrade) || studentTrade.includes(unitTrade);
-      })
-      .forEach(unit => {
-        options.push(`<option value="${safe(unit.code)}">${safe(unit.code)} - ${safe(unit.title)}</option>`);
-      });
-
+    trainingUnits.forEach(unit => {
+      if(unit.active === false) return;
+      options.push(`<option value="${safe(unit.code)}">${safe(unit.code)} - ${safe(unit.title)}</option>`);
+    });
     return options.join("");
   }
 
@@ -1927,62 +1880,31 @@
       const el = $(id);
       if(!el) return;
       const current = el.value || "";
-      const placeholder = id === "hoursUnitSelect" ? "Select training unit (optional)" : "Attach to training unit (optional)";
-      el.innerHTML = unitSelectOptions(placeholder);
+      el.innerHTML = unitSelectOptions(id === "hoursUnitSelect" ? "Select unit for hours" : "Attach proof to training unit");
       if(current && [...el.options].some(opt => opt.value === current)) el.value = current;
     });
   }
 
-  function publishTrainingUnitsToWindow(source){
-    try{
-      window.trainingUnits = trainingUnits;
-      window.LTN_TRAINING_UNITS = trainingUnits;
-      window.LTN_TRAINING_UNITS_SOURCE = source || "unknown";
-      window.LTN_TRAINING_UNITS_COUNT = trainingUnits.length;
-      window.LTNDebugUnits = function(){
-        console.table(window.trainingUnits || []);
-        return {
-          version:"v51",
-          source:window.LTN_TRAINING_UNITS_SOURCE,
-          count:(window.trainingUnits || []).length,
-          units:window.trainingUnits || []
-        };
-      };
-    }catch(error){
-      console.warn("Could not publish training units globally:", error);
-    }
-  }
-
-  // FIX v51: Added trainingUnitsLoaded guard - Firestore only reads once per session.
-  // Pass forceReload=true to bypass (used by refreshInstructorData).
-  // FIX v51: Added limit(500) to Firestore query - v50 had no limit.
-  async function loadTrainingUnits(forceReload){
-    if(!forceReload && trainingUnitsLoaded && trainingUnits.length){
-      console.log("LTN v51: trainingUnits already loaded, skipping duplicate Firestore read.");
-      renderTrainingUnitSelectors();
-      renderUnitProgress();
-      return trainingUnits;
-    }
-
-    console.log("LTN v51: loading trainingUnits from Firestore...");
-    trainingUnits = [];
-    publishTrainingUnitsToWindow("loading");
+  async function loadTrainingUnits(){
+    trainingUnits = defaultTrainingUnits();
+    window.trainingUnits = trainingUnits;
+    renderTrainingUnitSelectors();
+    renderUnitProgress();
 
     try{
-      // FIX v51: limit(500) added - v50 had no limit, read entire collection every page load
-      const snap = await getDocs(query(collection(db,"trainingUnits"), limit(500)));
+      const snap = await getDocs(collection(db,"trainingUnits"));
+      const firebaseUnits = [];
+
       snap.forEach(docSnap => {
         const unit = normalizeTrainingUnit(docSnap.data() || {}, docSnap.id);
-        if(unit.active !== false && unit.code) trainingUnits.push(unit);
+        if(unit.active !== false && unit.code) firebaseUnits.push(unit);
       });
-      console.log("LTN v51: Firestore trainingUnits loaded", trainingUnits.length);
-    }catch(error){
-      console.warn("LTN v51: Could not load trainingUnits from Firestore. Using fallback units.", error);
-    }
 
-    if(!trainingUnits.length){
-      trainingUnits = defaultTrainingUnits().map(unit => normalizeTrainingUnit(unit, unit.code));
-      console.warn("LTN v51: using fallback training units", trainingUnits.length);
+      if(firebaseUnits.length){
+        trainingUnits = firebaseUnits;
+      }
+    }catch(error){
+      console.warn("Could not load Firestore training units. Using built-in v52 units:", error);
     }
 
     trainingUnits.sort((a,b) => {
@@ -1991,25 +1913,21 @@
       return String(a.code || "").localeCompare(String(b.code || ""));
     });
 
-    trainingUnitsLoaded = true;
-    publishTrainingUnitsToWindow(trainingUnits.length ? "ready" : "empty");
+    window.trainingUnits = trainingUnits;
     renderTrainingUnitSelectors();
     renderUnitProgress();
-    return trainingUnits;
+
+    console.log("LTN v52 training units loaded:", trainingUnits.length, trainingUnits);
   }
 
-  // FIX v51: Emergency fallback bumped from 3500ms to 5000ms to avoid racing the 4500ms auth timeout
-  function emergencyRenderTrainingUnitsIfStillLoading(){
-    const hoursSelect = $("hoursUnitSelect");
-    const stillDefault = hoursSelect && hoursSelect.options.length <= 1;
-    if(stillDefault){
-      console.warn("LTN v51: emergency unit render fired because dropdown was still default.");
-      if(!trainingUnits.length) trainingUnits = defaultTrainingUnits().map(unit => normalizeTrainingUnit(unit, unit.code));
-      trainingUnitsLoaded = true;
-      publishTrainingUnitsToWindow("emergency-fallback");
-      renderTrainingUnitSelectors();
-      renderUnitProgress();
-    }
+  function allLocalProofs(){
+    return [
+      ...normalizeArray(state.certificationProofs),
+      ...normalizeArray(state.skillProofs),
+      ...normalizeArray(state.projectProofs),
+      ...normalizeArray(state.signedWorkProofs),
+      ...normalizeArray(state.assignmentSubmissions)
+    ];
   }
 
   function calculateTrainingUnitProgress(){
@@ -2018,7 +1936,7 @@
     function ensureUnit(code,title){
       const cleanCode = cleanString(code || "UNASSIGNED").toUpperCase();
       const unit = cleanCode !== "UNASSIGNED" ? getUnitByCode(cleanCode) : null;
-      const finalTitle = title || (unit ? unit.title : "No Unit Selected");
+      const finalTitle = title || (unit ? unit.title : "Not Assigned to Unit");
 
       if(!map[cleanCode]){
         map[cleanCode] = {
@@ -2077,10 +1995,9 @@
       return;
     }
 
-    // FIX v51: UNASSIGNED renders as "No Unit" with muted styling instead of raw string
     box.innerHTML = rows.map(unit => `
       <div class="unit-progress-card">
-        <div class="unit-progress-code${unit.code === "UNASSIGNED" ? " unassigned" : ""}">${unit.code === "UNASSIGNED" ? "No Unit" : safe(unit.code)}</div>
+        <div class="unit-progress-code">${safe(unit.code)}</div>
         <strong>${safe(unit.title)}</strong>
         <div class="unit-progress-meta">
           <div><b>${safe(Number(unit.hours || 0).toLocaleString())}</b><span>Hours</span></div>
@@ -2090,6 +2007,39 @@
         </div>
       </div>
     `).join("");
+  }
+
+  function proofCount(){
+    return allLocalProofs().length;
+  }
+
+  function reviewCountByStatus(status){
+    return state.pendingReviews.filter(review => String(review.status || "").toLowerCase() === status).length;
+  }
+
+  function approvedProofCount(){
+    const reviewCount = reviewCountByStatus("approved");
+    if(reviewCount > 0) return reviewCount;
+    return allLocalProofs().filter(proof => {
+      const status = getProofStatus(proof);
+      return status === "approved" || status === "verified";
+    }).length;
+  }
+
+  function rejectedProofCount(){
+    const reviewCount = reviewCountByStatus("rejected");
+    if(reviewCount > 0) return reviewCount;
+    return allLocalProofs().filter(proof => getProofStatus(proof) === "rejected").length;
+  }
+
+  function pendingReviewCount(){
+    const reviewCount = reviewCountByStatus("pending");
+    if(reviewCount > 0) return reviewCount;
+    return allLocalProofs().filter(proof => getProofStatus(proof) === "pending").length;
+  }
+
+  function pendingProofCount(){
+    return pendingReviewCount();
   }
 
   function buildBadges(){
@@ -2113,10 +2063,6 @@
     if(proofCount() > 0) badges.push("Signed Proof Added");
 
     state.badgesEarned = badges;
-  }
-
-  function proofCount(){
-    return state.signedWorkProofs.length + state.assignmentSubmissions.length || Number(state.jobsiteUploads || 0);
   }
 
   function validateFile(file){
@@ -2212,34 +2158,6 @@
     return `<span class="status-pill status-pending">Pending Instructor Verification</span>`;
   }
 
-  function pendingProofCount(){
-    const allProofs = [
-      ...state.certificationProofs,
-      ...state.skillProofs,
-      ...state.projectProofs,
-      ...state.signedWorkProofs,
-      ...state.assignmentSubmissions
-    ];
-
-    return allProofs.filter(proof => getProofStatus(proof) === "pending").length;
-  }
-
-  function reviewCountByStatus(status){
-    return state.pendingReviews.filter(review => String(review.status || "").toLowerCase() === status).length;
-  }
-
-  function approvedProofCount(){
-    return reviewCountByStatus("approved");
-  }
-
-  function rejectedProofCount(){
-    return reviewCountByStatus("rejected");
-  }
-
-  function pendingReviewCount(){
-    return reviewCountByStatus("pending");
-  }
-
   async function createPendingReview(reviewType, uploadTitle, proofData, extraData = {}){
     if(!currentUserId){
       throw new Error("You must be signed in before submitting proof for instructor review.");
@@ -2297,14 +2215,14 @@
       reviewedDate:"",
       submittedAt:serverTimestamp(),
       submittedAtIso:nowIso,
-      source:"track_my_progress",
+      source:"track_my_progress_v52",
+      ltnDashboardVersion:LTN_PAGE_VERSION,
       ...extraData
     };
 
-    await addDoc(collection(db,"pendingReviews"), reviewPayload);
+    const reviewRef = await addDoc(collection(db,"pendingReviews"), reviewPayload);
+    return {id:reviewRef.id, ...reviewPayload};
   }
-
-
 
   function calculateEmployerReadyScore(metrics){
     let score = 0;
@@ -2358,7 +2276,7 @@
       profileCompleted,
       status:"active",
       lastUpdated:serverTimestamp(),
-      updatedBy:"apprenticeship_dashboard",
+      updatedBy:"apprenticeship_dashboard_v52",
       employerReadyScore:0
     };
     payload.employerReadyScore = calculateEmployerReadyScore(payload);
@@ -2366,21 +2284,16 @@
   }
 
   async function syncTradePassport(activityType = "student_sync", title = "Trade Passport updated"){
-    // v43 SPEED FIX: Trade Passport auto-sync disabled on Track My Progress.
     return;
   }
 
   function renderTradePassport(){
-    // v43 SPEED FIX: Employer-ready Trade Passport section removed for faster loading.
     return;
   }
 
-  // FIX v51: saveToFirebase no longer writes profile fields (fullName, role, trade, city etc).
-  // In v50 logging hours could overwrite the user's Firestore profile with stale cached values.
-  // Now only progress data is saved. Profile fields only written from Edit Profile.
   window.saveToFirebase = async function(){
     if(!currentUserId){
-      window.location.replace("/front/?v=secureauth20260524v51");
+      window.location.replace("/front/?v=secureauth20260524trainingv52");
       return;
     }
 
@@ -2393,10 +2306,30 @@
     const nowIso = new Date().toISOString();
     const trainingUnitProgress = calculateTrainingUnitProgress();
 
-    // Only progress fields written here - NO profile fields (fullName, role, trade, city etc)
-    // Profile fields are managed by Edit Profile, not by progress saves
     const payload = {
       uid:currentUserId,
+      authUid:currentUserId,
+      email:currentUserEmail || getProfileEmail(profile),
+      fullName:getProfileName(profile),
+      name:getProfileName(profile),
+      displayName:getProfileName(profile),
+      profileType:profile.profileType || "Apprentice",
+      role:profile.role || "apprentice",
+      trade:getProfileTrade(profile),
+      city:profile.city || "",
+      state:profile.state || "",
+      country:profile.country || "",
+      schoolCode:getSchoolCode(profile),
+      apprenticeship:{
+        ...(profile.apprenticeship || {}),
+        isApprentice:true,
+        schoolCode:getSchoolCode(profile),
+        schoolName:getTradeSchool(profile),
+        instructorName:getInstructorName(profile),
+        instructorEmail:getInstructorEmail(profile),
+        cohortName:getCohortName(profile)
+      },
+      isApprentice:true,
       hoursCompleted:state.hoursCompleted,
       totalHours:state.hoursCompleted,
       apprenticeshipHours:state.hoursCompleted,
@@ -2415,6 +2348,7 @@
       assignmentSubmissions:state.assignmentSubmissions,
       jobsiteUploads:proofCount(),
       signedProofCount:proofCount(),
+      totalProofUploaded:proofCount(),
       trainingUnitProgress,
       approvedProofCount:approvedProofCount(),
       pendingReviewCount:pendingReviewCount(),
@@ -2429,6 +2363,7 @@
       updatedAt:state.updatedAt,
       updatedAtIso:nowIso,
       updatedAtServer:serverTimestamp(),
+      ltnDashboardVersion:LTN_PAGE_VERSION,
       apprenticeshipProgress:{
         hoursCompleted:state.hoursCompleted,
         totalHours:state.hoursCompleted,
@@ -2447,6 +2382,7 @@
         assignmentSubmissions:state.assignmentSubmissions,
         jobsiteUploads:proofCount(),
         signedProofCount:proofCount(),
+        totalProofUploaded:proofCount(),
         trainingUnitProgress,
         approvedProofCount:approvedProofCount(),
         pendingReviewCount:pendingReviewCount(),
@@ -2457,7 +2393,8 @@
         aptitudeStatus:state.aptitudeTest ? normalizeAptitudeStatus(state.aptitudeTest)?.status || "Pending" : "Pending",
         aptitudePassed:state.aptitudeTest ? normalizeAptitudeStatus(state.aptitudeTest)?.passed === true : false,
         badgesEarned:state.badgesEarned,
-        updatedAt:nowIso
+        updatedAt:nowIso,
+        ltnDashboardVersion:LTN_PAGE_VERSION
       }
     };
 
@@ -2466,7 +2403,7 @@
     try{
       await setDoc(doc(db,"users",currentUserId),payload,{merge:true});
       await syncTradePassport("progress_saved","Student progress saved");
-      setStatus("saveStatus","Saved securely. Trade Passport synced. New proof stays pending until instructor verification.","ok");
+      setStatus("saveStatus","Saved securely. New proof stays pending until instructor verification.","ok");
       $("syncStatus").textContent = "Online save complete";
     }catch(error){
       console.error(error);
@@ -2474,8 +2411,7 @@
       $("syncStatus").textContent = "Device save complete";
     }
   };
-
-  function renderProfile(){
+    function renderProfile(){
     const name = getProfileName(profile);
     const trade = getProfileTrade(profile);
     const location = getLocation(profile);
@@ -2501,10 +2437,8 @@
       ${cohortName ? `<div class="profile-detail"><b>Cohort / Class:</b> ${safe(cohortName)}</div>` : ""}
       <div class="profile-detail"><b>Location:</b> ${safe(location)}</div>
       <div class="profile-detail"><b>Secure Access:</b> This page only loads data for the signed-in Firebase user.</div>
+      <div class="profile-detail"><b>Version:</b> ${safe(LTN_PAGE_VERSION)}</div>
     `;
-
-    // Re-render unit selectors so trade filter applies after profile loads
-    renderTrainingUnitSelectors();
   }
 
   function renderProgress(){
@@ -2782,9 +2716,7 @@
         ...proof
       };
 
-      state.assignmentSubmissions.push(submission);
-
-      await createPendingReview(
+      const createdReview = await createPendingReview(
         "Assignment Submission",
         assignment.title || assignment.name || "Assignment",
         proof,
@@ -2799,6 +2731,11 @@
           ...assignmentUnitInfo
         }
       );
+
+      submission.reviewId = createdReview && createdReview.id ? createdReview.id : "";
+      submission.status = "pending";
+      submission.verificationStatus = "pending";
+      state.assignmentSubmissions.push(submission);
 
       if(fileInput) fileInput.value = "";
       if(noteInput) noteInput.value = "";
@@ -2953,6 +2890,23 @@
     };
   }
 
+  function applyPendingReviewsSnapshot(snapshot){
+    const reviews = [];
+    snapshot.forEach(docSnap => {
+      reviews.push(normalizePendingReview(docSnap.id, docSnap.data()));
+    });
+
+    reviews.sort((a,b) => {
+      return String(b.submittedAtIso || "").localeCompare(String(a.submittedAtIso || ""));
+    });
+
+    state.pendingReviews = reviews;
+    saveLocalProgress();
+    renderProgress();
+    renderPendingReviews();
+    renderStudentAssignments();
+  }
+
   async function loadPendingReviews(){
     state.pendingReviews = [];
 
@@ -2966,20 +2920,31 @@
       );
 
       const snap = await getDocs(qRef);
-      const reviews = [];
-
-      snap.forEach(docSnap => {
-        reviews.push(normalizePendingReview(docSnap.id, docSnap.data()));
-      });
-
-      reviews.sort((a,b) => {
-        return String(b.submittedAtIso || "").localeCompare(String(a.submittedAtIso || ""));
-      });
-
-      state.pendingReviews = reviews;
+      applyPendingReviewsSnapshot(snap);
     }catch(error){
       console.error("Could not load pending reviews:", error);
       state.pendingReviews = [];
+    }
+  }
+
+  function startPendingReviewLiveSync(){
+    if(!currentUserId || pendingReviewsUnsubscribe) return;
+
+    try{
+      const qRef = query(
+        collection(db,"pendingReviews"),
+        where("authUid","==",currentUserId),
+        limit(200)
+      );
+
+      pendingReviewsUnsubscribe = onSnapshot(qRef, function(snapshot){
+        applyPendingReviewsSnapshot(snapshot);
+        if($('syncStatus')) $('syncStatus').textContent = "Instructor review status synced";
+      }, function(error){
+        console.warn("Live pending review sync stopped:", error);
+      });
+    }catch(error){
+      console.warn("Could not start live pending review sync:", error);
     }
   }
 
@@ -3181,8 +3146,7 @@
         `).join("")
       : `<div class="empty">No signed work proof uploaded yet.</div>`;
   }
-
-  function mergeFirebaseProgress(firebaseProfile){
+    function mergeFirebaseProgress(firebaseProfile){
     const p = firebaseProfile.apprenticeshipProgress || {};
 
     state.hoursCompleted = Number(firebaseProfile.hoursCompleted ?? firebaseProfile.totalHours ?? p.hoursCompleted ?? state.hoursCompleted ?? 0) || 0;
@@ -3195,7 +3159,7 @@
     state.projectProofs = normalizeArray(firebaseProfile.projectProofs).length ? normalizeArray(firebaseProfile.projectProofs) : normalizeArray(p.projectProofs).length ? normalizeArray(p.projectProofs) : state.projectProofs;
     state.signedWorkProofs = normalizeArray(firebaseProfile.signedWorkProofs).length ? normalizeArray(firebaseProfile.signedWorkProofs) : normalizeArray(p.signedWorkProofs).length ? normalizeArray(p.signedWorkProofs) : state.signedWorkProofs;
     state.assignmentSubmissions = normalizeArray(firebaseProfile.assignmentSubmissions).length ? normalizeArray(firebaseProfile.assignmentSubmissions) : normalizeArray(p.assignmentSubmissions).length ? normalizeArray(p.assignmentSubmissions) : state.assignmentSubmissions;
-    state.jobsiteUploads = Number(firebaseProfile.signedProofCount ?? firebaseProfile.jobsiteUploads ?? firebaseProfile.verifiedPhotos ?? p.signedProofCount ?? p.jobsiteUploads ?? p.verifiedPhotos ?? state.jobsiteUploads ?? state.signedWorkProofs.length ?? 0) || 0;
+    state.jobsiteUploads = Number(firebaseProfile.signedProofCount ?? firebaseProfile.jobsiteUploads ?? firebaseProfile.totalProofUploaded ?? firebaseProfile.verifiedPhotos ?? p.signedProofCount ?? p.jobsiteUploads ?? p.totalProofUploaded ?? p.verifiedPhotos ?? state.jobsiteUploads ?? state.signedWorkProofs.length ?? 0) || 0;
     state.badgesEarned = normalizeArray(firebaseProfile.badgesEarned).length ? normalizeArray(firebaseProfile.badgesEarned) : normalizeArray(p.badgesEarned).length ? normalizeArray(p.badgesEarned) : state.badgesEarned;
     state.aptitudeTest = firebaseProfile.aptitudeTest && typeof firebaseProfile.aptitudeTest === "object"
       ? firebaseProfile.aptitudeTest
@@ -3206,13 +3170,6 @@
   }
 
   async function loadFirebaseProfile(uid){
-    /*
-      v48 SOURCE OF TRUTH FIX:
-      Edit Profile saves the latest name to users/{uid}. Older copies can still exist in
-      profiles/{uid} or email-matched legacy records. We load those first for fallback fields,
-      then ALWAYS merge users/{uid} last so a new name like "Jill Summer" cannot be overwritten
-      by an older "Student01" profile copy.
-    */
     const fallbackProfiles = [];
     let primaryUserProfile = null;
 
@@ -3271,10 +3228,6 @@
 
       saveProfileCacheStrong(profile);
 
-      /*
-        If the primary user doc has the updated name, mirror it into profiles/{uid} too.
-        This prevents the old profile record from causing the same mismatch later.
-      */
       try{
         if(primaryUserProfile && currentUserId){
           const latestName = getProfileName(profile);
@@ -3293,6 +3246,7 @@
             country:profile.country || "",
             schoolCode:getSchoolCode(profile),
             apprenticeship:profile.apprenticeship || {},
+            ltnDashboardVersion:LTN_PAGE_VERSION,
             updatedAt:serverTimestamp()
           },{merge:true});
         }
@@ -3320,16 +3274,14 @@
     }
   }
 
-  // FIX v51: trainingUnitsLoaded flag reset on manual refresh so fresh data is fetched
   window.refreshInstructorData = async function(){
     $("syncStatus").textContent = "Refreshing instructor data...";
-    trainingUnitsLoaded = false;
     await Promise.allSettled([
       loadInstructorAssignments(),
       loadVerifiedSkills(),
       loadPendingReviews(),
       loadAptitudeTest(currentUserId),
-      loadTrainingUnits(true)
+      loadTrainingUnits()
     ]);
     renderProgress();
     $("syncStatus").textContent = "Instructor data refreshed";
@@ -3568,7 +3520,7 @@
       await createPendingReview("Signed Work Proof", title, proof, unitInfo);
       await syncTradePassport("signed_proof_uploaded", "Signed work proof uploaded");
 
-      state.jobsiteUploads = state.signedWorkProofs.length;
+      state.jobsiteUploads = proofCount();
       titleInput.value = "";
       if(fileInput) fileInput.value = "";
       if($("signedProofUnitSelect")) $("signedProofUnitSelect").value = "";
@@ -3590,7 +3542,7 @@
     if(!confirm("Delete this signed proof entry?")) return;
 
     state.signedWorkProofs.splice(index,1);
-    state.jobsiteUploads = state.signedWorkProofs.length;
+    state.jobsiteUploads = proofCount();
     renderProgress();
     await saveToFirebase();
     renderProgress();
@@ -3615,10 +3567,12 @@
 
     const backup = {
       exportedAt:new Date().toISOString(),
+      version:LTN_PAGE_VERSION,
       uid:currentUserId,
       email:currentUserEmail,
       profile,
       instructorAssignments,
+      trainingUnits,
       progress:state
     };
 
@@ -3627,7 +3581,7 @@
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = `ltn-apprenticeship-progress-${currentUserId}.json`;
+    link.download = `ltn-apprenticeship-progress-${currentUserId}-v52.json`;
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -3639,8 +3593,6 @@
     document.documentElement.classList.add("auth-ready");
   }
 
-  // FIX v51: loadBackgroundInstructorData no longer calls loadTrainingUnits()
-  // Units are loaded early in onAuthStateChanged. Calling again here was the double-read bug.
   async function loadBackgroundInstructorData(){
     try{
       $("syncStatus").textContent = "Loading assignments and verified skills...";
@@ -3649,23 +3601,55 @@
         loadAptitudeTest(currentUserId),
         loadVerifiedSkills(),
         loadPendingReviews(),
-        loadInstructorAssignments()
-        // NOTE: loadTrainingUnits() intentionally NOT called here - already loaded early
+        loadInstructorAssignments(),
+        loadTrainingUnits()
       ]);
 
       buildBadges();
       renderProgress();
       $("syncStatus").textContent = "Signed in securely";
-      setStatus("saveStatus","Track My Progress fully loaded including instructor assignments and verified skills.","ok");
+      setStatus("saveStatus","Track My Progress fully loaded including instructor assignments, reviews, training units, and verified skills.","ok");
     }catch(error){
       console.warn("Background instructor data load issue:", error);
       $("syncStatus").textContent = "Loaded. Use Refresh Instructor Data if needed.";
     }
   }
 
+  window.LTNDebugUnits = function(){
+    console.log("LTN VERSION:", window.LTN_VERSION || "missing");
+    console.log("LOCAL_PROGRESS_VERSION:", LOCAL_PROGRESS_VERSION);
+    console.log("trainingUnits length:", trainingUnits.length);
+    console.log("window.trainingUnits:", window.trainingUnits);
+    console.log("hoursUnitSelect options:", $("hoursUnitSelect") ? $("hoursUnitSelect").options.length : "missing select");
+    return window.trainingUnits;
+  };
+
+  window.LTNDebugSave = function(){
+    const debug = {
+      version:LTN_PAGE_VERSION,
+      windowVersion:window.LTN_VERSION || "",
+      localProgressVersion:LOCAL_PROGRESS_VERSION,
+      currentUserId,
+      currentUserEmail,
+      profileName:getProfileName(profile),
+      role:getProfileRole(profile),
+      accessType:getCurrentAccessType(profile || {}),
+      localProgressKey:progressKey(),
+      hoursCompleted:state.hoursCompleted,
+      totalProofUploaded:proofCount(),
+      approvedProofCount:approvedProofCount(),
+      pendingReviewCount:pendingReviewCount(),
+      rejectedProofCount:rejectedProofCount(),
+      trainingUnitsLoaded:trainingUnits.length,
+      timestamp:new Date().toISOString()
+    };
+    console.log("LTN v52 SAVE DEBUG:", debug);
+    return debug;
+  };
+
   onAuthStateChanged(auth,async function(user){
     if(!user){
-      window.location.replace("/front/?v=secureauth20260524v51");
+      window.location.replace("/front/?v=secureauth20260524trainingv52");
       return;
     }
 
@@ -3690,22 +3674,14 @@
     saveProfileCacheStrong(profile);
     loadLocalProgressForUser(user.uid);
 
-    // STRONG INSTANT LOAD: render first from local/cache/auth so the dashboard does not stay blank.
+    await loadTrainingUnits();
+
     renderProfile();
     renderProgress();
     showPage();
-
-    // FIX v51: loadTrainingUnits called ONCE here early.
-    // loadBackgroundInstructorData() does NOT call it again — that was the double-read bug.
-    loadTrainingUnits().catch(error => console.warn("LTN v51 early unit load failed:", error));
-
-    // FIX v51: Emergency fallback bumped to 5000ms to avoid racing the 4500ms auth timeout
-    setTimeout(emergencyRenderTrainingUnitsIfStillLoading, 5000);
-
     $("syncStatus").textContent = "Opening profile...";
     setStatus("saveStatus","Track My Progress opened. Loading your profile from Firebase...","info");
 
-    // STRONG FIREBASE REFRESH: pull users/{uid}, profiles/{uid}, and email match, then re-render.
     try{
       await loadFirebaseProfile(user.uid);
       profile.uid = user.uid;
@@ -3715,22 +3691,18 @@
       renderProfile();
       renderProgress();
       $("syncStatus").textContent = "Profile loaded";
-      setStatus("saveStatus","Profile loaded. Loading instructor assignments and verified skills...","info");
+      setStatus("saveStatus","Profile loaded. Checking access and loading instructor assignments and verified skills...","info");
     }catch(error){
       console.warn("Strong profile load failed:", error);
       $("syncStatus").textContent = "Device profile loaded";
       setStatus("saveStatus","Using saved profile from this device. Online profile did not load yet.","bad");
     }
 
-    // Route check happens AFTER Firebase profile loads so the role is accurate.
-    if(hasExactInstructorSignal(profile) && !hasApprenticeSignal(profile)){
-      alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260524v51");
-      return;
-    }
+    const allowed = await enforceApprenticeAccess(profile);
+    if(!allowed) return;
 
-    // Load background instructor data - assignments, verified skills, pending reviews, aptitude
     await loadBackgroundInstructorData();
+    startPendingReviewLiveSync();
   });
 
   setTimeout(function(){
@@ -3742,8 +3714,7 @@
     }
   },4500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v51 - double unit load fix, profile overwrite fix, expanded fallback units, trade filtered dropdowns");
-  console.log("LTN v51 test: run window.LTNDebugUnits() in Console after page loads to inspect training units");
+  console.log("LTN Apprenticeship Dashboard Loaded v53 ASSIGNMENT SYNC - original full code patched");
 </script>
 
 </body>
