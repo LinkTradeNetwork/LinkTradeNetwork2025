@@ -16,17 +16,17 @@
 <title>Instructor Center • LinkTradeNetwork</title>
 
 <!--
-GITHUB COMMIT v59:
+GITHUB COMMIT v60:
 fix(instructor): restore full instructor page and force profile image carryover
-- Updated all cache versions to 20260525v59
+- Updated all cache versions to 20260525activityv60
 - Kept instructor route as /instructor/index.html
 - Added aggressive profile image lookup from Firestore, nested instructor/profile fields, Auth photoURL, localStorage, and Firebase Storage paths
 - Prevents stale avatar initials when a saved profile photo exists
 -->
 
-<!-- GITHUB COMMIT: fix(instructor): force instructor profile image carryover v59 -->
-<!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER FULL PROFILE IMAGE v59 -->
-<!-- LTN VERSION: instructor-center-full-profile-image-v59 -->
+<!-- GITHUB COMMIT: fix(instructor): force instructor profile image carryover v60 -->
+<!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER ACTIVITY SYNC v60 -->
+<!-- LTN VERSION: instructor-center-full-profile-image-v60 -->
 <!-- FIXES v52:
   1. Replaced old public cache/version labels so the URL no longer needs to show production.
   2. Fixed blank page JavaScript crash caused by duplicate const exportBtn inside the student progress modal function.
@@ -1351,6 +1351,109 @@ textarea.form-control{min-height:106px;resize:vertical}
 
 .student-progress-proof-link:hover{text-decoration:underline}
 
+.instructor-activity-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.instructor-activity-item{
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  background:linear-gradient(180deg,#ffffff,#f8fafc);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 14px;
+  box-shadow:var(--shadow-sm);
+}
+
+.instructor-activity-icon{
+  width:42px;
+  height:42px;
+  border-radius:13px;
+  display:grid;
+  place-items:center;
+  background:var(--brand-soft);
+  color:var(--brand2);
+  font-weight:950;
+  font-size:17px;
+  flex-shrink:0;
+}
+
+.instructor-activity-title{
+  font-size:14px;
+  font-weight:950;
+  color:var(--ink);
+  line-height:1.25;
+  word-break:break-word;
+}
+
+.instructor-activity-meta{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:750;
+  line-height:1.35;
+  word-break:break-word;
+}
+
+.instructor-activity-status{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:11px;
+  font-weight:950;
+  white-space:nowrap;
+  background:#eef3f8;
+  color:var(--accent);
+  border:1px solid var(--line);
+}
+
+.instructor-activity-status.approved,
+.instructor-activity-status.logged,
+.instructor-activity-status.verified,
+.instructor-activity-status.completed{
+  background:#f0fdf4;
+  color:#166534;
+  border-color:#bbf7d0;
+}
+
+.instructor-activity-status.pending,
+.instructor-activity-status.review,
+.instructor-activity-status.new{
+  background:#fff7ed;
+  color:#9a3412;
+  border-color:#fed7aa;
+}
+
+.instructor-activity-status.rejected,
+.instructor-activity-status.needs-correction{
+  background:#fff1f2;
+  color:#be123c;
+  border-color:#fecdd3;
+}
+
+.activity-toolbar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+@media(max-width:520px){
+  .instructor-activity-item{
+    grid-template-columns:38px minmax(0,1fr);
+  }
+  .instructor-activity-status{
+    grid-column:2;
+    width:max-content;
+  }
+}
+
 @media(max-width:980px){
   .hero{grid-template-columns:1fr}
   .grid{grid-template-columns:1fr}
@@ -1419,7 +1522,7 @@ textarea.form-control{min-height:106px;resize:vertical}
   // The old check was: if(localStorage.getItem("ltn_access_granted") !== "true") redirect
   // which could block legitimate logged-in users if localStorage was cleared.
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525v59";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525activityv60";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1451,7 +1554,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 })();
 </script>
 <script>
-/* LTN v59 blank-page guard: keeps Instructor visible even if a Firebase/CDN import stalls. */
+/* LTN v60 blank-page guard: keeps Instructor visible even if a Firebase/CDN import stalls. */
 window.setTimeout(function(){
   try{
     document.documentElement.classList.remove("auth-checking");
@@ -1475,13 +1578,13 @@ window.setTimeout(function(){
 
     <!-- FIX v31: Added Find Apprenticeships and Jobs to match Dashboard/Network Center nav -->
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260525v59">Dashboard</a>
-      <a href="/members/?v=20260525v59">Members</a>
-      <a href="/find-apprenticeships/?v=20260525v59">Find Apprenticeships</a>
-      <a href="/instructor/?v=20260525v59" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260525v59" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/dashboard/?v=20260525v59#jobs">Jobs</a>
-      <a href="/network-center/?v=20260525v59">Network Center</a>
+      <a href="/dashboard/?v=20260525activityv60">Dashboard</a>
+      <a href="/members/?v=20260525activityv60">Members</a>
+      <a href="/find-apprenticeships/?v=20260525activityv60">Find Apprenticeships</a>
+      <a href="/instructor/?v=20260525activityv60" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260525activityv60" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/dashboard/?v=20260525activityv60#jobs">Jobs</a>
+      <a href="/network-center/?v=20260525activityv60">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1529,7 +1632,7 @@ window.setTimeout(function(){
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260525v59">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260525activityv60">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1662,6 +1765,23 @@ window.setTimeout(function(){
               <small>Hours approved across all students</small>
             </div>
           </div>
+        </div>
+      </div>
+
+
+      <div class="card">
+        <div class="hd">
+          <span>Recent Student Activity</span>
+          <div class="activity-toolbar">
+            <button class="btn btn-secondary" style="min-height:34px;padding:8px 12px;font-size:13px" onclick="InstructorCenter.renderRecentActivity()">Refresh</button>
+            <span class="badge badge-blue">Live Feed</span>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="notice">
+            This feed connects apprentice actions to the instructor view: hours logged, proof uploaded, assignments received, reviews, and verified skills.
+          </div>
+          <div id="recent-activity-list" class="instructor-activity-list"></div>
         </div>
       </div>
 
@@ -2067,7 +2187,7 @@ const storage = getStorage(app);
 
 window.LTNFirebaseSignOut = function(){
   signOut(auth).finally(function(){
-    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525v59";
+    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525activityv60";
   });
 };
 
@@ -2186,7 +2306,7 @@ function cacheBustProfileImageUrl(url){
   if(!raw) return "";
   if(raw.startsWith("data:image/") || raw.startsWith("blob:")) return raw;
   const stamp = currentUserId || Date.now();
-  return raw + (raw.includes("?") ? "&" : "?") + "ltnAvatarV=20260525v59_" + encodeURIComponent(stamp);
+  return raw + (raw.includes("?") ? "&" : "?") + "ltnAvatarV=20260525activityv60_" + encodeURIComponent(stamp);
 }
 
 async function resolveProfileImageUrl(rawUrl){
@@ -2338,7 +2458,7 @@ async function findCurrentUser(){
 
   if(!authUser){
     LTNClearLocalSession();
-    window.location.replace("/front.html?v=20260525v59");
+    window.location.replace("/front.html?v=20260525activityv60");
     throw new Error("No authenticated Firebase user.");
   }
 
@@ -2358,7 +2478,7 @@ async function findCurrentUser(){
 
   if(!userSnap.exists()){
     alert("Instructor profile was not found for this signed-in account. Please complete your profile first.");
-    window.location.replace("/dashboard/?v=20260525v59");
+    window.location.replace("/dashboard/?v=20260525activityv60");
     throw new Error("No user profile document for current auth uid.");
   }
 
@@ -2366,7 +2486,7 @@ async function findCurrentUser(){
 
   if(!isFirestoreInstructorProfile(u)){
     alert("Instructor Center is only for instructor accounts. You are signed in as a student/apprentice/member account.");
-    window.location.replace("/dashboard/?v=20260525v59");
+    window.location.replace("/dashboard/?v=20260525activityv60");
     throw new Error("Current user is not an instructor.");
   }
 
@@ -2849,6 +2969,233 @@ function updateStats(){
   updateQuickDashboard();
 }
 
+function getActivityTimeValue(item){
+  const possible = [
+    item.timestamp,
+    item.createdAt,
+    item.updatedAt,
+    item.submittedAt,
+    item.approvedAt,
+    item.reviewedAt,
+    item.date,
+    item.loggedAt,
+    item.completedAt
+  ];
+
+  for(const value of possible){
+    if(!value) continue;
+    if(typeof value === "number") return value;
+    if(typeof value === "string"){
+      const parsed = Date.parse(value);
+      if(!Number.isNaN(parsed)) return parsed;
+      continue;
+    }
+    if(value && typeof value.toMillis === "function"){
+      try{return value.toMillis();}catch(e){}
+    }
+    if(value && typeof value.seconds === "number"){
+      return value.seconds * 1000;
+    }
+  }
+
+  return 0;
+}
+
+function formatActivityDate(item){
+  const time = getActivityTimeValue(item);
+  if(!time) return "Recent";
+  try{
+    return new Date(time).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+  }catch(e){
+    return "Recent";
+  }
+}
+
+function normalizeActivityStatus(value){
+  const raw = String(value || "new").trim().toLowerCase();
+  if(raw.includes("approve") || raw === "verified") return "approved";
+  if(raw.includes("reject") || raw.includes("correction")) return "rejected";
+  if(raw.includes("pending") || raw.includes("review")) return "pending";
+  if(raw.includes("complete")) return "completed";
+  if(raw.includes("log")) return "logged";
+  return raw || "new";
+}
+
+function getActivityIcon(type){
+  const raw = String(type || "").toLowerCase();
+  if(raw.includes("hour")) return "⏱";
+  if(raw.includes("skill")) return "✓";
+  if(raw.includes("project")) return "▣";
+  if(raw.includes("cert")) return "★";
+  if(raw.includes("assignment")) return "📄";
+  if(raw.includes("proof") || raw.includes("upload")) return "⬆";
+  if(raw.includes("review")) return "!";
+  return "•";
+}
+
+function buildRecentActivityItemsForStudent(student, userData = {}, reviews = [], skills = []){
+  const progress = userData.apprenticeshipProgress || {};
+  const activity = [];
+
+  normalizeArray(student.recentActivity)
+    .concat(normalizeArray(userData.recentActivity), normalizeArray(userData.activityFeed), normalizeArray(progress.recentActivity), normalizeArray(progress.activityFeed))
+    .forEach(item => {
+      if(!item || typeof item !== "object") return;
+      activity.push({
+        type:item.type || item.category || "activity",
+        title:item.title || item.description || item.message || "Student activity",
+        detail:item.detail || item.note || item.relatedTo || item.unitCode || item.trainingUnitCode || "",
+        status:item.status || item.reviewStatus || "new",
+        studentName:student.name || userData.fullName || userData.name || "Student",
+        timestamp:item.timestamp || item.createdAt || item.updatedAt || item.date
+      });
+    });
+
+  normalizeArray(student.hourLogs)
+    .concat(normalizeArray(userData.hourLogs), normalizeArray(progress.hourLogs))
+    .slice(0,20)
+    .forEach(log => {
+      if(!log || typeof log !== "object") return;
+      const hours = Number(log.hours || log.hoursWorked || log.amount || 0) || 0;
+      activity.push({
+        type:"hours",
+        title:hours ? `Logged ${hours} hours` : "Logged hours",
+        detail:[log.note || log.description || "", log.unitCode || log.trainingUnitCode || log.relatedTo || ""].filter(Boolean).join(" • "),
+        status:"logged",
+        studentName:student.name || userData.fullName || userData.name || "Student",
+        timestamp:log.timestamp || log.createdAt || log.updatedAt || log.date
+      });
+    });
+
+  normalizeArray(student.assignmentSubmissions)
+    .concat(normalizeArray(userData.assignmentSubmissions), normalizeArray(progress.assignmentSubmissions))
+    .slice(0,20)
+    .forEach(submission => {
+      if(!submission || typeof submission !== "object") return;
+      activity.push({
+        type:"assignment",
+        title:submission.assignmentName || submission.title || "Assignment submitted",
+        detail:submission.fileName || submission.unitCode || submission.trainingUnitCode || "",
+        status:submission.status || "pending",
+        studentName:student.name || userData.fullName || userData.name || "Student",
+        timestamp:submission.submittedAt || submission.createdAt || submission.updatedAt || submission.date
+      });
+    });
+
+  reviews.slice(0,30).forEach(review => {
+    activity.push({
+      type:review.reviewType || review.type || "proof upload",
+      title:review.uploadTitle || review.title || review.reviewType || "Proof uploaded",
+      detail:[review.unitCode || review.trainingUnitCode || "", review.workplaceActivity || ""].filter(Boolean).join(" • "),
+      status:getReviewStatus(review),
+      studentName:review.studentName || student.name || userData.fullName || userData.name || "Student",
+      timestamp:review.submittedAt || review.createdAt || review.updatedAt || review.reviewedAt || review.date
+    });
+  });
+
+  skills.slice(0,20).forEach(skill => {
+    activity.push({
+      type:"skill",
+      title:skill.skillName || skill.name || skill.title || "Skill verified",
+      detail:[skill.verificationLevel || "Instructor Verified", skill.hoursVerified ? `${skill.hoursVerified} verified hours` : ""].filter(Boolean).join(" • "),
+      status:skill.status || (skill.approved ? "approved" : "verified"),
+      studentName:student.name || userData.fullName || userData.name || "Student",
+      timestamp:skill.approvedAt || skill.createdAt || skill.updatedAt || skill.date
+    });
+  });
+
+  return activity
+    .filter(item => item.title)
+    .sort((a,b) => getActivityTimeValue(b) - getActivityTimeValue(a));
+}
+
+function renderActivityItems(items, limitCount = 10){
+  const visible = normalizeArray(items).slice(0, limitCount);
+
+  if(!visible.length){
+    return emptyState(
+      "No recent activity yet",
+      "Hours, evidence uploads, assignments, reviews, and verified skills will appear here as students use Track My Progress."
+    );
+  }
+
+  return visible.map(item => {
+    const status = normalizeActivityStatus(item.status);
+    const detail = [
+      item.studentName ? item.studentName : "",
+      item.detail ? item.detail : "",
+      formatActivityDate(item)
+    ].filter(Boolean).join(" • ");
+
+    return `
+      <div class="instructor-activity-item">
+        <div class="instructor-activity-icon">${escapeHtml(getActivityIcon(item.type))}</div>
+        <div>
+          <div class="instructor-activity-title">${escapeHtml(item.title || "Student activity")}</div>
+          <div class="instructor-activity-meta">${escapeHtml(detail)}</div>
+        </div>
+        <span class="instructor-activity-status ${escapeHtml(status)}">${escapeHtml(status.replaceAll("-"," "))}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+function getInstructorRecentActivityItems(){
+  const students = mergeStudents(getStudents(), autoLinkedStudents).filter(itemMatchesSelectedCohort);
+  const byStudent = {};
+  students.forEach(student => {
+    const keys = [
+      student.userId,
+      student.authUid,
+      student.uid,
+      student.id,
+      normalizeEmail(student.email)
+    ].filter(Boolean).map(v => String(v).toLowerCase());
+    keys.forEach(key => byStudent[key] = student);
+  });
+
+  const activity = [];
+
+  students.forEach(student => {
+    buildRecentActivityItemsForStudent(
+      student,
+      {},
+      pendingReviews.filter(review => {
+        const keys = [
+          review.authUid,
+          review.uid,
+          review.studentUid,
+          review.studentId,
+          normalizeEmail(review.studentEmail || review.submittedByEmail || "")
+        ].filter(Boolean).map(v => String(v).toLowerCase());
+        return keys.some(key => byStudent[key] === student);
+      }),
+      studentSkillsByUserId[student.userId] || studentSkillsByUserId[student.authUid] || []
+    ).forEach(item => activity.push(item));
+  });
+
+  getFilteredAssignments().forEach(assignment => {
+    activity.push({
+      type:"assignment",
+      title:assignment.name || assignment.assignmentName || assignment.title || "Assignment sent",
+      detail:[assignment.cohortName || assignment.cohort || "All students", assignment.schoolCode || currentProfile.schoolCode || ""].filter(Boolean).join(" • "),
+      status:"new",
+      studentName:"Instructor",
+      timestamp:assignment.createdAt || assignment.sentAt || assignment.updatedAt || assignment.dueDate
+    });
+  });
+
+  return activity
+    .filter(item => item.title)
+    .sort((a,b) => getActivityTimeValue(b) - getActivityTimeValue(a));
+}
+
+function renderRecentActivity(){
+  const wrap = document.getElementById("recent-activity-list");
+  if(!wrap) return;
+  wrap.innerHTML = renderActivityItems(getInstructorRecentActivityItems(), 12);
+}
+
 function emptyState(title, text){
   return `<div class="empty-state"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div>`;
 }
@@ -2894,7 +3241,11 @@ function normalizeStudentFromUserDoc(id, u){
     instructorId:apprenticeship.instructorId || "",
     instructorEmail:normalizeEmail(u.assignedInstructorEmail || u.instructorEmail || apprenticeship.instructorEmail || ""),
     instructorName:u.assignedInstructorName || u.instructorName || apprenticeship.instructorName || "",
-    createdAt:u.createdAt || ""
+    createdAt:u.createdAt || "",
+    recentActivity:normalizeArray(u.recentActivity || u.activityFeed || progress.recentActivity || progress.activityFeed),
+    hourLogs:normalizeArray(u.hourLogs || progress.hourLogs),
+    assignmentSubmissions:normalizeArray(u.assignmentSubmissions || progress.assignmentSubmissions),
+    trainingUnitProgress:u.trainingUnitProgress || progress.trainingUnitProgress || {}
   };
 }
 
@@ -3834,8 +4185,13 @@ window.InstructorCenter = {
     updateStats();
     updateAnalytics();
     renderPendingReviews();
+    renderRecentActivity();
     this.renderStudents();
     this.renderDocuments();
+  },
+
+  renderRecentActivity(){
+    renderRecentActivity();
   },
 
   resetCohortFilter(){
@@ -3845,6 +4201,7 @@ window.InstructorCenter = {
     updateStats();
     updateAnalytics();
     renderPendingReviews();
+    renderRecentActivity();
     this.renderStudents();
     this.renderDocuments();
   },
@@ -4317,6 +4674,26 @@ window.InstructorCenter = {
         `).join("")
       : `<div class="empty-state"><h3>No verified skills yet</h3><p>Approved skills will appear here after instructor signoff.</p></div>`;
 
+    const recentActivityHtml = renderActivityItems(
+      buildRecentActivityItemsForStudent(
+        {
+          ...rosterStudent,
+          name,
+          email,
+          userId:uid,
+          authUid:uid,
+          recentActivity:rosterStudent.recentActivity || [],
+          hourLogs:rosterStudent.hourLogs || [],
+          assignmentSubmissions:rosterStudent.assignmentSubmissions || []
+        },
+        userData,
+        reviews,
+        skills
+      ),
+      12
+    );
+
+
     const workplaceHtml = workplaceReviews.length
       ? workplaceReviews.slice(0,8).map(review => `
           <div class="student-progress-item">
@@ -4362,6 +4739,11 @@ window.InstructorCenter = {
       <div class="progress-note">
         <span>${hours.toLocaleString()} / ${goal.toLocaleString()} hours</span>
         <span>${percent}%</span>
+      </div>
+
+      <div class="student-progress-section">
+        <div class="student-progress-section-title">Recent Activity</div>
+        <div class="student-progress-section-body">${recentActivityHtml}</div>
       </div>
 
       <div class="student-progress-section">
@@ -4996,7 +5378,7 @@ async function init(){
   // FIX v31: updateProfileDisplay called here so name/school/courses are correct before page shows.
   updateProfileDisplay();
 
-  // FIX v59: If the profile picture was written by another page after this page loaded,
+  // FIX v60: If the profile picture was written by another page after this page loaded,
   // pull it one more time from localStorage/Firebase Storage and refresh only the avatar.
   setTimeout(async function(){
     try{
@@ -5028,9 +5410,10 @@ async function init(){
   InstructorCenter.renderDocuments();
   updateStats();
   updateAnalytics();
+  renderRecentActivity();
 
   // FIX v31: console.log now correctly says v31 (v30 said "v25" - version mismatch from copy-paste).
-  console.log("LTN Instructor Center v32 assignment sync loaded", {
+  console.log("LTN Instructor Center v60 activity sync loaded", {
     currentProfile,
     students:autoLinkedStudents.length,
     verifiedSkills:allVerifiedSkills.length,
