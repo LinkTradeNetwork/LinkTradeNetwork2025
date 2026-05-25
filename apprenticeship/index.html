@@ -8,9 +8,9 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="ltn-version" content="apprenticeship-dashboard-training-units-v52-full-clean">
+  <meta name="ltn-version" content="apprenticeship-dashboard-assignment-sync-v53">
 
-  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-training-units-v52-full-clean -->
+  <!-- LTN FORCE UPDATE VERSION: apprenticeship-dashboard-assignment-sync-v53 -->
   <!-- FIXES v52 FULL CLEAN:
     1. FORCE UPDATE: all dashboard route cache strings updated from v51 to v52.
     2. STRONG FIX: total proof count now includes certifications, skills, projects, signed work proof, and assignment submissions.
@@ -1013,12 +1013,12 @@
 <div class="topbar">
   <div class="logo">LTN • LinkTradeNetwork</div>
   <div class="top-actions">
-    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260524trainingv52'">Dashboard</button>
-    <button class="dashbtn" onclick="window.location.href='/members/?v=20260524trainingv52'">Members</button>
+    <button class="dashbtn" onclick="window.location.href='/dashboard/?v=20260524assignmentsyncv53'">Dashboard</button>
+    <button class="dashbtn" onclick="window.location.href='/members/?v=20260524assignmentsyncv53'">Members</button>
     <button class="dashbtn" onclick="return ltnRouteInstructorCenterFromApprenticeship(event)">Instructor Center</button>
     <button class="dashbtn" onclick="return ltnRouteTrackProgressFromApprenticeship(event)">Track My Progress</button>
-    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260524trainingv52'">Network Center</button>
-    <button class="logout" onclick="window.location.href='/dashboard/?v=20260524trainingv52'">Back</button>
+    <button class="dashbtn" onclick="window.location.href='/network-center/?v=20260524assignmentsyncv53'">Network Center</button>
+    <button class="logout" onclick="window.location.href='/dashboard/?v=20260524assignmentsyncv53'">Back</button>
   </div>
 </div>
 
@@ -1296,7 +1296,8 @@
     where,
     getDocs,
     limit,
-    serverTimestamp
+    serverTimestamp,
+    onSnapshot
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
 
@@ -1317,8 +1318,8 @@
   const BENCHMARK_HOURS = 8000;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_FILE_EXTENSIONS = ["pdf","jpg","jpeg","png","heic"];
-  const LOCAL_PROGRESS_VERSION = "v52";
-  const LTN_PAGE_VERSION = "apprenticeship-dashboard-training-units-v52-full-clean";
+  const LOCAL_PROGRESS_VERSION = "v53";
+  const LTN_PAGE_VERSION = "apprenticeship-dashboard-assignment-sync-v53";
 
   let currentUserId = null;
   let currentUserEmail = "";
@@ -1328,6 +1329,7 @@
   window.trainingUnits = trainingUnits;
   window.LTN_VERSION = LTN_PAGE_VERSION;
   let state = getEmptyState();
+  let pendingReviewsUnsubscribe = null;
 
   function getEmptyState(){
     return {
@@ -1397,6 +1399,7 @@
 
   function oldProgressKeys(uid){
     return [
+      `ltn_apprenticeship_progress_${uid}_v52`,
       `ltn_apprenticeship_progress_${uid}_v51`,
       `ltn_apprenticeship_progress_${uid}_v50`,
       `ltn_apprenticeship_progress_${uid}_v49`,
@@ -1718,7 +1721,7 @@
     const accessType = getCurrentAccessType(profile || {});
 
     if(accessType === "instructor"){
-      window.location.href = "/instructor/?v=20260524trainingv52";
+      window.location.href = "/instructor/?v=20260524assignmentsyncv53";
       return false;
     }
 
@@ -1733,11 +1736,11 @@
 
     if(accessType === "instructor"){
       alert("Track My Progress is for apprentices/students. Instructor accounts use Instructor Center.");
-      window.location.href = "/instructor/?v=20260524trainingv52";
+      window.location.href = "/instructor/?v=20260524assignmentsyncv53";
       return false;
     }
 
-    window.location.href = "/apprenticeship/?v=20260524trainingv52";
+    window.location.href = "/apprenticeship/?v=20260524assignmentsyncv53";
     return false;
   };
 
@@ -1746,7 +1749,7 @@
 
     if(accessType === "instructor"){
       alert("Instructor accounts use Instructor Center. Track My Progress is for apprentices and students.");
-      window.location.replace("/instructor/?v=20260524trainingv52");
+      window.location.replace("/instructor/?v=20260524assignmentsyncv53");
       return false;
     }
 
@@ -2217,7 +2220,8 @@
       ...extraData
     };
 
-    await addDoc(collection(db,"pendingReviews"), reviewPayload);
+    const reviewRef = await addDoc(collection(db,"pendingReviews"), reviewPayload);
+    return {id:reviewRef.id, ...reviewPayload};
   }
 
   function calculateEmployerReadyScore(metrics){
@@ -2712,9 +2716,7 @@
         ...proof
       };
 
-      state.assignmentSubmissions.push(submission);
-
-      await createPendingReview(
+      const createdReview = await createPendingReview(
         "Assignment Submission",
         assignment.title || assignment.name || "Assignment",
         proof,
@@ -2729,6 +2731,11 @@
           ...assignmentUnitInfo
         }
       );
+
+      submission.reviewId = createdReview && createdReview.id ? createdReview.id : "";
+      submission.status = "pending";
+      submission.verificationStatus = "pending";
+      state.assignmentSubmissions.push(submission);
 
       if(fileInput) fileInput.value = "";
       if(noteInput) noteInput.value = "";
@@ -2883,6 +2890,23 @@
     };
   }
 
+  function applyPendingReviewsSnapshot(snapshot){
+    const reviews = [];
+    snapshot.forEach(docSnap => {
+      reviews.push(normalizePendingReview(docSnap.id, docSnap.data()));
+    });
+
+    reviews.sort((a,b) => {
+      return String(b.submittedAtIso || "").localeCompare(String(a.submittedAtIso || ""));
+    });
+
+    state.pendingReviews = reviews;
+    saveLocalProgress();
+    renderProgress();
+    renderPendingReviews();
+    renderStudentAssignments();
+  }
+
   async function loadPendingReviews(){
     state.pendingReviews = [];
 
@@ -2896,20 +2920,31 @@
       );
 
       const snap = await getDocs(qRef);
-      const reviews = [];
-
-      snap.forEach(docSnap => {
-        reviews.push(normalizePendingReview(docSnap.id, docSnap.data()));
-      });
-
-      reviews.sort((a,b) => {
-        return String(b.submittedAtIso || "").localeCompare(String(a.submittedAtIso || ""));
-      });
-
-      state.pendingReviews = reviews;
+      applyPendingReviewsSnapshot(snap);
     }catch(error){
       console.error("Could not load pending reviews:", error);
       state.pendingReviews = [];
+    }
+  }
+
+  function startPendingReviewLiveSync(){
+    if(!currentUserId || pendingReviewsUnsubscribe) return;
+
+    try{
+      const qRef = query(
+        collection(db,"pendingReviews"),
+        where("authUid","==",currentUserId),
+        limit(200)
+      );
+
+      pendingReviewsUnsubscribe = onSnapshot(qRef, function(snapshot){
+        applyPendingReviewsSnapshot(snapshot);
+        if($('syncStatus')) $('syncStatus').textContent = "Instructor review status synced";
+      }, function(error){
+        console.warn("Live pending review sync stopped:", error);
+      });
+    }catch(error){
+      console.warn("Could not start live pending review sync:", error);
     }
   }
 
@@ -3667,6 +3702,7 @@
     if(!allowed) return;
 
     await loadBackgroundInstructorData();
+    startPendingReviewLiveSync();
   });
 
   setTimeout(function(){
@@ -3678,7 +3714,7 @@
     }
   },4500);
 
-  console.log("LTN Apprenticeship Dashboard Loaded v52 FULL CLEAN - original full code patched");
+  console.log("LTN Apprenticeship Dashboard Loaded v53 ASSIGNMENT SYNC - original full code patched");
 </script>
 
 </body>
