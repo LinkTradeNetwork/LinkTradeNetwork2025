@@ -14,8 +14,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-24: INSTRUCTOR CENTER ASSIGNMENT SYNC FIX v32 -->
-<!-- LTN VERSION: instructor-center-assignment-sync-v32 -->
+<!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER WORKPLACE VERIFICATION FIX v33 -->
+<!-- LTN VERSION: instructor-center-workplace-verification-v33 -->
+<!-- FIXES v33:
+  1. ADDED: Workplace Verification details display in Pending Student Reviews.
+  2. ADDED: Employer Company, Supervisor Name, Workplace Activity, and On-Site Hours visibility for uploaded student proof.
+  3. FIXED: Approval workflow no longer creates a rejection trade-passport activity during approval.
+  4. PRESERVED: Original Instructor Center v32 structure and assignment sync workflow.
+-->
 <!-- FIXES v31 (surgical only - all other code identical to v30):
   1. FIXED: Removed fragile localStorage ltn_access_granted gate - Firebase Auth handles auth.
   2. FIXED: Added "Find Apprenticeships" and "Jobs" to nav - matches Dashboard/Network Center nav.
@@ -1058,6 +1064,54 @@ textarea.form-control{min-height:106px;resize:vertical}
   margin-top:3px;
 }
 
+
+.workplace-verification-box{
+  margin-top:12px;
+  background:#f8fafc;
+  border:1px solid #dbe3ee;
+  border-radius:14px;
+  padding:12px;
+}
+
+.workplace-verification-title{
+  color:#243b5a;
+  font-size:12px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-bottom:8px;
+}
+
+.workplace-verification-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+  gap:8px;
+}
+
+.workplace-verification-item{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:9px 10px;
+}
+
+.workplace-verification-item span{
+  display:block;
+  color:#64748b;
+  font-size:10px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.workplace-verification-item b{
+  display:block;
+  color:#182230;
+  font-size:13px;
+  margin-top:2px;
+  word-break:break-word;
+}
+
 .pending-review-comment{margin-top:12px}
 
 .pending-review-comment textarea{
@@ -1283,7 +1337,7 @@ textarea.form-control{min-height:106px;resize:vertical}
   // The old check was: if(localStorage.getItem("ltn_access_granted") !== "true") redirect
   // which could block legitimate logged-in users if localStorage was cleared.
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260524assignmentsyncv32";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525workplacev33";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1330,13 +1384,13 @@ textarea.form-control{min-height:106px;resize:vertical}
 
     <!-- FIX v31: Added Find Apprenticeships and Jobs to match Dashboard/Network Center nav -->
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260524assignmentsyncv32">Dashboard</a>
-      <a href="/members/?v=20260524assignmentsyncv32">Members</a>
-      <a href="/find-apprenticeships/?v=20260524assignmentsyncv32">Find Apprenticeships</a>
-      <a href="/instructor/?v=20260524assignmentsyncv32" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260524assignmentsyncv32" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/dashboard/?v=20260524assignmentsyncv32#jobs">Jobs</a>
-      <a href="/network-center/?v=20260524assignmentsyncv32">Network Center</a>
+      <a href="/dashboard/?v=20260525workplacev33">Dashboard</a>
+      <a href="/members/?v=20260525workplacev33">Members</a>
+      <a href="/find-apprenticeships/?v=20260525workplacev33">Find Apprenticeships</a>
+      <a href="/instructor/?v=20260525workplacev33" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260525workplacev33" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/dashboard/?v=20260525workplacev33#jobs">Jobs</a>
+      <a href="/network-center/?v=20260525workplacev33">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1384,7 +1438,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260524assignmentsyncv32">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260525workplacev33">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -1900,7 +1954,7 @@ const storage = getStorage(app);
 
 window.LTNFirebaseSignOut = function(){
   signOut(auth).finally(function(){
-    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260524assignmentsyncv32";
+    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525workplacev33";
   });
 };
 
@@ -2933,6 +2987,93 @@ async function loadPendingReviews(){
   });
 }
 
+
+function getFirstValue(item, keys){
+  for(const key of keys){
+    if(item && item[key] !== undefined && item[key] !== null && String(item[key]).trim() !== ""){
+      return item[key];
+    }
+  }
+  return "";
+}
+
+function renderWorkplaceVerificationHtml(item){
+  const employerCompany = getFirstValue(item, [
+    "employerCompany",
+    "companyName",
+    "workplaceCompany",
+    "employer",
+    "company"
+  ]);
+
+  const supervisorName = getFirstValue(item, [
+    "supervisorName",
+    "siteSupervisor",
+    "workplaceSupervisor",
+    "employerSupervisor",
+    "supervisor"
+  ]);
+
+  const workplaceActivity = getFirstValue(item, [
+    "workplaceActivity",
+    "activityType",
+    "activity",
+    "workActivity",
+    "taskDescription"
+  ]);
+
+  const onSiteHours = getFirstValue(item, [
+    "onSiteHours",
+    "onsiteHours",
+    "workplaceHours",
+    "verifiedHours",
+    "hoursVerified",
+    "hours"
+  ]);
+
+  const hasWorkplaceData = !!(
+    String(employerCompany || "").trim() ||
+    String(supervisorName || "").trim() ||
+    String(workplaceActivity || "").trim() ||
+    String(onSiteHours || "").trim()
+  );
+
+  if(!hasWorkplaceData) return "";
+
+  return `
+    <div class="workplace-verification-box">
+      <div class="workplace-verification-title">Workplace Verification</div>
+      <div class="workplace-verification-grid">
+        ${employerCompany ? `
+          <div class="workplace-verification-item">
+            <span>Employer Company</span>
+            <b>${escapeHtml(employerCompany)}</b>
+          </div>
+        ` : ""}
+        ${supervisorName ? `
+          <div class="workplace-verification-item">
+            <span>Supervisor Name</span>
+            <b>${escapeHtml(supervisorName)}</b>
+          </div>
+        ` : ""}
+        ${workplaceActivity ? `
+          <div class="workplace-verification-item">
+            <span>Workplace Activity</span>
+            <b>${escapeHtml(workplaceActivity)}</b>
+          </div>
+        ` : ""}
+        ${onSiteHours ? `
+          <div class="workplace-verification-item">
+            <span>On-Site Hours</span>
+            <b>${escapeHtml(onSiteHours)}</b>
+          </div>
+        ` : ""}
+      </div>
+    </div>
+  `;
+}
+
+
 function renderPendingReviews(){
   const wrap = document.getElementById("pending-reviews-list");
   const badge = document.getElementById("pending-review-count");
@@ -2974,6 +3115,8 @@ function renderPendingReviews(){
             ${item.proofFileUrl ? `<a class="btn btn-secondary" style="min-height:34px;padding:8px 12px;font-size:12px" href="${escapeHtml(item.proofFileUrl)}" target="_blank">View Proof</a>` : ""}
           </div>
         </div>
+
+        ${renderWorkplaceVerificationHtml(item)}
 
         <div class="pending-review-comment">
           <textarea id="review-comment-${item.id}" placeholder="Add instructor comment before approving or rejecting..."></textarea>
@@ -3401,7 +3544,15 @@ window.InstructorCenter = {
         reviewedAt:serverTimestamp(),
         reviewedByUid:currentUserId || "",
         approvedByUid:currentUserId || "",
-        approvedAt:serverTimestamp()
+        approvedAt:serverTimestamp(),
+        workplaceVerified:!!(
+          existingReview.employerCompany ||
+          existingReview.companyName ||
+          existingReview.supervisorName ||
+          existingReview.workplaceActivity ||
+          existingReview.onSiteHours ||
+          existingReview.workplaceHours
+        )
       });
 
       await syncTradePassportForStudent(existingReview.authUid || existingReview.studentUid || existingReview.uid || existingReview.studentId, {
@@ -3411,13 +3562,6 @@ window.InstructorCenter = {
         reviewId
       });
 
-
-      await syncTradePassportForStudent(existingReview.authUid || existingReview.studentUid || existingReview.uid || existingReview.studentId, {
-        type:"review_rejected",
-        title:existingReview.uploadTitle || "Student upload needs correction",
-        detail:instructorComment,
-        reviewId
-      });
 
       await loadPendingReviews();
       await loadClassAssignments();
@@ -3644,7 +3788,7 @@ window.InstructorCenter = {
               ${s.source === "firebase" ? '<span class="badge">School Code Linked</span>' : '<span class="badge badge-blue">Manual</span>'}
               ${statusBadge(s.status)}
               <button class="btn btn-primary" style="min-height:32px;padding:7px 10px;font-size:12px" onclick='InstructorCenter.openSkillApprovalModal(${JSON.stringify(buildSkillStudentValue(s))})'>Approve Skill</button>
-              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260524assignmentsyncv32">View Progress</a>` : ""}
+              ${s.userId ? `<a class="btn btn-secondary" style="min-height:32px;padding:7px 10px;font-size:12px" href="/profile/?id=${encodeURIComponent(s.userId)}&v=20260525workplacev33">View Progress</a>` : ""}
             </div>
           </div>
           <div class="progress-line"><div class="progress-fill" style="width:${pct}%"></div></div>
