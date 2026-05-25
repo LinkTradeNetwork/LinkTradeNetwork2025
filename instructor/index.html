@@ -3,6 +3,7 @@
 <head>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6CYFMPH84F"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -14,8 +15,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Instructor Center • LinkTradeNetwork</title>
 
-<!-- LTN FORCE UPDATE 2026-05-24: INSTRUCTOR CENTER TRADE PASSPORT EXPORT v35 -->
-<!-- LTN VERSION: instructor-center-trade-passport-export-v35 -->
+<!-- LTN FORCE UPDATE 2026-05-24: INSTRUCTOR CENTER PASSPORT PDF STABLE v39 -->
+<!-- LTN VERSION: instructor-center-passport-pdf-stable-v39 -->
 <!-- FIXES v35:
   1. ADDED: Trade Passport PDF export from the student progress modal.
   2. ADDED: printable employer/school-ready progress report with hours, verified skills, approved proof, workplace verification, and review summary.
@@ -1403,7 +1404,7 @@ textarea.form-control{min-height:106px;resize:vertical}
   // The old check was: if(localStorage.getItem("ltn_access_granted") !== "true") redirect
   // which could block legitimate logged-in users if localStorage was cleared.
 
-  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525studentprogressv34";
+  window.LTN_FRONT_GATE_URL = "/front.html?v=20260525pdfstablev39";
 
   window.LTNClearLocalSession = function(){
     [
@@ -1450,13 +1451,13 @@ textarea.form-control{min-height:106px;resize:vertical}
 
     <!-- FIX v31: Added Find Apprenticeships and Jobs to match Dashboard/Network Center nav -->
     <nav class="nav" id="main-nav">
-      <a href="/dashboard/?v=20260525studentprogressv34">Dashboard</a>
-      <a href="/members/?v=20260525studentprogressv34">Members</a>
-      <a href="/find-apprenticeships/?v=20260525studentprogressv34">Find Apprenticeships</a>
-      <a href="/instructor/?v=20260525studentprogressv34" class="active">Instructor Center</a>
-      <a href="/apprenticeship/?v=20260525studentprogressv34" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
-      <a href="/dashboard/?v=20260525studentprogressv34#jobs">Jobs</a>
-      <a href="/network-center/?v=20260525studentprogressv34">Network Center</a>
+      <a href="/dashboard/?v=20260525pdfstablev39">Dashboard</a>
+      <a href="/members/?v=20260525pdfstablev39">Members</a>
+      <a href="/find-apprenticeships/?v=20260525pdfstablev39">Find Apprenticeships</a>
+      <a href="/instructor/?v=20260525pdfstablev39" class="active">Instructor Center</a>
+      <a href="/apprenticeship/?v=20260525pdfstablev39" onclick="return ltnInstructorBlockTrackProgress(event)">Track My Progress</a>
+      <a href="/dashboard/?v=20260525pdfstablev39#jobs">Jobs</a>
+      <a href="/network-center/?v=20260525pdfstablev39">Network Center</a>
       <a href="#" onclick="LTNLogout();return false;" class="btn-secondary">Logout</a>
     </nav>
   </div>
@@ -1504,7 +1505,7 @@ textarea.form-control{min-height:106px;resize:vertical}
 
           <div style="margin-top:18px;display:grid;gap:10px">
             <button class="btn btn-primary" onclick="InstructorCenter.openProfileModal()">Edit Instructor Info</button>
-            <a class="btn btn-secondary" href="/dashboard/?v=20260525studentprogressv34">Back to Dashboard</a>
+            <a class="btn btn-secondary" href="/dashboard/?v=20260525pdfstablev39">Back to Dashboard</a>
           </div>
         </div>
       </section>
@@ -2041,7 +2042,7 @@ const storage = getStorage(app);
 
 window.LTNFirebaseSignOut = function(){
   signOut(auth).finally(function(){
-    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525studentprogressv34";
+    window.location.href = window.LTN_FRONT_GATE_URL || "/front.html?v=20260525pdfstablev39";
   });
 };
 
@@ -2150,7 +2151,7 @@ async function findCurrentUser(){
 
   if(!authUser){
     LTNClearLocalSession();
-    window.location.replace("/front.html?v=20260525instructorAuthRequiredv34");
+    window.location.replace("/front.html?v=20260525instructorAuthRequiredPdfv39");
     throw new Error("No authenticated Firebase user.");
   }
 
@@ -2170,7 +2171,7 @@ async function findCurrentUser(){
 
   if(!userSnap.exists()){
     alert("Instructor profile was not found for this signed-in account. Please complete your profile first.");
-    window.location.replace("/dashboard/?v=20260525instructorNoProfilev34");
+    window.location.replace("/dashboard/?v=20260525instructorNoProfilePdfv39");
     throw new Error("No user profile document for current auth uid.");
   }
 
@@ -2178,7 +2179,7 @@ async function findCurrentUser(){
 
   if(!isFirestoreInstructorProfile(u)){
     alert("Instructor Center is only for instructor accounts. You are signed in as a student/apprentice/member account.");
-    window.location.replace("/dashboard/?v=20260525notInstructorv34");
+    window.location.replace("/dashboard/?v=20260525notInstructorPdfv39");
     throw new Error("Current user is not an instructor.");
   }
 
@@ -3592,7 +3593,7 @@ function buildTradePassportPrintHtml(passport){
   </table>
 
   <div class="footer">
-    LinkTradeNetwork Trade Passport export. Use the browser Print button and choose “Save as PDF” to create the PDF file.
+    LinkTradeNetwork Trade Passport export. Use Print / Save as PDF if your browser does not download the PDF automatically.
   </div>
 
   <div class="no-print" style="margin-top:18px;display:flex;gap:10px;justify-content:flex-end">
@@ -4160,6 +4161,138 @@ window.InstructorCenter = {
     if(!passport){
       alert("Open a student progress record first, then export the Trade Passport.");
       return;
+    }
+
+    const cleanFileName = String(passport.name || "student")
+      .replace(/[^a-z0-9]+/gi,"-")
+      .replace(/^-+|-+$/g,"")
+      .toLowerCase() || "student";
+
+    const generated = new Date().toLocaleDateString();
+    const reviews = Array.isArray(passport.reviews) ? passport.reviews : [];
+    const skills = Array.isArray(passport.skills) ? passport.skills : [];
+    const workplace = Array.isArray(passport.workplaceReviews) ? passport.workplaceReviews : [];
+    const approvedReviews = reviews.filter(review => getReviewStatus(review) === "approved");
+    const pendingReviewsLocal = reviews.filter(review => getReviewStatus(review) !== "approved" && getReviewStatus(review) !== "rejected");
+    const rejectedReviews = reviews.filter(review => getReviewStatus(review) === "rejected");
+
+    try{
+      if(window.jspdf && window.jspdf.jsPDF){
+        const pdf = new window.jspdf.jsPDF({orientation:"portrait", unit:"pt", format:"letter"});
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 42;
+        let y = 42;
+
+        function addPageIfNeeded(extra){
+          if(y + extra > pageHeight - 42){
+            pdf.addPage();
+            y = 42;
+          }
+        }
+
+        function text(value, x, size, style){
+          pdf.setFont("helvetica", style || "normal");
+          pdf.setFontSize(size || 10);
+          const lines = pdf.splitTextToSize(String(value || ""), pageWidth - margin * 2 - (x - margin));
+          addPageIfNeeded(lines.length * ((size || 10) + 4));
+          pdf.text(lines, x, y);
+          y += lines.length * ((size || 10) + 4);
+        }
+
+        function section(title){
+          addPageIfNeeded(30);
+          y += 10;
+          pdf.setFillColor(234,106,0);
+          pdf.rect(margin, y, pageWidth - margin * 2, 3, "F");
+          y += 18;
+          text(title, margin, 13, "bold");
+        }
+
+        function row(label, value){
+          addPageIfNeeded(22);
+          pdf.setFont("helvetica","bold");
+          pdf.setFontSize(10);
+          pdf.text(String(label || ""), margin, y);
+          pdf.setFont("helvetica","normal");
+          const lines = pdf.splitTextToSize(String(value || ""), pageWidth - margin * 2 - 135);
+          pdf.text(lines, margin + 135, y);
+          y += Math.max(16, lines.length * 13);
+        }
+
+        pdf.setFillColor(36,59,90);
+        pdf.rect(0,0,pageWidth,86,"F");
+        pdf.setTextColor(255,255,255);
+        pdf.setFont("helvetica","bold");
+        pdf.setFontSize(22);
+        pdf.text("LinkTradeNetwork", margin, 38);
+        pdf.setFontSize(13);
+        pdf.text("Trade Passport PDF", margin, 62);
+        pdf.setTextColor(23,32,51);
+        y = 112;
+
+        text(passport.name || "Student", margin, 22, "bold");
+        text(`${passport.trade || "Trade not added"}${passport.email ? " • " + passport.email : ""}`, margin, 11, "normal");
+        text(`${passport.school || "School not added"}${passport.cohort ? " • " + passport.cohort : ""}${passport.schoolCode ? " • " + passport.schoolCode : ""}`, margin, 11, "normal");
+        text(`Generated: ${generated}`, margin, 10, "normal");
+
+        section("Progress Summary");
+        row("Hours", Number(passport.hours || 0).toLocaleString());
+        row("Goal Hours", Number(passport.goal || 8000).toLocaleString());
+        row("Progress", `${passport.percent || 0}%`);
+        row("Approved Proofs", approvedReviews.length);
+        row("Pending Reviews", pendingReviewsLocal.length);
+        row("Needs Correction", rejectedReviews.length);
+        row("Verified Skills", skills.length);
+        row("Workplace Records", workplace.length);
+        row("Instructor", `${passport.instructorName || currentProfile.name || ""}${passport.instructorEmail ? " • " + passport.instructorEmail : ""}`);
+
+        section("Workplace Verification");
+        if(workplace.length){
+          workplace.slice(0,14).forEach((review, index) => {
+            text(`${index + 1}. ${review.workplaceActivity || getPassportReviewTitle(review) || "Workplace Evidence"}`, margin, 11, "bold");
+            row("Employer", review.employerCompany || "Not added");
+            row("Supervisor", review.supervisorName || "Not added");
+            row("On-Site Hours", review.onSiteHours || review.workplaceHours || "Not added");
+            row("Status", getReviewStatus(review));
+            y += 5;
+          });
+        }else{
+          text("No workplace verification records found yet.", margin, 10, "normal");
+        }
+
+        section("Evidence / Instructor Reviews");
+        if(reviews.length){
+          reviews.slice(0,20).forEach((review, index) => {
+            text(`${index + 1}. ${getPassportReviewTitle(review)}`, margin, 11, "bold");
+            row("Unit", review.unitCode || review.trainingUnitCode || review.competencyCode || "Not assigned");
+            row("Status", getReviewStatus(review));
+            row("Comment", review.instructorComment || review.reviewComment || review.comment || "");
+            y += 5;
+          });
+        }else{
+          text("No evidence uploads found yet.", margin, 10, "normal");
+        }
+
+        section("Verified Skills");
+        if(skills.length){
+          skills.slice(0,20).forEach((skill, index) => {
+            text(`${index + 1}. ${skill.skillName || skill.name || skill.title || "Verified Skill"}`, margin, 11, "bold");
+            row("Verification", skill.verificationLevel || skill.status || "Instructor Verified");
+            row("Hours", skill.hoursVerified || "");
+            row("Assignment / Lab", skill.assignmentTitle || skill.assignment || "");
+            row("Comment", skill.instructorComment || skill.notes || "");
+            y += 5;
+          });
+        }else{
+          text("No verified skills found yet.", margin, 10, "normal");
+        }
+
+        pdf.save(`ltn-trade-passport-${cleanFileName}.pdf`);
+        return;
+      }
+    }catch(error){
+      console.warn("PDF download failed, opening print version instead:", error);
     }
 
     const html = buildTradePassportPrintHtml(passport);
