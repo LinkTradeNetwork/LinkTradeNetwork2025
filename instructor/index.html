@@ -16,7 +16,7 @@
 <title>Instructor Center • LinkTradeNetwork</title>
 
 <!--
-GITHUB COMMIT v66:
+GITHUB COMMIT v67:
 fix(instructor): remove failsafe cache label and prevent blank instructor page
 - Renamed all page cache versions to 20260525unitpassportv66
 - Kept instructor route/name as /instructor/ and output file as instructor.html
@@ -26,7 +26,7 @@ fix(instructor): remove failsafe cache label and prevent blank instructor page
 
 <!-- GITHUB COMMIT: fix(instructor): professional cache version and blank page repair -->
 <!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER PROFESSIONAL v52 -->
-<!-- LTN VERSION: instructor-center-unit-passport-v66 -->
+<!-- LTN VERSION: instructor-center-unit-passport-v67-hours-in-view-progress -->
 <!-- FIXES v52:
   1. Replaced old public cache/version labels so the URL no longer needs to show failsafe.
   2. Fixed blank page JavaScript crash caused by duplicate const exportBtn inside the student progress modal function.
@@ -46,6 +46,15 @@ fix(instructor): remove failsafe cache label and prevent blank instructor page
   6. IMPROVED: init() now calls updateProfileDisplay() AFTER all profile fields are set, not before.
   7. IMPROVED: schoolCode empty guard - if no school code, shows a notice instead of silently returning 0s.
   8. IMPROVED: hero-name, hero-school, hero-courses placeholders are more helpful before profile loads.
+-->
+
+<!--
+GITHUB COMMIT v67:
+fix(instructor): show student logged hours inside View Progress modal
+- Added Logged Hours / Work Evidence section to Student Progress.
+- Pulls hour activity records from tradePassportActivity for the selected apprentice.
+- Supports multiple hour field names and "Logged X hours" activity titles/details.
+- Keeps existing uploads, workplace verification, verified skills, and PDF export intact.
 -->
 
 <style>
@@ -1350,6 +1359,45 @@ textarea.form-control{min-height:106px;resize:vertical}
 }
 
 .student-progress-proof-link:hover{text-decoration:underline}
+
+
+.student-hours-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:10px;
+}
+
+.student-hour-card{
+  border:1px solid #dbeafe;
+  background:linear-gradient(180deg,#ffffff,#f8fbff);
+  border-radius:14px;
+  padding:12px;
+  box-shadow:var(--shadow-sm);
+}
+
+.student-hour-card strong{
+  display:block;
+  color:var(--accent);
+  font-size:15px;
+  font-weight:950;
+}
+
+.student-hour-card span{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:750;
+  line-height:1.4;
+  margin-top:4px;
+}
+
+.student-hour-card .student-hour-number{
+  color:var(--brand2);
+  font-size:22px;
+  line-height:1;
+  font-weight:950;
+  margin-bottom:5px;
+}
 
 
 .unit-passport-grid{
@@ -4318,6 +4366,142 @@ window.InstructorCenter = {
   },
 
 
+  normalizeStudentHourLogs(records){
+    const list = Array.isArray(records) ? records : [];
+
+    function readHours(record){
+      const direct = [
+        record.hours,
+        record.hoursLogged,
+        record.loggedHours,
+        record.hourCount,
+        record.totalHours,
+        record.workHours,
+        record.onSiteHours,
+        record.workplaceHours,
+        record.durationHours
+      ];
+
+      for(const value of direct){
+        const number = Number(value);
+        if(Number.isFinite(number) && number > 0) return number;
+      }
+
+      const text = [
+        record.title,
+        record.detail,
+        record.description,
+        record.notes,
+        record.activity,
+        record.activityDescription
+      ].map(v => String(v || "")).join(" ");
+
+      const match = text.match(/(?:logged\s*)?(\d+(?:\.\d+)?)\s*(?:hour|hours|hrs|hr)\b/i);
+      if(match){
+        const number = Number(match[1]);
+        if(Number.isFinite(number) && number > 0) return number;
+      }
+
+      return 0;
+    }
+
+    function isHourRecord(record){
+      const typeText = [
+        record.activityType,
+        record.type,
+        record.category,
+        record.sourceType,
+        record.statusType
+      ].map(v => String(v || "").toLowerCase()).join(" ");
+
+      const bodyText = [
+        record.title,
+        record.detail,
+        record.description,
+        record.notes,
+        record.activity,
+        record.activityDescription
+      ].map(v => String(v || "").toLowerCase()).join(" ");
+
+      return (
+        typeText.includes("hour") ||
+        typeText.includes("time") ||
+        bodyText.includes("logged") && bodyText.includes("hour") ||
+        bodyText.includes("hours") ||
+        readHours(record) > 0
+      );
+    }
+
+    function getDateValue(record){
+      const raw =
+        record.date ||
+        record.workDate ||
+        record.loggedDate ||
+        record.completedDate ||
+        record.createdAt ||
+        record.updatedAt ||
+        record.createdAtServer ||
+        "";
+
+      if(raw && typeof raw.toDate === "function") return raw.toDate();
+      if(raw && raw.seconds) return new Date(raw.seconds * 1000);
+      if(raw){
+        const date = new Date(raw);
+        if(!Number.isNaN(date.getTime())) return date;
+      }
+      return null;
+    }
+
+    return list
+      .filter(isHourRecord)
+      .map(record => {
+        const dateObj = getDateValue(record);
+        const hours = readHours(record);
+        const unit = record.unitCode || record.trainingUnitCode || record.competencyCode || record.relatedTo || record.unit || "";
+        const activity =
+          record.activityDescription ||
+          record.description ||
+          record.detail ||
+          record.notes ||
+          record.workDescription ||
+          record.title ||
+          "Logged hours";
+
+        return {
+          ...record,
+          displayHours:hours,
+          displayUnit:unit,
+          displayActivity:activity,
+          displayDate:dateObj ? dateObj.toLocaleDateString() : "",
+          sortTime:dateObj ? dateObj.getTime() : 0
+        };
+      })
+      .sort((a,b) => (b.sortTime || 0) - (a.sortTime || 0));
+  },
+
+  renderStudentHourLogsHtml(hourLogs){
+    const logs = this.normalizeStudentHourLogs(hourLogs);
+
+    if(!logs.length){
+      return `<div class="empty-state"><h3>No logged hours found yet</h3><p>When this apprentice enters hours, they will appear here for instructor review.</p></div>`;
+    }
+
+    return `
+      <div class="student-hours-grid">
+        ${logs.slice(0,12).map(log => `
+          <div class="student-hour-card">
+            <div class="student-hour-number">${Number(log.displayHours || 0).toLocaleString()} hrs</div>
+            <strong>${escapeHtml(log.displayUnit || log.title || "Logged Hours")}</strong>
+            <span>${escapeHtml(log.displayActivity || "Hours logged by apprentice")}</span>
+            <span>${log.displayDate ? "Date: " + escapeHtml(log.displayDate) : "Date not added"}${log.status ? " • Status: " + escapeHtml(log.status) : ""}</span>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  },
+
+
+
   async openStudentProgressModal(studentValue, triggerBtn = null){
     const parsed = parseSkillStudentValue(studentValue) || {};
     const uid = String(parsed.authUid || parsed.userId || "").trim();
@@ -4358,6 +4542,7 @@ window.InstructorCenter = {
     let progress = {};
     let reviews = [];
     let skills = [];
+    let hourLogs = [];
 
     if(uid){
       try{
@@ -4383,6 +4568,23 @@ window.InstructorCenter = {
       }catch(error){
         console.warn("Could not load student skills:", error);
       }
+
+      try{
+        const activitySnap = await getDocs(query(collection(db,"tradePassportActivity"), where("authUid","==",uid), limit(300)));
+        activitySnap.forEach(docSnap => hourLogs.push({id:docSnap.id,...(docSnap.data() || {})}));
+      }catch(error){
+        console.warn("Could not load student hour activity by authUid:", error);
+      }
+
+      try{
+        const activitySnapByStudent = await getDocs(query(collection(db,"tradePassportActivity"), where("studentUid","==",uid), limit(300)));
+        activitySnapByStudent.forEach(docSnap => {
+          const data = {id:docSnap.id,...(docSnap.data() || {})};
+          if(!hourLogs.some(item => item.id === data.id)) hourLogs.push(data);
+        });
+      }catch(error){
+        console.warn("Could not load student hour activity by studentUid:", error);
+      }
     }
 
     if(!reviews.length && parsed.email){
@@ -4394,6 +4596,12 @@ window.InstructorCenter = {
     if(!skills.length && uid && studentSkillsByUserId[uid]){
       skills = studentSkillsByUserId[uid] || [];
     }
+    if(!hourLogs.length && reviews.length){
+      hourLogs = reviews.filter(review => {
+        return Number(review.hours || review.hoursLogged || review.loggedHours || review.onSiteHours || review.workplaceHours || 0) > 0;
+      });
+    }
+
 
     const name = userData.fullName || userData.name || userData.displayName || rosterStudent.name || parsed.name || "Student";
     const email = userData.email || rosterStudent.email || parsed.email || "";
@@ -4412,6 +4620,7 @@ window.InstructorCenter = {
 
     const unitProgress = collectStudentUnitProgress(userData, progress, reviews, skills);
 const unitProgressHtml = renderUnitProgressHtml(unitProgress);
+    const hourLogsHtml = this.renderStudentHourLogsHtml(hourLogs);
 
 const workplaceReviews = reviews.filter(review => {
       return review.employerCompany || review.supervisorName || review.workplaceActivity || Number(review.onSiteHours || review.workplaceHours || 0) > 0;
@@ -4462,7 +4671,7 @@ const workplaceReviews = reviews.filter(review => {
 
     currentStudentTradePassport = {
       name, email, trade, school, cohort, schoolCode, hours, goal, percent,
-      reviews, skills, workplaceReviews,
+      reviews, skills, workplaceReviews, hourLogs,
       instructorName:currentProfile.name || "",
       instructorEmail:currentProfile.email || "",
       generatedAt:new Date().toISOString()
@@ -4495,6 +4704,11 @@ const workplaceReviews = reviews.filter(review => {
       <div class="progress-note">
         <span>${hours.toLocaleString()} / ${goal.toLocaleString()} hours</span>
         <span>${percent}%</span>
+      </div>
+
+      <div class="student-progress-section">
+        <div class="student-progress-section-title">Logged Hours / Work Evidence</div>
+        <div class="student-progress-section-body">${hourLogsHtml}</div>
       </div>
 
       <div class="student-progress-section">
