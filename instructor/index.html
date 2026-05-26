@@ -26,7 +26,7 @@ fix(instructor): remove failsafe cache label and prevent blank instructor page
 
 <!-- GITHUB COMMIT: fix(instructor): professional cache version and blank page repair -->
 <!-- LTN FORCE UPDATE 2026-05-25: INSTRUCTOR CENTER PROFESSIONAL v52 -->
-<!-- LTN VERSION: instructor-center-unit-passport-v67-hours-in-view-progress -->
+<!-- LTN VERSION: instructor-center-unit-passport-v69-hour-approval-workflow -->
 <!-- FIXES v52:
   1. Replaced old public cache/version labels so the URL no longer needs to show failsafe.
   2. Fixed blank page JavaScript crash caused by duplicate const exportBtn inside the student progress modal function.
@@ -50,7 +50,7 @@ fix(instructor): remove failsafe cache label and prevent blank instructor page
 
 <!--
 GITHUB COMMIT v67:
-fix(instructor): show student logged hours inside View Progress modal
+fix(instructor): show and approve student logged hours inside View Progress modal
 - Added Logged Hours / Work Evidence section to Student Progress.
 - Pulls hour activity records from tradePassportActivity for the selected apprentice.
 - Supports multiple hour field names and "Logged X hours" activity titles/details.
@@ -1399,6 +1399,37 @@ textarea.form-control{min-height:106px;resize:vertical}
   margin-bottom:5px;
 }
 
+.student-hour-status-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.student-hour-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.student-hour-action-btn{
+  border:0;
+  border-radius:999px;
+  min-height:30px;
+  padding:7px 10px;
+  font-size:11px;
+  font-weight:950;
+}
+
+.student-hour-approve{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+.student-hour-reject{background:#ffe4e6;color:#be123c;border:1px solid #fecdd3}
+.student-hour-approved-badge{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+.student-hour-pending-badge{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+.student-hour-rejected-badge{background:#ffe4e6;color:#be123c;border:1px solid #fecdd3}
+
 
 .unit-passport-grid{
   display:grid;
@@ -2248,6 +2279,7 @@ let firebaseAssignments = [];
 let trainingUnits = [];
 let selectedCohortFilter = "all";
 let currentStudentTradePassport = null;
+let currentStudentProgressContext = null;
 
 function safeJsonParse(value, fallback){
   try{return JSON.parse(value || "");}catch(e){return fallback;}
@@ -4117,13 +4149,6 @@ window.InstructorCenter = {
       });
 
 
-      await syncTradePassportForStudent(existingReview.authUid || existingReview.studentUid || existingReview.uid || existingReview.studentId, {
-        type:"review_rejected",
-        title:existingReview.uploadTitle || "Student upload needs correction",
-        detail:instructorComment,
-        reviewId
-      });
-
       await loadPendingReviews();
       await loadClassAssignments();
       populateCohortFilter();
@@ -4379,7 +4404,10 @@ window.InstructorCenter = {
         record.workHours,
         record.onSiteHours,
         record.workplaceHours,
-        record.durationHours
+        record.durationHours,
+        record.taskHours,
+        record.hoursCompletedDelta,
+        record.enteredHours
       ];
 
       for(const value of direct){
@@ -4467,12 +4495,20 @@ window.InstructorCenter = {
           record.title ||
           "Logged hours";
 
+        const rawStatus = String(record.status || record.verificationStatus || record.approvalStatus || "pending").toLowerCase();
+        const displayStatus = (record.approved === true || rawStatus === "approved" || rawStatus === "verified") ? "approved" : ((record.rejected === true || rawStatus === "rejected" || rawStatus === "needs-correction") ? "rejected" : "pending");
+        const sourceText = String(record._source || "");
+        const collectionName = record._collectionName || (sourceText.includes(".") ? sourceText.split(".")[0] : "");
+
         return {
           ...record,
           displayHours:hours,
           displayUnit:unit,
           displayActivity:activity,
           displayDate:dateObj ? dateObj.toLocaleDateString() : "",
+          displayStatus,
+          _collectionName:collectionName,
+          _docId:record.id || record.docId || "",
           sortTime:dateObj ? dateObj.getTime() : 0
         };
       })
@@ -4488,23 +4524,245 @@ window.InstructorCenter = {
 
     return `
       <div class="student-hours-grid">
-        ${logs.slice(0,12).map(log => `
+        ${logs.slice(0,12).map(log => {
+          const encodedLog = encodeURIComponent(JSON.stringify({
+            id:log._docId || log.id || "",
+            collectionName:log._collectionName || "",
+            source:log._source || "",
+            authUid:log.authUid || log.studentUid || log.userId || log.uid || "",
+            studentEmail:log.studentEmail || log.email || log.userEmail || "",
+            hours:log.displayHours || 0,
+            unit:log.displayUnit || "",
+            activity:log.displayActivity || "Logged hours",
+            date:log.displayDate || ""
+          }));
+          const statusClass = log.displayStatus === "approved" ? "student-hour-approved-badge" : (log.displayStatus === "rejected" ? "student-hour-rejected-badge" : "student-hour-pending-badge");
+          const canUpdate = !!(log._collectionName && (log._docId || log.id));
+          return `
           <div class="student-hour-card">
             <div class="student-hour-number">${Number(log.displayHours || 0).toLocaleString()} hrs</div>
             <strong>${escapeHtml(log.displayUnit || log.title || "Logged Hours")}</strong>
             <span>${escapeHtml(log.displayActivity || "Hours logged by apprentice")}</span>
-            <span>${log.displayDate ? "Date: " + escapeHtml(log.displayDate) : "Date not added"}${log.status ? " • Status: " + escapeHtml(log.status) : ""}</span>
+            <div class="student-hour-status-row">
+              <span>${log.displayDate ? "Date: " + escapeHtml(log.displayDate) : "Date not added"}</span>
+              <span class="badge ${statusClass}">${escapeHtml(log.displayStatus || "pending")}</span>
+            </div>
+            ${log.displayStatus === "pending" ? `
+              <div class="student-hour-actions">
+                <button class="student-hour-action-btn student-hour-approve" onclick="InstructorCenter.approveStudentHourLog('${encodedLog}')">Approve Hours</button>
+                <button class="student-hour-action-btn student-hour-reject" onclick="InstructorCenter.rejectStudentHourLog('${encodedLog}')">Reject</button>
+              </div>
+              ${!canUpdate ? `<span>This hour entry may need to be re-saved from the student dashboard before direct approval can update the original record.</span>` : ``}
+            ` : ``}
           </div>
-        `).join("")}
+        `}).join("")}
       </div>
     `;
   },
 
 
 
+  async loadStudentLoggedHours(uid, email, userData, progress, reviews){
+    const hourLogs = [];
+    const seen = new Set();
+
+    function pushLog(raw, source){
+      if(!raw || typeof raw !== "object") return;
+      const record = {...raw, _source:source || raw._source || ""};
+      const key = String(record.id || record.docId || record.createdAt?.seconds || record.date || record.workDate || record.title || record.detail || record.description || JSON.stringify(record)).slice(0,300);
+      if(seen.has(key)) return;
+      seen.add(key);
+      hourLogs.push(record);
+    }
+
+    function pushArray(list, source){
+      if(Array.isArray(list)) list.forEach(item => pushLog(item, source));
+    }
+
+    const apprenticeship = (userData && userData.apprenticeship) || {};
+
+    /* Student dashboard can save hour logs under different names depending on version. */
+    [
+      userData.hourLogs,
+      userData.hoursLog,
+      userData.loggedHours,
+      userData.workHours,
+      userData.workLogs,
+      userData.timeLogs,
+      userData.timeEntries,
+      userData.progressFeed,
+      userData.activityFeed,
+      userData.studentProgressFeed,
+      progress.hourLogs,
+      progress.hoursLog,
+      progress.loggedHours,
+      progress.workHours,
+      progress.workLogs,
+      progress.timeLogs,
+      progress.timeEntries,
+      progress.progressFeed,
+      progress.activityFeed,
+      progress.studentProgressFeed,
+      apprenticeship.hourLogs,
+      apprenticeship.hoursLog,
+      apprenticeship.loggedHours,
+      apprenticeship.workHours,
+      apprenticeship.workLogs,
+      apprenticeship.timeLogs,
+      apprenticeship.timeEntries,
+      apprenticeship.progressFeed,
+      apprenticeship.activityFeed,
+      apprenticeship.studentProgressFeed
+    ].forEach((list,index) => pushArray(list, "user-progress-array-" + index));
+
+    /* Reviews/workplace evidence can also contain hours. */
+    (Array.isArray(reviews) ? reviews : []).forEach(review => {
+      if(Number(review.hours || review.hoursLogged || review.loggedHours || review.onSiteHours || review.workplaceHours || review.workHours || 0) > 0){
+        pushLog(review, "pendingReviews");
+      }
+    });
+
+    const collectionNames = [
+      "tradePassportActivity",
+      "studentProgressFeed",
+      "progressFeed",
+      "activityFeed",
+      "studentActivity",
+      "studentActivities",
+      "hourLogs",
+      "hoursLog",
+      "workLogs",
+      "timeLogs",
+      "apprenticeshipHours",
+      "apprenticeshipActivity",
+      "studentHours"
+    ];
+
+    const idFields = ["authUid","studentUid","userId","uid","studentId","apprenticeUid","apprenticeshipUid"];
+    const emailFields = ["studentEmail","email","submittedByEmail","userEmail","apprenticeEmail"];
+
+    async function queryCollectionByField(collectionName, fieldName, value){
+      if(!value) return;
+      try{
+        const snap = await getDocs(query(collection(db, collectionName), where(fieldName, "==", value), limit(300)));
+        snap.forEach(docSnap => pushLog({id:docSnap.id, docId:docSnap.id, _collectionName:collectionName, ...(docSnap.data() || {})}, collectionName + "." + fieldName));
+      }catch(error){
+        console.warn("Could not load hour logs from", collectionName, fieldName, error);
+      }
+    }
+
+    for(const collectionName of collectionNames){
+      if(uid){
+        for(const fieldName of idFields){
+          await queryCollectionByField(collectionName, fieldName, uid);
+        }
+      }
+      if(email){
+        for(const fieldName of emailFields){
+          await queryCollectionByField(collectionName, fieldName, String(email).toLowerCase());
+        }
+      }
+    }
+
+    return hourLogs;
+  },
+
+
+  decodeHourLogPayload(encodedLog){
+    try{
+      return JSON.parse(decodeURIComponent(String(encodedLog || ""))) || {};
+    }catch(error){
+      console.warn("Could not decode hour log payload", error);
+      return {};
+    }
+  },
+
+  async updateStudentHourLogStatus(encodedLog, status){
+    const log = this.decodeHourLogPayload(encodedLog);
+    const collectionName = String(log.collectionName || "").trim();
+    const docId = String(log.id || log.docId || "").trim();
+    const approved = status === "approved";
+    const rejected = status === "rejected";
+    const instructorComment = approved ? "Hours approved by instructor." : "Hours rejected by instructor. Please review and re-submit.";
+    const studentUid = String(log.authUid || log.studentUid || (currentStudentProgressContext && currentStudentProgressContext.uid) || "").trim();
+
+    try{
+      if(collectionName && docId){
+        await updateDoc(doc(db, collectionName, docId),{
+          status,
+          verificationStatus:status,
+          approvalStatus:status,
+          approved,
+          rejected,
+          reviewedBy:currentProfile.name || "Instructor",
+          reviewedByUid:currentUserId || "",
+          approvedBy:approved ? (currentProfile.name || "Instructor") : "",
+          approvedByUid:approved ? (currentUserId || "") : "",
+          rejectedBy:rejected ? (currentProfile.name || "Instructor") : "",
+          rejectedByUid:rejected ? (currentUserId || "") : "",
+          instructorComment,
+          reviewedAt:serverTimestamp(),
+          approvedAt:approved ? serverTimestamp() : null,
+          rejectedAt:rejected ? serverTimestamp() : null
+        });
+      }else{
+        await addDoc(collection(db,"pendingReviews"),{
+          authUid:studentUid,
+          studentUid,
+          studentEmail:log.studentEmail || (currentStudentProgressContext && currentStudentProgressContext.email) || "",
+          uploadTitle:log.unit || "Logged Hours",
+          reviewType:"Hours Review",
+          uploadType:"Hours",
+          hours:Number(log.hours || 0),
+          hoursLogged:Number(log.hours || 0),
+          unitCode:log.unit || "",
+          description:log.activity || "Logged hours",
+          status,
+          verificationStatus:status,
+          approved,
+          rejected,
+          reviewedBy:currentProfile.name || "Instructor",
+          reviewedByUid:currentUserId || "",
+          instructorComment,
+          createdAt:serverTimestamp(),
+          reviewedAt:serverTimestamp(),
+          source:"instructor_hour_approval_fallback"
+        });
+      }
+
+      if(studentUid){
+        await syncTradePassportForStudent(studentUid,{
+          type:approved ? "hours_approved" : "hours_rejected",
+          title:approved ? "Logged hours approved" : "Logged hours rejected",
+          detail:(Number(log.hours || 0).toLocaleString()) + " hours - " + (log.activity || "Logged hours"),
+          reviewId:docId || ""
+        });
+      }
+
+      if(currentStudentProgressContext){
+        await this.openStudentProgressModal(currentStudentProgressContext.studentValue || currentStudentProgressContext, null);
+      }
+
+      alert(approved ? "Student hours approved." : "Student hours rejected.");
+    }catch(error){
+      console.error(error);
+      alert("Hour approval failed. Check Firebase rules for the hour-log collection.");
+    }
+  },
+
+  async approveStudentHourLog(encodedLog){
+    await this.updateStudentHourLogStatus(encodedLog,"approved");
+  },
+
+  async rejectStudentHourLog(encodedLog){
+    await this.updateStudentHourLogStatus(encodedLog,"rejected");
+  },
+
+
   async openStudentProgressModal(studentValue, triggerBtn = null){
     const parsed = parseSkillStudentValue(studentValue) || {};
     const uid = String(parsed.authUid || parsed.userId || "").trim();
+    currentStudentProgressContext = {...parsed, uid, studentValue};
     const body = document.getElementById("student-progress-modal-body");
 
     if(!body){
@@ -4568,23 +4826,6 @@ window.InstructorCenter = {
       }catch(error){
         console.warn("Could not load student skills:", error);
       }
-
-      try{
-        const activitySnap = await getDocs(query(collection(db,"tradePassportActivity"), where("authUid","==",uid), limit(300)));
-        activitySnap.forEach(docSnap => hourLogs.push({id:docSnap.id,...(docSnap.data() || {})}));
-      }catch(error){
-        console.warn("Could not load student hour activity by authUid:", error);
-      }
-
-      try{
-        const activitySnapByStudent = await getDocs(query(collection(db,"tradePassportActivity"), where("studentUid","==",uid), limit(300)));
-        activitySnapByStudent.forEach(docSnap => {
-          const data = {id:docSnap.id,...(docSnap.data() || {})};
-          if(!hourLogs.some(item => item.id === data.id)) hourLogs.push(data);
-        });
-      }catch(error){
-        console.warn("Could not load student hour activity by studentUid:", error);
-      }
     }
 
     if(!reviews.length && parsed.email){
@@ -4596,11 +4837,8 @@ window.InstructorCenter = {
     if(!skills.length && uid && studentSkillsByUserId[uid]){
       skills = studentSkillsByUserId[uid] || [];
     }
-    if(!hourLogs.length && reviews.length){
-      hourLogs = reviews.filter(review => {
-        return Number(review.hours || review.hoursLogged || review.loggedHours || review.onSiteHours || review.workplaceHours || 0) > 0;
-      });
-    }
+
+    hourLogs = await this.loadStudentLoggedHours(uid, parsed.email || (userData && userData.email) || "", userData || {}, progress || {}, reviews || []);
 
 
     const name = userData.fullName || userData.name || userData.displayName || rosterStudent.name || parsed.name || "Student";
