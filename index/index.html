@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- VERSION: INDEX-LTN-CLEAN-URL-FULL-2026-05-14-V3 -->
+  <!-- VERSION: INDEX-LTN-UNIT-SAAS-ECOSYSTEM-2026-05-29-V1 -->
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6CYFMPH84F"></script>
   <script>
@@ -447,12 +447,272 @@
     .footer-links a{color:#cbd5e1;text-decoration:none;font-size:14px;font-weight:700}
     .footer-copy{color:#cbd5e1;font-size:13px;font-weight:600}
 
+
+    /* UNIT TRACKING / SAAS ECOSYSTEM ADDITIONS */
+    .unit-ecosystem{
+      background:linear-gradient(180deg,#ffffff 0%,#fff7ed 100%);
+      border-top:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+    }
+    .ecosystem-map{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:10px;
+      align-items:stretch;
+      margin:34px 0 0;
+    }
+    .eco-step{
+      background:#fff;
+      border:1px solid #fed7aa;
+      border-radius:20px;
+      padding:18px 14px;
+      box-shadow:var(--shadow-sm);
+      min-height:118px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      text-align:center;
+      position:relative;
+    }
+    .eco-step:not(:last-child)::after{
+      content:"→";
+      position:absolute;
+      right:-14px;
+      top:50%;
+      transform:translateY(-50%);
+      color:var(--brand);
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:26px;
+      font-weight:900;
+      z-index:2;
+    }
+    .eco-step strong{
+      display:block;
+      font-family:'Barlow Condensed',sans-serif;
+      color:var(--navy);
+      font-size:22px;
+      line-height:1;
+      text-transform:uppercase;
+    }
+    .eco-step span{
+      display:block;
+      margin-top:8px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.25;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+    .unit-preview-shell{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:24px;
+      margin-top:34px;
+      align-items:start;
+    }
+    .unit-saas-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:24px;
+      box-shadow:var(--shadow-md);
+    }
+    .unit-saas-card.orange{
+      background:linear-gradient(135deg,#fff7ed,#ffffff);
+      border-color:#fed7aa;
+    }
+    .unit-card-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    .unit-card-title{
+      font-family:'Barlow Condensed',sans-serif;
+      color:var(--navy);
+      font-size:34px;
+      font-weight:900;
+      line-height:1;
+      text-transform:uppercase;
+    }
+    .unit-card-sub{
+      color:var(--muted);
+      font-weight:800;
+      margin-top:6px;
+      line-height:1.35;
+    }
+    .unit-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:9px 13px;
+      background:var(--brand);
+      color:#fff;
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      white-space:nowrap;
+    }
+    .unit-progress-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+      margin:18px 0;
+    }
+    .unit-metric{
+      border:1px solid var(--line);
+      background:#f8fafc;
+      border-radius:18px;
+      padding:15px;
+    }
+    .unit-metric strong{
+      display:block;
+      font-family:'Barlow Condensed',sans-serif;
+      color:var(--navy);
+      font-size:32px;
+      line-height:1;
+    }
+    .unit-metric span{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      margin-top:4px;
+    }
+    .training-unit-list{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+    }
+    .training-unit-row{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:18px;
+      padding:15px;
+    }
+    .training-unit-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .training-unit-code{
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      background:var(--brand);
+      color:#fff;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.04em;
+    }
+    .training-unit-name{
+      color:var(--navy);
+      font-weight:900;
+      line-height:1.2;
+      margin-top:8px;
+    }
+    .review-pill{
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+      border:1px solid var(--line);
+      background:#f8fafc;
+      color:var(--muted);
+    }
+    .review-pill.pending{background:#fff7ed;border-color:#fed7aa;color:#b95500}
+    .review-pill.approved{background:#ecfdf5;border-color:#bbf7d0;color:#047857}
+    .review-pill.rejected{background:#fff1f2;border-color:#fecdd3;color:#be123c}
+    .unit-mini-stats{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+      margin-top:12px;
+    }
+    .unit-mini-stats div{
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px;
+    }
+    .unit-mini-stats strong{
+      display:block;
+      color:var(--navy);
+      font-size:18px;
+      line-height:1;
+      font-weight:900;
+    }
+    .unit-mini-stats span{
+      display:block;
+      color:var(--muted);
+      font-size:10px;
+      font-weight:900;
+      text-transform:uppercase;
+      margin-top:4px;
+    }
+    .workflow-list{
+      display:grid;
+      gap:12px;
+      margin-top:18px;
+    }
+    .workflow-item{
+      display:flex;
+      gap:13px;
+      align-items:flex-start;
+      border:1px solid var(--line);
+      background:#f8fafc;
+      border-radius:18px;
+      padding:15px;
+    }
+    .workflow-icon{
+      width:34px;
+      height:34px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      background:var(--brand);
+      color:#fff;
+      font-weight:900;
+      flex:0 0 auto;
+    }
+    .workflow-item strong{
+      display:block;
+      color:var(--navy);
+      font-weight:900;
+      line-height:1.2;
+    }
+    .workflow-item span{
+      display:block;
+      color:var(--text);
+      font-size:14px;
+      font-weight:600;
+      line-height:1.45;
+      margin-top:3px;
+    }
+
     @media (hover:hover) and (pointer:fine){
       .btn:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
       .nav-links a:hover{background:#fff3e8;color:var(--brand)}
       .nav-links .nav-login:hover{background:var(--brand);color:#fff}
       .feature-card:hover,.who-card:hover,.path-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:#fed7aa}
       .footer-links a:hover{color:#fff}
+    }
+
+
+    @media(max-width:1100px){
+      .ecosystem-map{grid-template-columns:repeat(2,1fr)}
+      .eco-step:not(:last-child)::after{display:none}
+      .unit-preview-shell{grid-template-columns:1fr}
     }
 
     @media(max-width:1100px){
@@ -475,6 +735,11 @@
 
     @media(max-width:760px){
       .card-grid,.who-grid,.path-grid{grid-template-columns:1fr}
+
+      .ecosystem-map{grid-template-columns:1fr}
+      .unit-progress-grid,.unit-mini-stats{grid-template-columns:1fr 1fr}
+      .unit-card-head{flex-direction:column}
+
       .stats-inner{grid-template-columns:1fr}
     }
 
@@ -553,6 +818,7 @@
           <nav class="nav-links" aria-label="Main navigation">
             <a href="#why-ltn">Platform</a>
             <a href="#apprentice-progress">Apprenticeships</a>
+            <a href="#unit-ecosystem">Unit Tracking</a>
             <a href="#trade-schools">Trade Schools</a>
             <a href="#contractors">Contractors</a>
             <a href="/front/" class="nav-login">Sign In Here →</a>
@@ -716,6 +982,135 @@
           </div>
         </section>
 
+
+        <section class="section unit-ecosystem" id="unit-ecosystem">
+          <div class="container">
+            <div class="section-head">
+              <div class="eyebrow"><span class="eyebrow-dot"></span> Training Unit SaaS Layer</div>
+              <h2>Unit Tracking Turns LTN Into an Apprenticeship Ecosystem.</h2>
+              <p class="section-copy">
+                LinkTradeNetwork can track progress by training unit, not just by total hours. Apprentices log hours and proof against a unit. Instructors review, approve, reject, comment, and build a verified Trade Passport.
+              </p>
+            </div>
+
+            <div class="ecosystem-map" aria-label="LinkTradeNetwork apprenticeship ecosystem workflow">
+              <div class="eco-step"><strong>Student</strong><span>Creates profile</span></div>
+              <div class="eco-step"><strong>School Code</strong><span>Links to instructor</span></div>
+              <div class="eco-step"><strong>Units</strong><span>27-29 training units</span></div>
+              <div class="eco-step"><strong>Hours</strong><span>Logged by unit</span></div>
+              <div class="eco-step"><strong>Evidence</strong><span>Proof uploads</span></div>
+              <div class="eco-step"><strong>Review</strong><span>Instructor approval</span></div>
+              <div class="eco-step"><strong>Passport</strong><span>Verified export</span></div>
+            </div>
+
+            <div class="unit-preview-shell">
+              <article class="unit-saas-card orange">
+                <div class="unit-card-head">
+                  <div>
+                    <div class="unit-card-title">Track My Progress</div>
+                    <div class="unit-card-sub">Apprentice view with unit cards, hours, evidence, status, and re-upload workflow.</div>
+                  </div>
+                  <span class="unit-badge">Student Side</span>
+                </div>
+
+                <div class="unit-progress-grid">
+                  <div class="unit-metric"><strong>200</strong><span>Total Hours</span></div>
+                  <div class="unit-metric"><strong>3%</strong><span>Progress</span></div>
+                  <div class="unit-metric"><strong>4</strong><span>Pending Reviews</span></div>
+                  <div class="unit-metric"><strong>2</strong><span>Needs Correction</span></div>
+                </div>
+
+                <div class="training-unit-list">
+                  <div class="training-unit-row">
+                    <div class="training-unit-top">
+                      <div>
+                        <span class="training-unit-code">UEENEEE148A</span>
+                        <div class="training-unit-name">Carry Out Routine Work Activities in an Energy Sector Environment</div>
+                      </div>
+                      <span class="review-pill pending">Pending</span>
+                    </div>
+                    <div class="unit-mini-stats">
+                      <div><strong>8</strong><span>Hours</span></div>
+                      <div><strong>1</strong><span>Proof</span></div>
+                      <div><strong>0</strong><span>Approved</span></div>
+                      <div><strong>1</strong><span>Pending</span></div>
+                    </div>
+                  </div>
+
+                  <div class="training-unit-row">
+                    <div class="training-unit-top">
+                      <div>
+                        <span class="training-unit-code">UEENEEE107B</span>
+                        <div class="training-unit-name">Use Drawings, Diagrams, Schedules and Manuals</div>
+                      </div>
+                      <span class="review-pill approved">Approved</span>
+                    </div>
+                    <div class="unit-mini-stats">
+                      <div><strong>8</strong><span>Hours</span></div>
+                      <div><strong>0</strong><span>Proofs</span></div>
+                      <div><strong>1</strong><span>Approved</span></div>
+                      <div><strong>0</strong><span>Pending</span></div>
+                    </div>
+                  </div>
+
+                  <div class="training-unit-row">
+                    <div class="training-unit-top">
+                      <div>
+                        <span class="training-unit-code">UNASSIGNED</span>
+                        <div class="training-unit-name">Proof uploads or hours not assigned to a training unit yet</div>
+                      </div>
+                      <span class="review-pill rejected">Needs Correction</span>
+                    </div>
+                    <div class="unit-mini-stats">
+                      <div><strong>0</strong><span>Hours</span></div>
+                      <div><strong>2</strong><span>Proofs</span></div>
+                      <div><strong>0</strong><span>Approved</span></div>
+                      <div><strong>2</strong><span>Pending</span></div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="unit-saas-card">
+                <div class="unit-card-head">
+                  <div>
+                    <div class="unit-card-title">Instructor Dashboard</div>
+                    <div class="unit-card-sub">Instructor side with student progress, approve/reject actions, unit evidence, and Trade Passport export.</div>
+                  </div>
+                  <span class="unit-badge">Instructor Side</span>
+                </div>
+
+                <div class="workflow-list">
+                  <div class="workflow-item">
+                    <div class="workflow-icon">1</div>
+                    <div><strong>View student unit progress</strong><span>Instructor sees each apprentice by school code, total hours, unit cards, pending reviews, rejected proof, and verified skills.</span></div>
+                  </div>
+                  <div class="workflow-item">
+                    <div class="workflow-icon">2</div>
+                    <div><strong>Approve or reject by unit</strong><span>Hours and evidence can be approved, rejected, or marked needs correction with instructor comments.</span></div>
+                  </div>
+                  <div class="workflow-item">
+                    <div class="workflow-icon">3</div>
+                    <div><strong>Clean up unassigned proof</strong><span>Uploads that are not tied to a training unit are flagged so the apprentice can re-save or re-upload correctly.</span></div>
+                  </div>
+                  <div class="workflow-item">
+                    <div class="workflow-icon">4</div>
+                    <div><strong>Build the Trade Passport</strong><span>The final export shows hours, approved proof, needs correction items, verified skills, and unit-by-unit progress.</span></div>
+                  </div>
+                </div>
+
+                <div class="unit-progress-grid">
+                  <div class="unit-metric"><strong>1</strong><span>Verified Skill</span></div>
+                  <div class="unit-metric"><strong>4</strong><span>Pending Reviews</span></div>
+                  <div class="unit-metric"><strong>2</strong><span>Corrections</span></div>
+                  <div class="unit-metric"><strong>PDF</strong><span>Trade Passport</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+
         <section class="section" id="why-ltn">
           <div class="container">
             <div class="section-head">
@@ -801,6 +1196,7 @@
               <div class="school-list">
                 <div>✅ Student profile building</div>
                 <div>✅ Apprentice progress tracking</div>
+                <div>✅ Training unit tracking for 27-29 units and RTO workflows</div>
                 <div>✅ Skills and certification proof</div>
                 <div>✅ Trade company visibility</div>
                 <div>✅ Free to use while the platform grows</div>
