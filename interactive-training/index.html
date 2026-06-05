@@ -20,9 +20,7 @@
       --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -138,11 +136,13 @@
       border-bottom: 1px solid var(--line);
       background: linear-gradient(180deg, #ffffff, #f8fafc);
       color: var(--accent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
     }
 
-    .card .bd {
-      padding: 20px;
-    }
+    .card .bd { padding: 20px; }
 
     label {
       display: block;
@@ -152,16 +152,22 @@
       font-size: 14px;
     }
 
-    input {
+    input, textarea {
       width: 100%;
       padding: 12px 14px;
       border: 1px solid #c8d3e2;
       border-radius: 14px;
       font-size: 15px;
       min-height: 46px;
+      font-family: inherit;
     }
 
-    input:focus {
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus {
       outline: none;
       border-color: var(--brand);
       box-shadow: 0 0 0 4px rgba(234, 106, 0, 0.12);
@@ -209,6 +215,7 @@
       color: #5a2d00;
       font-weight: 700;
       font-size: 14px;
+      white-space: pre-line;
     }
 
     .features {
@@ -228,6 +235,35 @@
       display: block;
       color: var(--brand);
       margin-bottom: 4px;
+    }
+
+    .session-info {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .session-info strong {
+      color: var(--accent);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand2);
+      font-weight: 900;
+      font-size: 12px;
+      white-space: nowrap;
     }
 
     #jitsi-container {
@@ -256,13 +292,8 @@
     }
 
     @media (max-width: 900px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      #jitsi-container {
-        height: 620px;
-      }
+      .grid { grid-template-columns: 1fr; }
+      #jitsi-container { height: 620px; }
     }
   </style>
 </head>
@@ -298,7 +329,11 @@
     <section class="grid">
 
       <div class="card">
-        <div class="hd">Start or Join Training</div>
+        <div class="hd">
+          <span>Start or Join Training</span>
+          <span class="pill" id="participantPill">0 Participants</span>
+        </div>
+
         <div class="bd">
 
           <label for="userName">Your Name</label>
@@ -306,6 +341,9 @@
 
           <label for="classCode">Class / Group Code</label>
           <input type="text" id="classCode" placeholder="Example: 2026-ELECTRICAL" />
+
+          <label for="classDescription">Class Description</label>
+          <textarea id="classDescription" placeholder="Example: Electrical safety review, blueprint reading, OSHA training, or weekly apprenticeship check-in."></textarea>
 
           <div class="btn-row">
             <button class="btn-primary" onclick="startInteractiveTraining()">Start Training</button>
@@ -334,12 +372,26 @@
       </div>
 
       <div class="card">
-        <div class="hd">Live Classroom</div>
+        <div class="hd">
+          <span>Live Classroom</span>
+          <span class="pill" id="roomStatusPill">Ready</span>
+        </div>
+
         <div class="bd">
-          <div id="emptyRoom" class="empty-room">
-            Enter your name and class/group code, then start or join an Interactive Training session.
+
+          <div class="session-info" id="sessionInfo">
+            <div><strong>Room:</strong> Not started</div>
+            <div><strong>Class:</strong> Not entered</div>
+            <div><strong>Description:</strong> No description entered</div>
+            <div><strong>Participants:</strong> 0</div>
           </div>
+
+          <div id="emptyRoom" class="empty-room">
+            Your profile information will auto-fill when available. Enter your name and class/group code, then start or join an Interactive Training session.
+          </div>
+
           <div id="jitsi-container"></div>
+
         </div>
       </div>
 
@@ -355,6 +407,7 @@
 
   <script>
     let jitsiApi = null;
+    let participantCount = 0;
 
     function showStatus(message) {
       const statusBox = document.getElementById("statusBox");
@@ -369,9 +422,107 @@
         .replace(/[^a-zA-Z0-9-_]/g, "");
     }
 
+    function safeGet(key) {
+      try {
+        return localStorage.getItem(key);
+      } catch (e) {
+        return "";
+      }
+    }
+
+    function safeParse(value) {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function findProfileValue(keys) {
+      for (let i = 0; i < keys.length; i++) {
+        const direct = safeGet(keys[i]);
+        if (direct && direct.trim && direct.trim()) return direct.trim();
+      }
+      return "";
+    }
+
+    function findProfileObject() {
+      const possibleKeys = [
+        "ltn_current_profile",
+        "ltnUserProfile",
+        "ltn_profile",
+        "ltn_profile_data",
+        "currentUserProfile",
+        "userProfile",
+        "ltn_user"
+      ];
+
+      for (let i = 0; i < possibleKeys.length; i++) {
+        const raw = safeGet(possibleKeys[i]);
+        if (!raw) continue;
+
+        const parsed = safeParse(raw);
+        if (parsed && typeof parsed === "object") {
+          return parsed;
+        }
+      }
+
+      return {};
+    }
+
+    function autoFillFromProfile() {
+      const profile = findProfileObject();
+
+      const name =
+        profile.name ||
+        profile.fullName ||
+        profile.displayName ||
+        profile.userName ||
+        findProfileValue(["userName", "displayName", "profileName", "ltn_user_name"]);
+
+      const instructorCode =
+        profile.instructorCode ||
+        profile.schoolCode ||
+        profile.groupCode ||
+        profile.apprenticeSchoolCode ||
+        profile.apprenticeshipCode ||
+        findProfileValue([
+          "input-instructor-code",
+          "input-apprentice-school-code",
+          "ltn_instructor_code",
+          "ltn_school_code",
+          "ltn_group_code",
+          "ltn_apprentice_school_code"
+        ]);
+
+      const school =
+        profile.instructorSchool ||
+        profile.studentSchool ||
+        profile.school ||
+        profile.trainingCenter ||
+        "";
+
+      if (name) {
+        document.getElementById("userName").value = name;
+      }
+
+      if (instructorCode) {
+        document.getElementById("classCode").value = instructorCode.toUpperCase();
+      }
+
+      if (school) {
+        document.getElementById("classDescription").value = school + " live training session.";
+      }
+
+      if (name || instructorCode || school) {
+        showStatus("Profile information auto-filled where available.");
+      }
+    }
+
     function getTrainingInfo() {
       const userName = document.getElementById("userName").value.trim();
       const classCode = document.getElementById("classCode").value.trim();
+      const classDescription = document.getElementById("classDescription").value.trim();
 
       if (!userName) {
         showStatus("Please enter your name.");
@@ -386,8 +537,20 @@
       return {
         userName: userName,
         classCode: classCode,
+        classDescription: classDescription || "No description entered",
         roomName: "LTN-" + cleanRoomName(classCode)
       };
+    }
+
+    function updateSessionInfo(info) {
+      document.getElementById("sessionInfo").innerHTML =
+        "<div><strong>Room:</strong> " + info.roomName + "</div>" +
+        "<div><strong>Class:</strong> " + info.classCode + "</div>" +
+        "<div><strong>Description:</strong> " + info.classDescription + "</div>" +
+        "<div><strong>Participants:</strong> " + participantCount + "</div>";
+
+      document.getElementById("participantPill").innerText =
+        participantCount + (participantCount === 1 ? " Participant" : " Participants");
     }
 
     function launchJitsi(roleLabel) {
@@ -411,6 +574,9 @@
         return;
       }
 
+      participantCount = 0;
+      updateSessionInfo(info);
+
       const options = {
         roomName: info.roomName,
         width: "100%",
@@ -432,7 +598,30 @@
 
       jitsiApi = new JitsiMeetExternalAPI("meet.jit.si", options);
 
-      showStatus(roleLabel + " connected to room: " + info.roomName);
+      document.getElementById("roomStatusPill").innerText = "Live";
+
+      jitsiApi.addEventListener("videoConferenceJoined", function () {
+        participantCount = Math.max(participantCount, 1);
+        updateSessionInfo(info);
+        showStatus(
+          roleLabel + " connected to room: " + info.roomName +
+          "\nClass: " + info.classCode
+        );
+      });
+
+      jitsiApi.addEventListener("participantJoined", function () {
+        participantCount++;
+        updateSessionInfo(info);
+      });
+
+      jitsiApi.addEventListener("participantLeft", function () {
+        participantCount = Math.max(0, participantCount - 1);
+        updateSessionInfo(info);
+      });
+
+      jitsiApi.addEventListener("videoConferenceLeft", function () {
+        document.getElementById("roomStatusPill").innerText = "Ended";
+      });
     }
 
     function startInteractiveTraining() {
@@ -449,12 +638,26 @@
         jitsiApi = null;
       }
 
+      participantCount = 0;
+
       document.getElementById("jitsi-container").innerHTML = "";
       document.getElementById("jitsi-container").style.display = "none";
       document.getElementById("emptyRoom").style.display = "block";
+      document.getElementById("participantPill").innerText = "0 Participants";
+      document.getElementById("roomStatusPill").innerText = "Ended";
+
+      document.getElementById("sessionInfo").innerHTML =
+        "<div><strong>Room:</strong> Not started</div>" +
+        "<div><strong>Class:</strong> Not entered</div>" +
+        "<div><strong>Description:</strong> No description entered</div>" +
+        "<div><strong>Participants:</strong> 0</div>";
 
       showStatus("Interactive Training session ended on this device.");
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      autoFillFromProfile();
+    });
   </script>
 
 </body>
