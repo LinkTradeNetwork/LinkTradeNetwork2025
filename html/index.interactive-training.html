@@ -1,1 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Training | LinkTradeNetwork</title>
 
+  <style>
+    :root {
+      --orange: #ff7a00;
+      --dark: #1f1f1f;
+      --light: #ffffff;
+      --gray: #f5f5f5;
+      --border: #dddddd;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--gray);
+      color: var(--dark);
+    }
+
+    header {
+      background: var(--dark);
+      color: white;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .brand span {
+      color: var(--orange);
+    }
+
+    .back-link {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 25px auto;
+      padding: 0 18px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    h1, h2 {
+      margin-top: 0;
+    }
+
+    .subtitle {
+      color: #555;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .primary-btn {
+      background: var(--orange);
+      color: white;
+    }
+
+    .dark-btn {
+      background: var(--dark);
+      color: white;
+    }
+
+    .light-btn {
+      background: #eeeeee;
+      color: #222;
+    }
+
+    .status-box {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #fff3e6;
+      border: 1px solid #ffd1a3;
+      color: #5a2d00;
+      display: none;
+    }
+
+    #jitsi-container {
+      width: 100%;
+      height: 720px;
+      background: #111;
+      border-radius: 12px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .info-box {
+      background: #fafafa;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .info-box strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--orange);
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    @media (max-width: 700px) {
+      header {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+      }
+
+      #jitsi-container {
+        height: 600px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="brand">Link<span>Trade</span>Network</div>
+    <a class="back-link" href="dashboard.html">Back to Dashboard</a>
+  </header>
+
+  <main class="container">
+
+    <section class="card">
+      <h1>Interactive Training</h1>
+      <p class="subtitle">
+        Start or join a live instructor-led training session. Interactive Training allows instructors and students
+        to connect in real time using live video, screen sharing, chat, and classroom interaction.
+      </p>
+
+      <div class="info-grid">
+        <div class="info-box">
+          <strong>Live Training</strong>
+          Instructor-led training sessions for trade schools and apprenticeship programs.
+        </div>
+        <div class="info-box">
+          <strong>Screen Sharing</strong>
+          Share lessons, drawings, diagrams, safety material, and field examples.
+        </div>
+        <div class="info-box">
+          <strong>Student Interaction</strong>
+          Students can participate, ask questions, and collaborate in real time.
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Start or Join Session</h2>
+
+      <label for="userName">Your Name</label>
+      <input type="text" id="userName" placeholder="Enter your name" />
+
+      <label for="classCode">Class / Group Code</label>
+      <input type="text" id="classCode" placeholder="Example: 2026-Electrical" />
+
+      <div class="button-row">
+        <button class="primary-btn" onclick="startInteractiveTraining()">Start Interactive Training</button>
+        <button class="dark-btn" onclick="joinInteractiveTraining()">Join Interactive Training</button>
+        <button class="light-btn" onclick="endInteractiveTraining()">End Session</button>
+      </div>
+
+      <div id="statusBox" class="status-box"></div>
+    </section>
+
+    <section class="card">
+      <h2>Live Classroom</h2>
+      <div id="jitsi-container"></div>
+    </section>
+
+  </main>
+
+  <footer>
+    LinkTradeNetwork — Trades on the Rise
+  </footer>
+
+  <script src="https://meet.jit.si/external_api.js"></script>
+
+  <script>
+    let jitsiApi = null;
+
+    function cleanRoomName(value) {
+      return value
+        .trim()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-zA-Z0-9-_]/g, "");
+    }
+
+    function showStatus(message) {
+      const statusBox = document.getElementById("statusBox");
+      statusBox.innerText = message;
+      statusBox.style.display = "block";
+    }
+
+    function getTrainingInfo() {
+      const userName = document.getElementById("userName").value.trim();
+      const classCode = document.getElementById("classCode").value.trim();
+
+      if (!userName) {
+        showStatus("Please enter your name.");
+        return null;
+      }
+
+      if (!classCode) {
+        showStatus("Please enter your class or group code.");
+        return null;
+      }
+
+      return {
+        userName: userName,
+        classCode: classCode,
+        roomName: "LTN-" + cleanRoomName(classCode)
+      };
+    }
+
+    function launchJitsi(roleLabel) {
+      const info = getTrainingInfo();
+      if (!info) return;
+
+      const container = document.getElementById("jitsi-container");
+      container.style.display = "block";
+      container.innerHTML = "";
+
+      if (jitsiApi) {
+        jitsiApi.dispose();
+        jitsiApi = null;
+      }
+
+      const options = {
+        roomName: info.roomName,
+        width: "100%",
+        height: 720,
+        parentNode: container,
+        userInfo: {
+          displayName: info.userName
+        },
+        configOverwrite: {
+          startWithAudioMuted: true,
+          startWithVideoMuted: true,
+          prejoinPageEnabled: true
+        },
+        interfaceConfigOverwrite: {
+          SHOW_JITSI_WATERMARK: false,
+          SHOW_WATERMARK_FOR_GUESTS: false
+        }
+      };
+
+      jitsiApi = new JitsiMeetExternalAPI("meet.jit.si", options);
+
+      showStatus(roleLabel + " connected to Interactive Training room: " + info.roomName);
+    }
+
+    function startInteractiveTraining() {
+      launchJitsi("Instructor");
+    }
+
+    function joinInteractiveTraining() {
+      launchJitsi("Student");
+    }
+
+    function endInteractiveTraining() {
+      if (jitsiApi) {
+        jitsiApi.dispose();
+        jitsiApi = null;
+      }
+
+      const container = document.getElementById("jitsi-container");
+      container.innerHTML = "";
+      container.style.display = "none";
+
+      showStatus("Interactive Training session ended on this device.");
+    }
+  </script>
+
+</body>
+</html>
