@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- VERSION: INDEX-LTN-INTERACTIVE-TRAINING-2026-06-06-V1 -->
+  <!-- VERSION: INDEX-LTN-INTERACTIVE-TRAINING-HERO-FIX-2026-06-06-V2 -->
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6CYFMPH84F"></script>
   <script>
@@ -235,7 +235,36 @@
     }
     .nav-links .nav-login{background:var(--navy);color:#fff;padding:13px 20px;box-shadow:0 10px 24px rgba(15,23,42,.18)}
 
-    .hero{padding:68px 0 42px;color:#fff;position:relative}
+     .hero{
+      padding:68px 0 86px;
+      color:#fff;
+      position:relative;
+      isolation:isolate;
+      overflow:hidden;
+      background:linear-gradient(135deg,#ffb36b 0%,#f5861f 48%,#d96a00 100%);
+    }
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 16% 16%,rgba(255,255,255,.46),transparent 30%),
+        radial-gradient(circle at 84% 20%,rgba(255,214,166,.42),transparent 32%);
+      z-index:-2;
+      pointer-events:none;
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.13) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.13) 1px,transparent 1px);
+      background-size:42px 42px;
+      opacity:.22;
+      z-index:-1;
+      pointer-events:none;
+    }
     .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center;min-height:610px}
     .hero-text{max-width:720px;min-width:0}
     .hero h1{margin-bottom:18px}
@@ -258,6 +287,33 @@
       font-weight:900;
       backdrop-filter:blur(12px);
       color:#fff;
+    }
+
+    .hero-feature-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      margin:12px 0 16px;
+      padding:10px 16px;
+      background:#ffffff;
+      color:var(--brand);
+      font-weight:900;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.75);
+      box-shadow:0 10px 24px rgba(70,31,0,.18);
+      font-size:13px;
+      line-height:1.2;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      max-width:100%;
+    }
+    .hero-feature-line{
+      display:block;
+      margin-top:10px;
+      font-size:18px;
+      line-height:1.45;
+      color:#fff;
+      font-weight:900;
     }
 
     .hero-visual{position:relative;min-width:0}
@@ -760,6 +816,17 @@
       }
       .hero-text{text-align:left}
       .hero-sub{font-size:18px;line-height:1.45}
+      .hero-feature-pill{
+        display:flex;
+        width:100%;
+        border-radius:18px;
+        font-size:12px;
+        line-height:1.35;
+        white-space:normal;
+      }
+      .hero-feature-line{
+        font-size:15px;
+      }
       .hero-note{font-size:16px}
       .btn-row{width:100%;gap:10px}
       .btn{
@@ -835,30 +902,14 @@
                 <div class="eyebrow light"><span class="eyebrow-dot"></span> Built for trade workers on the rise</div>
                 <h1 class="hero-title">LINKTRADENETWORK</h1>
 
-                <div style="
-                  display:inline-flex;
-                  align-items:center;
-                  gap:10px;
-                  margin:12px 0 16px 0;
-                  padding:10px 16px;
-                  background:#ffffff;
-                  color:#ea6a00;
-                  font-weight:900;
-                  border-radius:999px;
-                  border:1px solid rgba(255,255,255,.75);
-                  box-shadow:0 10px 24px rgba(70,31,0,.18);
-                  font-size:13px;
-                  line-height:1.2;
-                ">
+                <div class="hero-feature-pill">
                   🚀 NEW: Interactive-Training — Instructors Can Now Teach Online
                 </div>
 
                 <p class="hero-sub">
                   A technology platform for apprentices, trade schools, instructors, skilled trade workers, and trade companies.
-                  <br><br>
-                  <strong>Teach live classes, webinars, apprenticeship training, attendance tracking, assignments, quizzes, certificates, file sharing, student Q&amp;A, and LinkTradeNetwork Talks.</strong>
+                  <span class="hero-feature-line">Teach live classes, webinars, apprenticeship training, attendance tracking, assignments, quizzes, certificates, file sharing, student Q&amp;A, and LinkTradeNetwork Talks.</span>
                 </p>
-
                 <div class="hero-note">
                   <span class="orange-check">✓</span>
                   <span>Build your profile, track real progress, showcase your skills, and earn your Orange Check.</span>
