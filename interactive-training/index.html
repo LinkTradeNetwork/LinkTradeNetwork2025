@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>LinkTradeNetwork Interactive-Training</title>
+  <title>LinkTradeNetwork Interactive-Training | LinkTradeNetwork</title>
 
   <style>
     :root {
@@ -252,6 +252,17 @@
       color: var(--brand);
     }
 
+    .moderator-warning {
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      color: #7c2d12;
+      border-radius: 16px;
+      padding: 14px;
+      margin-top: 14px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
     .list-box {
       display: flex;
       flex-direction: column;
@@ -325,12 +336,6 @@
       font-weight: 900;
     }
 
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
     .certificate-box {
       border: 2px solid var(--brand);
       border-radius: 16px;
@@ -353,7 +358,7 @@
     }
 
     @media (max-width: 900px) {
-      .grid, .two-col { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
       #jitsi-container { height: 620px; }
     }
   </style>
@@ -372,7 +377,7 @@
       <a href="/dashboard/">Dashboard</a>
       <a href="/instructor/">Instructor Center</a>
       <a href="/apprenticeship/">Track My Progress</a>
-      <a href="/interactive-training/" class="active">Interactive-Training</a>
+      <a href="/interactive-training/" class="active">LinkTradeNetwork Interactive-Training</a>
     </nav>
   </div>
 </header>
@@ -383,7 +388,8 @@
     <h1>LinkTradeNetwork Interactive-Training</h1>
     <p>
       Live instructor-led training with video, screen sharing, attendance tracking, assignments,
-      quizzes, certificates, events, Q&A, announcements, file sharing, whiteboard access, and student interaction.
+      quizzes, certificates, LinkTradeNetwork Talks, Q&A, announcements, file sharing,
+      whiteboard access, attendance exports, and student interaction.
     </p>
   </section>
 
@@ -410,7 +416,7 @@
           <input type="text" id="userName" placeholder="Enter your name" />
 
           <label for="classCode">Class / Group Code</label>
-          <input type="text" id="classCode" placeholder="Example: 2026-ELECTRICAL" />
+          <input type="text" id="classCode" placeholder="Example: STCELECTRICAL2026" />
 
           <label for="classDescription">Class Description</label>
           <textarea id="classDescription" placeholder="Example: Electrical safety review, blueprint reading, OSHA training."></textarea>
@@ -424,9 +430,16 @@
           <div class="btn-row">
             <button class="btn-light" onclick="raiseHand()">✋ Raise Hand</button>
             <button class="btn-primary" onclick="openWhiteboard()">Open Whiteboard</button>
+            <button class="btn-dark" onclick="openJitsiLogin()">Moderator Login</button>
           </div>
 
           <div id="statusBox" class="status"></div>
+
+          <div class="moderator-warning">
+            Moderator Note: Public meet.jit.si may require the instructor to log in before the class starts.
+            If you see “no moderators have arrived,” click Moderator Login or log in inside the Jitsi window.
+            To remove this completely later, LinkTradeNetwork will need a dedicated Jitsi server or paid hosted Jitsi.
+          </div>
 
           <div class="panel-box instructor-only">
             <strong>Instructor Announcement</strong>
@@ -482,10 +495,10 @@
           <div class="panel-box">
             <strong>Student Submission</strong>
             <input type="file" id="assignmentFile" onchange="submitAssignmentFile()" />
+            <textarea id="assignmentNote" placeholder="Type assignment notes or response..."></textarea>
             <div class="btn-row">
               <button class="btn-dark" onclick="submitAssignmentNote()">Submit Note</button>
             </div>
-            <textarea id="assignmentNote" placeholder="Type assignment notes or response..."></textarea>
           </div>
 
           <div id="assignmentsList" class="list-box">
@@ -513,13 +526,14 @@
           </div>
 
           <div id="emptyRoom" class="empty-room">
-            Enter your name and class/group code, then start or join an Interactive Training session.
+            Enter your name and class/group code, then start or join a LinkTradeNetwork Interactive-Training session.
           </div>
 
           <div id="jitsi-container"></div>
         </div>
       </div>
-            <div class="card">
+
+      <div class="card">
         <div class="hd">
           <span>Attendance Tracking</span>
           <span class="pill pill-live" id="attendancePill">0 Records</span>
@@ -1019,7 +1033,10 @@
       configOverwrite: {
         startWithAudioMuted: true,
         startWithVideoMuted: true,
-        prejoinPageEnabled: true
+        prejoinPageEnabled: false,
+        enableLobby: false,
+        disableModeratorIndicator: true,
+        enableWelcomePage: false
       },
       interfaceConfigOverwrite: {
         SHOW_JITSI_WATERMARK: false,
@@ -1055,6 +1072,15 @@
         markAttendanceLeave(currentSessionInfo.userName, currentSessionInfo.classCode);
       }
     });
+  }
+
+  function openJitsiLogin() {
+    const info = getTrainingInfo();
+    if (!info) return;
+
+    const url = "https://meet.jit.si/" + encodeURIComponent(info.roomName);
+    window.open(url, "_blank");
+    showStatus("Moderator login opened in a new tab. Log in there to start the public Jitsi room.");
   }
 
   function startInteractiveTraining() {
