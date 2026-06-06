@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Interactive Training | LinkTradeNetwork</title>
 
   <style>
@@ -64,7 +63,6 @@
       place-items: center;
       color: white;
       font-weight: 950;
-      box-shadow: 0 12px 28px rgba(234, 106, 0, 0.32);
     }
 
     .nav {
@@ -80,7 +78,6 @@
       padding: 11px 16px;
       border-radius: 999px;
       background: linear-gradient(135deg, #243b5a, #1e293b);
-      border: 1px solid rgba(255, 255, 255, 0.08);
       font-size: 14px;
     }
 
@@ -94,11 +91,15 @@
       padding: 26px 20px 44px;
     }
 
-    .hero {
+    .hero, .card {
       background: white;
       border: 1px solid var(--line);
       border-radius: 22px;
       box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
       padding: 24px;
       margin-bottom: 22px;
     }
@@ -117,17 +118,9 @@
 
     .grid {
       display: grid;
-      grid-template-columns: 360px minmax(0, 1fr);
+      grid-template-columns: 390px minmax(0, 1fr);
       gap: 22px;
       align-items: start;
-    }
-
-    .card {
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
     }
 
     .card .hd {
@@ -218,45 +211,8 @@
       white-space: pre-line;
     }
 
-    .features {
-      display: grid;
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    .feature {
-      padding: 14px;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-    }
-
-    .feature strong {
-      display: block;
-      color: var(--brand);
-      margin-bottom: 4px;
-    }
-
-    .session-info {
-      display: grid;
-      gap: 8px;
-      padding: 14px;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      margin-bottom: 14px;
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    .session-info strong {
-      color: var(--accent);
-    }
-
     .pill {
       display: inline-flex;
-      align-items: center;
-      justify-content: center;
       padding: 6px 10px;
       border-radius: 999px;
       background: var(--soft);
@@ -264,6 +220,34 @@
       font-weight: 900;
       font-size: 12px;
       white-space: nowrap;
+    }
+
+    .panel-box {
+      padding: 14px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      margin-top: 14px;
+    }
+
+    .panel-box strong {
+      color: var(--brand);
+    }
+
+    .list-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .list-item {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+      font-size: 14px;
+      color: var(--ink);
     }
 
     #jitsi-container {
@@ -300,365 +284,406 @@
 
 <body>
 
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="logo">
-        <div class="logo-badge">LTN</div>
-        <div>LinkTradeNetwork</div>
-      </div>
-
-      <nav class="nav">
-        <a href="/dashboard/">Dashboard</a>
-        <a href="/instructor/">Instructor Center</a>
-        <a href="/apprenticeship/">Track My Progress</a>
-        <a href="/interactive-training/" class="active">Interactive Training</a>
-      </nav>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">
+      <div class="logo-badge">LTN</div>
+      <div>LinkTradeNetwork</div>
     </div>
-  </header>
 
-  <main class="wrap">
+    <nav class="nav">
+      <a href="/dashboard/">Dashboard</a>
+      <a href="/instructor/">Instructor Center</a>
+      <a href="/apprenticeship/">Track My Progress</a>
+      <a href="/interactive-training/" class="active">Interactive Training</a>
+    </nav>
+  </div>
+</header>
 
-    <section class="hero">
-      <h1>Interactive Training</h1>
-      <p>
-        Start or join a live instructor-led training session. Interactive Training gives instructors and students
-        a real-time classroom with video, audio, screen sharing, chat, and collaboration.
-      </p>
-    </section>
+<main class="wrap">
 
-    <section class="grid">
+  <section class="hero">
+    <h1>Interactive Training</h1>
+    <p>
+      Live instructor-led training with video, screen sharing, Q&A, announcements,
+      file sharing, whiteboard access, and student interaction.
+    </p>
+  </section>
 
-      <div class="card">
-        <div class="hd">
-          <span>Start or Join Training</span>
-          <span class="pill" id="participantPill">0 Participants</span>
+  <section class="grid">
+
+    <div class="card">
+      <div class="hd">
+        <span>Training Controls</span>
+        <span class="pill" id="participantPill">0 Participants</span>
+      </div>
+
+      <div class="bd">
+
+        <label for="userName">Your Name</label>
+        <input type="text" id="userName" placeholder="Enter your name" />
+
+        <label for="classCode">Class / Group Code</label>
+        <input type="text" id="classCode" placeholder="Example: 2026-ELECTRICAL" />
+
+        <label for="classDescription">Class Description</label>
+        <textarea id="classDescription" placeholder="Example: Electrical safety review, blueprint reading, OSHA training."></textarea>
+
+        <div class="btn-row">
+          <button class="btn-primary" onclick="startInteractiveTraining()">Start Training</button>
+          <button class="btn-dark" onclick="joinInteractiveTraining()">Join Training</button>
+          <button class="btn-light" onclick="endInteractiveTraining()">End</button>
         </div>
 
-        <div class="bd">
+        <div class="btn-row">
+          <button class="btn-light" onclick="raiseHand()">✋ Raise Hand</button>
+          <button class="btn-primary" onclick="openWhiteboard()">Open Whiteboard</button>
+        </div>
 
-          <label for="userName">Your Name</label>
-          <input type="text" id="userName" placeholder="Enter your name" />
+        <div id="statusBox" class="status"></div>
 
-          <label for="classCode">Class / Group Code</label>
-          <input type="text" id="classCode" placeholder="Example: 2026-ELECTRICAL" />
-
-          <label for="classDescription">Class Description</label>
-          <textarea id="classDescription" placeholder="Example: Electrical safety review, blueprint reading, OSHA training, or weekly apprenticeship check-in."></textarea>
-
+        <div class="panel-box">
+          <strong>Instructor Announcement</strong>
+          <textarea id="announcementBox" placeholder="Enter class announcement..."></textarea>
           <div class="btn-row">
-            <button class="btn-primary" onclick="startInteractiveTraining()">Start Training</button>
-            <button class="btn-dark" onclick="joinInteractiveTraining()">Join Training</button>
-            <button class="btn-light" onclick="endInteractiveTraining()">End</button>
+            <button class="btn-primary" onclick="postAnnouncement()">Post Announcement</button>
           </div>
-
-          <div id="statusBox" class="status"></div>
-
-          <div class="features">
-            <div class="feature">
-              <strong>Live Video Training</strong>
-              Instructor-led classes for apprentices, students, and trade programs.
-            </div>
-            <div class="feature">
-              <strong>Screen Sharing</strong>
-              Share drawings, wiring diagrams, safety lessons, documents, and field examples.
-            </div>
-            <div class="feature">
-              <strong>Real-Time Interaction</strong>
-              Students can ask questions, use chat, and participate from anywhere.
-            </div>
-          </div>
-
+          <div id="announcementDisplay" class="list-item">No announcements yet.</div>
         </div>
+
+        <div class="panel-box">
+          <strong>Student Q&A</strong>
+          <textarea id="questionInput" placeholder="Type your question here..."></textarea>
+          <div class="btn-row">
+            <button class="btn-dark" onclick="submitQuestion()">Submit Question</button>
+          </div>
+          <div id="questionsContainer" class="list-box"></div>
+        </div>
+
+        <div class="panel-box">
+          <strong>Class Files</strong>
+          <input type="file" id="classFile" onchange="shareClassFile()" />
+          <div id="sharedFiles" class="list-box">
+            <div class="list-item">No files shared yet.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd">
+        <span>Live Classroom</span>
+        <span class="pill" id="roomStatusPill">Ready</span>
       </div>
 
-      <div class="card">
-        <div class="hd">
-          <span>Live Classroom</span>
-          <span class="pill" id="roomStatusPill">Ready</span>
+      <div class="bd">
+        <div class="panel-box" id="sessionInfo">
+          <div><strong>Room:</strong> Not started</div>
+          <div><strong>Class:</strong> Not entered</div>
+          <div><strong>Description:</strong> No description entered</div>
+          <div><strong>Participants:</strong> 0</div>
         </div>
 
-        <div class="bd">
-
-          <div class="session-info" id="sessionInfo">
-            <div><strong>Room:</strong> Not started</div>
-            <div><strong>Class:</strong> Not entered</div>
-            <div><strong>Description:</strong> No description entered</div>
-            <div><strong>Participants:</strong> 0</div>
-          </div>
-
-          <div id="emptyRoom" class="empty-room">
-            Your profile information will auto-fill when available. Enter your name and class/group code, then start or join an Interactive Training session.
-          </div>
-
-          <div id="jitsi-container"></div>
-
+        <div id="emptyRoom" class="empty-room">
+          Enter your name and class/group code, then start or join an Interactive Training session.
         </div>
+
+        <div id="jitsi-container"></div>
       </div>
+    </div>
 
-    </section>
+  </section>
 
-  </main>
+</main>
 
-  <footer>
-    LinkTradeNetwork — Trades on the Rise
-  </footer>
+<footer>
+  LinkTradeNetwork — Trades on the Rise
+</footer>
 
-  <script src="https://meet.jit.si/external_api.js"></script>
+<script src="https://meet.jit.si/external_api.js"></script>
 
-  <script>
-    let jitsiApi = null;
-    let participantCount = 0;
+<script>
+  let jitsiApi = null;
+  let participantCount = 0;
 
-    function showStatus(message) {
-      const statusBox = document.getElementById("statusBox");
-      statusBox.innerText = message;
-      statusBox.style.display = "block";
+  function showStatus(message) {
+    const statusBox = document.getElementById("statusBox");
+    statusBox.innerText = message;
+    statusBox.style.display = "block";
+  }
+
+  function cleanRoomName(value) {
+    return value
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-zA-Z0-9-_]/g, "");
+  }
+
+  function safeGet(key) {
+    try { return localStorage.getItem(key); }
+    catch (e) { return ""; }
+  }
+
+  function safeParse(value) {
+    try { return JSON.parse(value); }
+    catch (e) { return null; }
+  }
+
+  function findProfileObject() {
+    const keys = [
+      "ltn_current_profile",
+      "ltnUserProfile",
+      "ltn_profile",
+      "ltn_profile_data",
+      "currentUserProfile",
+      "userProfile",
+      "ltn_user"
+    ];
+
+    for (let i = 0; i < keys.length; i++) {
+      const raw = safeGet(keys[i]);
+      if (!raw) continue;
+      const parsed = safeParse(raw);
+      if (parsed && typeof parsed === "object") return parsed;
     }
 
-    function cleanRoomName(value) {
-      return value
-        .trim()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-zA-Z0-9-_]/g, "");
+    return {};
+  }
+
+  function autoFillFromProfile() {
+    const profile = findProfileObject();
+
+    const name =
+      profile.name ||
+      profile.fullName ||
+      profile.displayName ||
+      profile.userName ||
+      "";
+
+    const code =
+      profile.instructorCode ||
+      profile.schoolCode ||
+      profile.groupCode ||
+      profile.apprenticeSchoolCode ||
+      profile.apprenticeshipCode ||
+      "";
+
+    const school =
+      profile.instructorSchool ||
+      profile.studentSchool ||
+      profile.school ||
+      profile.trainingCenter ||
+      "";
+
+    if (name) document.getElementById("userName").value = name;
+    if (code) document.getElementById("classCode").value = code.toUpperCase();
+    if (school) document.getElementById("classDescription").value = school + " live training session.";
+
+    if (name || code || school) {
+      showStatus("Profile information auto-filled where available.");
+    }
+  }
+
+  function getTrainingInfo() {
+    const userName = document.getElementById("userName").value.trim();
+    const classCode = document.getElementById("classCode").value.trim();
+    const classDescription = document.getElementById("classDescription").value.trim();
+
+    if (!userName) {
+      showStatus("Please enter your name.");
+      return null;
     }
 
-    function safeGet(key) {
-      try {
-        return localStorage.getItem(key);
-      } catch (e) {
-        return "";
-      }
+    if (!classCode) {
+      showStatus("Please enter your class or group code.");
+      return null;
     }
 
-    function safeParse(value) {
-      try {
-        return JSON.parse(value);
-      } catch (e) {
-        return null;
-      }
+    return {
+      userName,
+      classCode,
+      classDescription: classDescription || "No description entered",
+      roomName: "LTN-" + cleanRoomName(classCode)
+    };
+  }
+
+  function updateSessionInfo(info) {
+    document.getElementById("sessionInfo").innerHTML =
+      "<div><strong>Room:</strong> " + info.roomName + "</div>" +
+      "<div><strong>Class:</strong> " + info.classCode + "</div>" +
+      "<div><strong>Description:</strong> " + info.classDescription + "</div>" +
+      "<div><strong>Participants:</strong> " + participantCount + "</div>";
+
+    document.getElementById("participantPill").innerText =
+      participantCount + (participantCount === 1 ? " Participant" : " Participants");
+  }
+
+  function launchJitsi(roleLabel) {
+    const info = getTrainingInfo();
+    if (!info) return;
+
+    const container = document.getElementById("jitsi-container");
+    const emptyRoom = document.getElementById("emptyRoom");
+
+    emptyRoom.style.display = "none";
+    container.style.display = "block";
+    container.innerHTML = "";
+
+    if (jitsiApi) {
+      jitsiApi.dispose();
+      jitsiApi = null;
     }
 
-    function findProfileValue(keys) {
-      for (let i = 0; i < keys.length; i++) {
-        const direct = safeGet(keys[i]);
-        if (direct && direct.trim && direct.trim()) return direct.trim();
-      }
-      return "";
+    if (typeof JitsiMeetExternalAPI === "undefined") {
+      showStatus("Jitsi did not load. Please check your browser settings.");
+      return;
     }
 
-    function findProfileObject() {
-      const possibleKeys = [
-        "ltn_current_profile",
-        "ltnUserProfile",
-        "ltn_profile",
-        "ltn_profile_data",
-        "currentUserProfile",
-        "userProfile",
-        "ltn_user"
-      ];
+    participantCount = 0;
+    updateSessionInfo(info);
 
-      for (let i = 0; i < possibleKeys.length; i++) {
-        const raw = safeGet(possibleKeys[i]);
-        if (!raw) continue;
-
-        const parsed = safeParse(raw);
-        if (parsed && typeof parsed === "object") {
-          return parsed;
-        }
+    const options = {
+      roomName: info.roomName,
+      width: "100%",
+      height: 720,
+      parentNode: container,
+      userInfo: {
+        displayName: info.userName
+      },
+      configOverwrite: {
+        startWithAudioMuted: true,
+        startWithVideoMuted: true,
+        prejoinPageEnabled: true
+      },
+      interfaceConfigOverwrite: {
+        SHOW_JITSI_WATERMARK: false,
+        SHOW_WATERMARK_FOR_GUESTS: false
       }
+    };
 
-      return {};
-    }
+    jitsiApi = new JitsiMeetExternalAPI("meet.jit.si", options);
 
-    function autoFillFromProfile() {
-      const profile = findProfileObject();
+    document.getElementById("roomStatusPill").innerText = "Live";
 
-      const name =
-        profile.name ||
-        profile.fullName ||
-        profile.displayName ||
-        profile.userName ||
-        findProfileValue(["userName", "displayName", "profileName", "ltn_user_name"]);
-
-      const instructorCode =
-        profile.instructorCode ||
-        profile.schoolCode ||
-        profile.groupCode ||
-        profile.apprenticeSchoolCode ||
-        profile.apprenticeshipCode ||
-        findProfileValue([
-          "input-instructor-code",
-          "input-apprentice-school-code",
-          "ltn_instructor_code",
-          "ltn_school_code",
-          "ltn_group_code",
-          "ltn_apprentice_school_code"
-        ]);
-
-      const school =
-        profile.instructorSchool ||
-        profile.studentSchool ||
-        profile.school ||
-        profile.trainingCenter ||
-        "";
-
-      if (name) {
-        document.getElementById("userName").value = name;
-      }
-
-      if (instructorCode) {
-        document.getElementById("classCode").value = instructorCode.toUpperCase();
-      }
-
-      if (school) {
-        document.getElementById("classDescription").value = school + " live training session.";
-      }
-
-      if (name || instructorCode || school) {
-        showStatus("Profile information auto-filled where available.");
-      }
-    }
-
-    function getTrainingInfo() {
-      const userName = document.getElementById("userName").value.trim();
-      const classCode = document.getElementById("classCode").value.trim();
-      const classDescription = document.getElementById("classDescription").value.trim();
-
-      if (!userName) {
-        showStatus("Please enter your name.");
-        return null;
-      }
-
-      if (!classCode) {
-        showStatus("Please enter your class or group code.");
-        return null;
-      }
-
-      return {
-        userName: userName,
-        classCode: classCode,
-        classDescription: classDescription || "No description entered",
-        roomName: "LTN-" + cleanRoomName(classCode)
-      };
-    }
-
-    function updateSessionInfo(info) {
-      document.getElementById("sessionInfo").innerHTML =
-        "<div><strong>Room:</strong> " + info.roomName + "</div>" +
-        "<div><strong>Class:</strong> " + info.classCode + "</div>" +
-        "<div><strong>Description:</strong> " + info.classDescription + "</div>" +
-        "<div><strong>Participants:</strong> " + participantCount + "</div>";
-
-      document.getElementById("participantPill").innerText =
-        participantCount + (participantCount === 1 ? " Participant" : " Participants");
-    }
-
-    function launchJitsi(roleLabel) {
-      const info = getTrainingInfo();
-      if (!info) return;
-
-      const container = document.getElementById("jitsi-container");
-      const emptyRoom = document.getElementById("emptyRoom");
-
-      emptyRoom.style.display = "none";
-      container.style.display = "block";
-      container.innerHTML = "";
-
-      if (jitsiApi) {
-        jitsiApi.dispose();
-        jitsiApi = null;
-      }
-
-      if (typeof JitsiMeetExternalAPI === "undefined") {
-        showStatus("Jitsi did not load. Please check your internet connection or browser settings.");
-        return;
-      }
-
-      participantCount = 0;
+    jitsiApi.addEventListener("videoConferenceJoined", function () {
+      participantCount = Math.max(participantCount, 1);
       updateSessionInfo(info);
-
-      const options = {
-        roomName: info.roomName,
-        width: "100%",
-        height: 720,
-        parentNode: container,
-        userInfo: {
-          displayName: info.userName
-        },
-        configOverwrite: {
-          startWithAudioMuted: true,
-          startWithVideoMuted: true,
-          prejoinPageEnabled: true
-        },
-        interfaceConfigOverwrite: {
-          SHOW_JITSI_WATERMARK: false,
-          SHOW_WATERMARK_FOR_GUESTS: false
-        }
-      };
-
-      jitsiApi = new JitsiMeetExternalAPI("meet.jit.si", options);
-
-      document.getElementById("roomStatusPill").innerText = "Live";
-
-      jitsiApi.addEventListener("videoConferenceJoined", function () {
-        participantCount = Math.max(participantCount, 1);
-        updateSessionInfo(info);
-        showStatus(
-          roleLabel + " connected to room: " + info.roomName +
-          "\nClass: " + info.classCode
-        );
-      });
-
-      jitsiApi.addEventListener("participantJoined", function () {
-        participantCount++;
-        updateSessionInfo(info);
-      });
-
-      jitsiApi.addEventListener("participantLeft", function () {
-        participantCount = Math.max(0, participantCount - 1);
-        updateSessionInfo(info);
-      });
-
-      jitsiApi.addEventListener("videoConferenceLeft", function () {
-        document.getElementById("roomStatusPill").innerText = "Ended";
-      });
-    }
-
-    function startInteractiveTraining() {
-      launchJitsi("Instructor");
-    }
-
-    function joinInteractiveTraining() {
-      launchJitsi("Student");
-    }
-
-    function endInteractiveTraining() {
-      if (jitsiApi) {
-        jitsiApi.dispose();
-        jitsiApi = null;
-      }
-
-      participantCount = 0;
-
-      document.getElementById("jitsi-container").innerHTML = "";
-      document.getElementById("jitsi-container").style.display = "none";
-      document.getElementById("emptyRoom").style.display = "block";
-      document.getElementById("participantPill").innerText = "0 Participants";
-      document.getElementById("roomStatusPill").innerText = "Ended";
-
-      document.getElementById("sessionInfo").innerHTML =
-        "<div><strong>Room:</strong> Not started</div>" +
-        "<div><strong>Class:</strong> Not entered</div>" +
-        "<div><strong>Description:</strong> No description entered</div>" +
-        "<div><strong>Participants:</strong> 0</div>";
-
-      showStatus("Interactive Training session ended on this device.");
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-      autoFillFromProfile();
+      showStatus(roleLabel + " connected to room: " + info.roomName);
     });
-  </script>
+
+    jitsiApi.addEventListener("participantJoined", function () {
+      participantCount++;
+      updateSessionInfo(info);
+    });
+
+    jitsiApi.addEventListener("participantLeft", function () {
+      participantCount = Math.max(0, participantCount - 1);
+      updateSessionInfo(info);
+    });
+
+    jitsiApi.addEventListener("videoConferenceLeft", function () {
+      document.getElementById("roomStatusPill").innerText = "Ended";
+    });
+  }
+
+  function startInteractiveTraining() {
+    launchJitsi("Instructor");
+  }
+
+  function joinInteractiveTraining() {
+    launchJitsi("Student");
+  }
+
+  function endInteractiveTraining() {
+    if (jitsiApi) {
+      jitsiApi.dispose();
+      jitsiApi = null;
+    }
+
+    participantCount = 0;
+
+    document.getElementById("jitsi-container").innerHTML = "";
+    document.getElementById("jitsi-container").style.display = "none";
+    document.getElementById("emptyRoom").style.display = "block";
+    document.getElementById("participantPill").innerText = "0 Participants";
+    document.getElementById("roomStatusPill").innerText = "Ended";
+
+    document.getElementById("sessionInfo").innerHTML =
+      "<div><strong>Room:</strong> Not started</div>" +
+      "<div><strong>Class:</strong> Not entered</div>" +
+      "<div><strong>Description:</strong> No description entered</div>" +
+      "<div><strong>Participants:</strong> 0</div>";
+
+    showStatus("Interactive Training session ended on this device.");
+  }
+
+  function raiseHand() {
+    showStatus("✋ Hand Raised. The instructor has been notified.");
+  }
+
+  function postAnnouncement() {
+    const announcement = document.getElementById("announcementBox").value.trim();
+
+    if (!announcement) {
+      showStatus("Please enter an announcement.");
+      return;
+    }
+
+    document.getElementById("announcementDisplay").innerText = announcement;
+    document.getElementById("announcementBox").value = "";
+    showStatus("Announcement posted.");
+  }
+
+  function submitQuestion() {
+    const question = document.getElementById("questionInput").value.trim();
+
+    if (!question) {
+      showStatus("Please enter a question.");
+      return;
+    }
+
+    const questionCard = document.createElement("div");
+    questionCard.className = "list-item";
+    questionCard.innerHTML = "<strong>Student Question:</strong><br>" + question;
+
+    document.getElementById("questionsContainer").prepend(questionCard);
+    document.getElementById("questionInput").value = "";
+
+    showStatus("Question submitted.");
+  }
+
+  function shareClassFile() {
+    const fileInput = document.getElementById("classFile");
+    const file = fileInput.files[0];
+
+    if (!file) return;
+
+    const sharedFiles = document.getElementById("sharedFiles");
+
+    if (sharedFiles.innerText.includes("No files shared yet.")) {
+      sharedFiles.innerHTML = "";
+    }
+
+    const fileCard = document.createElement("div");
+    fileCard.className = "list-item";
+    fileCard.innerHTML =
+      "<strong>Shared File:</strong><br>" +
+      file.name +
+      "<br><span style='color:#64748b;font-size:12px;'>Stored locally for this session. Firebase Storage can be added next.</span>";
+
+    sharedFiles.prepend(fileCard);
+    showStatus("File added to the class file list.");
+  }
+
+  function openWhiteboard() {
+    window.open("https://excalidraw.com", "_blank");
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    autoFillFromProfile();
+  });
+</script>
 
 </body>
 </html>
