@@ -19,6 +19,7 @@
       --soft: #fff3e8;
       --success: #10b981;
       --danger: #ef4444;
+      --warning: #f59e0b;
       --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
     }
 
@@ -121,7 +122,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: 410px minmax(0, 1fr);
+      grid-template-columns: 420px minmax(0, 1fr);
       gap: 22px;
       align-items: start;
     }
@@ -138,6 +139,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
     }
 
     .card .bd { padding: 20px; }
@@ -323,6 +325,26 @@
       font-weight: 900;
     }
 
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .certificate-box {
+      border: 2px solid var(--brand);
+      border-radius: 16px;
+      padding: 18px;
+      text-align: center;
+      background: #fffaf5;
+      margin-top: 12px;
+    }
+
+    .certificate-box h3 {
+      margin: 0 0 8px;
+      color: var(--accent);
+    }
+
     footer {
       text-align: center;
       padding: 25px;
@@ -331,7 +353,7 @@
     }
 
     @media (max-width: 900px) {
-      .grid { grid-template-columns: 1fr; }
+      .grid, .two-col { grid-template-columns: 1fr; }
       #jitsi-container { height: 620px; }
     }
   </style>
@@ -360,8 +382,8 @@
   <section class="hero">
     <h1>Interactive Training</h1>
     <p>
-      Live instructor-led training with video, screen sharing, attendance tracking, Q&A,
-      announcements, file sharing, whiteboard access, and student interaction.
+      Live instructor-led training with video, screen sharing, attendance tracking, assignments,
+      quizzes, certificates, events, Q&A, announcements, file sharing, whiteboard access, and student interaction.
     </p>
   </section>
 
@@ -376,6 +398,13 @@
         </div>
 
         <div class="bd">
+
+          <label for="userRole">Your Role</label>
+          <select id="userRole" onchange="applyRoleControls()">
+            <option value="Instructor">Instructor</option>
+            <option value="Student">Student</option>
+            <option value="Guest">Guest</option>
+          </select>
 
           <label for="userName">Your Name</label>
           <input type="text" id="userName" placeholder="Enter your name" />
@@ -399,7 +428,7 @@
 
           <div id="statusBox" class="status"></div>
 
-          <div class="panel-box">
+          <div class="panel-box instructor-only">
             <strong>Instructor Announcement</strong>
             <textarea id="announcementBox" placeholder="Enter class announcement..."></textarea>
             <div class="btn-row">
@@ -417,7 +446,7 @@
             <div id="questionsContainer" class="list-box"></div>
           </div>
 
-          <div class="panel-box">
+          <div class="panel-box instructor-only">
             <strong>Class Files</strong>
             <input type="file" id="classFile" onchange="shareClassFile()" />
             <div id="sharedFiles" class="list-box">
@@ -425,6 +454,43 @@
             </div>
           </div>
 
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd">
+          <span>Assignments</span>
+          <span class="pill" id="assignmentPill">0 Assignments</span>
+        </div>
+
+        <div class="bd">
+          <div class="instructor-only">
+            <label for="assignmentTitle">Assignment Title</label>
+            <input type="text" id="assignmentTitle" placeholder="Example: NEC Article 250 Review" />
+
+            <label for="assignmentDue">Due Date</label>
+            <input type="date" id="assignmentDue" />
+
+            <label for="assignmentInstructions">Instructions</label>
+            <textarea id="assignmentInstructions" placeholder="Enter assignment instructions..."></textarea>
+
+            <div class="btn-row">
+              <button class="btn-primary" onclick="createAssignment()">Create Assignment</button>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <strong>Student Submission</strong>
+            <input type="file" id="assignmentFile" onchange="submitAssignmentFile()" />
+            <div class="btn-row">
+              <button class="btn-dark" onclick="submitAssignmentNote()">Submit Note</button>
+            </div>
+            <textarea id="assignmentNote" placeholder="Type assignment notes or response..."></textarea>
+          </div>
+
+          <div id="assignmentsList" class="list-box">
+            <div class="list-item">No assignments yet.</div>
+          </div>
         </div>
       </div>
 
@@ -453,8 +519,7 @@
           <div id="jitsi-container"></div>
         </div>
       </div>
-
-      <div class="card">
+            <div class="card">
         <div class="hd">
           <span>Attendance Tracking</span>
           <span class="pill pill-live" id="attendancePill">0 Records</span>
@@ -463,9 +528,13 @@
         <div class="bd">
           <div class="btn-row" style="margin-top:0">
             <button class="btn-primary" onclick="markCurrentUserPresent()">Mark Me Present</button>
-            <button class="btn-light" onclick="exportAttendanceCSV()">Export Attendance</button>
-            <button class="btn-danger" onclick="clearAttendance()">Clear Attendance</button>
+            <button class="btn-light instructor-only" onclick="exportAttendanceCSV()">Export Attendance</button>
+            <button class="btn-danger instructor-only" onclick="clearAttendance()">Clear Attendance</button>
+            <button class="btn-primary instructor-only" onclick="addAttendanceToHours()">Add Attendance to Hours</button>
           </div>
+
+          <label for="manualHours">Manual Hours to Add</label>
+          <input type="number" id="manualHours" placeholder="Example: 2" min="0" step="0.25" />
 
           <div class="attendance-table-wrap">
             <table>
@@ -489,6 +558,96 @@
         </div>
       </div>
 
+      <div class="card">
+        <div class="hd">
+          <span>Quiz Center</span>
+          <span class="pill" id="quizPill">0 Quizzes</span>
+        </div>
+
+        <div class="bd">
+          <div class="instructor-only">
+            <label for="quizTitle">Quiz Title</label>
+            <input type="text" id="quizTitle" placeholder="Example: Electrical Safety Quiz" />
+
+            <label for="quizQuestion">Question</label>
+            <textarea id="quizQuestion" placeholder="Example: What color identifies a grounding conductor?"></textarea>
+
+            <label for="quizAnswer">Correct Answer</label>
+            <input type="text" id="quizAnswer" placeholder="Example: Green" />
+
+            <div class="btn-row">
+              <button class="btn-primary" onclick="createQuiz()">Create Quiz</button>
+            </div>
+          </div>
+
+          <label for="studentQuizAnswer">Student Answer</label>
+          <input type="text" id="studentQuizAnswer" placeholder="Type your answer..." />
+
+          <div class="btn-row">
+            <button class="btn-dark" onclick="submitQuizAnswer()">Submit Quiz Answer</button>
+          </div>
+
+          <div id="quizList" class="list-box">
+            <div class="list-item">No quizzes yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd">
+          <span>Certificates</span>
+          <span class="pill">Completion</span>
+        </div>
+
+        <div class="bd">
+          <label for="certificateCourse">Course / Training Name</label>
+          <input type="text" id="certificateCourse" placeholder="Example: Fiber Optics Fundamentals" />
+
+          <div class="btn-row">
+            <button class="btn-primary instructor-only" onclick="generateCertificate()">Generate Certificate</button>
+          </div>
+
+          <div id="certificateDisplay" class="certificate-box" style="display:none">
+            <h3>Certificate of Completion</h3>
+            <p>This certifies that</p>
+            <h2 id="certificateName">Student Name</h2>
+            <p>has completed</p>
+            <h3 id="certificateCourseName">Course Name</h3>
+            <p id="certificateDate">Date</p>
+            <p><strong>LinkTradeNetwork</strong></p>
+            <p>Trades on the Rise</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd">
+          <span>LinkTradeNetwork Talks</span>
+          <span class="pill">Events</span>
+        </div>
+
+        <div class="bd">
+          <div class="instructor-only">
+            <label for="eventTitle">Talk / Webinar Title</label>
+            <input type="text" id="eventTitle" placeholder="Example: The Future of Apprenticeships" />
+
+            <label for="eventSpeaker">Speaker</label>
+            <input type="text" id="eventSpeaker" placeholder="Example: Ryan Craig" />
+
+            <label for="eventDate">Date</label>
+            <input type="date" id="eventDate" />
+
+            <div class="btn-row">
+              <button class="btn-primary" onclick="createEvent()">Create Event</button>
+            </div>
+          </div>
+
+          <div id="eventsList" class="list-box">
+            <div class="list-item">No LinkTradeNetwork Talks scheduled yet.</div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </section>
@@ -505,7 +664,12 @@
   let jitsiApi = null;
   let participantCount = 0;
   let currentSessionInfo = null;
+
   let attendanceRecords = [];
+  let assignments = [];
+  let quizzes = [];
+  let events = [];
+  let currentQuizIndex = -1;
 
   function showStatus(message) {
     const statusBox = document.getElementById("statusBox");
@@ -608,10 +772,22 @@
     }
   }
 
+  function applyRoleControls() {
+    const role = document.getElementById("userRole").value;
+    const instructorOnlyItems = document.querySelectorAll(".instructor-only");
+
+    instructorOnlyItems.forEach(function(item) {
+      item.style.display = role === "Instructor" ? "" : "none";
+    });
+
+    showStatus("Role set to: " + role);
+  }
+
   function getTrainingInfo() {
     const userName = document.getElementById("userName").value.trim();
     const classCode = document.getElementById("classCode").value.trim();
     const classDescription = document.getElementById("classDescription").value.trim();
+    const userRole = document.getElementById("userRole").value;
 
     if (!userName) {
       showStatus("Please enter your name.");
@@ -625,6 +801,7 @@
 
     return {
       userName,
+      userRole,
       classCode,
       classDescription: classDescription || "No description entered",
       roomName: "LTN-" + cleanRoomName(classCode)
@@ -648,9 +825,7 @@
 
   function loadAttendance() {
     const saved = safeParse(safeGet("ltn_interactive_training_attendance"));
-    if (Array.isArray(saved)) {
-      attendanceRecords = saved;
-    }
+    if (Array.isArray(saved)) attendanceRecords = saved;
     renderAttendance();
   }
 
@@ -664,7 +839,6 @@
 
   function markAttendanceJoin(name, classCode) {
     const existing = findActiveAttendanceRecord(name, classCode);
-
     if (existing) return existing;
 
     const now = new Date();
@@ -688,7 +862,6 @@
 
   function markAttendanceLeave(name, classCode) {
     const record = findActiveAttendanceRecord(name, classCode);
-
     if (!record) return;
 
     const leave = new Date();
@@ -724,7 +897,6 @@
     body.innerHTML = attendanceRecords.map(function(record) {
       const joinDate = record.joinTime ? new Date(record.joinTime) : null;
       const leaveDate = record.leaveTime ? new Date(record.leaveTime) : null;
-
       const statusClass = record.status === "Present" ? "status-present" : "status-ended";
 
       return "<tr>" +
@@ -777,19 +949,37 @@
     link.click();
 
     URL.revokeObjectURL(url);
-
     showStatus("Attendance exported.");
   }
 
   function clearAttendance() {
     const confirmed = confirm("Clear all attendance records saved on this device?");
-
     if (!confirmed) return;
 
     attendanceRecords = [];
     saveAttendance();
     renderAttendance();
     showStatus("Attendance records cleared.");
+  }
+
+  function addAttendanceToHours() {
+    const hours = Number(document.getElementById("manualHours").value || 0);
+
+    if (!hours || hours <= 0) {
+      showStatus("Enter the number of hours to add.");
+      return;
+    }
+
+    const existing = Number(safeGet("ltn_apprenticeship_hours_added") || 0);
+    const updated = existing + hours;
+
+    safeSet("ltn_apprenticeship_hours_added", String(updated));
+
+    showStatus(
+      "Attendance hours added.\n" +
+      "Hours added now: " + hours + "\n" +
+      "Total locally tracked training hours: " + updated
+    );
   }
 
   function launchJitsi(roleLabel) {
@@ -901,7 +1091,6 @@
       "<div><strong>Participants:</strong> 0</div>";
 
     currentSessionInfo = null;
-
     showStatus("Interactive Training session ended. Attendance duration updated.");
   }
 
@@ -967,9 +1156,207 @@
     window.open("https://excalidraw.com", "_blank");
   }
 
+  function createAssignment() {
+    const title = document.getElementById("assignmentTitle").value.trim();
+    const due = document.getElementById("assignmentDue").value;
+    const instructions = document.getElementById("assignmentInstructions").value.trim();
+
+    if (!title) {
+      showStatus("Enter an assignment title.");
+      return;
+    }
+
+    assignments.unshift({
+      title,
+      due,
+      instructions,
+      created: new Date().toISOString()
+    });
+
+    renderAssignments();
+
+    document.getElementById("assignmentTitle").value = "";
+    document.getElementById("assignmentDue").value = "";
+    document.getElementById("assignmentInstructions").value = "";
+
+    showStatus("Assignment created.");
+  }
+
+  function renderAssignments() {
+    const list = document.getElementById("assignmentsList");
+    document.getElementById("assignmentPill").innerText =
+      assignments.length + (assignments.length === 1 ? " Assignment" : " Assignments");
+
+    if (!assignments.length) {
+      list.innerHTML = '<div class="list-item">No assignments yet.</div>';
+      return;
+    }
+
+    list.innerHTML = assignments.map(function(a) {
+      return '<div class="list-item">' +
+        '<strong>' + a.title + '</strong><br>' +
+        'Due: ' + (a.due || "No due date") + '<br>' +
+        '<span style="color:#64748b;">' + (a.instructions || "No instructions") + '</span>' +
+      '</div>';
+    }).join("");
+  }
+
+  function submitAssignmentFile() {
+    const file = document.getElementById("assignmentFile").files[0];
+    if (!file) return;
+    showStatus("Assignment file selected: " + file.name);
+  }
+
+  function submitAssignmentNote() {
+    const note = document.getElementById("assignmentNote").value.trim();
+    if (!note) {
+      showStatus("Enter assignment notes before submitting.");
+      return;
+    }
+    document.getElementById("assignmentNote").value = "";
+    showStatus("Assignment note submitted.");
+  }
+
+  function createQuiz() {
+    const title = document.getElementById("quizTitle").value.trim();
+    const question = document.getElementById("quizQuestion").value.trim();
+    const answer = document.getElementById("quizAnswer").value.trim();
+
+    if (!title || !question || !answer) {
+      showStatus("Enter quiz title, question, and correct answer.");
+      return;
+    }
+
+    quizzes.unshift({
+      title,
+      question,
+      answer,
+      created: new Date().toISOString()
+    });
+
+    currentQuizIndex = 0;
+
+    renderQuizzes();
+
+    document.getElementById("quizTitle").value = "";
+    document.getElementById("quizQuestion").value = "";
+    document.getElementById("quizAnswer").value = "";
+
+    showStatus("Quiz created.");
+  }
+
+  function renderQuizzes() {
+    const list = document.getElementById("quizList");
+    document.getElementById("quizPill").innerText =
+      quizzes.length + (quizzes.length === 1 ? " Quiz" : " Quizzes");
+
+    if (!quizzes.length) {
+      list.innerHTML = '<div class="list-item">No quizzes yet.</div>';
+      return;
+    }
+
+    list.innerHTML = quizzes.map(function(q, index) {
+      return '<div class="list-item">' +
+        '<strong>' + q.title + '</strong><br>' +
+        q.question +
+        '<br><button class="btn-light" onclick="selectQuiz(' + index + ')">Select Quiz</button>' +
+      '</div>';
+    }).join("");
+  }
+
+  function selectQuiz(index) {
+    currentQuizIndex = index;
+    showStatus("Selected quiz: " + quizzes[index].title);
+  }
+
+  function submitQuizAnswer() {
+    if (currentQuizIndex < 0 || !quizzes[currentQuizIndex]) {
+      showStatus("No quiz selected.");
+      return;
+    }
+
+    const studentAnswer = document.getElementById("studentQuizAnswer").value.trim();
+    if (!studentAnswer) {
+      showStatus("Enter an answer.");
+      return;
+    }
+
+    const correctAnswer = quizzes[currentQuizIndex].answer.trim().toLowerCase();
+    const isCorrect = studentAnswer.toLowerCase() === correctAnswer;
+
+    document.getElementById("studentQuizAnswer").value = "";
+
+    showStatus(isCorrect ? "Correct answer." : "Answer submitted. Instructor review may be needed.");
+  }
+
+  function generateCertificate() {
+    const info = getTrainingInfo();
+    if (!info) return;
+
+    const course = document.getElementById("certificateCourse").value.trim();
+
+    if (!course) {
+      showStatus("Enter a course or training name.");
+      return;
+    }
+
+    document.getElementById("certificateName").innerText = info.userName;
+    document.getElementById("certificateCourseName").innerText = course;
+    document.getElementById("certificateDate").innerText = new Date().toLocaleDateString();
+    document.getElementById("certificateDisplay").style.display = "block";
+
+    showStatus("Certificate generated.");
+  }
+
+  function createEvent() {
+    const title = document.getElementById("eventTitle").value.trim();
+    const speaker = document.getElementById("eventSpeaker").value.trim();
+    const date = document.getElementById("eventDate").value;
+
+    if (!title) {
+      showStatus("Enter an event title.");
+      return;
+    }
+
+    events.unshift({
+      title,
+      speaker,
+      date
+    });
+
+    renderEvents();
+
+    document.getElementById("eventTitle").value = "";
+    document.getElementById("eventSpeaker").value = "";
+    document.getElementById("eventDate").value = "";
+
+    showStatus("LinkTradeNetwork Talk created.");
+  }
+
+  function renderEvents() {
+    const list = document.getElementById("eventsList");
+
+    if (!events.length) {
+      list.innerHTML = '<div class="list-item">No LinkTradeNetwork Talks scheduled yet.</div>';
+      return;
+    }
+
+    list.innerHTML = events.map(function(event) {
+      return '<div class="list-item">' +
+        '<strong>' + event.title + '</strong><br>' +
+        'Speaker: ' + (event.speaker || "TBD") + '<br>' +
+        'Date: ' + (event.date || "TBD") +
+      '</div>';
+    }).join("");
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     autoFillFromProfile();
     loadAttendance();
+    renderAssignments();
+    renderQuizzes();
+    renderEvents();
+    applyRoleControls();
   });
 </script>
 
