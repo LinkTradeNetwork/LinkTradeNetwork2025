@@ -6,6 +6,8 @@
 
   <title>LinkTradeNetwork Interactive-Training | LinkTradeNetwork</title>
 
+  <!-- LTN Interactive-Training version: no-quiz-clean-v1 -->
+
   <script src="https://8x8.vc/vpaas-magic-cookie-681209300d324de29fdd6287690aa7b1/external_api.js" async></script>
   <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
@@ -434,7 +436,7 @@
     <h1>LinkTradeNetwork Interactive-Training</h1>
     <p>
       Live instructor-led training with video, screen sharing, attendance tracking, assignments,
-      quizzes, certificates, LinkTradeNetwork Talks, Q&A, announcements, file sharing,
+      certificates, LinkTradeNetwork Talks, Q&A, announcements, file sharing,
       whiteboard access, attendance exports, and student interaction.
     </p>
   </section>
@@ -613,41 +615,6 @@
 
       <div class="card">
         <div class="hd">
-          <span>Quiz Center</span>
-          <span class="pill" id="quizPill">0 Quizzes</span>
-        </div>
-
-        <div class="bd">
-          <div class="instructor-only">
-            <label for="quizTitle">Quiz Title</label>
-            <input type="text" id="quizTitle" placeholder="Example: Electrical Safety Quiz" />
-
-            <label for="quizQuestion">Question</label>
-            <textarea id="quizQuestion" placeholder="Example: What color identifies a grounding conductor?"></textarea>
-
-            <label for="quizAnswer">Correct Answer</label>
-            <input type="text" id="quizAnswer" placeholder="Example: Green" />
-
-            <div class="btn-row">
-              <button class="btn-primary" onclick="createQuiz()">Create Quiz</button>
-            </div>
-          </div>
-
-          <label for="studentQuizAnswer">Student Answer</label>
-          <input type="text" id="studentQuizAnswer" placeholder="Type your answer..." />
-
-          <div class="btn-row">
-            <button class="btn-dark" onclick="submitQuizAnswer()">Submit Quiz Answer</button>
-          </div>
-
-          <div id="quizList" class="list-box">
-            <div class="list-item">No quizzes yet.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="hd">
           <span>Certificates</span>
           <span class="pill">Completion</span>
         </div>
@@ -731,7 +698,6 @@
 
   let announcementUnsubscribe = null;
   let assignmentUnsubscribe = null;
-  let quizUnsubscribe = null;
   let eventUnsubscribe = null;
 
   let jitsiApi = null;
@@ -741,10 +707,8 @@
   let attendanceRecords = [];
   let announcements = [];
   let assignments = [];
-  let quizzes = [];
   let events = [];
   let certificates = [];
-  let currentQuizIndex = -1;
 
   function showStatus(message) {
     const statusBox = document.getElementById("statusBox");
@@ -1314,7 +1278,6 @@
   function loadAllClassData() {
     loadAnnouncements();
     loadAssignmentsFromFirestore();
-    loadQuizzesFromFirestore();
     loadEventsFromFirestore();
   }
 
@@ -1547,100 +1510,6 @@
     showStatus("Assignment note submitted.");
   }
 
-  async function createQuiz() {
-    const title = document.getElementById("quizTitle").value.trim();
-    const question = document.getElementById("quizQuestion").value.trim();
-    const answer = document.getElementById("quizAnswer").value.trim();
-
-    if (!title || !question || !answer) {
-      showStatus("Enter quiz title, question, and correct answer.");
-      return;
-    }
-
-    const info = getTrainingInfo();
-    if (!info) return;
-
-    const record = {
-      id: "local-quiz-" + Date.now(),
-      title: title,
-      question: question,
-      answer: answer,
-      status: "Open",
-      createdBy: info.userName,
-      role: info.userRole,
-      createdAtLocal: new Date().toLocaleString()
-    };
-
-    quizzes.unshift(record);
-    currentQuizIndex = 0;
-    saveLocal("quizzes", quizzes);
-    renderQuizzes();
-
-    document.getElementById("quizTitle").value = "";
-    document.getElementById("quizQuestion").value = "";
-    document.getElementById("quizAnswer").value = "";
-
-    const result = await tryFirebaseAdd("quizzes", {
-      title: title,
-      question: question,
-      answer: answer,
-      status: "Open"
-    });
-
-    if (result.ok) {
-      showStatus("Quiz created and saved to Firestore.");
-      loadQuizzesFromFirestore();
-    } else {
-      showStatus("Quiz created on this page. Firebase sync is pending: " + result.reason);
-    }
-  }
-
-  function renderQuizzes() {
-    const list = document.getElementById("quizList");
-
-    document.getElementById("quizPill").innerText =
-      quizzes.length + (quizzes.length === 1 ? " Quiz" : " Quizzes");
-
-    if (!quizzes.length) {
-      list.innerHTML = '<div class="list-item">No quizzes yet.</div>';
-      return;
-    }
-
-    list.innerHTML = quizzes.map(function(q, index) {
-      return '<div class="list-item">' +
-        '<strong>' + escapeHtml(q.title) + '</strong><br>' +
-        escapeHtml(q.question) +
-        '<br><button class="btn-light" onclick="selectQuiz(' + index + ')">Select Quiz</button>' +
-      '</div>';
-    }).join("");
-  }
-
-  function selectQuiz(index) {
-    currentQuizIndex = index;
-    showStatus("Selected quiz: " + quizzes[index].title);
-  }
-
-  function submitQuizAnswer() {
-    if (currentQuizIndex < 0 || !quizzes[currentQuizIndex]) {
-      showStatus("No quiz selected.");
-      return;
-    }
-
-    const studentAnswer = document.getElementById("studentQuizAnswer").value.trim();
-
-    if (!studentAnswer) {
-      showStatus("Enter an answer.");
-      return;
-    }
-
-    const correctAnswer = quizzes[currentQuizIndex].answer.trim().toLowerCase();
-    const isCorrect = studentAnswer.toLowerCase() === correctAnswer;
-
-    document.getElementById("studentQuizAnswer").value = "";
-
-    showStatus(isCorrect ? "Correct answer." : "Answer submitted. Instructor review may be needed.");
-  }
-
   async function generateCertificate() {
     const info = getTrainingInfo();
     if (!info) return;
@@ -1787,55 +1656,6 @@
         });
     } catch (error) {
       console.error("Assignment listener error:", error);
-    }
-  }
-
-  function loadQuizzesFromFirestore() {
-    quizzes = loadLocal("quizzes");
-    currentQuizIndex = quizzes.length ? 0 : -1;
-    renderQuizzes();
-
-    const classCode = getClassCodeForFirestore();
-
-    if (quizUnsubscribe) {
-      try { quizUnsubscribe(); } catch (e) {}
-      quizUnsubscribe = null;
-    }
-
-    if (!classCode || !ltnDb) return;
-
-    const collectionRef = getClassSubCollectionRef(classCode, "quizzes");
-    if (!collectionRef) return;
-
-    try {
-      quizUnsubscribe = collectionRef
-        .orderBy("createdAt", "desc")
-        .limit(25)
-        .onSnapshot(function(snapshot) {
-          const records = [];
-          snapshot.forEach(function(doc) {
-            records.push(Object.assign({ id: doc.id }, doc.data()));
-          });
-
-          if (records.length) {
-            quizzes = records.map(function(record) {
-              return {
-                id: record.id || "",
-                title: record.title || "Untitled Quiz",
-                question: record.question || "",
-                answer: record.answer || "",
-                created: record.createdAtLocal || ""
-              };
-            });
-            currentQuizIndex = quizzes.length ? 0 : -1;
-            saveLocal("quizzes", quizzes);
-            renderQuizzes();
-          }
-        }, function(error) {
-          console.error("Quiz load error:", error);
-        });
-    } catch (error) {
-      console.error("Quiz listener error:", error);
     }
   }
 
