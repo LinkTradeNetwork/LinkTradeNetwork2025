@@ -7,6 +7,8 @@
   <title>LinkTradeNetwork Interactive-Training | LinkTradeNetwork</title>
 
   <script src="https://8x8.vc/vpaas-magic-cookie-681209300d324de29fdd6287690aa7b1/external_api.js" async></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
   <style>
     :root {
@@ -484,6 +486,9 @@
               <button class="btn-primary" onclick="postAnnouncement()">Post Announcement</button>
             </div>
             <div id="announcementDisplay" class="list-item">No announcements yet.</div>
+            <div id="announcementsList" class="list-box">
+              <div class="list-item">Firestore announcements will appear here after you enter a class code.</div>
+            </div>
           </div>
 
           <div class="panel-box">
@@ -711,6 +716,25 @@
 <script>
   const JAAS_APP_ID = "vpaas-magic-cookie-681209300d324de29fdd6287690aa7b1";
   const JAAS_DOMAIN = "8x8.vc";
+
+  /*
+    FIREBASE SETUP
+    Replace the placeholder values below with your existing LinkTradeNetwork Firebase web app config.
+    Firebase Console > Project Settings > General > Your apps > Web app > Config.
+    This page writes announcements to:
+    /STC-ELECTRICAL-2026/STC-ELECTRICAL-2026/announcements/[auto-id]
+  */
+  const FIREBASE_CONFIG = window.firebaseConfig || {
+    apiKey: "PASTE_YOUR_API_KEY_HERE",
+    authDomain: "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "PASTE_YOUR_PROJECT_ID",
+    storageBucket: "PASTE_YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
+    appId: "PASTE_YOUR_APP_ID"
+  };
+
+  let firestoreDb = null;
+  let unsubscribeAnnouncements = null;
 
   let jitsiApi = null;
   let participantCount = 0;
@@ -1041,6 +1065,7 @@
     if (!info) return;
 
     currentSessionInfo = info;
+    loadAnnouncementsForClass(info.classCode);
 
     const container = document.getElementById("jitsi-container");
     const emptyRoom = document.getElementById("emptyRoom");
@@ -1158,7 +1183,148 @@
     showStatus("✋ Hand Raised. The instructor has been notified.");
   }
 
-  function postAnnouncement() {
+  function firebaseConfigLooksReady() {
+    return FIREBASE_CONFIG &&
+      FIREBASE_CONFIG.apiKey &&
+      FIREBASE_CONFIG.projectId &&
+      !String(FIREBASE_CONFIG.apiKey).includes("PASTE_") &&
+      !String(FIREBASE_CONFIG.projectId).includes("PASTE_");
+  }
+
+  function initFirebase() {
+    if (firestoreDb) return true;
+
+    if (typeof firebase === "undefined") {
+      showStatus("Firebase SDK did not load yet. Refresh the page and try again.");
+      return false;
+    }
+
+    if (!firebaseConfigLooksReady()) {
+      showStatus(
+        "Firebase config is missing. Paste your real Firebase config into FIREBASE_CONFIG near the top of the script."
+      );
+      return false;
+    }
+
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(FIREBASE_CONFIG);
+      }
+
+      firestoreDb = firebase.firestore();
+      return true;
+    } catch (error) {
+      console.error("Firebase init error:", error);
+      showStatus("Firebase connection error: " + error.message);
+      return false;
+    }
+  }
+
+  function getClassDocumentRef(classCode) {
+    if (!initFirebase()) return null;
+
+    const cleanCode = cleanRoomName(classCode).toUpperCase();
+
+    if (!cleanCode) {
+      showStatus("Class code is required before using announcements.");
+      return null;
+    }
+
+    return firestoreDb.collection(cleanCode).doc(cleanCode);
+  }
+
+  function getAnnouncementsCollectionRef(classCode) {
+    const classDocRef = getClassDocumentRef(classCode);
+    if (!classDocRef) return null;
+
+    return classDocRef.collection("announcements");
+  }
+
+  function renderAnnouncementsFromDocs(docs) {
+    const list = document.getElementById("announcementsList");
+    const latestDisplay = document.getElementById("announcementDisplay");
+
+    if (!docs.length) {
+      latestDisplay.innerText = "No announcements yet.";
+      list.innerHTML = '<div class="list-item">No announcements yet for this class.</div>';
+      return;
+    }
+
+    docs.sort(function(a, b) {
+      const aTime = a.createdAtMs || 0;
+      const bTime = b.createdAtMs || 0;
+      return bTime - aTime;
+    });
+
+    const latest = docs[0];
+    latestDisplay.innerText = latest.announcement || latest.announcements || "Announcement posted.";
+
+    list.innerHTML = docs.map(function(item) {
+      const text = item.announcement || item.announcements || "";
+      const createdBy = item.createdBy || "Instructor";
+      const role = item.role || "";
+      const dateText = item.createdAtText || "";
+
+      return '<div class="list-item">' +
+        '<strong>' + text + '</strong><br>' +
+        '<span style="color:#64748b;font-size:12px;">Posted by ' + createdBy +
+        (role ? ' · ' + role : '') +
+        (dateText ? ' · ' + dateText : '') +
+        '</span>' +
+      '</div>';
+    }).join("");
+  }
+
+  function loadAnnouncementsForClass(classCode) {
+    const announcementsRef = getAnnouncementsCollectionRef(classCode);
+    if (!announcementsRef) return;
+
+    if (unsubscribeAnnouncements) {
+      unsubscribeAnnouncements();
+      unsubscribeAnnouncements = null;
+    }
+
+    unsubscribeAnnouncements = announcementsRef.onSnapshot(function(snapshot) {
+      const docs = [];
+
+      snapshot.forEach(function(docSnap) {
+        const data = docSnap.data() || {};
+        let createdAtMs = 0;
+        let createdAtText = "";
+
+        if (data.createdAt && typeof data.createdAt.toDate === "function") {
+          const dateObj = data.createdAt.toDate();
+          createdAtMs = dateObj.getTime();
+          createdAtText = dateObj.toLocaleString();
+        } else if (data.createdAtLocal) {
+          const dateObj = new Date(data.createdAtLocal);
+          createdAtMs = dateObj.getTime();
+          createdAtText = dateObj.toLocaleString();
+        }
+
+        docs.push({
+          id: docSnap.id,
+          announcement: data.announcement || "",
+          announcements: data.announcements || "",
+          createdBy: data.createdBy || "",
+          role: data.role || "",
+          classCode: data.classCode || "",
+          createdAtMs: createdAtMs,
+          createdAtText: createdAtText
+        });
+      });
+
+      renderAnnouncementsFromDocs(docs);
+    }, function(error) {
+      console.error("Announcement listener error:", error);
+      showStatus("Could not load announcements: " + error.message);
+    });
+  }
+
+  async function postAnnouncement() {
+    const info = getTrainingInfo();
+    if (!info) return;
+
     const announcement = document.getElementById("announcementBox").value.trim();
 
     if (!announcement) {
@@ -1166,9 +1332,33 @@
       return;
     }
 
-    document.getElementById("announcementDisplay").innerText = announcement;
-    document.getElementById("announcementBox").value = "";
-    showStatus("Announcement posted.");
+    const announcementsRef = getAnnouncementsCollectionRef(info.classCode);
+
+    if (!announcementsRef) {
+      document.getElementById("announcementDisplay").innerText = announcement;
+      document.getElementById("announcementBox").value = "";
+      showStatus("Announcement shown locally only because Firebase is not connected.");
+      return;
+    }
+
+    try {
+      await announcementsRef.add({
+        announcement: announcement,
+        announcements: announcement,
+        classCode: cleanRoomName(info.classCode).toUpperCase(),
+        createdBy: info.userName,
+        role: info.userRole,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdAtLocal: new Date().toISOString()
+      });
+
+      document.getElementById("announcementBox").value = "";
+      loadAnnouncementsForClass(info.classCode);
+      showStatus("Announcement posted to Firestore for class " + info.classCode + ".");
+    } catch (error) {
+      console.error("Post announcement error:", error);
+      showStatus("Could not post announcement: " + error.message);
+    }
   }
 
   function submitQuestion() {
@@ -1424,6 +1614,20 @@
     renderQuizzes();
     renderEvents();
     applyRoleControls();
+
+    initFirebase();
+
+    const classCodeInput = document.getElementById("classCode");
+    if (classCodeInput) {
+      classCodeInput.addEventListener("change", function() {
+        const classCode = classCodeInput.value.trim();
+        if (classCode) loadAnnouncementsForClass(classCode);
+      });
+
+      if (classCodeInput.value.trim()) {
+        loadAnnouncementsForClass(classCodeInput.value.trim());
+      }
+    }
   });
 </script>
 
