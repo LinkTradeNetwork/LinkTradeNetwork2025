@@ -9,6 +9,7 @@
   <script src="https://8x8.vc/vpaas-magic-cookie-681209300d324de29fdd6287690aa7b1/external_api.js" async></script>
   <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
 
   <style>
     :root {
@@ -461,7 +462,7 @@
           <input type="text" id="userName" placeholder="Enter your name" />
 
           <label for="classCode">Class / Group Code</label>
-          <input type="text" id="classCode" placeholder="Example: STC-ELECTRICAL-2026" onchange="loadAnnouncements()" onblur="loadAnnouncements()" />
+          <input type="text" id="classCode" placeholder="Example: STC-ELECTRICAL-2026" onchange="loadAllClassData()" onblur="loadAllClassData()" />
 
           <label for="classDescription">Class Description</label>
           <textarea id="classDescription" placeholder="Example: Electrical safety review, blueprint reading, OSHA training."></textarea>
@@ -718,11 +719,19 @@
     apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
     authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
     projectId: "linktradenetwork-2dcd1",
-    storageBucket: "linktradenetwork-2dcd1.firebasestorage.app"
+    storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
+    messagingSenderId: "219091766597",
+    appId: "1:219091766597:web:878c199ba17e0ed89c22c",
+    measurementId: "G-ZMGLCPHRS6"
   };
 
   let ltnDb = null;
+  let ltnAuth = null;
+  let ltnCurrentUser = null;
   let announcementUnsubscribe = null;
+  let assignmentUnsubscribe = null;
+  let quizUnsubscribe = null;
+  let eventUnsubscribe = null;
 
   try {
     if (window.firebase && !firebase.apps.length) {
@@ -731,6 +740,19 @@
 
     if (window.firebase) {
       ltnDb = firebase.firestore();
+
+      if (firebase.auth) {
+        ltnAuth = firebase.auth();
+        ltnAuth.onAuthStateChanged(function(user) {
+          ltnCurrentUser = user || null;
+
+          if (user) {
+            safeSet("ltn_auth_uid", user.uid || "");
+            safeSet("ltn_user_email", user.email || "");
+            loadAllClassData();
+          }
+        });
+      }
     }
   } catch (firebaseError) {
     console.error("Firebase setup error:", firebaseError);
@@ -1065,7 +1087,7 @@
     if (!info) return;
 
     currentSessionInfo = info;
-    loadAnnouncements();
+    loadAllClassData();
 
     const container = document.getElementById("jitsi-container");
     const emptyRoom = document.getElementById("emptyRoom");
@@ -1192,13 +1214,86 @@
     return rawCode.toUpperCase();
   }
 
-  function getAnnouncementsCollectionRef(classCode) {
-    if (!ltnDb || !classCode) return null;
+  function getClassSubCollectionRef(classCode, subCollectionName) {
+    if (!ltnDb || !classCode || !subCollectionName) return null;
 
     return ltnDb
       .collection(classCode)
       .doc(classCode)
-      .collection("announcements");
+      .collection(subCollectionName);
+  }
+
+  function getAnnouncementsCollectionRef(classCode) {
+    return getClassSubCollectionRef(classCode, "announcements");
+  }
+
+  function getCurrentAuthUid() {
+    if (ltnCurrentUser && ltnCurrentUser.uid) return ltnCurrentUser.uid;
+
+    const storedUid = safeGet("ltn_auth_uid");
+    if (storedUid) return storedUid;
+
+    return "";
+  }
+
+  function getCurrentAuthEmail() {
+    if (ltnCurrentUser && ltnCurrentUser.email) return ltnCurrentUser.email;
+
+    const storedEmail = safeGet("ltn_user_email") || safeGet("userEmail") || safeGet("profileEmail");
+    if (storedEmail) return storedEmail;
+
+    return "";
+  }
+
+  function getFirebaseSaveProblemMessage(error) {
+    const message = error && error.message ? error.message : String(error || "");
+
+    if (message.toLowerCase().includes("permission")) {
+      return "Firebase blocked the save because this page is not signed in or the rules blocked this class path. Open this page from the normal Dashboard login, then try again.";
+    }
+
+    if (message.toLowerCase().includes("network")) {
+      return "Firebase could not save because of a network connection issue.";
+    }
+
+    return "Firebase save error: " + message;
+  }
+
+  async function addClassRecord(subCollectionName, payload) {
+    const info = getTrainingInfo();
+
+    if (!info) return null;
+
+    const classCode = info.classCode.toUpperCase();
+
+    if (!ltnDb) {
+      throw new Error("Firebase is not connected on this page.");
+    }
+
+    const collectionRef = getClassSubCollectionRef(classCode, subCollectionName);
+
+    if (!collectionRef) {
+      throw new Error("Class collection is not available.");
+    }
+
+    const basePayload = {
+      classCode: classCode,
+      createdBy: info.userName,
+      role: info.userRole,
+      authUid: getCurrentAuthUid(),
+      authEmail: getCurrentAuthEmail(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAtLocal: new Date().toISOString()
+    };
+
+    return collectionRef.add(Object.assign({}, basePayload, payload || {}));
+  }
+
+  function loadAllClassData() {
+    loadAnnouncements();
+    loadAssignmentsFromFirestore();
+    loadQuizzesFromFirestore();
+    loadEventsFromFirestore();
   }
 
   function renderAnnouncementsList(records) {
@@ -1317,16 +1412,9 @@
     }
 
     try {
-      const collectionRef = getAnnouncementsCollectionRef(info.classCode.toUpperCase());
-
-      await collectionRef.add({
+      await addClassRecord("announcements", {
         announcement: announcement,
-        announcements: announcement,
-        classCode: info.classCode.toUpperCase(),
-        createdBy: info.userName,
-        role: info.userRole,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        createdAtLocal: new Date().toISOString()
+        announcements: announcement
       });
 
       document.getElementById("announcementBox").value = "";
@@ -1334,7 +1422,7 @@
       loadAnnouncements();
     } catch (error) {
       console.error("Post announcement error:", error);
-      showStatus("Announcement did not save. Check Firestore rules, Firebase config, and class code.");
+      showStatus("Announcement did not save. " + getFirebaseSaveProblemMessage(error));
     }
   }
 
@@ -1383,7 +1471,7 @@
     window.open("https://excalidraw.com", "_blank");
   }
 
-  function createAssignment() {
+  async function createAssignment() {
     const title = document.getElementById("assignmentTitle").value.trim();
     const due = document.getElementById("assignmentDue").value;
     const instructions = document.getElementById("assignmentInstructions").value.trim();
@@ -1393,20 +1481,34 @@
       return;
     }
 
-    assignments.unshift({
-      title,
-      due,
-      instructions,
+    const localAssignment = {
+      title: title,
+      due: due,
+      instructions: instructions,
       created: new Date().toISOString()
-    });
+    };
 
+    assignments.unshift(localAssignment);
     renderAssignments();
 
     document.getElementById("assignmentTitle").value = "";
     document.getElementById("assignmentDue").value = "";
     document.getElementById("assignmentInstructions").value = "";
 
-    showStatus("Assignment created.");
+    try {
+      await addClassRecord("assignments", {
+        title: title,
+        due: due || "",
+        instructions: instructions || "",
+        status: "Open"
+      });
+
+      showStatus("Assignment created and saved to Firestore.");
+      loadAssignmentsFromFirestore();
+    } catch (error) {
+      console.error("Create assignment error:", error);
+      showStatus("Assignment was created on the page, but Firestore did not save it. " + getFirebaseSaveProblemMessage(error));
+    }
   }
 
   function renderAssignments() {
@@ -1448,7 +1550,7 @@
     showStatus("Assignment note submitted.");
   }
 
-  function createQuiz() {
+  async function createQuiz() {
     const title = document.getElementById("quizTitle").value.trim();
     const question = document.getElementById("quizQuestion").value.trim();
     const answer = document.getElementById("quizAnswer").value.trim();
@@ -1459,9 +1561,9 @@
     }
 
     quizzes.unshift({
-      title,
-      question,
-      answer,
+      title: title,
+      question: question,
+      answer: answer,
       created: new Date().toISOString()
     });
 
@@ -1473,7 +1575,20 @@
     document.getElementById("quizQuestion").value = "";
     document.getElementById("quizAnswer").value = "";
 
-    showStatus("Quiz created.");
+    try {
+      await addClassRecord("quizzes", {
+        title: title,
+        question: question,
+        answer: answer,
+        status: "Open"
+      });
+
+      showStatus("Quiz created and saved to Firestore.");
+      loadQuizzesFromFirestore();
+    } catch (error) {
+      console.error("Create quiz error:", error);
+      showStatus("Quiz was created on the page, but Firestore did not save it. " + getFirebaseSaveProblemMessage(error));
+    }
   }
 
   function renderQuizzes() {
@@ -1522,7 +1637,7 @@
     showStatus(isCorrect ? "Correct answer." : "Answer submitted. Instructor review may be needed.");
   }
 
-  function generateCertificate() {
+  async function generateCertificate() {
     const info = getTrainingInfo();
 
     if (!info) return;
@@ -1539,10 +1654,21 @@
     document.getElementById("certificateDate").innerText = new Date().toLocaleDateString();
     document.getElementById("certificateDisplay").style.display = "block";
 
-    showStatus("Certificate generated.");
+    try {
+      await addClassRecord("certificates", {
+        studentName: info.userName,
+        course: course,
+        certificateDate: new Date().toISOString()
+      });
+
+      showStatus("Certificate generated and saved to Firestore.");
+    } catch (error) {
+      console.error("Certificate save error:", error);
+      showStatus("Certificate generated on the page, but Firestore did not save it. " + getFirebaseSaveProblemMessage(error));
+    }
   }
 
-  function createEvent() {
+  async function createEvent() {
     const title = document.getElementById("eventTitle").value.trim();
     const speaker = document.getElementById("eventSpeaker").value.trim();
     const date = document.getElementById("eventDate").value;
@@ -1553,9 +1679,9 @@
     }
 
     events.unshift({
-      title,
-      speaker,
-      date
+      title: title,
+      speaker: speaker,
+      date: date
     });
 
     renderEvents();
@@ -1564,7 +1690,19 @@
     document.getElementById("eventSpeaker").value = "";
     document.getElementById("eventDate").value = "";
 
-    showStatus("LinkTradeNetwork Talk created.");
+    try {
+      await addClassRecord("events", {
+        title: title,
+        speaker: speaker || "",
+        date: date || ""
+      });
+
+      showStatus("LinkTradeNetwork Talk created and saved to Firestore.");
+      loadEventsFromFirestore();
+    } catch (error) {
+      console.error("Create event error:", error);
+      showStatus("Event was created on the page, but Firestore did not save it. " + getFirebaseSaveProblemMessage(error));
+    }
   }
 
   function renderEvents() {
@@ -1584,6 +1722,132 @@
     }).join("");
   }
 
+  function loadAssignmentsFromFirestore() {
+    const classCode = getClassCodeForFirestore();
+
+    if (assignmentUnsubscribe) {
+      try { assignmentUnsubscribe(); } catch (e) {}
+      assignmentUnsubscribe = null;
+    }
+
+    if (!classCode || !ltnDb) return;
+
+    const collectionRef = getClassSubCollectionRef(classCode, "assignments");
+    if (!collectionRef) return;
+
+    try {
+      assignmentUnsubscribe = collectionRef
+        .orderBy("createdAt", "desc")
+        .limit(25)
+        .onSnapshot(function(snapshot) {
+          const records = [];
+          snapshot.forEach(function(doc) {
+            records.push(Object.assign({ id: doc.id }, doc.data()));
+          });
+
+          if (records.length) {
+            assignments = records.map(function(record) {
+              return {
+                title: record.title || "Untitled Assignment",
+                due: record.due || "",
+                instructions: record.instructions || "",
+                created: record.createdAtLocal || ""
+              };
+            });
+            renderAssignments();
+          }
+        }, function(error) {
+          console.error("Assignment load error:", error);
+        });
+    } catch (error) {
+      console.error("Assignment listener error:", error);
+    }
+  }
+
+  function loadQuizzesFromFirestore() {
+    const classCode = getClassCodeForFirestore();
+
+    if (quizUnsubscribe) {
+      try { quizUnsubscribe(); } catch (e) {}
+      quizUnsubscribe = null;
+    }
+
+    if (!classCode || !ltnDb) return;
+
+    const collectionRef = getClassSubCollectionRef(classCode, "quizzes");
+    if (!collectionRef) return;
+
+    try {
+      quizUnsubscribe = collectionRef
+        .orderBy("createdAt", "desc")
+        .limit(25)
+        .onSnapshot(function(snapshot) {
+          const records = [];
+          snapshot.forEach(function(doc) {
+            records.push(Object.assign({ id: doc.id }, doc.data()));
+          });
+
+          if (records.length) {
+            quizzes = records.map(function(record) {
+              return {
+                title: record.title || "Untitled Quiz",
+                question: record.question || "",
+                answer: record.answer || "",
+                created: record.createdAtLocal || ""
+              };
+            });
+            currentQuizIndex = quizzes.length ? 0 : -1;
+            renderQuizzes();
+          }
+        }, function(error) {
+          console.error("Quiz load error:", error);
+        });
+    } catch (error) {
+      console.error("Quiz listener error:", error);
+    }
+  }
+
+  function loadEventsFromFirestore() {
+    const classCode = getClassCodeForFirestore();
+
+    if (eventUnsubscribe) {
+      try { eventUnsubscribe(); } catch (e) {}
+      eventUnsubscribe = null;
+    }
+
+    if (!classCode || !ltnDb) return;
+
+    const collectionRef = getClassSubCollectionRef(classCode, "events");
+    if (!collectionRef) return;
+
+    try {
+      eventUnsubscribe = collectionRef
+        .orderBy("createdAt", "desc")
+        .limit(25)
+        .onSnapshot(function(snapshot) {
+          const records = [];
+          snapshot.forEach(function(doc) {
+            records.push(Object.assign({ id: doc.id }, doc.data()));
+          });
+
+          if (records.length) {
+            events = records.map(function(record) {
+              return {
+                title: record.title || "Untitled Event",
+                speaker: record.speaker || "",
+                date: record.date || ""
+              };
+            });
+            renderEvents();
+          }
+        }, function(error) {
+          console.error("Event load error:", error);
+        });
+    } catch (error) {
+      console.error("Event listener error:", error);
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     autoFillFromProfile();
     loadAttendance();
@@ -1591,7 +1855,10 @@
     renderQuizzes();
     renderEvents();
     applyRoleControls();
-    loadAnnouncements();
+
+    window.setTimeout(function() {
+      loadAllClassData();
+    }, 750);
   });
 </script>
 
