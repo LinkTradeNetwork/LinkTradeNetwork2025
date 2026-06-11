@@ -820,10 +820,9 @@
           if (user) {
             safeSet("ltn_auth_uid", user.uid || "");
             safeSet("ltn_user_email", user.email || "");
-            showStatus("Firebase connected as " + (user.email || "signed-in user") + ".");
             loadAllClassData();
           } else {
-            showStatus("Firebase is connected, but this page does not see a signed-in user yet. Local features will still work.");
+            /* Auth not detected yet. Keep page quiet for users. */
           }
         });
       }
