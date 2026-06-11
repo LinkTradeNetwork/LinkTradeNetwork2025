@@ -728,61 +728,33 @@
   let ltnDb = null;
   let ltnAuth = null;
   let ltnCurrentUser = null;
+
   let announcementUnsubscribe = null;
   let assignmentUnsubscribe = null;
   let quizUnsubscribe = null;
   let eventUnsubscribe = null;
-
-  try {
-    if (window.firebase && !firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-
-    if (window.firebase) {
-      ltnDb = firebase.firestore();
-
-      if (firebase.auth) {
-        ltnAuth = firebase.auth();
-        ltnAuth.onAuthStateChanged(function(user) {
-          ltnCurrentUser = user || null;
-
-          if (user) {
-            safeSet("ltn_auth_uid", user.uid || "");
-            safeSet("ltn_user_email", user.email || "");
-            loadAllClassData();
-          }
-        });
-      }
-    }
-  } catch (firebaseError) {
-    console.error("Firebase setup error:", firebaseError);
-  }
 
   let jitsiApi = null;
   let participantCount = 0;
   let currentSessionInfo = null;
 
   let attendanceRecords = [];
+  let announcements = [];
   let assignments = [];
   let quizzes = [];
   let events = [];
+  let certificates = [];
   let currentQuizIndex = -1;
 
   function showStatus(message) {
     const statusBox = document.getElementById("statusBox");
+    if (!statusBox) return;
     statusBox.innerText = message;
     statusBox.style.display = "block";
   }
 
-  function cleanRoomName(value) {
-    return value
-      .trim()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-zA-Z0-9-_]/g, "");
-  }
-
   function safeGet(key) {
-    try { return localStorage.getItem(key); }
+    try { return localStorage.getItem(key) || ""; }
     catch (e) { return ""; }
   }
 
@@ -791,27 +763,159 @@
     catch (e) {}
   }
 
-  function safeParse(value) {
-    try { return JSON.parse(value); }
-    catch (e) { return null; }
+  function safeParse(value, fallback) {
+    try {
+      const parsed = JSON.parse(value);
+      return parsed == null ? fallback : parsed;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function cleanRoomName(value) {
+    return String(value || "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-zA-Z0-9-_]/g, "");
+  }
+
+  function normalizeClassCode(value) {
+    return String(value || "")
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, "-");
+  }
+
+  function getClassCodeForFirestore() {
+    const classCodeInput = document.getElementById("classCode");
+    return normalizeClassCode(classCodeInput ? classCodeInput.value : "");
+  }
+
+  function getLocalKey(type) {
+    const code = getClassCodeForFirestore() || "NO-CLASS";
+    return "ltn_interactive_training_" + type + "_" + code;
+  }
+
+  function saveLocal(type, data) {
+    safeSet(getLocalKey(type), JSON.stringify(data || []));
+  }
+
+  function loadLocal(type) {
+    return safeParse(safeGet(getLocalKey(type)), []);
   }
 
   function formatTime(dateObj) {
     if (!dateObj) return "";
-    return dateObj.toLocaleString();
+    try { return dateObj.toLocaleString(); }
+    catch (e) { return ""; }
   }
 
   function formatDuration(ms) {
     if (!ms || ms < 0) return "0 min";
-
     const totalSeconds = Math.floor(ms / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-
     if (hours > 0) return hours + " hr " + minutes + " min";
     if (minutes > 0) return minutes + " min " + seconds + " sec";
     return seconds + " sec";
+  }
+
+  function setupFirebase() {
+    try {
+      if (!window.firebase) {
+        showStatus("Firebase scripts are not loaded yet. Local classroom tools will still work.");
+        return;
+      }
+
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+
+      ltnDb = firebase.firestore();
+
+      if (firebase.auth) {
+        ltnAuth = firebase.auth();
+
+        try {
+          ltnAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        } catch (e) {}
+
+        ltnAuth.onAuthStateChanged(function(user) {
+          ltnCurrentUser = user || null;
+
+          if (user) {
+            safeSet("ltn_auth_uid", user.uid || "");
+            safeSet("ltn_user_email", user.email || "");
+            showStatus("Firebase connected as " + (user.email || "signed-in user") + ".");
+            loadAllClassData();
+          } else {
+            showStatus("Firebase is connected, but this page does not see a signed-in user yet. Local features will still work.");
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Firebase setup error:", error);
+      showStatus("Firebase setup error. Local classroom tools will still work.");
+    }
+  }
+
+  function getCurrentAuthUid() {
+    if (ltnCurrentUser && ltnCurrentUser.uid) return ltnCurrentUser.uid;
+    return safeGet("ltn_auth_uid");
+  }
+
+  function getCurrentAuthEmail() {
+    if (ltnCurrentUser && ltnCurrentUser.email) return ltnCurrentUser.email;
+    return safeGet("ltn_user_email") || safeGet("userEmail") || safeGet("profileEmail");
+  }
+
+  function getClassSubCollectionRef(classCode, subCollectionName) {
+    if (!ltnDb || !classCode || !subCollectionName) return null;
+    return ltnDb
+      .collection(classCode)
+      .doc(classCode)
+      .collection(subCollectionName);
+  }
+
+  async function tryFirebaseAdd(subCollectionName, payload) {
+    const info = getTrainingInfo();
+    if (!info || !ltnDb) return { ok: false, reason: "Firebase is not connected." };
+
+    const classCode = normalizeClassCode(info.classCode);
+    const collectionRef = getClassSubCollectionRef(classCode, subCollectionName);
+
+    if (!collectionRef) return { ok: false, reason: "Class collection is not available." };
+
+    const basePayload = {
+      classCode: classCode,
+      createdBy: info.userName,
+      role: info.userRole,
+      authUid: getCurrentAuthUid() || "",
+      authEmail: getCurrentAuthEmail() || "",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAtLocal: new Date().toISOString()
+    };
+
+    try {
+      await collectionRef.add(Object.assign({}, basePayload, payload || {}));
+      return { ok: true };
+    } catch (error) {
+      console.error("Firebase save error:", subCollectionName, error);
+      return {
+        ok: false,
+        reason: error && error.message ? error.message : String(error || "Unknown Firebase error")
+      };
+    }
   }
 
   function findProfileObject() {
@@ -828,7 +932,7 @@
     for (let i = 0; i < keys.length; i++) {
       const raw = safeGet(keys[i]);
       if (!raw) continue;
-      const parsed = safeParse(raw);
+      const parsed = safeParse(raw, null);
       if (parsed && typeof parsed === "object") return parsed;
     }
 
@@ -843,6 +947,7 @@
       profile.fullName ||
       profile.displayName ||
       profile.userName ||
+      safeGet("userName") ||
       "";
 
     const code =
@@ -861,7 +966,7 @@
       "";
 
     if (name) document.getElementById("userName").value = name;
-    if (code) document.getElementById("classCode").value = code.toUpperCase();
+    if (code) document.getElementById("classCode").value = normalizeClassCode(code);
     if (school) document.getElementById("classDescription").value = school + " live training session.";
 
     if (name || code || school) {
@@ -876,13 +981,12 @@
     instructorOnlyItems.forEach(function(item) {
       item.style.display = role === "Instructor" ? "" : "none";
     });
-
-    showStatus("Role set to: " + role);
   }
 
   function getTrainingInfo() {
     const userName = document.getElementById("userName").value.trim();
-    const classCode = document.getElementById("classCode").value.trim();
+    const classCodeRaw = document.getElementById("classCode").value.trim();
+    const classCode = normalizeClassCode(classCodeRaw);
     const classDescription = document.getElementById("classDescription").value.trim();
     const userRole = document.getElementById("userRole").value;
 
@@ -896,23 +1000,23 @@
       return null;
     }
 
-    const cleanCode = cleanRoomName(classCode);
+    document.getElementById("classCode").value = classCode;
 
     return {
       userName,
       userRole,
       classCode,
       classDescription: classDescription || "No description entered",
-      roomName: "LTN-" + cleanCode,
-      jaasRoomName: JAAS_APP_ID + "/LTN-" + cleanCode
+      roomName: "LTN-" + cleanRoomName(classCode),
+      jaasRoomName: JAAS_APP_ID + "/LTN-" + cleanRoomName(classCode)
     };
   }
 
   function updateSessionInfo(info) {
     document.getElementById("sessionInfo").innerHTML =
-      "<div><strong>Room:</strong> " + info.roomName + "</div>" +
-      "<div><strong>Class:</strong> " + info.classCode + "</div>" +
-      "<div><strong>Description:</strong> " + info.classDescription + "</div>" +
+      "<div><strong>Room:</strong> " + escapeHtml(info.roomName) + "</div>" +
+      "<div><strong>Class:</strong> " + escapeHtml(info.classCode) + "</div>" +
+      "<div><strong>Description:</strong> " + escapeHtml(info.classDescription) + "</div>" +
       "<div><strong>Participants:</strong> " + participantCount + "</div>";
 
     document.getElementById("participantPill").innerText =
@@ -924,7 +1028,7 @@
   }
 
   function loadAttendance() {
-    const saved = safeParse(safeGet("ltn_interactive_training_attendance"));
+    const saved = safeParse(safeGet("ltn_interactive_training_attendance"), []);
     if (Array.isArray(saved)) attendanceRecords = saved;
     renderAttendance();
   }
@@ -956,7 +1060,6 @@
     attendanceRecords.unshift(record);
     saveAttendance();
     renderAttendance();
-
     return record;
   }
 
@@ -978,7 +1081,6 @@
   function markCurrentUserPresent() {
     const info = getTrainingInfo();
     if (!info) return;
-
     markAttendanceJoin(info.userName, info.classCode);
     showStatus(info.userName + " marked present for class " + info.classCode + ".");
   }
@@ -1000,12 +1102,12 @@
       const statusClass = record.status === "Present" ? "status-present" : "status-ended";
 
       return "<tr>" +
-        "<td>" + record.name + "</td>" +
-        "<td>" + record.classCode + "</td>" +
-        "<td class='" + statusClass + "'>" + record.status + "</td>" +
-        "<td>" + formatTime(joinDate) + "</td>" +
-        "<td>" + (leaveDate ? formatTime(leaveDate) : "Still active") + "</td>" +
-        "<td>" + formatDuration(record.durationMs) + "</td>" +
+        "<td>" + escapeHtml(record.name) + "</td>" +
+        "<td>" + escapeHtml(record.classCode) + "</td>" +
+        "<td class='" + statusClass + "'>" + escapeHtml(record.status) + "</td>" +
+        "<td>" + escapeHtml(formatTime(joinDate)) + "</td>" +
+        "<td>" + escapeHtml(leaveDate ? formatTime(leaveDate) : "Still active") + "</td>" +
+        "<td>" + escapeHtml(formatDuration(record.durationMs)) + "</td>" +
       "</tr>";
     }).join("");
   }
@@ -1205,88 +1307,8 @@
     showStatus("✋ Hand Raised. The instructor has been notified.");
   }
 
-  function getClassCodeForFirestore() {
-    const classCodeInput = document.getElementById("classCode");
-    const rawCode = classCodeInput ? classCodeInput.value.trim() : "";
-
-    if (!rawCode) return "";
-
-    return rawCode.toUpperCase();
-  }
-
-  function getClassSubCollectionRef(classCode, subCollectionName) {
-    if (!ltnDb || !classCode || !subCollectionName) return null;
-
-    return ltnDb
-      .collection(classCode)
-      .doc(classCode)
-      .collection(subCollectionName);
-  }
-
-  function getAnnouncementsCollectionRef(classCode) {
-    return getClassSubCollectionRef(classCode, "announcements");
-  }
-
-  function getCurrentAuthUid() {
-    if (ltnCurrentUser && ltnCurrentUser.uid) return ltnCurrentUser.uid;
-
-    const storedUid = safeGet("ltn_auth_uid");
-    if (storedUid) return storedUid;
-
-    return "";
-  }
-
-  function getCurrentAuthEmail() {
-    if (ltnCurrentUser && ltnCurrentUser.email) return ltnCurrentUser.email;
-
-    const storedEmail = safeGet("ltn_user_email") || safeGet("userEmail") || safeGet("profileEmail");
-    if (storedEmail) return storedEmail;
-
-    return "";
-  }
-
-  function getFirebaseSaveProblemMessage(error) {
-    const message = error && error.message ? error.message : String(error || "");
-
-    if (message.toLowerCase().includes("permission")) {
-      return "Firebase blocked the save because this page is not signed in or the rules blocked this class path. Open this page from the normal Dashboard login, then try again.";
-    }
-
-    if (message.toLowerCase().includes("network")) {
-      return "Firebase could not save because of a network connection issue.";
-    }
-
-    return "Firebase save error: " + message;
-  }
-
-  async function addClassRecord(subCollectionName, payload) {
-    const info = getTrainingInfo();
-
-    if (!info) return null;
-
-    const classCode = info.classCode.toUpperCase();
-
-    if (!ltnDb) {
-      throw new Error("Firebase is not connected on this page.");
-    }
-
-    const collectionRef = getClassSubCollectionRef(classCode, subCollectionName);
-
-    if (!collectionRef) {
-      throw new Error("Class collection is not available.");
-    }
-
-    const basePayload = {
-      classCode: classCode,
-      createdBy: info.userName,
-      role: info.userRole,
-      authUid: getCurrentAuthUid(),
-      authEmail: getCurrentAuthEmail(),
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      createdAtLocal: new Date().toISOString()
-    };
-
-    return collectionRef.add(Object.assign({}, basePayload, payload || {}));
+  function openWhiteboard() {
+    window.open("https://excalidraw.com", "_blank");
   }
 
   function loadAllClassData() {
@@ -1298,7 +1320,6 @@
 
   function renderAnnouncementsList(records) {
     const display = document.getElementById("announcementDisplay");
-
     if (!display) return;
 
     if (!records || !records.length) {
@@ -1310,17 +1331,7 @@
       const message = record.announcement || record.announcements || "";
       const createdBy = record.createdBy || "Instructor";
       const role = record.role || "Instructor";
-      let createdLabel = "";
-
-      try {
-        if (record.createdAt && typeof record.createdAt.toDate === "function") {
-          createdLabel = record.createdAt.toDate().toLocaleString();
-        } else if (record.createdAt) {
-          createdLabel = new Date(record.createdAt).toLocaleString();
-        }
-      } catch (e) {
-        createdLabel = "";
-      }
+      const createdLabel = record.createdAtLocal || record.created || "";
 
       return '<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #dde5ef;">' +
         '<strong>' + escapeHtml(message) + '</strong><br>' +
@@ -1333,25 +1344,19 @@
   }
 
   function loadAnnouncements() {
-    const classCode = getClassCodeForFirestore();
+    const localRecords = loadLocal("announcements");
+    announcements = Array.isArray(localRecords) ? localRecords : [];
+    renderAnnouncementsList(announcements);
 
+    const classCode = getClassCodeForFirestore();
     if (announcementUnsubscribe) {
       try { announcementUnsubscribe(); } catch (e) {}
       announcementUnsubscribe = null;
     }
 
-    if (!classCode) {
-      renderAnnouncementsList([]);
-      return;
-    }
+    if (!classCode || !ltnDb) return;
 
-    if (!ltnDb) {
-      showStatus("Firebase is not connected yet. Announcements will not load until Firebase is available.");
-      return;
-    }
-
-    const collectionRef = getAnnouncementsCollectionRef(classCode);
-
+    const collectionRef = getClassSubCollectionRef(classCode, "announcements");
     if (!collectionRef) return;
 
     try {
@@ -1360,43 +1365,26 @@
         .limit(10)
         .onSnapshot(function(snapshot) {
           const records = [];
-
           snapshot.forEach(function(doc) {
             records.push(Object.assign({ id: doc.id }, doc.data()));
           });
 
-          renderAnnouncementsList(records);
+          if (records.length) {
+            announcements = records;
+            saveLocal("announcements", announcements);
+            renderAnnouncementsList(announcements);
+          }
         }, function(error) {
           console.error("Announcement load error:", error);
-
-          collectionRef.limit(10).get().then(function(snapshot) {
-            const records = [];
-            snapshot.forEach(function(doc) {
-              records.push(Object.assign({ id: doc.id }, doc.data()));
-            });
-            renderAnnouncementsList(records);
-          }).catch(function(fallbackError) {
-            console.error("Announcement fallback load error:", fallbackError);
-            showStatus("Unable to load announcements. Check Firestore rules and class code.");
-          });
         });
     } catch (error) {
       console.error("Announcement listener error:", error);
-      showStatus("Unable to start announcement listener.");
     }
   }
 
-  function escapeHtml(value) {
-    return String(value || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
   async function postAnnouncement() {
-    const announcement = document.getElementById("announcementBox").value.trim();
+    const announcementBox = document.getElementById("announcementBox");
+    const announcement = announcementBox.value.trim();
     const info = getTrainingInfo();
 
     if (!announcement) {
@@ -1406,23 +1394,31 @@
 
     if (!info) return;
 
-    if (!ltnDb) {
-      showStatus("Firebase is not connected. Check Firebase scripts and config.");
-      return;
-    }
+    const record = {
+      id: "local-ann-" + Date.now(),
+      announcement: announcement,
+      announcements: announcement,
+      classCode: info.classCode,
+      createdBy: info.userName,
+      role: info.userRole,
+      createdAtLocal: new Date().toLocaleString()
+    };
 
-    try {
-      await addClassRecord("announcements", {
-        announcement: announcement,
-        announcements: announcement
-      });
+    announcements.unshift(record);
+    saveLocal("announcements", announcements);
+    renderAnnouncementsList(announcements);
+    announcementBox.value = "";
 
-      document.getElementById("announcementBox").value = "";
-      showStatus("Announcement posted to Firestore for class " + info.classCode.toUpperCase() + ".");
+    const result = await tryFirebaseAdd("announcements", {
+      announcement: announcement,
+      announcements: announcement
+    });
+
+    if (result.ok) {
+      showStatus("Announcement posted and saved to Firestore for class " + info.classCode + ".");
       loadAnnouncements();
-    } catch (error) {
-      console.error("Post announcement error:", error);
-      showStatus("Announcement did not save. " + getFirebaseSaveProblemMessage(error));
+    } else {
+      showStatus("Announcement posted on this page. Firebase sync is pending: " + result.reason);
     }
   }
 
@@ -1436,7 +1432,7 @@
 
     const questionCard = document.createElement("div");
     questionCard.className = "list-item";
-    questionCard.innerHTML = "<strong>Student Question:</strong><br>" + question;
+    questionCard.innerHTML = "<strong>Student Question:</strong><br>" + escapeHtml(question);
 
     document.getElementById("questionsContainer").prepend(questionCard);
     document.getElementById("questionInput").value = "";
@@ -1460,15 +1456,11 @@
     fileCard.className = "list-item";
     fileCard.innerHTML =
       "<strong>Shared File:</strong><br>" +
-      file.name +
+      escapeHtml(file.name) +
       "<br><span style='color:#64748b;font-size:12px;'>Stored locally for this session. Database storage can be added next.</span>";
 
     sharedFiles.prepend(fileCard);
     showStatus("File added to the class file list.");
-  }
-
-  function openWhiteboard() {
-    window.open("https://excalidraw.com", "_blank");
   }
 
   async function createAssignment() {
@@ -1481,33 +1473,40 @@
       return;
     }
 
-    const localAssignment = {
+    const info = getTrainingInfo();
+    if (!info) return;
+
+    const record = {
+      id: "local-assignment-" + Date.now(),
       title: title,
-      due: due,
-      instructions: instructions,
-      created: new Date().toISOString()
+      due: due || "",
+      instructions: instructions || "",
+      status: "Open",
+      createdBy: info.userName,
+      role: info.userRole,
+      createdAtLocal: new Date().toLocaleString()
     };
 
-    assignments.unshift(localAssignment);
+    assignments.unshift(record);
+    saveLocal("assignments", assignments);
     renderAssignments();
 
     document.getElementById("assignmentTitle").value = "";
     document.getElementById("assignmentDue").value = "";
     document.getElementById("assignmentInstructions").value = "";
 
-    try {
-      await addClassRecord("assignments", {
-        title: title,
-        due: due || "",
-        instructions: instructions || "",
-        status: "Open"
-      });
+    const result = await tryFirebaseAdd("assignments", {
+      title: title,
+      due: due || "",
+      instructions: instructions || "",
+      status: "Open"
+    });
 
+    if (result.ok) {
       showStatus("Assignment created and saved to Firestore.");
       loadAssignmentsFromFirestore();
-    } catch (error) {
-      console.error("Create assignment error:", error);
-      showStatus("Assignment was created on the page, but Firestore did not save it. " + getFirebaseSaveProblemMessage(error));
+    } else {
+      showStatus("Assignment created on this page. Firebase sync is pending: " + result.reason);
     }
   }
 
@@ -1523,18 +1522,16 @@
 
     list.innerHTML = assignments.map(function(a) {
       return '<div class="list-item">' +
-        '<strong>' + a.title + '</strong><br>' +
-        'Due: ' + (a.due || "No due date") + '<br>' +
-        '<span style="color:#64748b;">' + (a.instructions || "No instructions") + '</span>' +
+        '<strong>' + escapeHtml(a.title) + '</strong><br>' +
+        'Due: ' + escapeHtml(a.due || "No due date") + '<br>' +
+        '<span style="color:#64748b;">' + escapeHtml(a.instructions || "No instructions") + '</span>' +
       '</div>';
     }).join("");
   }
 
   function submitAssignmentFile() {
     const file = document.getElementById("assignmentFile").files[0];
-
     if (!file) return;
-
     showStatus("Assignment file selected: " + file.name);
   }
 
@@ -1560,34 +1557,41 @@
       return;
     }
 
-    quizzes.unshift({
+    const info = getTrainingInfo();
+    if (!info) return;
+
+    const record = {
+      id: "local-quiz-" + Date.now(),
       title: title,
       question: question,
       answer: answer,
-      created: new Date().toISOString()
-    });
+      status: "Open",
+      createdBy: info.userName,
+      role: info.userRole,
+      createdAtLocal: new Date().toLocaleString()
+    };
 
+    quizzes.unshift(record);
     currentQuizIndex = 0;
-
+    saveLocal("quizzes", quizzes);
     renderQuizzes();
 
     document.getElementById("quizTitle").value = "";
     document.getElementById("quizQuestion").value = "";
     document.getElementById("quizAnswer").value = "";
 
-    try {
-      await addClassRecord("quizzes", {
-        title: title,
-        question: question,
-        answer: answer,
-        status: "Open"
-      });
+    const result = await tryFirebaseAdd("quizzes", {
+      title: title,
+      question: question,
+      answer: answer,
+      status: "Open"
+    });
 
+    if (result.ok) {
       showStatus("Quiz created and saved to Firestore.");
       loadQuizzesFromFirestore();
-    } catch (error) {
-      console.error("Create quiz error:", error);
-      showStatus("Quiz was created on the page, but Firestore did not save it. " + getFirebaseSaveProblemMessage(error));
+    } else {
+      showStatus("Quiz created on this page. Firebase sync is pending: " + result.reason);
     }
   }
 
@@ -1604,8 +1608,8 @@
 
     list.innerHTML = quizzes.map(function(q, index) {
       return '<div class="list-item">' +
-        '<strong>' + q.title + '</strong><br>' +
-        q.question +
+        '<strong>' + escapeHtml(q.title) + '</strong><br>' +
+        escapeHtml(q.question) +
         '<br><button class="btn-light" onclick="selectQuiz(' + index + ')">Select Quiz</button>' +
       '</div>';
     }).join("");
@@ -1639,7 +1643,6 @@
 
   async function generateCertificate() {
     const info = getTrainingInfo();
-
     if (!info) return;
 
     const course = document.getElementById("certificateCourse").value.trim();
@@ -1654,17 +1657,27 @@
     document.getElementById("certificateDate").innerText = new Date().toLocaleDateString();
     document.getElementById("certificateDisplay").style.display = "block";
 
-    try {
-      await addClassRecord("certificates", {
-        studentName: info.userName,
-        course: course,
-        certificateDate: new Date().toISOString()
-      });
+    const record = {
+      id: "local-certificate-" + Date.now(),
+      studentName: info.userName,
+      course: course,
+      classCode: info.classCode,
+      certificateDate: new Date().toLocaleString()
+    };
 
+    certificates.unshift(record);
+    saveLocal("certificates", certificates);
+
+    const result = await tryFirebaseAdd("certificates", {
+      studentName: info.userName,
+      course: course,
+      certificateDate: new Date().toISOString()
+    });
+
+    if (result.ok) {
       showStatus("Certificate generated and saved to Firestore.");
-    } catch (error) {
-      console.error("Certificate save error:", error);
-      showStatus("Certificate generated on the page, but Firestore did not save it. " + getFirebaseSaveProblemMessage(error));
+    } else {
+      showStatus("Certificate generated on this page. Firebase sync is pending: " + result.reason);
     }
   }
 
@@ -1678,30 +1691,38 @@
       return;
     }
 
-    events.unshift({
-      title: title,
-      speaker: speaker,
-      date: date
-    });
+    const info = getTrainingInfo();
+    if (!info) return;
 
+    const record = {
+      id: "local-event-" + Date.now(),
+      title: title,
+      speaker: speaker || "",
+      date: date || "",
+      createdBy: info.userName,
+      role: info.userRole,
+      createdAtLocal: new Date().toLocaleString()
+    };
+
+    events.unshift(record);
+    saveLocal("events", events);
     renderEvents();
 
     document.getElementById("eventTitle").value = "";
     document.getElementById("eventSpeaker").value = "";
     document.getElementById("eventDate").value = "";
 
-    try {
-      await addClassRecord("events", {
-        title: title,
-        speaker: speaker || "",
-        date: date || ""
-      });
+    const result = await tryFirebaseAdd("events", {
+      title: title,
+      speaker: speaker || "",
+      date: date || ""
+    });
 
+    if (result.ok) {
       showStatus("LinkTradeNetwork Talk created and saved to Firestore.");
       loadEventsFromFirestore();
-    } catch (error) {
-      console.error("Create event error:", error);
-      showStatus("Event was created on the page, but Firestore did not save it. " + getFirebaseSaveProblemMessage(error));
+    } else {
+      showStatus("LinkTradeNetwork Talk created on this page. Firebase sync is pending: " + result.reason);
     }
   }
 
@@ -1715,14 +1736,17 @@
 
     list.innerHTML = events.map(function(event) {
       return '<div class="list-item">' +
-        '<strong>' + event.title + '</strong><br>' +
-        'Speaker: ' + (event.speaker || "TBD") + '<br>' +
-        'Date: ' + (event.date || "TBD") +
+        '<strong>' + escapeHtml(event.title) + '</strong><br>' +
+        'Speaker: ' + escapeHtml(event.speaker || "TBD") + '<br>' +
+        'Date: ' + escapeHtml(event.date || "TBD") +
       '</div>';
     }).join("");
   }
 
   function loadAssignmentsFromFirestore() {
+    assignments = loadLocal("assignments");
+    renderAssignments();
+
     const classCode = getClassCodeForFirestore();
 
     if (assignmentUnsubscribe) {
@@ -1748,12 +1772,14 @@
           if (records.length) {
             assignments = records.map(function(record) {
               return {
+                id: record.id || "",
                 title: record.title || "Untitled Assignment",
                 due: record.due || "",
                 instructions: record.instructions || "",
                 created: record.createdAtLocal || ""
               };
             });
+            saveLocal("assignments", assignments);
             renderAssignments();
           }
         }, function(error) {
@@ -1765,6 +1791,10 @@
   }
 
   function loadQuizzesFromFirestore() {
+    quizzes = loadLocal("quizzes");
+    currentQuizIndex = quizzes.length ? 0 : -1;
+    renderQuizzes();
+
     const classCode = getClassCodeForFirestore();
 
     if (quizUnsubscribe) {
@@ -1790,6 +1820,7 @@
           if (records.length) {
             quizzes = records.map(function(record) {
               return {
+                id: record.id || "",
                 title: record.title || "Untitled Quiz",
                 question: record.question || "",
                 answer: record.answer || "",
@@ -1797,6 +1828,7 @@
               };
             });
             currentQuizIndex = quizzes.length ? 0 : -1;
+            saveLocal("quizzes", quizzes);
             renderQuizzes();
           }
         }, function(error) {
@@ -1808,6 +1840,9 @@
   }
 
   function loadEventsFromFirestore() {
+    events = loadLocal("events");
+    renderEvents();
+
     const classCode = getClassCodeForFirestore();
 
     if (eventUnsubscribe) {
@@ -1833,11 +1868,13 @@
           if (records.length) {
             events = records.map(function(record) {
               return {
+                id: record.id || "",
                 title: record.title || "Untitled Event",
                 speaker: record.speaker || "",
                 date: record.date || ""
               };
             });
+            saveLocal("events", events);
             renderEvents();
           }
         }, function(error) {
@@ -1849,11 +1886,9 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
+    setupFirebase();
     autoFillFromProfile();
     loadAttendance();
-    renderAssignments();
-    renderQuizzes();
-    renderEvents();
     applyRoleControls();
 
     window.setTimeout(function() {
