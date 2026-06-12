@@ -1296,7 +1296,7 @@
 
         ${renderAchievements(member)}
 
-        <button class="btn" onclick="window.location.href='/profile.html?id=${safeUrl(member.id)}&v=20260525membersv10'">
+        <button class="btn" onclick="window.location.href='/profile/?id=${safeUrl(member.id)}&uid=${safeUrl(member.uid || member.authUid || member.id)}&v=20260612memberprofilefix'">
           View Profile
         </button>
       `;
