@@ -6,7 +6,7 @@
 
   <title>LinkTradeNetwork Interactive-Training | LinkTradeNetwork</title>
 
-  <!-- LTN Interactive-Training version: no-quiz-no-certificates-no-events-v1 -->
+  <!-- LTN Interactive-Training version: instructor-only-create-sessions-v2 -->
 
   <script src="https://8x8.vc/vpaas-magic-cookie-681209300d324de29fdd6287690aa7b1/external_api.js" async></script>
   <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
@@ -246,6 +246,23 @@
       color: #17834c;
     }
 
+    .security-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #eef6ff;
+      border: 1px solid #cfe4ff;
+      color: #1e3a5f;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .locked-field {
+      background: #f8fafc;
+      color: #475569;
+      cursor: not-allowed;
+    }
+
     .panel-box {
       padding: 14px;
       background: #f8fafc;
@@ -439,11 +456,15 @@
         <div class="bd">
 
           <label for="userRole">Your Role</label>
-          <select id="userRole" onchange="applyRoleControls()">
+          <select id="userRole" class="locked-field" disabled>
+            <option value="Student">Student / Apprentice</option>
             <option value="Instructor">Instructor</option>
-            <option value="Student">Student</option>
             <option value="Guest">Guest</option>
           </select>
+
+          <div class="security-note" id="roleSecurityNote">
+            Your role is loaded from your LinkTradeNetwork profile. Students can join sessions, but only instructors can create sessions.
+          </div>
 
           <label for="userName">Your Name</label>
           <input type="text" id="userName" placeholder="Enter your name" />
@@ -455,8 +476,8 @@
           <textarea id="classDescription" placeholder="Example: Electrical safety review, blueprint reading, OSHA training."></textarea>
 
           <div class="btn-row">
-            <button class="btn-primary" onclick="startInteractiveTraining()">Start Training</button>
-            <button class="btn-dark" onclick="joinInteractiveTraining()">Join Training</button>
+            <button class="btn-primary instructor-only" id="startTrainingBtn" onclick="startInteractiveTraining()">Create / Start Training</button>
+            <button class="btn-dark" id="joinTrainingBtn" onclick="joinInteractiveTraining()">Join Training</button>
             <button class="btn-light" onclick="endInteractiveTraining()">End</button>
           </div>
 
@@ -627,6 +648,8 @@
   let ltnDb = null;
   let ltnAuth = null;
   let ltnCurrentUser = null;
+  let ltnCurrentProfile = null;
+  let ltnIsInstructor = false;
 
   let announcementUnsubscribe = null;
   let assignmentUnsubscribe = null;
@@ -749,9 +772,14 @@
           if (user) {
             safeSet("ltn_auth_uid", user.uid || "");
             safeSet("ltn_user_email", user.email || "");
-            loadAllClassData();
+            loadCurrentUserProfile().then(function() {
+              autoFillFromProfile();
+              loadAllClassData();
+            });
           } else {
-            /* Auth not detected yet. Keep page quiet for users. */
+            ltnCurrentProfile = null;
+            ltnIsInstructor = false;
+            setRoleFromProfile();
           }
         });
       }
@@ -769,6 +797,100 @@
   function getCurrentAuthEmail() {
     if (ltnCurrentUser && ltnCurrentUser.email) return ltnCurrentUser.email;
     return safeGet("ltn_user_email") || safeGet("userEmail") || safeGet("profileEmail");
+  }
+
+  function profileLooksInstructor(profile) {
+    if (!profile || typeof profile !== "object") return false;
+
+    const role = String(profile.role || "").toLowerCase();
+    const profileType = String(profile.profileType || "").toLowerCase();
+
+    return (
+      role === "instructor" ||
+      profileType.indexOf("instructor") >= 0 ||
+      profileType.indexOf("teacher") >= 0 ||
+      profile.isInstructor === true ||
+      profile.instructor === true ||
+      (profile.instructor && profile.instructor.isInstructor === true)
+    );
+  }
+
+  async function loadCurrentUserProfile() {
+    ltnCurrentProfile = null;
+    ltnIsInstructor = false;
+
+    const uid = getCurrentAuthUid();
+
+    if (!ltnDb || !uid) {
+      const localProfile = findProfileObject();
+      ltnCurrentProfile = localProfile || {};
+      ltnIsInstructor = profileLooksInstructor(localProfile);
+      setRoleFromProfile();
+      return;
+    }
+
+    try {
+      const userDoc = await ltnDb.collection("users").doc(uid).get();
+      if (userDoc.exists) {
+        ltnCurrentProfile = userDoc.data() || {};
+        ltnIsInstructor = profileLooksInstructor(ltnCurrentProfile);
+        safeSet("ltn_current_profile", JSON.stringify(ltnCurrentProfile));
+        setRoleFromProfile();
+        return;
+      }
+
+      const profileDoc = await ltnDb.collection("profiles").doc(uid).get();
+      if (profileDoc.exists) {
+        ltnCurrentProfile = profileDoc.data() || {};
+        ltnIsInstructor = profileLooksInstructor(ltnCurrentProfile);
+        safeSet("ltn_current_profile", JSON.stringify(ltnCurrentProfile));
+        setRoleFromProfile();
+        return;
+      }
+    } catch (error) {
+      console.error("Profile role load error:", error);
+    }
+
+    const fallbackProfile = findProfileObject();
+    ltnCurrentProfile = fallbackProfile || {};
+    ltnIsInstructor = profileLooksInstructor(fallbackProfile);
+    setRoleFromProfile();
+  }
+
+  function setRoleFromProfile() {
+    const roleSelect = document.getElementById("userRole");
+    const note = document.getElementById("roleSecurityNote");
+
+    if (!roleSelect) return;
+
+    if (ltnIsInstructor) {
+      roleSelect.value = "Instructor";
+      if (note) note.innerText = "Instructor access confirmed. You can create/start training sessions and students can join them.";
+    } else {
+      roleSelect.value = ltnCurrentUser ? "Student" : "Guest";
+      if (note) note.innerText = "Student access loaded. You can join instructor-created sessions, but you cannot create/start a new session.";
+    }
+
+    applyRoleControls();
+  }
+
+  function requireSignedIn() {
+    if (!getCurrentAuthUid()) {
+      showStatus("Please sign in through LinkTradeNetwork before using Interactive-Training.");
+      return false;
+    }
+    return true;
+  }
+
+  function requireInstructor() {
+    if (!requireSignedIn()) return false;
+
+    if (!ltnIsInstructor) {
+      showStatus("Only instructors can create/start Interactive-Training sessions. Students can only join an active instructor-created session.");
+      return false;
+    }
+
+    return true;
   }
 
   function getClassSubCollectionRef(classCode, subCollectionName) {
@@ -1076,6 +1198,70 @@
     );
   }
 
+  async function createTrainingSessionRecord(info) {
+    if (!ltnDb) return { ok: false, reason: "Firebase is not connected." };
+
+    try {
+      await ltnDb.collection("trainingSessions").doc(info.classCode).set({
+        classCode: info.classCode,
+        roomName: info.roomName,
+        jaasRoomName: info.jaasRoomName,
+        classDescription: info.classDescription,
+        status: "active",
+        instructorId: getCurrentAuthUid() || "",
+        createdBy: getCurrentAuthUid() || "",
+        authUid: getCurrentAuthUid() || "",
+        instructorName: info.userName,
+        instructorEmail: getCurrentAuthEmail() || "",
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdAtLocal: new Date().toISOString()
+      }, { merge: true });
+
+      return { ok: true };
+    } catch (error) {
+      console.error("Training session create error:", error);
+      return { ok: false, reason: error && error.message ? error.message : String(error || "Unknown error") };
+    }
+  }
+
+  async function verifyTrainingSessionExists(info) {
+    if (!ltnDb) return { ok: true, reason: "Firebase is not connected. Joining by class code only." };
+
+    try {
+      const doc = await ltnDb.collection("trainingSessions").doc(info.classCode).get();
+
+      if (!doc.exists) {
+        return { ok: false, reason: "No active instructor-created session found for this class code. Ask your instructor to start the session first." };
+      }
+
+      const data = doc.data() || {};
+      if (data.status && data.status !== "active") {
+        return { ok: false, reason: "This session is not active. Ask your instructor to start it again." };
+      }
+
+      return { ok: true };
+    } catch (error) {
+      console.error("Training session check error:", error);
+      return { ok: false, reason: error && error.message ? error.message : String(error || "Unknown error") };
+    }
+  }
+
+  async function endTrainingSessionRecord(info) {
+    if (!ltnDb || !info || !ltnIsInstructor) return;
+
+    try {
+      await ltnDb.collection("trainingSessions").doc(info.classCode).set({
+        status: "ended",
+        endedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        endedAtLocal: new Date().toISOString(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } catch (error) {
+      console.error("Training session end error:", error);
+    }
+  }
+
   function launchJitsi(roleLabel) {
     const info = getTrainingInfo();
     if (!info) return;
@@ -1158,11 +1344,34 @@
     });
   }
 
-  function startInteractiveTraining() {
+  async function startInteractiveTraining() {
+    if (!requireInstructor()) return;
+
+    const info = getTrainingInfo();
+    if (!info) return;
+
+    const result = await createTrainingSessionRecord(info);
+    if (!result.ok) {
+      showStatus("Session could not be created in Firebase: " + result.reason);
+      return;
+    }
+
+    showStatus("Instructor session created. Students can now join using class code: " + info.classCode);
     launchJitsi("Instructor");
   }
 
-  function joinInteractiveTraining() {
+  async function joinInteractiveTraining() {
+    if (!requireSignedIn()) return;
+
+    const info = getTrainingInfo();
+    if (!info) return;
+
+    const result = await verifyTrainingSessionExists(info);
+    if (!result.ok) {
+      showStatus(result.reason);
+      return;
+    }
+
     launchJitsi("Student");
   }
 
@@ -1191,6 +1400,7 @@
       "<div><strong>Description:</strong> No description entered</div>" +
       "<div><strong>Participants:</strong> 0</div>";
 
+    endTrainingSessionRecord(currentSessionInfo);
     currentSessionInfo = null;
     showStatus("Interactive Training session ended. Attendance duration updated.");
   }
@@ -1273,6 +1483,8 @@
   }
 
   async function postAnnouncement() {
+    if (!requireInstructor()) return;
+
     const announcementBox = document.getElementById("announcementBox");
     const announcement = announcementBox.value.trim();
     const info = getTrainingInfo();
@@ -1331,6 +1543,8 @@
   }
 
   function shareClassFile() {
+    if (!requireInstructor()) return;
+
     const fileInput = document.getElementById("classFile");
     const file = fileInput.files[0];
 
@@ -1354,6 +1568,8 @@
   }
 
   async function createAssignment() {
+    if (!requireInstructor()) return;
+
     const title = document.getElementById("assignmentTitle").value.trim();
     const due = document.getElementById("assignmentDue").value;
     const instructions = document.getElementById("assignmentInstructions").value.trim();
@@ -1487,6 +1703,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     setupFirebase();
     autoFillFromProfile();
+    loadCurrentUserProfile();
     loadAttendance();
     applyRoleControls();
 
