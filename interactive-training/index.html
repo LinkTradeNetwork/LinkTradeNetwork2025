@@ -6,7 +6,7 @@
 
   <title>LinkTradeNetwork Interactive-Training | LinkTradeNetwork</title>
 
-  <!-- LTN Interactive-Training version: events-hard-fix-v2 -->
+  <!-- LTN Interactive-Training version: no-quiz-no-certificates-no-events-v1 -->
 
   <script src="https://8x8.vc/vpaas-magic-cookie-681209300d324de29fdd6287690aa7b1/external_api.js" async></script>
   <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
@@ -422,8 +422,7 @@
     <h1>LinkTradeNetwork Interactive-Training</h1>
     <p>
       Live instructor-led training with video, screen sharing, attendance tracking, assignments,
-      LTN Scheduled Events, Q&A, announcements, file sharing,
-      whiteboard access, attendance exports, and student interaction.
+      Q&A, announcements, file sharing, whiteboard access, attendance exports, and student interaction.
     </p>
   </section>
 
@@ -599,35 +598,7 @@
         </div>
       </div>
 
-      <div class="card">
-        <div class="hd">
-          <span>LTN Scheduled Events</span>
-          <span class="pill">Events</span>
-        </div>
 
-        <div class="bd">
-          <div class="instructor-only">
-            <label for="eventTitle">Event Title</label>
-            <input type="text" id="eventTitle" placeholder="Example: Fiber Basics for New Apprentices" />
-
-            <label for="eventSpeaker">Host / Speaker</label>
-            <input type="text" id="eventSpeaker" placeholder="Example: John Smith" />
-
-            <label for="eventDate">Date</label>
-            <input type="date" id="eventDate" />
-
-            <div class="btn-row">
-              <button type="button" class="btn-primary" id="createEventBtn">Create Scheduled Event</button>
-            </div>
-          </div>
-
-          <div id="eventStatus" class="status" style="display:none"></div>
-
-          <div id="eventsList" class="list-box">
-            <div class="list-item">No LTN Scheduled Events scheduled yet.</div>
-          </div>
-        </div>
-      </div>
 
     </div>
 
@@ -659,7 +630,6 @@
 
   let announcementUnsubscribe = null;
   let assignmentUnsubscribe = null;
-  let eventUnsubscribe = null;
 
   let jitsiApi = null;
   let participantCount = 0;
@@ -668,22 +638,12 @@
   let attendanceRecords = [];
   let announcements = [];
   let assignments = [];
-  let events = [];
 
   function showStatus(message) {
     const statusBox = document.getElementById("statusBox");
     if (!statusBox) return;
     statusBox.innerText = message;
     statusBox.style.display = "block";
-  }
-
-  function showEventStatus(message) {
-    const eventStatus = document.getElementById("eventStatus");
-    if (eventStatus) {
-      eventStatus.innerText = message;
-      eventStatus.style.display = "block";
-    }
-    showStatus(message);
   }
 
   function safeGet(key) {
@@ -1246,7 +1206,6 @@
   function loadAllClassData() {
     loadAnnouncements();
     loadAssignmentsFromFirestore();
-    loadEventsFromFirestore();
   }
 
   function renderAnnouncementsList(records) {
@@ -1478,121 +1437,6 @@
     showStatus("Assignment note submitted.");
   }
 
-  async function createEvent() {
-    const titleEl = document.getElementById("eventTitle");
-    const speakerEl = document.getElementById("eventSpeaker");
-    const dateEl = document.getElementById("eventDate");
-    const list = document.getElementById("eventsList");
-
-    if (!titleEl || !speakerEl || !dateEl || !list) {
-      showEventStatus("Event section did not load correctly. Refresh the page and try again.");
-      return;
-    }
-
-    const title = titleEl.value.trim();
-    const speaker = speakerEl.value.trim() || "TBD";
-    const date = dateEl.value || "TBD";
-
-    if (!title) {
-      showEventStatus("Enter an event title.");
-      titleEl.focus();
-      return;
-    }
-
-    const userNameInput = document.getElementById("userName");
-    const classCodeInput = document.getElementById("classCode");
-    const roleInput = document.getElementById("userRole");
-
-    const createdBy = userNameInput && userNameInput.value.trim()
-      ? userNameInput.value.trim()
-      : "Instructor";
-
-    const role = roleInput ? roleInput.value : "Instructor";
-
-    const classCode = classCodeInput && classCodeInput.value.trim()
-      ? normalizeClassCode(classCodeInput.value.trim())
-      : "LTN-SCHEDULED-EVENTS";
-
-    if (classCodeInput && !classCodeInput.value.trim()) {
-      classCodeInput.value = classCode;
-    }
-
-    const record = {
-      id: "local-event-" + Date.now(),
-      title: title,
-      speaker: speaker,
-      date: date,
-      classCode: classCode,
-      createdBy: createdBy,
-      role: role,
-      createdAtLocal: new Date().toLocaleString()
-    };
-
-    if (!Array.isArray(events)) events = [];
-    events.unshift(record);
-    saveLocal("events", events);
-    renderEvents();
-
-    titleEl.value = "";
-    speakerEl.value = "";
-    dateEl.value = "";
-
-    showEventStatus("LTN Scheduled Event created on this page.");
-
-    if (!ltnDb) {
-      showEventStatus("LTN Scheduled Event created on this page. Firebase sync is pending: Firebase is not connected.");
-      return;
-    }
-
-    try {
-      const collectionRef = getClassSubCollectionRef(classCode, "events");
-
-      if (!collectionRef) {
-        showEventStatus("LTN Scheduled Event created on this page. Firebase sync is pending: Class event collection is not available.");
-        return;
-      }
-
-      await collectionRef.add({
-        classCode: classCode,
-        title: title,
-        speaker: speaker,
-        date: date === "TBD" ? "" : date,
-        createdBy: createdBy,
-        role: role,
-        authUid: getCurrentAuthUid() || "",
-        authEmail: getCurrentAuthEmail() || "",
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        createdAtLocal: new Date().toISOString()
-      });
-
-      showEventStatus("LTN Scheduled Event created and saved to Firestore.");
-      loadEventsFromFirestore();
-    } catch (error) {
-      console.error("Event Firebase save error:", error);
-      const msg = error && error.message ? error.message : String(error || "Unknown Firebase error");
-      showEventStatus("LTN Scheduled Event created on this page. Firebase sync is pending: " + msg);
-    }
-  }
-
-  function renderEvents() {
-    const list = document.getElementById("eventsList");
-
-    if (!events.length) {
-      list.innerHTML = '<div class="list-item">No LTN Scheduled Events scheduled yet.</div>';
-      return;
-    }
-
-    list.innerHTML = events.map(function(event) {
-      const createdBy = event.createdBy ? '<br><span style="color:#64748b;font-size:12px;">Created by: ' + escapeHtml(event.createdBy) + '</span>' : "";
-      return '<div class="list-item">' +
-        '<strong>' + escapeHtml(event.title) + '</strong><br>' +
-        'Host / Speaker: ' + escapeHtml(event.speaker || "TBD") + '<br>' +
-        'Date: ' + escapeHtml(event.date || "TBD") +
-        createdBy +
-      '</div>';
-    }).join("");
-  }
-
   function loadAssignmentsFromFirestore() {
     assignments = loadLocal("assignments");
     renderAssignments();
@@ -1640,61 +1484,7 @@
     }
   }
 
-  function loadEventsFromFirestore() {
-    events = loadLocal("events");
-    renderEvents();
-
-    const classCode = getClassCodeForFirestore();
-
-    if (eventUnsubscribe) {
-      try { eventUnsubscribe(); } catch (e) {}
-      eventUnsubscribe = null;
-    }
-
-    if (!classCode || !ltnDb) return;
-
-    const collectionRef = getClassSubCollectionRef(classCode, "events");
-    if (!collectionRef) return;
-
-    try {
-      eventUnsubscribe = collectionRef
-        .orderBy("createdAt", "desc")
-        .limit(25)
-        .onSnapshot(function(snapshot) {
-          const records = [];
-          snapshot.forEach(function(doc) {
-            records.push(Object.assign({ id: doc.id }, doc.data()));
-          });
-
-          if (records.length) {
-            events = records.map(function(record) {
-              return {
-                id: record.id || "",
-                title: record.title || "Untitled Event",
-                speaker: record.speaker || "",
-                date: record.date || ""
-              };
-            });
-            saveLocal("events", events);
-            renderEvents();
-          }
-        }, function(error) {
-          console.error("Event load error:", error);
-        });
-    } catch (error) {
-      console.error("Event listener error:", error);
-    }
-  }
-
   document.addEventListener("DOMContentLoaded", function () {
-    const createEventBtn = document.getElementById("createEventBtn");
-    if (createEventBtn) {
-      createEventBtn.addEventListener("click", function(event) {
-        event.preventDefault();
-        createEvent();
-      });
-    }
-
     setupFirebase();
     autoFillFromProfile();
     loadAttendance();
