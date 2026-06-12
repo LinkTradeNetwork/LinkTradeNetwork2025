@@ -2175,6 +2175,23 @@ function getRealFirebaseUserId(user) {
   return String(user.uid || user.authUid || user.userId || user.id || "").trim();
 }
 
+
+function ltnGetViewedMemberIdFromUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search || "");
+    return String(params.get("id") || params.get("uid") || params.get("memberId") || "").trim();
+  } catch (e) {
+    return "";
+  }
+}
+
+function ltnIsViewingMemberProfile() {
+  const viewedId = ltnGetViewedMemberIdFromUrl();
+  if (!viewedId) return false;
+  const currentUid = String((firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid) || localStorage.getItem("ltn_auth_uid") || "").trim();
+  return !currentUid || viewedId !== currentUid;
+}
+
 async function getUserById(userId) {
   if (!userId || !firebaseDb) return null;
 
@@ -3116,6 +3133,13 @@ const ProfileManager = {
 
   init() {
     this.currentImageUrl = "";
+
+    if (ltnIsViewingMemberProfile()) {
+      this.displayPlaceholder();
+      this.loadPublicMemberProfile();
+      return;
+    }
+
     this.checkAuthStatus();
     this.displayPlaceholder();
     this.loadProfile();
@@ -3246,6 +3270,16 @@ const ProfileManager = {
     const area = document.getElementById("profile-image-area");
     if (!area) return;
 
+    if (ltnIsViewingMemberProfile()) {
+      area.innerHTML = `
+        <div class="profile-placeholder-content">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <div>No profile image</div>
+        </div>`;
+      area.style.cursor = "default";
+      return;
+    }
+
     area.innerHTML = `
       <div class="profile-placeholder-content">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -3344,6 +3378,12 @@ const ProfileManager = {
 
     if (!imageData) {
       this.displayPlaceholder();
+      return;
+    }
+
+    if (ltnIsViewingMemberProfile()) {
+      area.innerHTML = `<img src="${imageData}" alt="Profile">`;
+      area.style.cursor = "default";
       return;
     }
 
@@ -3716,6 +3756,64 @@ const ProfileManager = {
       }
     } catch (e) {
       console.warn("Firebase profile load failed:", e);
+    }
+  },
+
+  async loadPublicMemberProfile() {
+    const viewedId = ltnGetViewedMemberIdFromUrl();
+
+    const editBtn = document.getElementById("edit-profile-btn");
+    if (editBtn) {
+      editBtn.textContent = "Viewing Member Profile";
+      editBtn.disabled = true;
+      editBtn.style.opacity = ".75";
+    }
+
+    const uploadArea = document.getElementById("profile-upload");
+    if (uploadArea) uploadArea.style.display = "none";
+
+    const docs = document.getElementById("documents-list");
+    if (docs) docs.innerHTML = "";
+
+    const profileHeader = document.querySelector(".card .hd span");
+    if (profileHeader) profileHeader.textContent = "Member Profile";
+
+    if (!viewedId) {
+      this.displayProfile({});
+      return;
+    }
+
+    try {
+      const member = await getUserById(viewedId);
+
+      if (!member) {
+        this.displayProfile({ fullName:"Member Not Found", trade:"", city:"", state:"" });
+        alert("Member profile could not be found.");
+        return;
+      }
+
+      this.displayProfile(member);
+
+      const imageUrl = ltnFirstProfileImage(member);
+      if (imageUrl) {
+        this.currentImageUrl = imageUrl;
+        this.displayProfileImage(imageUrl);
+      } else {
+        this.displayPlaceholder();
+      }
+
+      const connectionsCount = document.getElementById("connections-count");
+      const applicationsCount = document.getElementById("applications-count");
+      if (connectionsCount) connectionsCount.textContent = member.connectionsCount || member.connections || 0;
+      if (applicationsCount) applicationsCount.textContent = member.applicationsCount || member.applications || 0;
+    } catch (e) {
+      console.error("Public member profile load failed:", e);
+      this.displayProfile({ fullName:"Could Not Load Member", trade:"", city:"", state:"" });
+    } finally {
+      try {
+        document.documentElement.classList.remove("auth-checking");
+        document.documentElement.classList.add("auth-ready");
+      } catch (e) {}
     }
   },
 
