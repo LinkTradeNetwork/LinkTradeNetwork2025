@@ -6,7 +6,7 @@
 
   <title>LinkTradeNetwork Interactive-Training | LinkTradeNetwork</title>
 
-  <!-- LTN Interactive-Training version: instructor-only-create-sessions-v2 -->
+  <!-- LTN Interactive-Training version: instructor-only-create-sessions-clean-v3 -->
 
   <script src="https://8x8.vc/vpaas-magic-cookie-681209300d324de29fdd6287690aa7b1/external_api.js" async></script>
   <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
@@ -439,7 +439,7 @@
     <h1>LinkTradeNetwork Interactive-Training</h1>
     <p>
       Live instructor-led training with video, screen sharing, attendance tracking, assignments,
-      Q&A, announcements, file sharing, whiteboard access, attendance exports, and student interaction.
+      whiteboard access, attendance exports, and student interaction.
     </p>
   </section>
 
@@ -487,32 +487,6 @@
           </div>
 
           <div id="statusBox" class="status"></div>
-
-          <div class="panel-box instructor-only">
-            <strong>Instructor Announcement</strong>
-            <textarea id="announcementBox" placeholder="Enter class announcement..."></textarea>
-            <div class="btn-row">
-              <button class="btn-primary" onclick="postAnnouncement()">Post Announcement</button>
-            </div>
-            <div id="announcementDisplay" class="list-item">No announcements yet.</div>
-          </div>
-
-          <div class="panel-box">
-            <strong>Student Q&A</strong>
-            <textarea id="questionInput" placeholder="Type your question here..."></textarea>
-            <div class="btn-row">
-              <button class="btn-dark" onclick="submitQuestion()">Submit Question</button>
-            </div>
-            <div id="questionsContainer" class="list-box"></div>
-          </div>
-
-          <div class="panel-box instructor-only">
-            <strong>Class Files</strong>
-            <input type="file" id="classFile" onchange="shareClassFile()" />
-            <div id="sharedFiles" class="list-box">
-              <div class="list-item">No files shared yet.</div>
-            </div>
-          </div>
 
         </div>
       </div>
@@ -651,7 +625,6 @@
   let ltnCurrentProfile = null;
   let ltnIsInstructor = false;
 
-  let announcementUnsubscribe = null;
   let assignmentUnsubscribe = null;
 
   let jitsiApi = null;
@@ -659,7 +632,6 @@
   let currentSessionInfo = null;
 
   let attendanceRecords = [];
-  let announcements = [];
   let assignments = [];
 
   function showStatus(message) {
@@ -1414,157 +1386,7 @@
   }
 
   function loadAllClassData() {
-    loadAnnouncements();
     loadAssignmentsFromFirestore();
-  }
-
-  function renderAnnouncementsList(records) {
-    const display = document.getElementById("announcementDisplay");
-    if (!display) return;
-
-    if (!records || !records.length) {
-      display.innerHTML = "No announcements yet.";
-      return;
-    }
-
-    display.innerHTML = records.map(function(record) {
-      const message = record.announcement || record.announcements || "";
-      const createdBy = record.createdBy || "Instructor";
-      const role = record.role || "Instructor";
-      const createdLabel = record.createdAtLocal || record.created || "";
-
-      return '<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #dde5ef;">' +
-        '<strong>' + escapeHtml(message) + '</strong><br>' +
-        '<span style="color:#64748b;font-size:12px;">Posted by ' +
-        escapeHtml(createdBy) + ' • ' + escapeHtml(role) +
-        (createdLabel ? ' • ' + escapeHtml(createdLabel) : '') +
-        '</span>' +
-      '</div>';
-    }).join("");
-  }
-
-  function loadAnnouncements() {
-    const localRecords = loadLocal("announcements");
-    announcements = Array.isArray(localRecords) ? localRecords : [];
-    renderAnnouncementsList(announcements);
-
-    const classCode = getClassCodeForFirestore();
-    if (announcementUnsubscribe) {
-      try { announcementUnsubscribe(); } catch (e) {}
-      announcementUnsubscribe = null;
-    }
-
-    if (!classCode || !ltnDb) return;
-
-    const collectionRef = getClassSubCollectionRef(classCode, "announcements");
-    if (!collectionRef) return;
-
-    try {
-      announcementUnsubscribe = collectionRef
-        .orderBy("createdAt", "desc")
-        .limit(10)
-        .onSnapshot(function(snapshot) {
-          const records = [];
-          snapshot.forEach(function(doc) {
-            records.push(Object.assign({ id: doc.id }, doc.data()));
-          });
-
-          if (records.length) {
-            announcements = records;
-            saveLocal("announcements", announcements);
-            renderAnnouncementsList(announcements);
-          }
-        }, function(error) {
-          console.error("Announcement load error:", error);
-        });
-    } catch (error) {
-      console.error("Announcement listener error:", error);
-    }
-  }
-
-  async function postAnnouncement() {
-    if (!requireInstructor()) return;
-
-    const announcementBox = document.getElementById("announcementBox");
-    const announcement = announcementBox.value.trim();
-    const info = getTrainingInfo();
-
-    if (!announcement) {
-      showStatus("Please enter an announcement.");
-      return;
-    }
-
-    if (!info) return;
-
-    const record = {
-      id: "local-ann-" + Date.now(),
-      announcement: announcement,
-      announcements: announcement,
-      classCode: info.classCode,
-      createdBy: info.userName,
-      role: info.userRole,
-      createdAtLocal: new Date().toLocaleString()
-    };
-
-    announcements.unshift(record);
-    saveLocal("announcements", announcements);
-    renderAnnouncementsList(announcements);
-    announcementBox.value = "";
-
-    const result = await tryFirebaseAdd("announcements", {
-      announcement: announcement,
-      announcements: announcement
-    });
-
-    if (result.ok) {
-      showStatus("Announcement posted and saved to Firestore for class " + info.classCode + ".");
-      loadAnnouncements();
-    } else {
-      showStatus("Announcement posted on this page. Firebase sync is pending: " + result.reason);
-    }
-  }
-
-  function submitQuestion() {
-    const question = document.getElementById("questionInput").value.trim();
-
-    if (!question) {
-      showStatus("Please enter a question.");
-      return;
-    }
-
-    const questionCard = document.createElement("div");
-    questionCard.className = "list-item";
-    questionCard.innerHTML = "<strong>Student Question:</strong><br>" + escapeHtml(question);
-
-    document.getElementById("questionsContainer").prepend(questionCard);
-    document.getElementById("questionInput").value = "";
-
-    showStatus("Question submitted.");
-  }
-
-  function shareClassFile() {
-    if (!requireInstructor()) return;
-
-    const fileInput = document.getElementById("classFile");
-    const file = fileInput.files[0];
-
-    if (!file) return;
-
-    const sharedFiles = document.getElementById("sharedFiles");
-
-    if (sharedFiles.innerText.includes("No files shared yet.")) {
-      sharedFiles.innerHTML = "";
-    }
-
-    const fileCard = document.createElement("div");
-    fileCard.className = "list-item";
-    fileCard.innerHTML =
-      "<strong>Shared File:</strong><br>" +
-      escapeHtml(file.name) +
-      "<br><span style='color:#64748b;font-size:12px;'>Stored locally for this session. Database storage can be added next.</span>";
-
-    sharedFiles.prepend(fileCard);
-    showStatus("File added to the class file list.");
   }
 
   async function createAssignment() {
