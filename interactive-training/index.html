@@ -6,7 +6,7 @@
 
   <title>LinkTradeNetwork Interactive-Training | LinkTradeNetwork</title>
 
-  <!-- LTN Interactive-Training version: no-quiz-clean-v1 -->
+  <!-- LTN Interactive-Training version: no-quiz-no-certificates-v1 -->
 
   <script src="https://8x8.vc/vpaas-magic-cookie-681209300d324de29fdd6287690aa7b1/external_api.js" async></script>
   <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
@@ -331,20 +331,6 @@
       font-weight: 900;
     }
 
-    .certificate-box {
-      border: 2px solid var(--brand);
-      border-radius: 16px;
-      padding: 18px;
-      text-align: center;
-      background: #fffaf5;
-      margin-top: 12px;
-    }
-
-    .certificate-box h3 {
-      margin: 0 0 8px;
-      color: var(--accent);
-    }
-
     footer {
       text-align: center;
       padding: 25px;
@@ -436,7 +422,7 @@
     <h1>LinkTradeNetwork Interactive-Training</h1>
     <p>
       Live instructor-led training with video, screen sharing, attendance tracking, assignments,
-      certificates, LinkTradeNetwork Talks, Q&A, announcements, file sharing,
+      LinkTradeNetwork Talks, Q&A, announcements, file sharing,
       whiteboard access, attendance exports, and student interaction.
     </p>
   </section>
@@ -615,33 +601,6 @@
 
       <div class="card">
         <div class="hd">
-          <span>Certificates</span>
-          <span class="pill">Completion</span>
-        </div>
-
-        <div class="bd">
-          <label for="certificateCourse">Course / Training Name</label>
-          <input type="text" id="certificateCourse" placeholder="Example: Fiber Optics Fundamentals" />
-
-          <div class="btn-row">
-            <button class="btn-primary instructor-only" onclick="generateCertificate()">Generate Certificate</button>
-          </div>
-
-          <div id="certificateDisplay" class="certificate-box" style="display:none">
-            <h3>Certificate of Completion</h3>
-            <p>This certifies that</p>
-            <h2 id="certificateName">Student Name</h2>
-            <p>has completed</p>
-            <h3 id="certificateCourseName">Course Name</h3>
-            <p id="certificateDate">Date</p>
-            <p><strong>LinkTradeNetwork</strong></p>
-            <p>Trades on the Rise</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="hd">
           <span>LinkTradeNetwork Talks</span>
           <span class="pill">Events</span>
         </div>
@@ -708,7 +667,6 @@
   let announcements = [];
   let assignments = [];
   let events = [];
-  let certificates = [];
 
   function showStatus(message) {
     const statusBox = document.getElementById("statusBox");
@@ -1507,46 +1465,6 @@
 
     document.getElementById("assignmentNote").value = "";
     showStatus("Assignment note submitted.");
-  }
-
-  async function generateCertificate() {
-    const info = getTrainingInfo();
-    if (!info) return;
-
-    const course = document.getElementById("certificateCourse").value.trim();
-
-    if (!course) {
-      showStatus("Enter a course or training name.");
-      return;
-    }
-
-    document.getElementById("certificateName").innerText = info.userName;
-    document.getElementById("certificateCourseName").innerText = course;
-    document.getElementById("certificateDate").innerText = new Date().toLocaleDateString();
-    document.getElementById("certificateDisplay").style.display = "block";
-
-    const record = {
-      id: "local-certificate-" + Date.now(),
-      studentName: info.userName,
-      course: course,
-      classCode: info.classCode,
-      certificateDate: new Date().toLocaleString()
-    };
-
-    certificates.unshift(record);
-    saveLocal("certificates", certificates);
-
-    const result = await tryFirebaseAdd("certificates", {
-      studentName: info.userName,
-      course: course,
-      certificateDate: new Date().toISOString()
-    });
-
-    if (result.ok) {
-      showStatus("Certificate generated and saved to Firestore.");
-    } else {
-      showStatus("Certificate generated on this page. Firebase sync is pending: " + result.reason);
-    }
   }
 
   async function createEvent() {
