@@ -6,7 +6,7 @@
 
   <title>LinkTradeNetwork Interactive-Training | LinkTradeNetwork</title>
 
-  <!-- LTN Interactive-Training version: no-quiz-no-certificates-v1 -->
+  <!-- LTN Interactive-Training version: events-hard-fix-v2 -->
 
   <script src="https://8x8.vc/vpaas-magic-cookie-681209300d324de29fdd6287690aa7b1/external_api.js" async></script>
   <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
@@ -617,9 +617,11 @@
             <input type="date" id="eventDate" />
 
             <div class="btn-row">
-              <button class="btn-primary" onclick="createEvent()">Create Scheduled Event</button>
+              <button type="button" class="btn-primary" id="createEventBtn">Create Scheduled Event</button>
             </div>
           </div>
+
+          <div id="eventStatus" class="status" style="display:none"></div>
 
           <div id="eventsList" class="list-box">
             <div class="list-item">No LTN Scheduled Events scheduled yet.</div>
@@ -673,6 +675,15 @@
     if (!statusBox) return;
     statusBox.innerText = message;
     statusBox.style.display = "block";
+  }
+
+  function showEventStatus(message) {
+    const eventStatus = document.getElementById("eventStatus");
+    if (eventStatus) {
+      eventStatus.innerText = message;
+      eventStatus.style.display = "block";
+    }
+    showStatus(message);
   }
 
   function safeGet(key) {
@@ -1471,21 +1482,23 @@
     const titleEl = document.getElementById("eventTitle");
     const speakerEl = document.getElementById("eventSpeaker");
     const dateEl = document.getElementById("eventDate");
+    const list = document.getElementById("eventsList");
+
+    if (!titleEl || !speakerEl || !dateEl || !list) {
+      showEventStatus("Event section did not load correctly. Refresh the page and try again.");
+      return;
+    }
 
     const title = titleEl.value.trim();
-    const speaker = speakerEl.value.trim();
-    const date = dateEl.value;
+    const speaker = speakerEl.value.trim() || "TBD";
+    const date = dateEl.value || "TBD";
 
     if (!title) {
-      showStatus("Enter an event title.");
+      showEventStatus("Enter an event title.");
       titleEl.focus();
       return;
     }
 
-    /*
-      Events should still work even if the instructor has not started the classroom yet.
-      We use the top Name/Class Code fields when available, and safe defaults when they are not.
-    */
     const userNameInput = document.getElementById("userName");
     const classCodeInput = document.getElementById("classCode");
     const roleInput = document.getElementById("userRole");
@@ -1507,14 +1520,15 @@
     const record = {
       id: "local-event-" + Date.now(),
       title: title,
-      speaker: speaker || "TBD",
-      date: date || "TBD",
+      speaker: speaker,
+      date: date,
       classCode: classCode,
       createdBy: createdBy,
       role: role,
       createdAtLocal: new Date().toLocaleString()
     };
 
+    if (!Array.isArray(events)) events = [];
     events.unshift(record);
     saveLocal("events", events);
     renderEvents();
@@ -1523,52 +1537,40 @@
     speakerEl.value = "";
     dateEl.value = "";
 
-    showStatus("LTN Scheduled Event created on this page.");
+    showEventStatus("LTN Scheduled Event created on this page.");
 
-    /*
-      Firebase sync is attempted after the page update.
-      If Firestore rules are not ready, the event still appears locally.
-    */
-    let firebaseResult = { ok: false, reason: "Firebase was not attempted." };
-
-    if (ltnDb) {
-      try {
-        const collectionRef = getClassSubCollectionRef(classCode, "events");
-
-        if (collectionRef) {
-          await collectionRef.add({
-            classCode: classCode,
-            title: title,
-            speaker: speaker || "TBD",
-            date: date || "",
-            createdBy: createdBy,
-            role: role,
-            authUid: getCurrentAuthUid() || "",
-            authEmail: getCurrentAuthEmail() || "",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            createdAtLocal: new Date().toISOString()
-          });
-
-          firebaseResult = { ok: true };
-        } else {
-          firebaseResult = { ok: false, reason: "Class event collection is not available." };
-        }
-      } catch (error) {
-        console.error("Event Firebase save error:", error);
-        firebaseResult = {
-          ok: false,
-          reason: error && error.message ? error.message : String(error || "Unknown Firebase error")
-        };
-      }
-    } else {
-      firebaseResult = { ok: false, reason: "Firebase is not connected." };
+    if (!ltnDb) {
+      showEventStatus("LTN Scheduled Event created on this page. Firebase sync is pending: Firebase is not connected.");
+      return;
     }
 
-    if (firebaseResult.ok) {
-      showStatus("LTN Scheduled Event created and saved to Firestore.");
+    try {
+      const collectionRef = getClassSubCollectionRef(classCode, "events");
+
+      if (!collectionRef) {
+        showEventStatus("LTN Scheduled Event created on this page. Firebase sync is pending: Class event collection is not available.");
+        return;
+      }
+
+      await collectionRef.add({
+        classCode: classCode,
+        title: title,
+        speaker: speaker,
+        date: date === "TBD" ? "" : date,
+        createdBy: createdBy,
+        role: role,
+        authUid: getCurrentAuthUid() || "",
+        authEmail: getCurrentAuthEmail() || "",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdAtLocal: new Date().toISOString()
+      });
+
+      showEventStatus("LTN Scheduled Event created and saved to Firestore.");
       loadEventsFromFirestore();
-    } else {
-      showStatus("LTN Scheduled Event created on this page. Firebase sync is pending: " + firebaseResult.reason);
+    } catch (error) {
+      console.error("Event Firebase save error:", error);
+      const msg = error && error.message ? error.message : String(error || "Unknown Firebase error");
+      showEventStatus("LTN Scheduled Event created on this page. Firebase sync is pending: " + msg);
     }
   }
 
@@ -1685,6 +1687,14 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
+    const createEventBtn = document.getElementById("createEventBtn");
+    if (createEventBtn) {
+      createEventBtn.addEventListener("click", function(event) {
+        event.preventDefault();
+        createEvent();
+      });
+    }
+
     setupFirebase();
     autoFillFromProfile();
     loadAttendance();
