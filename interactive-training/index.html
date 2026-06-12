@@ -422,7 +422,7 @@
     <h1>LinkTradeNetwork Interactive-Training</h1>
     <p>
       Live instructor-led training with video, screen sharing, attendance tracking, assignments,
-      LinkTradeNetwork Talks, Q&A, announcements, file sharing,
+      LTN Scheduled Events, Q&A, announcements, file sharing,
       whiteboard access, attendance exports, and student interaction.
     </p>
   </section>
@@ -601,28 +601,28 @@
 
       <div class="card">
         <div class="hd">
-          <span>LinkTradeNetwork Talks</span>
+          <span>LTN Scheduled Events</span>
           <span class="pill">Events</span>
         </div>
 
         <div class="bd">
           <div class="instructor-only">
-            <label for="eventTitle">Talk / Webinar Title</label>
-            <input type="text" id="eventTitle" placeholder="Example: The Future of Apprenticeships" />
+            <label for="eventTitle">Event Title</label>
+            <input type="text" id="eventTitle" placeholder="Example: Fiber Basics for New Apprentices" />
 
-            <label for="eventSpeaker">Speaker</label>
-            <input type="text" id="eventSpeaker" placeholder="Example: Ryan Craig" />
+            <label for="eventSpeaker">Host / Speaker</label>
+            <input type="text" id="eventSpeaker" placeholder="Example: John Smith" />
 
             <label for="eventDate">Date</label>
             <input type="date" id="eventDate" />
 
             <div class="btn-row">
-              <button class="btn-primary" onclick="createEvent()">Create Event</button>
+              <button class="btn-primary" onclick="createEvent()">Create Scheduled Event</button>
             </div>
           </div>
 
           <div id="eventsList" class="list-box">
-            <div class="list-item">No LinkTradeNetwork Talks scheduled yet.</div>
+            <div class="list-item">No LTN Scheduled Events scheduled yet.</div>
           </div>
         </div>
       </div>
@@ -1468,25 +1468,50 @@
   }
 
   async function createEvent() {
-    const title = document.getElementById("eventTitle").value.trim();
-    const speaker = document.getElementById("eventSpeaker").value.trim();
-    const date = document.getElementById("eventDate").value;
+    const titleEl = document.getElementById("eventTitle");
+    const speakerEl = document.getElementById("eventSpeaker");
+    const dateEl = document.getElementById("eventDate");
+
+    const title = titleEl.value.trim();
+    const speaker = speakerEl.value.trim();
+    const date = dateEl.value;
 
     if (!title) {
       showStatus("Enter an event title.");
+      titleEl.focus();
       return;
     }
 
-    const info = getTrainingInfo();
-    if (!info) return;
+    /*
+      Events should still work even if the instructor has not started the classroom yet.
+      We use the top Name/Class Code fields when available, and safe defaults when they are not.
+    */
+    const userNameInput = document.getElementById("userName");
+    const classCodeInput = document.getElementById("classCode");
+    const roleInput = document.getElementById("userRole");
+
+    const createdBy = userNameInput && userNameInput.value.trim()
+      ? userNameInput.value.trim()
+      : "Instructor";
+
+    const role = roleInput ? roleInput.value : "Instructor";
+
+    const classCode = classCodeInput && classCodeInput.value.trim()
+      ? normalizeClassCode(classCodeInput.value.trim())
+      : "LTN-SCHEDULED-EVENTS";
+
+    if (classCodeInput && !classCodeInput.value.trim()) {
+      classCodeInput.value = classCode;
+    }
 
     const record = {
       id: "local-event-" + Date.now(),
       title: title,
-      speaker: speaker || "",
-      date: date || "",
-      createdBy: info.userName,
-      role: info.userRole,
+      speaker: speaker || "TBD",
+      date: date || "TBD",
+      classCode: classCode,
+      createdBy: createdBy,
+      role: role,
       createdAtLocal: new Date().toLocaleString()
     };
 
@@ -1494,21 +1519,56 @@
     saveLocal("events", events);
     renderEvents();
 
-    document.getElementById("eventTitle").value = "";
-    document.getElementById("eventSpeaker").value = "";
-    document.getElementById("eventDate").value = "";
+    titleEl.value = "";
+    speakerEl.value = "";
+    dateEl.value = "";
 
-    const result = await tryFirebaseAdd("events", {
-      title: title,
-      speaker: speaker || "",
-      date: date || ""
-    });
+    showStatus("LTN Scheduled Event created on this page.");
 
-    if (result.ok) {
-      showStatus("LinkTradeNetwork Talk created and saved to Firestore.");
+    /*
+      Firebase sync is attempted after the page update.
+      If Firestore rules are not ready, the event still appears locally.
+    */
+    let firebaseResult = { ok: false, reason: "Firebase was not attempted." };
+
+    if (ltnDb) {
+      try {
+        const collectionRef = getClassSubCollectionRef(classCode, "events");
+
+        if (collectionRef) {
+          await collectionRef.add({
+            classCode: classCode,
+            title: title,
+            speaker: speaker || "TBD",
+            date: date || "",
+            createdBy: createdBy,
+            role: role,
+            authUid: getCurrentAuthUid() || "",
+            authEmail: getCurrentAuthEmail() || "",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            createdAtLocal: new Date().toISOString()
+          });
+
+          firebaseResult = { ok: true };
+        } else {
+          firebaseResult = { ok: false, reason: "Class event collection is not available." };
+        }
+      } catch (error) {
+        console.error("Event Firebase save error:", error);
+        firebaseResult = {
+          ok: false,
+          reason: error && error.message ? error.message : String(error || "Unknown Firebase error")
+        };
+      }
+    } else {
+      firebaseResult = { ok: false, reason: "Firebase is not connected." };
+    }
+
+    if (firebaseResult.ok) {
+      showStatus("LTN Scheduled Event created and saved to Firestore.");
       loadEventsFromFirestore();
     } else {
-      showStatus("LinkTradeNetwork Talk created on this page. Firebase sync is pending: " + result.reason);
+      showStatus("LTN Scheduled Event created on this page. Firebase sync is pending: " + firebaseResult.reason);
     }
   }
 
@@ -1516,15 +1576,17 @@
     const list = document.getElementById("eventsList");
 
     if (!events.length) {
-      list.innerHTML = '<div class="list-item">No LinkTradeNetwork Talks scheduled yet.</div>';
+      list.innerHTML = '<div class="list-item">No LTN Scheduled Events scheduled yet.</div>';
       return;
     }
 
     list.innerHTML = events.map(function(event) {
+      const createdBy = event.createdBy ? '<br><span style="color:#64748b;font-size:12px;">Created by: ' + escapeHtml(event.createdBy) + '</span>' : "";
       return '<div class="list-item">' +
         '<strong>' + escapeHtml(event.title) + '</strong><br>' +
-        'Speaker: ' + escapeHtml(event.speaker || "TBD") + '<br>' +
+        'Host / Speaker: ' + escapeHtml(event.speaker || "TBD") + '<br>' +
         'Date: ' + escapeHtml(event.date || "TBD") +
+        createdBy +
       '</div>';
     }).join("");
   }
