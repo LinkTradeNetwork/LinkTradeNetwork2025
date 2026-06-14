@@ -25,9 +25,9 @@ function makeCode() {
 function htmlWrap(title, body) {
   return `
   <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;background:#ffffff">
-    <div style="background:#172033;padding:22px;text-align:center;border-radius:10px 10px 0 0">
+    <div style="background:#ea6a00;padding:22px;text-align:center;border-radius:10px 10px 0 0">
       <h2 style="color:#fff;margin:0;font-size:24px">LinkTradeNetwork</h2>
-      <p style="color:#f97316;margin:6px 0 0;font-weight:700">Trades on the Rise</p>
+      <p style="color:#fff;margin:6px 0 0;font-weight:700">Trades on the Rise</p>
     </div>
     <div style="padding:26px;border:1px solid #e2e8f0;border-top:0;border-radius:0 0 10px 10px">
       <h2 style="color:#172033;margin-top:0">${title}</h2>
@@ -202,13 +202,14 @@ exports.createVerifiedUser = onCall(
       <p>Hi ${firstName || "there"},</p>
       <p>Your account is verified and ready to use.</p>
 
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin:18px 0">
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:16px;margin:18px 0">
         <p><b>Start here:</b></p>
-        <p>✅ Complete your profile</p>
-        <p>✅ Add your trade, skills, certifications, and experience</p>
-        <p>✅ Visit Members to connect with others</p>
-        <p>✅ Use Interactive-Training for live classes, webinars, assignments, attendance, and student Q&A</p>
-        <p>✅ Track apprenticeship progress and training units</p>
+        <p>✅ Go to <b>Edit Profile</b> and complete your information.</p>
+        <p>✅ Mark whether you are an <b>Apprentice/Student</b> or an <b>Instructor</b>.</p>
+        <p>✅ <b>Instructors:</b> add your instructor/class code so students can connect to your class.</p>
+        <p>✅ <b>Students/Apprentices:</b> enter the instructor code provided by your instructor or trade school.</p>
+        <p>✅ Students can use <b>Track My Progress</b> to follow training units, hours, and assignments.</p>
+        <p>✅ Instructors can use the <b>Instructor Dashboard</b> to review students, training progress, assignments, and class activity.</p>
       </div>
 
       <p style="text-align:center;margin:24px 0">
@@ -226,7 +227,7 @@ exports.createVerifiedUser = onCall(
       email,
       "Welcome to LinkTradeNetwork!",
       html,
-      "Welcome to LinkTradeNetwork! Your account is verified and ready to use."
+      "Welcome to LinkTradeNetwork! Go to Edit Profile, select Apprentice/Student or Instructor, enter the correct class or instructor code, and use Track My Progress or the Instructor Dashboard."
     );
 
     await verifyRef.set({
