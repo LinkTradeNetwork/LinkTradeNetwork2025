@@ -504,6 +504,146 @@
     .footer-copy{color:#cbd5e1;font-size:13px;font-weight:600}
 
 
+    /* ELECTRICAL EXAM PREP SEMINAR ANNOUNCEMENT */
+    .seminar-announcement{
+      background:linear-gradient(180deg,#ffffff 0%,#fff7ed 100%);
+      border-top:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+    }
+    .seminar-wrap{
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:28px;
+      align-items:stretch;
+    }
+    .seminar-card{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(135deg,var(--navy),#24324d);
+      color:#fff;
+      border-radius:var(--radius-lg);
+      padding:42px;
+      box-shadow:var(--shadow-lg);
+      min-height:100%;
+    }
+    .seminar-card::before{
+      content:"";
+      position:absolute;
+      right:-90px;
+      top:-100px;
+      width:310px;
+      height:310px;
+      border-radius:999px;
+      background:rgba(234,106,0,.34);
+    }
+    .seminar-card::after{
+      content:"";
+      position:absolute;
+      inset:auto -80px -140px auto;
+      width:360px;
+      height:360px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+    }
+    .seminar-card > *{position:relative;z-index:2}
+    .seminar-card h2{color:#fff;margin-bottom:16px}
+    .seminar-card p{color:#f1f5f9;font-size:18px;line-height:1.65;font-weight:700}
+    .seminar-host{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.22);
+      border-radius:999px;
+      padding:10px 14px;
+      color:#fff;
+      font-size:13px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      margin-bottom:16px;
+    }
+    .seminar-keys{
+      display:grid;
+      gap:12px;
+      margin:22px 0 26px;
+    }
+    .seminar-key{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.20);
+      border-radius:18px;
+      padding:14px;
+      color:#fff;
+      font-weight:900;
+    }
+    .seminar-key span:first-child{font-size:22px;line-height:1}
+    .seminar-details{
+      background:#fff;
+      border:1px solid #fed7aa;
+      border-radius:var(--radius-lg);
+      padding:34px;
+      box-shadow:var(--shadow-md);
+    }
+    .seminar-details h3{color:var(--navy);font-size:36px;margin-bottom:16px}
+    .seminar-bullets{display:grid;gap:12px;margin-bottom:24px}
+    .seminar-bullet{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+      border-radius:18px;
+      padding:14px;
+      color:var(--navy);
+      font-weight:900;
+    }
+    .seminar-register{
+      display:grid;
+      gap:12px;
+      background:var(--navy);
+      color:#fff;
+      border-radius:24px;
+      padding:22px;
+      margin-bottom:22px;
+    }
+    .seminar-register div{font-weight:900;font-size:18px;line-height:1.25}
+    .seminar-register a{color:#fff;text-decoration:none}
+    .seminar-promo{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:11px 16px;
+      background:var(--brand);
+      color:#fff;
+      font-size:14px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      width:max-content;
+    }
+    .seminar-instructor-callout{
+      border-radius:24px;
+      background:linear-gradient(135deg,#fff7ed,#ffffff);
+      border:1px solid #fed7aa;
+      padding:22px;
+      color:var(--text);
+      font-weight:700;
+      line-height:1.6;
+    }
+    .seminar-instructor-callout strong{display:block;color:var(--navy);font-family:'Barlow Condensed',sans-serif;font-size:27px;line-height:1;text-transform:uppercase;margin-bottom:8px}
+    .seminar-tagline{
+      margin-top:18px;
+      color:var(--brand);
+      font-weight:900;
+      font-size:18px;
+      line-height:1.35;
+    }
+
+
     /* UNIT TRACKING / SAAS ECOSYSTEM ADDITIONS */
     .unit-ecosystem{
       background:linear-gradient(180deg,#ffffff 0%,#fff7ed 100%);
@@ -765,6 +905,21 @@
     }
 
 
+    @media(max-width:980px){
+      .seminar-wrap{grid-template-columns:1fr}
+      .seminar-card,.seminar-details{padding:28px;border-radius:26px}
+    }
+
+    @media(max-width:640px){
+      .seminar-card,.seminar-details{padding:22px}
+      .seminar-host{border-radius:18px;align-items:flex-start}
+      .seminar-card p{font-size:16px}
+      .seminar-details h3{font-size:30px}
+      .seminar-register div{font-size:16px}
+      .seminar-promo{width:100%;border-radius:18px}
+    }
+
+
     @media(max-width:1100px){
       .ecosystem-map{grid-template-columns:repeat(2,1fr)}
       .eco-step:not(:last-child)::after{display:none}
@@ -887,6 +1042,7 @@
             <a href="#apprentice-progress">Apprenticeships</a>
             <a href="#unit-ecosystem">Unit Tracking</a>
             <a href="#interactive-training">Interactive Training</a>
+            <a href="#exam-prep-seminar">Free Seminar</a>
             <a href="#trade-schools">Trade Schools</a>
             <a href="#contractors">Contractors</a>
             <a href="/front/" class="nav-login">Sign In Here →</a>
@@ -1009,6 +1165,51 @@
             </div>
           </div>
         </section>
+
+        <section class="section seminar-announcement" id="exam-prep-seminar">
+          <div class="container seminar-wrap">
+            <div class="seminar-card">
+              <div class="seminar-host">⚡ Free Live Electrical Exam Prep Seminar</div>
+              <h2>Prepare for Aptitude and Journeyman Exams.</h2>
+              <p>
+                LinkTradeNetwork Interactive-Training is proud to partner with Ruben Young, host of The Young Electrician Podcast, for a live training event designed to help future electricians prepare for electrical exams.
+              </p>
+
+              <div class="seminar-keys" aria-label="Three keys to exam success">
+                <div class="seminar-key"><span>🔍</span><span>Navigation — Find the answers faster.</span></div>
+                <div class="seminar-key"><span>📋</span><span>Application — Use the information correctly.</span></div>
+                <div class="seminar-key"><span>⚡</span><span>Repetition — Build speed and confidence.</span></div>
+              </div>
+
+              <div class="btn-row">
+                <a href="mailto:Team@LinkTradeNetwork.com?subject=Electrical%20Exam%20Prep%20Seminar%20Registration%20-%20Promo%20Code%20YOUNG" class="btn btn-light">Register by Email</a>
+                <a href="/front/" class="btn btn-secondary">Open Interactive-Training</a>
+              </div>
+            </div>
+
+            <div class="seminar-details">
+              <h3>Event Details</h3>
+              <div class="seminar-bullets">
+                <div class="seminar-bullet">✅ Free to Attend</div>
+                <div class="seminar-bullet">✅ Live Q&amp;A</div>
+                <div class="seminar-bullet">✅ Limited to 25 Participants</div>
+              </div>
+
+              <div class="seminar-register">
+                <div>📅 June 27, 2026</div>
+                <div>📧 Register: <a href="mailto:Team@LinkTradeNetwork.com">Team@LinkTradeNetwork.com</a></div>
+                <span class="seminar-promo">🎟 Promo Code: YOUNG</span>
+              </div>
+
+              <div class="seminar-instructor-callout">
+                <strong>Want to host your own seminar?</strong>
+                Are you a trade school instructor, apprenticeship coordinator, or industry expert? Host your own FREE Interactive-Training seminar on LinkTradeNetwork. We provide the platform—you provide the knowledge.
+                <div class="seminar-tagline">Educating Today. Equipping Tomorrow. Empowering the Workforce.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
 
         <section class="section apprentice-block" id="apprentice-progress">
           <div class="container split-grid">
