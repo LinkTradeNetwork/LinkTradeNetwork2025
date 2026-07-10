@@ -1322,13 +1322,21 @@
         displayName: info.userName
       },
       configOverwrite: {
-        startWithAudioMuted: true,
-        startWithVideoMuted: true,
+        startWithAudioMuted: false,
+        startWithVideoMuted: false,
         prejoinPageEnabled: false,
         enableLobby: false,
         enableWelcomePage: false,
         disableDeepLinking: true,
-        mobileAppPromo: false
+        mobileAppPromo: false,
+
+        p2p: {
+          enabled: false
+        },
+
+        testing: {
+          p2pTestMode: false
+        }
       },
       interfaceConfigOverwrite: {
         SHOW_JITSI_WATERMARK: false,
