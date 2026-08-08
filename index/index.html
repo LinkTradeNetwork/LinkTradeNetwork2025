@@ -436,6 +436,126 @@
       .seminar-key{font-size:12px;padding:8px 12px}
     }
 
+
+    /* AUGUST 10-SECOND VIDEO CHALLENGE — TOP OF INDEX */
+    .august-challenge{
+      position:relative;
+      z-index:20;
+      overflow:hidden;
+      background:linear-gradient(135deg,#0f172a 0%,#172033 62%,#24324d 100%);
+      color:#fff;
+      border-bottom:4px solid var(--brand);
+    }
+    .august-challenge::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(circle at 12% 20%,rgba(234,106,0,.28),transparent 28%),
+        radial-gradient(circle at 90% 75%,rgba(234,106,0,.18),transparent 30%);
+      pointer-events:none;
+    }
+    .august-challenge-inner{
+      position:relative;
+      z-index:2;
+      padding:38px 0;
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:30px;
+      align-items:center;
+    }
+    .august-badge{
+      display:inline-flex;
+      background:var(--brand);
+      color:#fff;
+      padding:7px 14px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      margin-bottom:12px;
+    }
+    .august-title{
+      color:#fff;
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:clamp(38px,5vw,62px);
+      font-weight:900;
+      line-height:.94;
+      text-transform:uppercase;
+      margin-bottom:12px;
+    }
+    .august-title span{color:#ff8a1f}
+    .august-copy{
+      color:#e2e8f0;
+      font-size:17px;
+      line-height:1.5;
+      font-weight:700;
+      max-width:700px;
+      margin-bottom:18px;
+    }
+    .august-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .august-enter{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:13px 20px;
+      border-radius:999px;
+      background:linear-gradient(135deg,var(--brand),var(--brand-dark));
+      color:#fff;
+      text-decoration:none;
+      font-weight:900;
+      box-shadow:0 12px 28px rgba(234,106,0,.30);
+    }
+    .august-prizes{
+      background:#fff;
+      color:var(--navy);
+      border-radius:24px;
+      padding:20px;
+      box-shadow:0 20px 46px rgba(0,0,0,.24);
+    }
+    .august-prizes h3{
+      color:var(--navy);
+      font-size:27px;
+      margin-bottom:12px;
+    }
+    .august-prize-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:10px 12px;
+      margin-top:8px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:14px;
+      font-weight:900;
+    }
+    .august-prize-row:first-of-type{background:var(--brand-soft);border-color:#fed7aa}
+    .august-money{
+      font-family:'Barlow Condensed',sans-serif;
+      color:var(--brand);
+      font-size:28px;
+      line-height:1;
+      font-weight:900;
+    }
+    .august-live{
+      margin-top:12px;
+      color:#475569;
+      font-size:12px;
+      line-height:1.4;
+      font-weight:800;
+    }
+    .august-live strong{color:var(--brand)}
+    @media(max-width:820px){
+      .august-challenge-inner{grid-template-columns:1fr;padding:28px 0}
+    }
+    @media(max-width:640px){
+      .august-title{font-size:38px}
+      .august-copy{font-size:15px}
+      .august-enter{width:100%;border-radius:16px}
+      .august-prizes{border-radius:20px}
+    }
+
     /* =============================================
        REST OF ORIGINAL STYLES
        ============================================= */
@@ -1141,6 +1261,36 @@
           </nav>
         </div>
       </header>
+
+
+      <!-- AUGUST 10-SECOND TRADE VIDEO CHALLENGE — SHOWN AT TOP OF INDEX -->
+      <section class="august-challenge" id="august-video-challenge">
+        <div class="container august-challenge-inner">
+          <div>
+            <div class="august-badge">🏆 August Challenge</div>
+            <h2 class="august-title">10-Second <span>Trade Video Challenge</span></h2>
+            <p class="august-copy">
+              Upload your best <strong>10-second trade video directly to the LinkTradeNetwork platform.</strong>
+              Show your skills, get views, and compete for August cash prizes.
+            </p>
+            <div class="august-actions">
+              <a href="/front/" class="august-enter">JOIN FREE &amp; UPLOAD YOUR VIDEO →</a>
+            </div>
+          </div>
+
+          <div class="august-prizes">
+            <h3>August Cash Prizes</h3>
+            <div class="august-prize-row"><span>🥇 1st Place</span><span class="august-money">$200</span></div>
+            <div class="august-prize-row"><span>🥈 2nd Place</span><span class="august-money">$100</span></div>
+            <div class="august-prize-row"><span>🥉 3rd Place</span><span class="august-money">$50</span></div>
+            <div class="august-live">
+              🎥 <strong>Winners announced LIVE</strong> during LinkTradeNetwork Interactive Training.<br>
+              Questions: Team@LinkTradeNetwork.com
+            </div>
+          </div>
+        </div>
+      </section>
+
 
       <main>
         <section class="hero">
