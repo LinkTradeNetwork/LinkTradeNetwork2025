@@ -1,1 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>LinkTradeNetwork Skill Challenge</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0b0b0b;
+      color: white;
+    }
+
+    .page {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, #2a1708 0%, #111 38%, #080808 100%);
+    }
+
+    .topbar {
+      padding: 22px 25px;
+      text-align: center;
+      border-bottom: 1px solid #333;
+      background: rgba(0,0,0,.85);
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .logo span {
+      color: #ff6a00;
+    }
+
+    .hero {
+      max-width: 900px;
+      margin: auto;
+      padding: 65px 20px 40px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #ff6a00;
+      color: white;
+      font-weight: 900;
+      padding: 9px 18px;
+      border-radius: 30px;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-size: clamp(42px, 8vw, 78px);
+      line-height: .95;
+      margin: 0;
+      font-weight: 1000;
+    }
+
+    h1 span {
+      color: #ff6a00;
+    }
+
+    .subtitle {
+      font-size: 22px;
+      margin: 25px auto;
+      max-width: 650px;
+      color: #ddd;
+      line-height: 1.4;
+    }
+
+    .hook {
+      margin: 35px auto;
+      padding: 25px;
+      max-width: 700px;
+      background: #171717;
+      border: 2px solid #ff6a00;
+      border-radius: 18px;
+    }
+
+    .hook-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: #ff6a00;
+    }
+
+    .hook-text {
+      font-size: 22px;
+      margin-top: 8px;
+      font-weight: bold;
+    }
+
+    .prizes {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 30px auto;
+      flex-wrap: wrap;
+    }
+
+    .prize {
+      background: white;
+      color: #111;
+      padding: 20px 28px;
+      border-radius: 16px;
+      min-width: 210px;
+    }
+
+    .prize strong {
+      display: block;
+      font-size: 28px;
+      color: #ff6a00;
+    }
+
+    .rules {
+      max-width: 720px;
+      margin: 35px auto;
+      background: #151515;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: left;
+    }
+
+    .rules h2 {
+      text-align: center;
+      margin-top: 0;
+      font-size: 28px;
+    }
+
+    .rule {
+      padding: 13px 0;
+      border-bottom: 1px solid #333;
+      font-size: 18px;
+    }
+
+    .rule:last-child {
+      border-bottom: none;
+    }
+
+    .number {
+      color: #ff6a00;
+      font-weight: 900;
+      margin-right: 8px;
+    }
+
+    .cta {
+      margin-top: 35px;
+    }
+
+    .start-btn {
+      display: inline-block;
+      border: none;
+      background: #ff6a00;
+      color: white;
+      padding: 20px 45px;
+      border-radius: 12px;
+      font-size: 22px;
+      font-weight: 900;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 10px 30px rgba(255,106,0,.25);
+    }
+
+    .start-btn:hover {
+      background: #ff8124;
+    }
+
+    .note {
+      margin-top: 15px;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .footer {
+      margin-top: 50px;
+      padding: 30px 20px;
+      text-align: center;
+      color: #888;
+      border-top: 1px solid #222;
+    }
+
+    @media(max-width:600px) {
+      .hero {
+        padding-top: 45px;
+      }
+
+      .subtitle {
+        font-size: 18px;
+      }
+
+      .hook-title {
+        font-size: 25px;
+      }
+
+      .hook-text {
+        font-size: 19px;
+      }
+
+      .prize {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="topbar">
+    <div class="logo">
+      <span>LinkTrade</span>Network
+    </div>
+  </div>
+
+  <main class="hero">
+
+    <div class="badge">
+      ⚡ SKILL CHALLENGE #001
+    </div>
+
+    <h1>
+      THINK YOU KNOW<br>
+      THE <span>NEC?</span>
+    </h1>
+
+    <p class="subtitle">
+      Put your electrical code knowledge to the test in the
+      LinkTradeNetwork NEC Closed-Book Skill Challenge.
+    </p>
+
+    <div class="hook">
+      <div class="hook-title">
+        100 ENTER. 6 ADVANCE.
+      </div>
+
+      <div class="hook-text">
+        2 WIN CASH.
+      </div>
+    </div>
+
+    <div class="prizes">
+
+      <div class="prize">
+        🏆 1ST PLACE
+        <strong>$200 CASH</strong>
+      </div>
+
+      <div class="prize">
+        🥈 2ND PLACE
+        <strong>$100 CASH</strong>
+      </div>
+
+    </div>
+
+    <div class="rules">
+
+      <h2>⚡ NEC QUALIFIER</h2>
+
+      <div class="rule">
+        <span class="number">5</span>
+        Random NEC Questions
+      </div>
+
+      <div class="rule">
+        <span class="number">8</span>
+        Seconds to Answer Each Question
+      </div>
+
+      <div class="rule">
+        📕 Closed Book
+      </div>
+
+      <div class="rule">
+        🚫 No Google • No AI • No Outside Help
+      </div>
+
+      <div class="rule">
+        🎯 Accuracy Determines Your Score
+      </div>
+
+      <div class="rule">
+        ⏱️ Response Time Breaks Ties
+      </div>
+
+      <div class="rule">
+        🏆 Top 6 Advance to the LIVE Championship
+      </div>
+
+    </div>
+
+    <div class="cta">
+
+      <button class="start-btn">
+        START NEC QUALIFIER →
+      </button>
+
+      <div class="note">
+        One qualifying attempt per registered participant.
+      </div>
+
+    </div>
+
+  </main>
+
+  <div class="footer">
+    LinkTradeNetwork.com • Trades on the Rise
+  </div>
+
+</div>
+
+</body>
+</html>
