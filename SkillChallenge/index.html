@@ -331,6 +331,38 @@
       font-size: 15px;
     }
 
+
+    /* QUALIFIER QUIZ */
+    .quiz-shell{
+      display:none;max-width:720px;margin:28px auto 0;padding:28px;border-radius:22px;
+      background:#151515;border:2px solid #ff6a00;text-align:left
+    }
+    .quiz-shell.show{display:block}
+    .quiz-top{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+    .quiz-progress{font-weight:900;color:#fff;font-size:16px}
+    .timer{
+      width:62px;height:62px;border-radius:50%;display:grid;place-items:center;
+      border:4px solid #ff6a00;color:#ff8a1f;font-size:25px;font-weight:1000;background:#0e0e0e
+    }
+    .timer.warning{border-color:#ef4444;color:#f87171}
+    .question-text{font-size:24px;line-height:1.35;font-weight:900;margin:8px 0 22px}
+    .answers{display:grid;gap:12px}
+    .answer-btn{
+      width:100%;border:1px solid #3a3a3a;background:#202020;color:#fff;border-radius:14px;
+      padding:16px 18px;text-align:left;font-size:17px;font-weight:800;cursor:pointer;transition:.18s ease
+    }
+    .answer-btn:hover{border-color:#ff6a00;background:#292929}
+    .answer-btn:disabled{opacity:.65;cursor:default}
+    .quiz-message{margin-top:16px;color:#aaa;font-size:14px;min-height:20px}
+    .result-card{
+      display:none;max-width:720px;margin:28px auto 0;padding:30px;border-radius:22px;
+      background:#151515;border:2px solid #22c55e;text-align:center
+    }
+    .result-card.show{display:block}
+    .result-score{font-size:54px;font-weight:1000;color:#4ade80;line-height:1;margin:10px 0}
+    .result-time{color:#ddd;font-size:18px;font-weight:800;margin-top:10px}
+    .result-note{color:#aaa;margin-top:14px;font-size:14px;line-height:1.5}
+
     .footer {
       margin-top: 50px;
       padding: 30px 20px;
@@ -498,6 +530,23 @@
       <div class="profile-actions" id="profile-actions"></div>
     </div>
 
+    <div class="quiz-shell" id="quiz-shell">
+      <div class="quiz-top">
+        <div class="quiz-progress" id="quiz-progress">Question 1 of 5</div>
+        <div class="timer" id="timer">8</div>
+      </div>
+      <div class="question-text" id="question-text"></div>
+      <div class="answers" id="answers"></div>
+      <div class="quiz-message" id="quiz-message">You have 8 seconds to answer.</div>
+    </div>
+
+    <div class="result-card" id="result-card">
+      <div style="font-weight:900;color:#fff;font-size:22px;">QUALIFIER COMPLETE</div>
+      <div class="result-score" id="result-score">0 / 5</div>
+      <div class="result-time" id="result-time"></div>
+      <div class="result-note">This test step does not save results to Firebase yet.</div>
+    </div>
+
   </main>
 
   <div class="footer">
@@ -637,7 +686,9 @@
       That is the next build step after this profile check is tested.
     */
     profileActions.innerHTML =
-      '<button class="action-btn" type="button" disabled>PROFILE VERIFIED — QUALIFIER READY</button>';
+      '<button class="action-btn" type="button" id="continue-qualifier-btn">CONTINUE TO 5-QUESTION QUALIFIER →</button>';
+
+    document.getElementById("continue-qualifier-btn").addEventListener("click", startQualifier);
   }
 
   async function loadUserProfile(user) {
@@ -745,6 +796,120 @@
       profileCheck.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }
+
+
+  const quizShell = document.getElementById("quiz-shell");
+  const quizProgress = document.getElementById("quiz-progress");
+  const timerEl = document.getElementById("timer");
+  const questionText = document.getElementById("question-text");
+  const answersEl = document.getElementById("answers");
+  const quizMessage = document.getElementById("quiz-message");
+  const resultCard = document.getElementById("result-card");
+  const resultScore = document.getElementById("result-score");
+  const resultTime = document.getElementById("result-time");
+
+  const NEC_QUESTION_BANK = [
+    {q:"What does NEC stand for?",answers:["National Electrical Code","National Energy Circuit","Network Electrical Control","National Equipment Code"],correct:0},
+    {q:"Which conductor is normally used as the equipment grounding conductor?",answers:["White","Gray","Green or bare","Orange"],correct:2},
+    {q:"What device is intended to protect people from ground-fault shock hazards?",answers:["GFCI","Contactor","Transformer","Disconnect only"],correct:0},
+    {q:"A circuit breaker is primarily used for what purpose?",answers:["Overcurrent protection","Voltage boosting","Power-factor correction","Frequency control"],correct:0},
+    {q:"Which conductor is commonly identified by white or gray insulation?",answers:["Grounded conductor","Equipment grounding conductor","Ungrounded conductor only","Bonding jumper only"],correct:0},
+    {q:"Which protection is designed to detect certain dangerous arcing conditions?",answers:["AFCI","GFCI only","Fuse puller","Isolation relay"],correct:0},
+    {q:"What is the main purpose of an equipment grounding conductor?",answers:["Provide a low-impedance fault-current path","Carry normal load current","Increase circuit voltage","Replace the grounded conductor"],correct:0},
+    {q:"Which item is an overcurrent protective device?",answers:["Circuit breaker","Receptacle","Junction box","Raceway"],correct:0},
+    {q:"What is a raceway used for?",answers:["Routing and protecting conductors","Measuring voltage","Generating power","Testing insulation"],correct:0},
+    {q:"Which term refers to joining metallic parts to establish electrical continuity?",answers:["Bonding","Insulating","Transforming","Rectifying"],correct:0}
+  ];
+
+  let quizQuestions=[], quizIndex=0, quizScore=0, quizTotalTimeMs=0;
+  let questionStartedAt=0, timerValue=8, timerInterval=null, questionLocked=false;
+
+  function shuffle(array){
+    const copy=array.slice();
+    for(let i=copy.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [copy[i],copy[j]]=[copy[j],copy[i]];
+    }
+    return copy;
+  }
+
+  function startQualifier(){
+    profileCheck.style.display="none";
+    resultCard.classList.remove("show");
+    quizQuestions=shuffle(NEC_QUESTION_BANK).slice(0,5);
+    quizIndex=0; quizScore=0; quizTotalTimeMs=0;
+    quizShell.classList.add("show");
+    showQuestion();
+    quizShell.scrollIntoView({behavior:"smooth",block:"center"});
+  }
+
+  function showQuestion(){
+    clearInterval(timerInterval);
+    questionLocked=false; timerValue=8;
+    const item=quizQuestions[quizIndex];
+    quizProgress.textContent="Question "+(quizIndex+1)+" of 5";
+    timerEl.textContent="8";
+    timerEl.classList.remove("warning");
+    questionText.textContent=item.q;
+    quizMessage.textContent="You have 8 seconds to answer.";
+    answersEl.innerHTML="";
+    item.answers.forEach(function(answer,index){
+      const btn=document.createElement("button");
+      btn.type="button";
+      btn.className="answer-btn";
+      btn.textContent=String.fromCharCode(65+index)+". "+answer;
+      btn.addEventListener("click",function(){ lockAnswer(index); });
+      answersEl.appendChild(btn);
+    });
+    questionStartedAt=performance.now();
+    timerInterval=setInterval(function(){
+      timerValue-=1;
+      timerEl.textContent=String(timerValue);
+      if(timerValue<=3) timerEl.classList.add("warning");
+      if(timerValue<=0){ clearInterval(timerInterval); timeExpired(); }
+    },1000);
+  }
+
+  function disableAnswers(){
+    answersEl.querySelectorAll("button").forEach(function(btn){btn.disabled=true;});
+  }
+
+  function lockAnswer(selectedIndex){
+    if(questionLocked) return;
+    questionLocked=true;
+    clearInterval(timerInterval);
+    const elapsed=Math.min(8000,Math.round(performance.now()-questionStartedAt));
+    quizTotalTimeMs+=elapsed;
+    if(selectedIndex===quizQuestions[quizIndex].correct) quizScore+=1;
+    disableAnswers();
+    quizMessage.textContent="ANSWER LOCKED";
+    setTimeout(nextQuestion,550);
+  }
+
+  function timeExpired(){
+    if(questionLocked) return;
+    questionLocked=true;
+    quizTotalTimeMs+=8000;
+    disableAnswers();
+    quizMessage.textContent="TIME EXPIRED";
+    setTimeout(nextQuestion,650);
+  }
+
+  function nextQuestion(){
+    quizIndex+=1;
+    if(quizIndex>=5){ finishQualifier(); return; }
+    showQuestion();
+  }
+
+  function finishQualifier(){
+    clearInterval(timerInterval);
+    quizShell.classList.remove("show");
+    resultScore.textContent=quizScore+" / 5";
+    resultTime.textContent="Total response time: "+(quizTotalTimeMs/1000).toFixed(2)+" seconds";
+    resultCard.classList.add("show");
+    resultCard.scrollIntoView({behavior:"smooth",block:"center"});
+  }
+
 
   startButton.addEventListener("click", checkProfile);
 </script>
