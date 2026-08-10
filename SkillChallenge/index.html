@@ -40,10 +40,38 @@
       color: #ff6a00;
     }
 
+    /* BACK TO DASHBOARD */
+
+    .dashboard-nav {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px 20px 0;
+      text-align: left;
+    }
+
+    .dashboard-btn {
+      display: inline-block;
+      padding: 12px 22px;
+      background: #1b1b1b;
+      color: #fff;
+      border: 1px solid #ff6a00;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 15px;
+      transition: .2s ease;
+    }
+
+    .dashboard-btn:hover {
+      background: #ff6a00;
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
     .hero {
       max-width: 900px;
       margin: auto;
-      padding: 65px 20px 40px;
+      padding: 35px 20px 40px;
       text-align: center;
     }
 
@@ -187,8 +215,13 @@
     }
 
     @media(max-width:600px) {
+
+      .dashboard-nav {
+        text-align: center;
+      }
+
       .hero {
-        padding-top: 45px;
+        padding-top: 30px;
       }
 
       .subtitle {
@@ -214,11 +247,25 @@
 
 <div class="page">
 
+  <!-- LINKTRADENETWORK HEADER -->
+
   <div class="topbar">
     <div class="logo">
       <span>LinkTrade</span>Network
     </div>
   </div>
+
+
+  <!-- BACK TO DASHBOARD -->
+
+  <div class="dashboard-nav">
+    <a href="/dashboard/" class="dashboard-btn">
+      ← BACK TO DASHBOARD
+    </a>
+  </div>
+
+
+  <!-- SKILL CHALLENGE -->
 
   <main class="hero">
 
@@ -236,7 +283,11 @@
       LinkTradeNetwork NEC Closed-Book Skill Challenge.
     </p>
 
+
+    <!-- MAIN HOOK -->
+
     <div class="hook">
+
       <div class="hook-title">
         100 ENTER. 6 ADVANCE.
       </div>
@@ -244,7 +295,11 @@
       <div class="hook-text">
         2 WIN CASH.
       </div>
+
     </div>
+
+
+    <!-- CASH PRIZES -->
 
     <div class="prizes">
 
@@ -259,6 +314,9 @@
       </div>
 
     </div>
+
+
+    <!-- QUALIFIER RULES -->
 
     <div class="rules">
 
@@ -296,6 +354,9 @@
 
     </div>
 
+
+    <!-- START QUALIFIER -->
+
     <div class="cta">
 
       <button class="start-btn">
@@ -309,6 +370,9 @@
     </div>
 
   </main>
+
+
+  <!-- FOOTER -->
 
   <div class="footer">
     LinkTradeNetwork.com • Trades on the Rise
