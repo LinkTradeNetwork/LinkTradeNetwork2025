@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>LTN Admin Dashboard</title>
 
-  <!-- LTN FORCE UPDATE VERSION: admin-signin-count-clean-url-v26 -->
+  <!-- LTN FORCE UPDATE VERSION: admin-skill-challenge-v27 -->
 
   <style>
     :root {
@@ -580,6 +580,105 @@
       font-size: 12px;
     }
 
+
+    /* =========================================
+       SKILL CHALLENGE ADMIN
+       ========================================= */
+    .challenge-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .challenge-summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .challenge-summary-card strong {
+      display: block;
+      color: var(--accent-light);
+      font-size: 26px;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .challenge-summary-card span {
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      font-weight: 700;
+    }
+
+    .rank-badge {
+      display: inline-flex;
+      width: 30px;
+      height: 30px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: var(--surface-light);
+      border: 1px solid var(--border);
+      font-weight: 800;
+    }
+
+    .rank-badge.top-six {
+      background: rgba(234,106,0,.15);
+      border-color: rgba(234,106,0,.45);
+      color: var(--accent-light);
+    }
+
+    .challenge-score {
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .challenge-percent {
+      color: #2ecc71;
+      font-weight: 800;
+    }
+
+    .challenge-time {
+      color: var(--accent-light);
+      font-weight: 800;
+    }
+
+    .challenge-status {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .challenge-status.qualified {
+      background: rgba(40,167,69,.15);
+      color: #2ecc71;
+    }
+
+    .challenge-status.completed {
+      background: rgba(255,255,255,.08);
+      color: var(--text-muted);
+    }
+
+    .challenge-note {
+      margin: 0 0 18px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: rgba(234,106,0,.08);
+      border: 1px solid rgba(234,106,0,.25);
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
     @media (max-width: 1024px) {
       .container {
         padding: 20px 16px;
@@ -807,6 +906,7 @@
     <div class="card"><h2 id="totalPhotos">0</h2><p>Photos</p></div>
     <div class="card"><h2 id="totalVideos">0</h2><p>Videos</p></div>
     <div class="card"><h2 id="totalSponsors">0</h2><p>Sponsorships</p></div>
+    <div class="card"><h2 id="totalSkillAttempts">0</h2><p>Skill Challenge Attempts</p></div>
   </div>
 
   <div class="tabs">
@@ -814,6 +914,7 @@
     <button class="tab-btn" onclick="showTab('messagesSection', this)">Messages</button>
     <button class="tab-btn" onclick="showTab('postsSection', this)">Posts & Media</button>
     <button class="tab-btn" onclick="showTab('sponsorsSection', this)">Sponsorships</button>
+    <button class="tab-btn" onclick="showTab('skillChallengeSection', this)">⚡ Skill Challenge</button>
   </div>
 
   <section id="usersSection" class="section active">
@@ -969,6 +1070,65 @@
 
   </section>
 
+  <section id="skillChallengeSection" class="section">
+
+    <div class="challenge-summary">
+      <div class="challenge-summary-card">
+        <strong id="challengeTotalAttempts">0</strong>
+        <span>Total Completed</span>
+      </div>
+      <div class="challenge-summary-card">
+        <strong id="challengeTopScore">0%</strong>
+        <span>Top Score</span>
+      </div>
+      <div class="challenge-summary-card">
+        <strong id="challengePerfectScores">0</strong>
+        <span>Perfect Scores</span>
+      </div>
+      <div class="challenge-summary-card">
+        <strong id="challengeFastestTime">0.00s</strong>
+        <span>Fastest Completion</span>
+      </div>
+    </div>
+
+    <div class="challenge-note">
+      Rankings are automatic: <strong>highest score first</strong>, then
+      <strong>fastest total response time</strong> breaks ties.
+      The current Top 6 are marked as Qualified.
+    </div>
+
+    <div class="controls">
+      <div>
+        <input type="text" id="skillSearchInput" placeholder="Search participant, email, trade or state..." />
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Participant</th>
+            <th>Email</th>
+            <th>Trade</th>
+            <th>State</th>
+            <th>Score</th>
+            <th>%</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Completed</th>
+          </tr>
+        </thead>
+        <tbody id="skillChallengeTable">
+          <tr><td colspan="10" class="empty"><p>Loading Skill Challenge results...</p></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="skillChallengePagination"></div>
+
+  </section>
+
 </div>
 </div>
 
@@ -1015,6 +1175,7 @@
   let allConversations = [];
   let allPosts = [];
   let allSponsors = [];
+  let allSkillAttempts = [];
   let listenersStarted = false;
 
   const itemsPerPage = 10;
@@ -1023,7 +1184,8 @@
     users: 1,
     messages: 1,
     posts: 1,
-    sponsors: 1
+    sponsors: 1,
+    skillChallenge: 1
   };
 
   const accessScreen = document.getElementById("accessScreen");
@@ -1165,6 +1327,32 @@
       document.getElementById("sponsorsTable").innerHTML =
         `<tr><td colspan="8" class="empty"><p>Permission error. Check Firestore rules.</p></td></tr>`;
       console.error(error);
+    });
+
+
+    onSnapshot(collection(db, "skillChallengeAttempts"), snapshot => {
+      allSkillAttempts = [];
+
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+
+        // Ignore the temporary Firebase setup/test document.
+        if (data.completed !== true) return;
+
+        allSkillAttempts.push({
+          id: docSnap.id,
+          ...data
+        });
+      });
+
+      currentPages.skillChallenge = 1;
+      renderSkillChallenge();
+      updateStats();
+
+    }, error => {
+      document.getElementById("skillChallengeTable").innerHTML =
+        `<tr><td colspan="10" class="empty"><p>Permission error. Skill Challenge admin read access must be allowed in Firestore rules.</p></td></tr>`;
+      console.error("Skill Challenge listener error:", error);
     });
   }
 
@@ -1348,6 +1536,110 @@
     });
   }
 
+
+  function getChallengePercent(item) {
+    const score = Number(item.score || 0);
+    const total = Number(item.totalQuestions || 5) || 5;
+    return Math.round((score / total) * 100);
+  }
+
+  function getChallengeTimeSeconds(item) {
+    if (item.totalResponseTimeSeconds !== undefined && item.totalResponseTimeSeconds !== null) {
+      return Number(item.totalResponseTimeSeconds) || 0;
+    }
+
+    if (item.totalResponseTimeMs !== undefined && item.totalResponseTimeMs !== null) {
+      return (Number(item.totalResponseTimeMs) || 0) / 1000;
+    }
+
+    return 0;
+  }
+
+  function sortedSkillAttempts() {
+    return allSkillAttempts.slice().sort((a, b) => {
+      const scoreA = Number(a.score || 0);
+      const scoreB = Number(b.score || 0);
+
+      if (scoreB !== scoreA) {
+        return scoreB - scoreA;
+      }
+
+      return getChallengeTimeSeconds(a) - getChallengeTimeSeconds(b);
+    });
+  }
+
+  function renderSkillChallenge() {
+    const searchEl = document.getElementById("skillSearchInput");
+    const search = searchEl ? searchEl.value.trim().toLowerCase() : "";
+
+    const ranked = sortedSkillAttempts();
+
+    const rankMap = new Map();
+    ranked.forEach((item, index) => rankMap.set(item.id, index + 1));
+
+    const filtered = ranked.filter(item => {
+      const text = `${item.name || ""} ${item.email || ""} ${item.trade || ""} ${item.city || ""} ${item.state || ""}`.toLowerCase();
+      return text.includes(search);
+    });
+
+    renderPaginatedTable("skillChallenge", filtered, "skillChallengeTable", item => {
+      const rank = rankMap.get(item.id) || "";
+      const total = Number(item.totalQuestions || 5) || 5;
+      const score = Number(item.score || 0);
+      const percent = getChallengePercent(item);
+      const seconds = getChallengeTimeSeconds(item);
+      const topSix = rank >= 1 && rank <= 6;
+
+      return `
+        <tr>
+          <td>
+            <span class="rank-badge ${topSix ? "top-six" : ""}">
+              ${rank}
+            </span>
+          </td>
+          <td>${safe(item.name || "N/A")}</td>
+          <td>${safe(item.email || "N/A")}</td>
+          <td>${safe(item.trade || "N/A")}</td>
+          <td>${safe(item.state || "N/A")}</td>
+          <td><span class="challenge-score">${score} / ${total}</span></td>
+          <td><span class="challenge-percent">${percent}%</span></td>
+          <td><span class="challenge-time">${seconds.toFixed(2)} sec</span></td>
+          <td>
+            <span class="challenge-status ${topSix ? "qualified" : "completed"}">
+              ${topSix ? "Top 6" : "Completed"}
+            </span>
+          </td>
+          <td>${formatDate(item.completedAt)}</td>
+        </tr>
+      `;
+    });
+
+    updateSkillChallengeSummary(ranked);
+  }
+
+  function updateSkillChallengeSummary(ranked = sortedSkillAttempts()) {
+    const total = ranked.length;
+
+    const topPercent = total ? getChallengePercent(ranked[0]) : 0;
+
+    const perfectScores = ranked.filter(item => {
+      const totalQuestions = Number(item.totalQuestions || 5) || 5;
+      return Number(item.score || 0) === totalQuestions;
+    }).length;
+
+    const times = ranked
+      .map(getChallengeTimeSeconds)
+      .filter(value => value > 0);
+
+    const fastest = times.length ? Math.min(...times) : 0;
+
+    document.getElementById("challengeTotalAttempts").textContent = total;
+    document.getElementById("challengeTopScore").textContent = topPercent + "%";
+    document.getElementById("challengePerfectScores").textContent = perfectScores;
+    document.getElementById("challengeFastestTime").textContent =
+      fastest ? fastest.toFixed(2) + "s" : "0.00s";
+  }
+
   function renderPaginatedTable(type, data, tableId, renderRow) {
     if (!data.length) {
       document.getElementById(tableId).innerHTML =
@@ -1413,6 +1705,8 @@
       ).length;
 
     document.getElementById("totalSponsors").textContent = allSponsors.length;
+    document.getElementById("totalSkillAttempts").textContent =
+      allSkillAttempts.filter(item => item.completed === true).length;
   }
 
   function getMediaType(post, url) {
@@ -1502,6 +1796,7 @@
     if (type === "messages") renderMessages();
     if (type === "posts") renderPosts();
     if (type === "sponsors") renderSponsors();
+    if (type === "skillChallenge") renderSkillChallenge();
   };
 
   window.addSponsor = async function() {
@@ -1594,6 +1889,10 @@
   document.getElementById("postSearchInput").addEventListener("input", renderPosts);
   document.getElementById("roleFilter").addEventListener("change", renderUsers);
   document.getElementById("statusFilter").addEventListener("change", renderUsers);
+  document.getElementById("skillSearchInput").addEventListener("input", () => {
+    currentPages.skillChallenge = 1;
+    renderSkillChallenge();
+  });
 </script>
 
 </body>
