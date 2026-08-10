@@ -40,8 +40,6 @@
       color: #ff6a00;
     }
 
-    /* BACK TO DASHBOARD */
-
     .dashboard-nav {
       max-width: 900px;
       margin: 0 auto;
@@ -182,7 +180,8 @@
       margin-top: 35px;
     }
 
-    .start-btn {
+    .start-btn,
+    .action-btn {
       display: inline-block;
       border: none;
       background: #ff6a00;
@@ -196,14 +195,140 @@
       box-shadow: 0 10px 30px rgba(255,106,0,.25);
     }
 
-    .start-btn:hover {
+    .start-btn:hover,
+    .action-btn:hover {
       background: #ff8124;
+    }
+
+    .start-btn:disabled,
+    .action-btn:disabled {
+      opacity: .55;
+      cursor: wait;
     }
 
     .note {
       margin-top: 15px;
       color: #aaa;
       font-size: 14px;
+    }
+
+    /* PROFILE CHECK RESULT */
+    .profile-check {
+      display: none;
+      max-width: 720px;
+      margin: 28px auto 0;
+      padding: 26px;
+      border-radius: 20px;
+      text-align: left;
+      background: #151515;
+      border: 1px solid #333;
+    }
+
+    .profile-check.show {
+      display: block;
+    }
+
+    .profile-check.good {
+      border: 2px solid #22c55e;
+    }
+
+    .profile-check.bad {
+      border: 2px solid #ef4444;
+    }
+
+    .profile-check.loading {
+      border: 2px solid #ff6a00;
+    }
+
+    .profile-status-title {
+      margin: 0 0 10px;
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    .profile-check.good .profile-status-title {
+      color: #4ade80;
+    }
+
+    .profile-check.bad .profile-status-title {
+      color: #f87171;
+    }
+
+    .profile-check.loading .profile-status-title {
+      color: #ff8a1f;
+    }
+
+    .profile-status-copy {
+      color: #ddd;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .missing-list {
+      margin: 16px 0 20px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .missing-list li {
+      padding: 9px 0;
+      border-bottom: 1px solid #333;
+      color: #fca5a5;
+      font-weight: 800;
+    }
+
+    .missing-list li:last-child {
+      border-bottom: none;
+    }
+
+    .profile-actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .profile-actions .action-btn {
+      padding: 14px 22px;
+      font-size: 16px;
+      box-shadow: none;
+    }
+
+    .action-btn.secondary {
+      background: #252525;
+      border: 1px solid #ff6a00;
+    }
+
+    .action-btn.secondary:hover {
+      background: #333;
+    }
+
+    .verified-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .verified-item {
+      background: #202020;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .verified-item span {
+      display: block;
+      color: #aaa;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .verified-item strong {
+      color: white;
+      font-size: 15px;
     }
 
     .footer {
@@ -215,7 +340,6 @@
     }
 
     @media(max-width:600px) {
-
       .dashboard-nav {
         text-align: center;
       }
@@ -239,6 +363,24 @@
       .prize {
         width: 100%;
       }
+
+      .start-btn {
+        width: 100%;
+        padding: 18px 20px;
+      }
+
+      .verified-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-actions {
+        flex-direction: column;
+      }
+
+      .profile-actions .action-btn {
+        width: 100%;
+        text-align: center;
+      }
     }
   </style>
 </head>
@@ -247,25 +389,17 @@
 
 <div class="page">
 
-  <!-- LINKTRADENETWORK HEADER -->
-
   <div class="topbar">
     <div class="logo">
       <span>LinkTrade</span>Network
     </div>
   </div>
 
-
-  <!-- BACK TO DASHBOARD -->
-
   <div class="dashboard-nav">
     <a href="/dashboard/" class="dashboard-btn">
       ← BACK TO DASHBOARD
     </a>
   </div>
-
-
-  <!-- SKILL CHALLENGE -->
 
   <main class="hero">
 
@@ -283,11 +417,7 @@
       LinkTradeNetwork NEC Closed-Book Skill Challenge.
     </p>
 
-
-    <!-- MAIN HOOK -->
-
     <div class="hook">
-
       <div class="hook-title">
         100 ENTER. 6 ADVANCE.
       </div>
@@ -295,11 +425,7 @@
       <div class="hook-text">
         2 WIN CASH.
       </div>
-
     </div>
-
-
-    <!-- CASH PRIZES -->
 
     <div class="prizes">
 
@@ -314,9 +440,6 @@
       </div>
 
     </div>
-
-
-    <!-- QUALIFIER RULES -->
 
     <div class="rules">
 
@@ -354,12 +477,9 @@
 
     </div>
 
-
-    <!-- START QUALIFIER -->
-
     <div class="cta">
 
-      <button class="start-btn">
+      <button class="start-btn" id="start-qualifier-btn" type="button">
         START NEC QUALIFIER →
       </button>
 
@@ -369,16 +489,265 @@
 
     </div>
 
+    <!-- PROFILE VERIFICATION MESSAGE -->
+    <div class="profile-check" id="profile-check" aria-live="polite">
+      <h2 class="profile-status-title" id="profile-status-title"></h2>
+      <div class="profile-status-copy" id="profile-status-copy"></div>
+      <ul class="missing-list" id="missing-list"></ul>
+      <div class="verified-grid" id="verified-grid"></div>
+      <div class="profile-actions" id="profile-actions"></div>
+    </div>
+
   </main>
-
-
-  <!-- FOOTER -->
 
   <div class="footer">
     LinkTradeNetwork.com • Trades on the Rise
   </div>
 
 </div>
+
+<!-- Firebase compat SDK - same Firebase project used by the LinkTradeNetwork dashboard -->
+<script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAVlM1EtPtMMO6A_u1XUnWO2ie3E2liY6c",
+    authDomain: "linktradenetwork-2dcd1.firebaseapp.com",
+    projectId: "linktradenetwork-2dcd1",
+    storageBucket: "linktradenetwork-2dcd1.firebasestorage.app",
+    messagingSenderId: "219091766597",
+    appId: "1:219091766597:web:9878c199ba17e0ed89c22c"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const startButton = document.getElementById("start-qualifier-btn");
+  const profileCheck = document.getElementById("profile-check");
+  const statusTitle = document.getElementById("profile-status-title");
+  const statusCopy = document.getElementById("profile-status-copy");
+  const missingList = document.getElementById("missing-list");
+  const verifiedGrid = document.getElementById("verified-grid");
+  const profileActions = document.getElementById("profile-actions");
+
+  function escapeHtml(value) {
+    return String(value || "").replace(/[&<>"']/g, function(ch) {
+      return ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      })[ch];
+    });
+  }
+
+  function resetProfileMessage() {
+    profileCheck.className = "profile-check show loading";
+    statusTitle.textContent = "CHECKING YOUR PROFILE...";
+    statusCopy.textContent = "Please wait while LinkTradeNetwork verifies your saved profile.";
+    missingList.innerHTML = "";
+    verifiedGrid.innerHTML = "";
+    profileActions.innerHTML = "";
+  }
+
+  function showNotSignedIn() {
+    profileCheck.className = "profile-check show bad";
+    statusTitle.textContent = "SIGN IN REQUIRED";
+    statusCopy.textContent =
+      "You must be signed in to LinkTradeNetwork before entering the Skill Challenge.";
+    missingList.innerHTML = "";
+    verifiedGrid.innerHTML = "";
+    profileActions.innerHTML =
+      '<a class="action-btn" href="/front.html">SIGN IN TO LINKTRADENETWORK →</a>';
+  }
+
+  function getMissingProfileFields(profile, user) {
+    const missing = [];
+
+    const name = String(profile.fullName || profile.name || "").trim();
+    const email = String((user && user.email) || profile.email || "").trim();
+    const trade = String(profile.trade || "").trim();
+    const experience = String(profile.experience || "").trim();
+    const city = String(profile.city || "").trim();
+    const state = String(profile.state || "").trim();
+
+    if (!name) missing.push("Full Name");
+    if (!email) missing.push("Email");
+    if (!trade) missing.push("Trade");
+    if (!experience) missing.push("Years of Experience");
+    if (!city) missing.push("City");
+    if (!state) missing.push("State");
+
+    return missing;
+  }
+
+  function showIncompleteProfile(missing) {
+    profileCheck.className = "profile-check show bad";
+    statusTitle.textContent = "PROFILE INCOMPLETE";
+    statusCopy.textContent =
+      "You must complete your LinkTradeNetwork profile before entering the Skill Challenge. Please update the missing information below.";
+
+    missingList.innerHTML = missing
+      .map(function(item) {
+        return "<li>Missing: " + escapeHtml(item) + "</li>";
+      })
+      .join("");
+
+    verifiedGrid.innerHTML = "";
+
+    profileActions.innerHTML =
+      '<a class="action-btn" href="/dashboard/">GO TO DASHBOARD & EDIT PROFILE →</a>' +
+      '<button class="action-btn secondary" type="button" id="check-again-btn">CHECK AGAIN</button>';
+
+    document.getElementById("check-again-btn").addEventListener("click", checkProfile);
+  }
+
+  function showVerifiedProfile(profile, user) {
+    const name = String(profile.fullName || profile.name || "").trim();
+    const email = String(user.email || profile.email || "").trim();
+    const trade = String(profile.trade || "").trim();
+    const experience = String(profile.experience || "").trim();
+    const city = String(profile.city || "").trim();
+    const state = String(profile.state || "").trim();
+
+    profileCheck.className = "profile-check show good";
+    statusTitle.textContent = "✓ PROFILE VERIFIED";
+    statusCopy.textContent =
+      "Your LinkTradeNetwork profile is complete. You are eligible to enter the NEC Skill Challenge.";
+
+    missingList.innerHTML = "";
+
+    verifiedGrid.innerHTML =
+      '<div class="verified-item"><span>Name</span><strong>' + escapeHtml(name) + '</strong></div>' +
+      '<div class="verified-item"><span>Email</span><strong>' + escapeHtml(email) + '</strong></div>' +
+      '<div class="verified-item"><span>Trade</span><strong>' + escapeHtml(trade) + '</strong></div>' +
+      '<div class="verified-item"><span>Experience</span><strong>' + escapeHtml(experience) + ' years</strong></div>' +
+      '<div class="verified-item"><span>City</span><strong>' + escapeHtml(city) + '</strong></div>' +
+      '<div class="verified-item"><span>State</span><strong>' + escapeHtml(state) + '</strong></div>';
+
+    /*
+      We intentionally do NOT start the questions yet.
+      That is the next build step after this profile check is tested.
+    */
+    profileActions.innerHTML =
+      '<button class="action-btn" type="button" disabled>PROFILE VERIFIED — QUALIFIER READY</button>';
+  }
+
+  async function loadUserProfile(user) {
+    let profile = null;
+
+    try {
+      const uidDoc = await db.collection("users").doc(user.uid).get();
+
+      if (uidDoc.exists) {
+        profile = {
+          uid: user.uid,
+          authUid: user.uid,
+          ...uidDoc.data()
+        };
+      }
+
+      /*
+        Legacy fallback:
+        If an older profile was saved by email instead of UID,
+        look it up the same way the LinkTradeNetwork dashboard does.
+      */
+      if ((!profile || !(profile.fullName || profile.name)) && user.email) {
+        const legacy = await db.collection("users")
+          .where("email", "==", String(user.email).trim().toLowerCase())
+          .limit(1)
+          .get();
+
+        if (!legacy.empty) {
+          profile = {
+            ...(profile || {}),
+            ...legacy.docs[0].data(),
+            uid: user.uid,
+            authUid: user.uid
+          };
+        }
+      }
+    } catch (error) {
+      console.error("Skill Challenge profile lookup failed:", error);
+      throw error;
+    }
+
+    return profile || {};
+  }
+
+  async function getCurrentAuthUser() {
+    if (auth.currentUser) {
+      return auth.currentUser;
+    }
+
+    return new Promise(function(resolve) {
+      let finished = false;
+
+      const unsubscribe = auth.onAuthStateChanged(function(user) {
+        if (finished) return;
+        finished = true;
+        try { unsubscribe(); } catch (e) {}
+        resolve(user || null);
+      });
+
+      setTimeout(function() {
+        if (finished) return;
+        finished = true;
+        try { unsubscribe(); } catch (e) {}
+        resolve(auth.currentUser || null);
+      }, 3000);
+    });
+  }
+
+  async function checkProfile() {
+    resetProfileMessage();
+
+    startButton.disabled = true;
+    startButton.textContent = "CHECKING PROFILE...";
+
+    try {
+      const user = await getCurrentAuthUser();
+
+      if (!user) {
+        showNotSignedIn();
+        return;
+      }
+
+      const profile = await loadUserProfile(user);
+      const missing = getMissingProfileFields(profile, user);
+
+      if (missing.length > 0) {
+        showIncompleteProfile(missing);
+        return;
+      }
+
+      showVerifiedProfile(profile, user);
+
+    } catch (error) {
+      profileCheck.className = "profile-check show bad";
+      statusTitle.textContent = "PROFILE CHECK ERROR";
+      statusCopy.textContent =
+        "LinkTradeNetwork could not verify your profile right now. Please return to the Dashboard and try again.";
+      missingList.innerHTML = "";
+      verifiedGrid.innerHTML = "";
+      profileActions.innerHTML =
+        '<a class="action-btn" href="/dashboard/">BACK TO DASHBOARD →</a>';
+    } finally {
+      startButton.disabled = false;
+      startButton.textContent = "START NEC QUALIFIER →";
+      profileCheck.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  startButton.addEventListener("click", checkProfile);
+</script>
 
 </body>
 </html>
