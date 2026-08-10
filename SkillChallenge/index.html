@@ -363,6 +363,16 @@
     .result-time{color:#ddd;font-size:18px;font-weight:800;margin-top:10px}
     .result-note{color:#aaa;margin-top:14px;font-size:14px;line-height:1.5}
 
+
+    .already-card{
+      display:none;max-width:720px;margin:28px auto 0;padding:30px;border-radius:22px;
+      background:#151515;border:2px solid #ff6a00;text-align:center
+    }
+    .already-card.show{display:block}
+    .already-title{font-size:26px;font-weight:1000;color:#ff8a1f;margin-bottom:10px}
+    .already-copy{color:#ddd;line-height:1.55}
+    .save-status{margin-top:14px;color:#aaa;font-size:14px}
+
     .footer {
       margin-top: 50px;
       padding: 30px 20px;
@@ -435,21 +445,21 @@
 
   <main class="hero">
 
-    <div class="badge">
+    <div class="badge pre-quiz">
       ⚡ SKILL CHALLENGE #001
     </div>
 
-    <h1>
+    <h1 class="pre-quiz">
       THINK YOU KNOW<br>
       THE <span>NEC?</span>
     </h1>
 
-    <p class="subtitle">
+    <p class="subtitle pre-quiz">
       Put your electrical code knowledge to the test in the
       LinkTradeNetwork NEC Closed-Book Skill Challenge.
     </p>
 
-    <div class="hook">
+    <div class="hook pre-quiz">
       <div class="hook-title">
         100 ENTER. 6 ADVANCE.
       </div>
@@ -459,7 +469,7 @@
       </div>
     </div>
 
-    <div class="prizes">
+    <div class="prizes pre-quiz">
 
       <div class="prize">
         🏆 1ST PLACE
@@ -473,7 +483,7 @@
 
     </div>
 
-    <div class="rules">
+    <div class="rules pre-quiz">
 
       <h2>⚡ NEC QUALIFIER</h2>
 
@@ -509,7 +519,7 @@
 
     </div>
 
-    <div class="cta">
+    <div class="cta pre-quiz">
 
       <button class="start-btn" id="start-qualifier-btn" type="button">
         START NEC QUALIFIER →
@@ -544,7 +554,19 @@
       <div style="font-weight:900;color:#fff;font-size:22px;">QUALIFIER COMPLETE</div>
       <div class="result-score" id="result-score">0 / 5</div>
       <div class="result-time" id="result-time"></div>
-      <div class="result-note">This test step does not save results to Firebase yet.</div>
+      <div class="result-note" id="result-note">Saving your official result...</div>
+      <div class="save-status" id="save-status"></div>
+    </div>
+
+    <div class="already-card" id="already-card">
+      <div class="already-title">QUALIFIER ALREADY COMPLETED</div>
+      <div class="already-copy" id="already-copy">
+        Your official Skill Challenge result has already been recorded.
+        Each participant receives one qualifying attempt.
+      </div>
+      <div class="profile-actions" style="justify-content:center;">
+        <a class="action-btn secondary" href="/dashboard/">BACK TO DASHBOARD →</a>
+      </div>
     </div>
 
   </main>
@@ -779,6 +801,17 @@
         return;
       }
 
+      const existingAttempt = await db.collection("skillChallengeAttempts").doc(user.uid).get();
+
+      if (existingAttempt.exists && existingAttempt.data().completed === true) {
+        showAlreadyCompleted(existingAttempt.data());
+        return;
+      }
+
+      verifiedUser = user;
+      verifiedProfile = profile;
+      attemptDocRef = db.collection("skillChallengeAttempts").doc(user.uid);
+
       showVerifiedProfile(profile, user);
 
     } catch (error) {
@@ -798,6 +831,73 @@
   }
 
 
+
+  function hidePreQuizContent() {
+    document.querySelectorAll(".pre-quiz").forEach(function(el) {
+      el.style.display = "none";
+    });
+    profileCheck.style.display = "none";
+  }
+
+  function showAlreadyCompleted(data) {
+    document.querySelectorAll(".pre-quiz").forEach(function(el) {
+      el.style.display = "none";
+    });
+    profileCheck.style.display = "none";
+    quizShell && quizShell.classList.remove("show");
+    resultCard && resultCard.classList.remove("show");
+
+    const score = Number(data.score || 0);
+    const total = Number(data.totalQuestions || 5);
+    const seconds = Number(data.totalResponseTimeMs || 0) / 1000;
+
+    alreadyCopy.innerHTML =
+      "Your official Skill Challenge result has already been recorded.<br><br>" +
+      "<strong>Score:</strong> " + score + " / " + total +
+      (seconds > 0 ? "<br><strong>Response time:</strong> " + seconds.toFixed(2) + " seconds" : "") +
+      "<br><br>Each participant receives one qualifying attempt.";
+
+    alreadyCard.classList.add("show");
+    alreadyCard.scrollIntoView({behavior:"smooth",block:"center"});
+  }
+
+  async function saveOfficialAttempt() {
+    if (!verifiedUser || !verifiedProfile || !attemptDocRef) {
+      throw new Error("Verified user information is missing.");
+    }
+
+    const payload = {
+      challengeId: "NEC-001",
+      challengeName: "LinkTradeNetwork NEC Closed-Book Skill Challenge",
+      uid: verifiedUser.uid,
+      name: String(verifiedProfile.fullName || verifiedProfile.name || "").trim(),
+      email: String(verifiedUser.email || verifiedProfile.email || "").trim().toLowerCase(),
+      trade: String(verifiedProfile.trade || "").trim(),
+      experience: String(verifiedProfile.experience || "").trim(),
+      city: String(verifiedProfile.city || "").trim(),
+      state: String(verifiedProfile.state || "").trim(),
+      score: quizScore,
+      totalQuestions: 5,
+      totalResponseTimeMs: quizTotalTimeMs,
+      totalResponseTimeSeconds: Number((quizTotalTimeMs / 1000).toFixed(3)),
+      completed: true,
+      completedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    await db.runTransaction(async function(transaction) {
+      const snap = await transaction.get(attemptDocRef);
+
+      if (snap.exists && snap.data().completed === true) {
+        throw new Error("ALREADY_COMPLETED");
+      }
+
+      transaction.set(attemptDocRef, payload, {merge:false});
+    });
+
+    return payload;
+  }
+
+
   const quizShell = document.getElementById("quiz-shell");
   const quizProgress = document.getElementById("quiz-progress");
   const timerEl = document.getElementById("timer");
@@ -807,6 +907,14 @@
   const resultCard = document.getElementById("result-card");
   const resultScore = document.getElementById("result-score");
   const resultTime = document.getElementById("result-time");
+  const resultNote = document.getElementById("result-note");
+  const saveStatus = document.getElementById("save-status");
+  const alreadyCard = document.getElementById("already-card");
+  const alreadyCopy = document.getElementById("already-copy");
+
+  let verifiedUser = null;
+  let verifiedProfile = null;
+  let attemptDocRef = null;
 
   const NEC_QUESTION_BANK = [
     {q:"What does NEC stand for?",answers:["National Electrical Code","National Energy Circuit","Network Electrical Control","National Equipment Code"],correct:0},
@@ -833,8 +941,23 @@
     return copy;
   }
 
-  function startQualifier(){
-    profileCheck.style.display="none";
+  async function startQualifier(){
+    if (!verifiedUser || !attemptDocRef) return;
+
+    try {
+      const existing = await attemptDocRef.get();
+      if (existing.exists && existing.data().completed === true) {
+        showAlreadyCompleted(existing.data());
+        return;
+      }
+    } catch (error) {
+      console.error("Attempt check failed:", error);
+      alert("We could not verify your attempt status. Please try again.");
+      return;
+    }
+
+    hidePreQuizContent();
+    alreadyCard.classList.remove("show");
     resultCard.classList.remove("show");
     quizQuestions=shuffle(NEC_QUESTION_BANK).slice(0,5);
     quizIndex=0; quizScore=0; quizTotalTimeMs=0;
@@ -901,13 +1024,37 @@
     showQuestion();
   }
 
-  function finishQualifier(){
+  async function finishQualifier(){
     clearInterval(timerInterval);
     quizShell.classList.remove("show");
+
     resultScore.textContent=quizScore+" / 5";
     resultTime.textContent="Total response time: "+(quizTotalTimeMs/1000).toFixed(2)+" seconds";
+    resultNote.textContent="Saving your official result...";
+    saveStatus.textContent="";
     resultCard.classList.add("show");
     resultCard.scrollIntoView({behavior:"smooth",block:"center"});
+
+    try {
+      await saveOfficialAttempt();
+      resultNote.textContent="Your official qualifier result has been recorded.";
+      saveStatus.textContent="One qualifying attempt per registered participant.";
+    } catch (error) {
+      console.error("Could not save qualifier result:", error);
+
+      if (String(error && error.message).includes("ALREADY_COMPLETED")) {
+        try {
+          const existing = await attemptDocRef.get();
+          showAlreadyCompleted(existing.exists ? existing.data() : {});
+        } catch (readError) {
+          showAlreadyCompleted({});
+        }
+        return;
+      }
+
+      resultNote.textContent="Your result could not be saved. Do not retake the qualifier.";
+      saveStatus.textContent="Please contact Team@LinkTradeNetwork.com so your attempt can be reviewed.";
+    }
   }
 
 
