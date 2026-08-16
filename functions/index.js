@@ -1,74 +1,308 @@
-const admin = require("firebase-admin");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { setGlobalOptions } = require("firebase-functions/v2");
 const { defineSecret } = require("firebase-functions/params");
-const { Resend } = require("resend");
+const admin = require("firebase-admin");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 
 admin.initializeApp();
 
+setGlobalOptions({
+  region: "us-central1",
+  maxInstances: 10,
+});
+
+const SMTP_EMAIL = defineSecret("SMTP_EMAIL");
+const SMTP_PASSWORD = defineSecret("SMTP_PASSWORD");
+
 const db = admin.firestore();
-const auth = admin.auth();
 
-const RESEND_API_KEY = defineSecret("RESEND_API_KEY");
-
-const FROM_EMAIL = "LinkTradeNetwork Team <team@linktradenetwork.com>";
-const REPLY_TO = "team@linktradenetwork.com";
-const OTP_TTL_MINUTES = 10;
+const CODE_TTL_MINUTES = 10;
+const VERIFY_COLLECTION = "emailVerifications";
 
 function cleanEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
 
 function makeCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return String(Math.floor(100000 + Math.random() * 900000));
 }
 
-function htmlWrap(title, body) {
-  return `
-  <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;background:#ffffff">
-    <div style="background:#ea6a00;padding:22px;text-align:center;border-radius:10px 10px 0 0">
-      <h2 style="color:#fff;margin:0;font-size:24px">LinkTradeNetwork</h2>
-      <p style="color:#fff;margin:6px 0 0;font-weight:700">Trades on the Rise</p>
+function hashCode(email, code) {
+  return crypto
+    .createHash("sha256")
+    .update(`${cleanEmail(email)}:${String(code)}:LTN_FIREBASE_CODE_2026`)
+    .digest("hex");
+}
+
+function getTransporter() {
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: SMTP_EMAIL.value(),
+      pass: SMTP_PASSWORD.value(),
+    },
+  });
+}
+
+async function sendCodeEmail({ to, fullName, code }) {
+  const transporter = getTransporter();
+
+  const html = `
+  <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
+    <div style="background:#3d5a80;padding:22px;text-align:center">
+      <div style="font-size:24px;font-weight:800;color:#ffffff">LinkTradeNetwork</div>
     </div>
 
-    <div style="padding:26px;border:1px solid #e2e8f0;border-top:0;border-radius:0 0 10px 10px">
-      <h2 style="color:#172033;margin-top:0">${title}</h2>
+    <div style="padding:26px">
+      <p style="font-size:16px;color:#1e293b">Hi ${fullName || "there"},</p>
 
-      ${body}
+      <p style="font-size:15px;color:#334155">
+        Your LinkTradeNetwork verification code is:
+      </p>
 
-      <p style="font-size:12px;color:#64748b;margin-top:26px">
-        LinkTradeNetwork Team<br>
-        <a href="mailto:${REPLY_TO}">${REPLY_TO}</a>
+      <div style="font-size:38px;font-weight:800;letter-spacing:8px;color:#ea6a00;text-align:center;padding:18px;background:#fff7ed;border-radius:10px;margin:18px 0">
+        ${code}
+      </div>
+
+      <p style="font-size:14px;color:#64748b">
+        This code expires in ${CODE_TTL_MINUTES} minutes.
+      </p>
+
+      <p style="font-size:14px;color:#64748b">
+        After you verify, you can create your 6-digit password/code.
+      </p>
+
+      <p style="font-size:14px;color:#1e293b">
+        - LinkTradeNetwork Team
       </p>
     </div>
-  </div>`;
+  </div>
+  `;
+
+  await transporter.sendMail({
+    from: `"LinkTradeNetwork" <${SMTP_EMAIL.value()}>`,
+    to,
+    subject: "Your LinkTradeNetwork Verification Code",
+    text: `Your LinkTradeNetwork verification code is ${code}. It expires in ${CODE_TTL_MINUTES} minutes.`,
+    html,
+  });
 }
 
-async function sendEmail(apiKey, to, subject, html, text) {
-  const resend = new Resend(apiKey);
+async function sendWelcomeEmail({ to, fullName }) {
+  const transporter = getTransporter();
 
-  await resend.emails.send({
-    from: FROM_EMAIL,
+  const html = `
+  <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+
+    <div style="background:#ffffff;padding:14px 18px;border-bottom:1px solid #e2e8f0">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="background:#ea6a00;color:white;font-weight:800;font-size:18px;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center">
+          LTN
+        </div>
+
+        <div style="font-size:22px;font-weight:800;color:#1e293b">
+          LinkTradeNetwork
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#3d5a80;padding:24px;text-align:center">
+      <h1 style="color:white;margin:0;font-size:26px">
+        Welcome to LinkTradeNetwork!
+      </h1>
+    </div>
+
+    <div style="padding:26px;color:#1e293b">
+
+      <p style="font-size:16px;margin-top:0">
+        Hi ${fullName || "there"},
+      </p>
+
+      <p style="font-size:17px;font-weight:700;margin-bottom:20px">
+        Your account is verified! Here is what you can do on LTN:
+      </p>
+
+      <div style="background:#f8fafc;border-radius:10px;padding:20px">
+
+        <h3 style="color:#ea6a00;margin:0 0 8px">
+          Find Skilled Trade Jobs
+        </h3>
+
+        <p style="color:#64748b;margin:0 0 18px;line-height:1.5">
+          Browse trade opportunities by location, trade, job type, and company.
+        </p>
+
+
+        <h3 style="color:#ea6a00;margin:0 0 8px">
+          Use the Apprenticeship Dashboard
+        </h3>
+
+        <p style="color:#64748b;margin:0 0 18px;line-height:1.5">
+          Track your hours, completed skills, certifications, and progress as you build your trade career.
+        </p>
+
+
+        <h3 style="color:#ea6a00;margin:0 0 8px">
+          Connect with Members
+        </h3>
+
+        <p style="color:#64748b;margin:0 0 18px;line-height:1.5">
+          Build your professional trade network, send connection requests, and message other members.
+        </p>
+
+
+        <h3 style="color:#ea6a00;margin:0 0 8px">
+          Post and Share Updates
+        </h3>
+
+        <p style="color:#64748b;margin:0 0 18px;line-height:1.5">
+          Share your work, ask questions, post trade updates, and stay active in the community feed.
+        </p>
+
+
+        <h3 style="color:#ea6a00;margin:0 0 8px">
+          Upload Your 10-Second Trade Video
+        </h3>
+
+        <p style="color:#64748b;margin:0 0 18px;line-height:1.5">
+          Upload short videos of projects, progress, tools, job sites, trade tips, and real trade accomplishments.
+        </p>
+
+
+        <h3 style="color:#ea6a00;margin:0 0 8px">
+          Take the Skill Challenge &amp; Win
+        </h3>
+
+        <p style="color:#64748b;margin:0 0 18px;line-height:1.5">
+          Test your trade knowledge, compete with other members, advance through the challenge, and compete for cash prizes.
+        </p>
+
+
+        <h3 style="color:#ea6a00;margin:0 0 8px">
+          Join Interactive Training
+        </h3>
+
+        <p style="color:#64748b;margin:0;line-height:1.5">
+          Join live skilled-trades training directly inside LinkTradeNetwork.
+          No separate Zoom or Teams login is required.
+        </p>
+
+      </div>
+
+
+      <div style="text-align:center;margin:28px 0">
+
+        <a
+          href="https://linktradenetwork.com/dashboard/"
+          style="
+            background:#ea6a00;
+            color:white;
+            padding:14px 24px;
+            text-decoration:none;
+            border-radius:8px;
+            font-weight:700;
+            display:inline-block;
+            margin-bottom:12px;
+          "
+        >
+          Go to Dashboard
+        </a>
+
+        <br>
+
+        <a
+          href="https://linktradenetwork.com/SkillChallenge/"
+          style="
+            background:#172033;
+            color:white;
+            padding:12px 20px;
+            text-decoration:none;
+            border-radius:8px;
+            font-weight:700;
+            display:inline-block;
+            margin:6px;
+          "
+        >
+          Take the Skill Challenge
+        </a>
+
+        <a
+          href="https://linktradenetwork.com/interactive-training/"
+          style="
+            background:#3d5a80;
+            color:white;
+            padding:12px 20px;
+            text-decoration:none;
+            border-radius:8px;
+            font-weight:700;
+            display:inline-block;
+            margin:6px;
+          "
+        >
+          Interactive Training
+        </a>
+
+      </div>
+
+
+      <p style="margin-bottom:0">
+        Welcome aboard,<br>
+        <b>LinkTradeNetwork Team</b>
+      </p>
+
+    </div>
+
+    <div style="background:#f1f5f9;padding:14px;text-align:center;font-size:12px;color:#64748b">
+      © LinkTradeNetwork • Built for the skilled trades
+    </div>
+
+  </div>
+  `;
+
+  const text = `
+Hi ${fullName || "there"},
+
+Welcome to LinkTradeNetwork. Your account has been created successfully.
+
+Here is what you can do on LTN:
+
+- Find skilled trade jobs.
+- Use the Apprenticeship Dashboard to track hours, skills, certifications, and progress.
+- Connect with members and build your professional trade network.
+- Post and share updates.
+- Upload your 10-second trade video.
+- Take the LinkTradeNetwork Skill Challenge and compete to win cash prizes.
+- Join Interactive Training directly inside LinkTradeNetwork with no separate Zoom or Teams login required.
+
+Dashboard:
+https://linktradenetwork.com/dashboard/
+
+Skill Challenge:
+https://linktradenetwork.com/SkillChallenge/
+
+Interactive Training:
+https://linktradenetwork.com/interactive-training/
+
+Welcome aboard,
+LinkTradeNetwork Team
+  `;
+
+  await transporter.sendMail({
+    from: `"LinkTradeNetwork" <${SMTP_EMAIL.value()}>`,
     to,
-    subject,
-    html,
+    subject: "Welcome to LinkTradeNetwork",
     text,
-    reply_to: REPLY_TO
+    html,
   });
 }
 
 
-/* =========================================================
-   REQUEST VERIFICATION CODE
-   ========================================================= */
-
 exports.requestVerificationCode = onCall(
-  {
-    region: "us-central1",
-    secrets: [RESEND_API_KEY]
-  },
+  { secrets: [SMTP_EMAIL, SMTP_PASSWORD] },
   async (request) => {
-
     const data = request.data || {};
+
     const email = cleanEmail(data.email);
     const firstName = String(data.firstName || "").trim();
     const lastName = String(data.lastName || "").trim();
@@ -78,28 +312,53 @@ exports.requestVerificationCode = onCall(
 
     const consent = data.consent === true;
 
-    if (!email) {
+    if (!firstName || !lastName) {
       throw new HttpsError(
         "invalid-argument",
-        "Email is required."
+        "First and last name are required."
+      );
+    }
+
+    if (!email || !email.includes("@")) {
+      throw new HttpsError(
+        "invalid-argument",
+        "Valid email is required."
       );
     }
 
     if (!consent) {
       throw new HttpsError(
-        "failed-precondition",
-        "Consent is required."
+        "invalid-argument",
+        "Terms acceptance is required."
+      );
+    }
+
+    const existing =
+      await admin
+        .auth()
+        .getUserByEmail(email)
+        .catch(() => null);
+
+    if (existing) {
+      throw new HttpsError(
+        "already-exists",
+        "That email is already registered. Please sign in."
       );
     }
 
     const code = makeCode();
 
+    const now =
+      admin.firestore.Timestamp.now();
+
     const expiresAt =
-      Date.now() +
-      OTP_TTL_MINUTES * 60 * 1000;
+      admin.firestore.Timestamp.fromMillis(
+        Date.now() +
+        CODE_TTL_MINUTES * 60 * 1000
+      );
 
     await db
-      .collection("emailVerifications")
+      .collection(VERIFY_COLLECTION)
       .doc(email)
       .set(
         {
@@ -107,74 +366,44 @@ exports.requestVerificationCode = onCall(
           firstName,
           lastName,
           fullName,
-          code,
+          consent: true,
+          codeHash: hashCode(email, code),
+          attempts: 0,
           verified: false,
+          createdAt: now,
+          updatedAt: now,
           expiresAt,
-          userAgent: String(data.userAgent || ""),
-
-          createdAt:
-            admin.firestore.FieldValue.serverTimestamp(),
-
-          updatedAt:
-            admin.firestore.FieldValue.serverTimestamp()
+          userAgent:
+            String(data.userAgent || "").slice(0, 500),
         },
         {
           merge: true
         }
       );
 
-    const html = htmlWrap(
-      "Your verification code",
-      `
-      <p>Hi ${firstName || "there"},</p>
-
-      <p>Your LinkTradeNetwork verification code is:</p>
-
-      <div style="font-size:38px;font-weight:800;letter-spacing:8px;color:#ea6a00;text-align:center;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:18px;margin:20px 0">
-        ${code}
-      </div>
-
-      <p>
-        This code expires in
-        <b>${OTP_TTL_MINUTES} minutes</b>.
-      </p>
-
-      <p>
-        If you did not request this,
-        you can ignore this email.
-      </p>
-      `
-    );
-
-    await sendEmail(
-      RESEND_API_KEY.value(),
-      email,
-      "Your LinkTradeNetwork verification code",
-      html,
-      `Your LinkTradeNetwork verification code is ${code}. It expires in ${OTP_TTL_MINUTES} minutes.`
-    );
+    await sendCodeEmail({
+      to: email,
+      fullName,
+      code,
+    });
 
     return {
       success: true,
-      message: "Verification code sent."
+      message: "Verification code sent.",
     };
   }
 );
 
 
-/* =========================================================
-   VERIFY SIGNUP CODE
-   ========================================================= */
-
 exports.verifySignupCode = onCall(
-  {
-    region: "us-central1"
-  },
   async (request) => {
-
     const data = request.data || {};
-    const email = cleanEmail(data.email);
-    const code = String(data.code || "").trim();
+
+    const email =
+      cleanEmail(data.email);
+
+    const code =
+      String(data.code || "").trim();
 
     if (!email || !code) {
       throw new HttpsError(
@@ -184,71 +413,91 @@ exports.verifySignupCode = onCall(
     }
 
     const ref =
-      db.collection("emailVerifications").doc(email);
+      db
+        .collection(VERIFY_COLLECTION)
+        .doc(email);
 
-    const snap = await ref.get();
+    const snap =
+      await ref.get();
 
     if (!snap.exists) {
       throw new HttpsError(
         "not-found",
-        "No verification code found."
+        "No verification code found. Please request a new code."
       );
     }
 
-    const saved = snap.data() || {};
+    const saved =
+      snap.data();
 
-    if (String(saved.code || "") !== code) {
+    const attempts =
+      Number(saved.attempts || 0);
+
+    if (attempts >= 5) {
+      throw new HttpsError(
+        "resource-exhausted",
+        "Too many attempts. Please request a new code."
+      );
+    }
+
+    if (
+      !saved.expiresAt ||
+      saved.expiresAt.toMillis() < Date.now()
+    ) {
+      throw new HttpsError(
+        "deadline-exceeded",
+        "Code expired. Please request a new code."
+      );
+    }
+
+    const valid =
+      saved.codeHash ===
+      hashCode(email, code);
+
+    if (!valid) {
+      await ref.update({
+        attempts:
+          admin.firestore.FieldValue.increment(1),
+
+        updatedAt:
+          admin.firestore.Timestamp.now(),
+      });
+
       throw new HttpsError(
         "permission-denied",
         "Invalid code."
       );
     }
 
-    if (
-      Date.now() >
-      Number(saved.expiresAt || 0)
-    ) {
-      throw new HttpsError(
-        "deadline-exceeded",
-        "Code expired."
-      );
-    }
+    await ref.update({
+      verified: true,
 
-    await ref.set(
-      {
-        verified: true,
+      verifiedAt:
+        admin.firestore.Timestamp.now(),
 
-        verifiedAt:
-          admin.firestore.FieldValue.serverTimestamp(),
-
-        updatedAt:
-          admin.firestore.FieldValue.serverTimestamp()
-      },
-      {
-        merge: true
-      }
-    );
+      updatedAt:
+        admin.firestore.Timestamp.now(),
+    });
 
     return {
       success: true,
-      verified: true
+      message: "Email verified.",
     };
   }
 );
 
 
-/* =========================================================
-   CREATE VERIFIED USER
-   ========================================================= */
-
 exports.createVerifiedUser = onCall(
   {
-    region: "us-central1",
-    secrets: [RESEND_API_KEY]
+    secrets: [
+      SMTP_EMAIL,
+      SMTP_PASSWORD
+    ]
   },
-  async (request) => {
 
-    const data = request.data || {};
+  async (request) => {
+    const data =
+      request.data || {};
 
     const email =
       cleanEmail(data.email);
@@ -268,47 +517,74 @@ exports.createVerifiedUser = onCall(
         `${firstName} ${lastName}`
       ).trim();
 
-    if (!email) {
+    if (
+      !email ||
+      !password ||
+      !firstName ||
+      !lastName
+    ) {
       throw new HttpsError(
         "invalid-argument",
-        "Email is required."
+        "Email, password, first name, and last name are required."
       );
     }
 
-    if (!/^\d{6}$/.test(password)) {
+    if (password.length < 6) {
       throw new HttpsError(
         "invalid-argument",
-        "Password must be exactly 6 numbers."
+        "Password must be 6 digits."
       );
     }
 
     const verifyRef =
-      db.collection("emailVerifications").doc(email);
+      db
+        .collection(VERIFY_COLLECTION)
+        .doc(email);
 
     const verifySnap =
       await verifyRef.get();
 
-    if (
-      !verifySnap.exists ||
-      verifySnap.data().verified !== true
-    ) {
+    if (!verifySnap.exists) {
       throw new HttpsError(
         "failed-precondition",
         "Please verify your email first."
       );
     }
 
+    const verifyData =
+      verifySnap.data();
+
+    if (!verifyData.verified) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Please verify your email first."
+      );
+    }
+
+    if (
+      !verifyData.expiresAt ||
+      verifyData.expiresAt.toMillis() <
+      Date.now()
+    ) {
+      throw new HttpsError(
+        "deadline-exceeded",
+        "Verification expired. Please request a new code."
+      );
+    }
+
     let userRecord;
 
     try {
-
       userRecord =
-        await auth.createUser({
-          email,
-          password,
-          displayName: fullName || email,
-          emailVerified: true
-        });
+        await admin
+          .auth()
+          .createUser({
+            email,
+            password,
+            displayName: fullName,
+            emailVerified: true,
+            disabled: false,
+          });
 
     } catch (err) {
 
@@ -322,262 +598,130 @@ exports.createVerifiedUser = onCall(
         );
       }
 
+      console.error(
+        "createUser error:",
+        err
+      );
+
       throw new HttpsError(
         "internal",
-        err.message ||
         "Could not create account."
       );
     }
 
+    const uid =
+      userRecord.uid;
 
-    /* =====================================================
-       SAVE USER
-       ===================================================== */
+    const now =
+      admin.firestore.Timestamp.now();
 
     await db
       .collection("users")
-      .doc(userRecord.uid)
+      .doc(uid)
       .set(
         {
-          uid: userRecord.uid,
+          uid,
           email,
           firstName,
           lastName,
           fullName,
-          displayName: fullName || email,
-          role: "",
-
-          createdAt:
-            admin.firestore.FieldValue.serverTimestamp(),
-
-          updatedAt:
-            admin.firestore.FieldValue.serverTimestamp(),
-
-          signInCount: 0
+          name: fullName,
+          displayName: fullName,
+          createdAt: now,
+          updatedAt: now,
+          emailVerified: true,
+          source:
+            "firebase-auth-code-signup",
+          termsAccepted: true,
+          role: "member",
         },
         {
           merge: true
         }
       );
 
+    await db
+      .collection("profiles")
+      .doc(uid)
+      .set(
+        {
+          uid,
+          email,
+          firstName,
+          lastName,
+          fullName,
+          name: fullName,
+          createdAt: now,
+          updatedAt: now,
+        },
+        {
+          merge: true
+        }
+      );
 
-    /* =====================================================
-       WELCOME EMAIL
-       ===================================================== */
-
-    const html = htmlWrap(
-      "Welcome to LinkTradeNetwork!",
-      `
-
-      <p>
-        Hi ${firstName || "there"},
-      </p>
-
-      <p>
-        Your account is verified and ready to use.
-      </p>
-
-
-      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:16px;margin:18px 0">
-
-        <p>
-          <b>Start here:</b>
-        </p>
-
-
-        <p>
-          🎥 <b>Upload Your 10-Second Trade Video</b>
-          and showcase your skills, work, projects,
-          trade tips, or something you learned on the job.
-        </p>
-
-
-        <p>
-          🏆 <b>Take the LinkTradeNetwork Skill Challenge &amp; Win</b>
-          — test your trade knowledge, compete with other members,
-          advance through the challenge, and compete for cash prizes.
-        </p>
-
-
-        <p>
-          🎓 <b>Join LinkTradeNetwork Interactive Training</b>
-          — participate in live skilled-trades training directly
-          inside LinkTradeNetwork. No separate Zoom or Teams
-          login is required.
-        </p>
-
-
-        <p>
-          ✅ Go to <b>Edit Profile</b>
-          and complete your information.
-        </p>
-
-
-        <p>
-          ✅ Mark whether you are an
-          <b>Apprentice/Student</b>
-          or an
-          <b>Instructor</b>.
-        </p>
-
-
-        <p>
-          ✅ <b>Instructors:</b>
-          add your instructor/class code
-          so students can connect to your class.
-        </p>
-
-
-        <p>
-          ✅ <b>Students/Apprentices:</b>
-          enter the instructor code provided by
-          your instructor or trade school.
-        </p>
-
-
-        <p>
-          ✅ Students can use
-          <b>Track My Progress</b>
-          to follow training units,
-          hours, and assignments.
-        </p>
-
-
-        <p>
-          ✅ Instructors can use the
-          <b>Instructor Dashboard</b>
-          to review students,
-          training progress,
-          assignments,
-          and class activity.
-        </p>
-
-      </div>
-
-
-      <p style="text-align:center;margin:24px 0">
-
-        <a
-          href="https://www.linktradenetwork.com/dashboard/"
-          style="
-            background:#ea6a00;
-            color:#fff;
-            padding:14px 24px;
-            border-radius:8px;
-            text-decoration:none;
-            font-weight:800;
-          "
-        >
-          Go to Dashboard
-        </a>
-
-      </p>
-
-
-      <p>
-        Thank you for joining LinkTradeNetwork.
-      </p>
-
-      `
-    );
+    await verifyRef.delete();
 
 
     /* =====================================================
        SEND WELCOME EMAIL
        ===================================================== */
 
-    await sendEmail(
-      RESEND_API_KEY.value(),
-      email,
-      "Welcome to LinkTradeNetwork!",
-      html,
+    try {
 
-      `Welcome to LinkTradeNetwork!
+      await sendWelcomeEmail({
+        to: email,
+        fullName,
+      });
 
-Your account is verified and ready to use.
+    } catch (emailErr) {
 
-START HERE:
+      console.error(
+        "Welcome email failed, but user was created:",
+        emailErr
+      );
 
-🎥 Upload Your 10-Second Trade Video and showcase your skills, work, projects, trade tips, or something you learned on the job.
-
-🏆 Take the LinkTradeNetwork Skill Challenge & Win — test your trade knowledge, compete with other members, advance through the challenge, and compete for cash prizes.
-
-🎓 Join LinkTradeNetwork Interactive Training — participate in live skilled-trades training directly inside LinkTradeNetwork. No separate Zoom or Teams login is required.
-
-✅ Go to Edit Profile and complete your information.
-
-✅ Mark whether you are an Apprentice/Student or an Instructor.
-
-✅ Instructors: add your instructor/class code so students can connect to your class.
-
-✅ Students/Apprentices: enter the instructor code provided by your instructor or trade school.
-
-✅ Students can use Track My Progress to follow training units, hours, and assignments.
-
-✅ Instructors can use the Instructor Dashboard to review students, training progress, assignments, and class activity.
-
-Go to Dashboard:
-https://www.linktradenetwork.com/dashboard/
-
-Thank you for joining LinkTradeNetwork.
-
-LinkTradeNetwork Team
-team@linktradenetwork.com`
-    );
-
-
-    /* =====================================================
-       MARK ACCOUNT CREATED
-       ===================================================== */
-
-    await verifyRef.set(
-      {
-        accountCreated: true,
-
-        uid:
-          userRecord.uid,
-
-        accountCreatedAt:
-          admin.firestore.FieldValue.serverTimestamp()
-      },
-      {
-        merge: true
-      }
-    );
+    }
 
 
     return {
       success: true,
-      uid: userRecord.uid,
-      message: "Account created successfully."
+      uid,
+      email,
+      fullName,
     };
-
   }
 );
 
 
-/* =========================================================
-   MEMBER COUNT
-   ========================================================= */
-
 exports.getMemberCount = onCall(
-  {
-    region: "us-central1"
-  },
-
   async () => {
 
-    const snap =
-      await db
-        .collection("users")
-        .count()
-        .get();
+    try {
 
-    return {
-      success: true,
-      count:
-        snap.data().count || 0
-    };
+      const snap =
+        await db
+          .collection("users")
+          .count()
+          .get();
+
+      return {
+        success: true,
+        count:
+          snap.data().count || 0,
+      };
+
+    } catch (err) {
+
+      console.error(
+        "getMemberCount error:",
+        err
+      );
+
+      return {
+        success: true,
+        count: 0,
+      };
+    }
 
   }
 );
