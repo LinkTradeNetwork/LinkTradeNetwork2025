@@ -119,29 +119,78 @@ async function sendWelcomeEmail({ to, fullName }) {
         Hi ${fullName || "there"},
       </p>
 
-      <p style="font-size:17px;font-weight:700;margin-bottom:20px">
-        Your account is verified! Here is what you can do on LTN:
+      <p style="font-size:17px;font-weight:700;margin-bottom:8px">
+        Your account is verified and ready to use.
       </p>
+
+      <p style="font-size:15px;color:#475569;line-height:1.6;margin-top:0;margin-bottom:22px">
+        Before you start using the platform, please complete your profile.
+        This helps LinkTradeNetwork connect you with the right people, training,
+        classes, and trade opportunities.
+      </p>
+
+      <div style="background:#fff7ed;border:2px solid #ea6a00;border-radius:10px;padding:20px;margin-bottom:22px">
+
+        <h2 style="color:#ea6a00;margin:0 0 14px;font-size:21px">
+          Start Here — Complete Your Profile
+        </h2>
+
+        <p style="margin:0 0 14px;line-height:1.55">
+          <b>1. Go to Edit Profile</b><br>
+          Add your trade, experience, location, skills, certifications, and other information about yourself.
+        </p>
+
+        <p style="margin:0 0 14px;line-height:1.55">
+          <b>2. Select Your Role</b><br>
+          Choose whether you are an <b>Apprentice/Student</b>, <b>Instructor</b>,
+          <b>Contractor/Employer</b>, or <b>Skilled Trade Professional</b>.
+        </p>
+
+        <p style="margin:0 0 14px;line-height:1.55">
+          <b>3. Connect Your Training</b><br>
+          <b>Students/Apprentices:</b> enter the instructor or class code provided by your instructor or trade school.<br><br>
+          <b>Instructors:</b> add your instructor/class information so students can connect with you.
+        </p>
+
+        <p style="margin:0;line-height:1.55">
+          <b>4. Save Your Profile</b><br>
+          Once your profile is complete, you are ready to start using LinkTradeNetwork.
+        </p>
+
+      </div>
+
+      <div style="text-align:center;margin:24px 0 30px">
+
+        <a
+          href="https://linktradenetwork.com/dashboard/"
+          style="
+            background:#ea6a00;
+            color:white;
+            padding:15px 24px;
+            text-decoration:none;
+            border-radius:8px;
+            font-weight:800;
+            display:inline-block;
+          "
+        >
+          Go to Dashboard &amp; Edit Profile
+        </a>
+
+      </div>
 
       <div style="background:#f8fafc;border-radius:10px;padding:20px">
 
-        <h3 style="color:#ea6a00;margin:0 0 8px">
-          Find Skilled Trade Jobs
-        </h3>
-
-        <p style="color:#64748b;margin:0 0 18px;line-height:1.5">
-          Browse trade opportunities by location, trade, job type, and company.
-        </p>
-
+        <h2 style="color:#1e293b;margin:0 0 18px;font-size:20px">
+          After Your Profile Is Complete
+        </h2>
 
         <h3 style="color:#ea6a00;margin:0 0 8px">
           Use the Apprenticeship Dashboard
         </h3>
 
         <p style="color:#64748b;margin:0 0 18px;line-height:1.5">
-          Track your hours, completed skills, certifications, and progress as you build your trade career.
+          Track your hours, completed skills, certifications, assignments, and progress as you build your trade career.
         </p>
-
 
         <h3 style="color:#ea6a00;margin:0 0 8px">
           Connect with Members
@@ -151,7 +200,6 @@ async function sendWelcomeEmail({ to, fullName }) {
           Build your professional trade network, send connection requests, and message other members.
         </p>
 
-
         <h3 style="color:#ea6a00;margin:0 0 8px">
           Post and Share Updates
         </h3>
@@ -159,7 +207,6 @@ async function sendWelcomeEmail({ to, fullName }) {
         <p style="color:#64748b;margin:0 0 18px;line-height:1.5">
           Share your work, ask questions, post trade updates, and stay active in the community feed.
         </p>
-
 
         <h3 style="color:#ea6a00;margin:0 0 8px">
           Upload Your 10-Second Trade Video
@@ -169,7 +216,6 @@ async function sendWelcomeEmail({ to, fullName }) {
           Upload short videos of projects, progress, tools, job sites, trade tips, and real trade accomplishments.
         </p>
 
-
         <h3 style="color:#ea6a00;margin:0 0 8px">
           Take the Skill Challenge &amp; Win
         </h3>
@@ -177,7 +223,6 @@ async function sendWelcomeEmail({ to, fullName }) {
         <p style="color:#64748b;margin:0 0 18px;line-height:1.5">
           Test your trade knowledge, compete with other members, advance through the challenge, and compete for cash prizes.
         </p>
-
 
         <h3 style="color:#ea6a00;margin:0 0 8px">
           Join Interactive Training
@@ -190,26 +235,7 @@ async function sendWelcomeEmail({ to, fullName }) {
 
       </div>
 
-
       <div style="text-align:center;margin:28px 0">
-
-        <a
-          href="https://linktradenetwork.com/dashboard/"
-          style="
-            background:#ea6a00;
-            color:white;
-            padding:14px 24px;
-            text-decoration:none;
-            border-radius:8px;
-            font-weight:700;
-            display:inline-block;
-            margin-bottom:12px;
-          "
-        >
-          Go to Dashboard
-        </a>
-
-        <br>
 
         <a
           href="https://linktradenetwork.com/SkillChallenge/"
@@ -245,7 +271,6 @@ async function sendWelcomeEmail({ to, fullName }) {
 
       </div>
 
-
       <p style="margin-bottom:0">
         Welcome aboard,<br>
         <b>LinkTradeNetwork Team</b>
@@ -265,18 +290,34 @@ Hi ${fullName || "there"},
 
 Welcome to LinkTradeNetwork. Your account has been created successfully.
 
-Here is what you can do on LTN:
+START HERE — COMPLETE YOUR PROFILE
 
-- Find skilled trade jobs.
-- Use the Apprenticeship Dashboard to track hours, skills, certifications, and progress.
+Before you start using the platform, please complete your profile.
+
+1. Go to Edit Profile
+Add your trade, experience, location, skills, certifications, and other information about yourself.
+
+2. Select Your Role
+Choose whether you are an Apprentice/Student, Instructor, Contractor/Employer, or Skilled Trade Professional.
+
+3. Connect Your Training
+Students/Apprentices: enter the instructor or class code provided by your instructor or trade school.
+Instructors: add your instructor/class information so students can connect with you.
+
+4. Save Your Profile
+Once your profile is complete, you are ready to start using LinkTradeNetwork.
+
+Go to Dashboard and Edit Profile:
+https://linktradenetwork.com/dashboard/
+
+AFTER YOUR PROFILE IS COMPLETE:
+
+- Use the Apprenticeship Dashboard to track hours, skills, certifications, assignments, and progress.
 - Connect with members and build your professional trade network.
 - Post and share updates.
 - Upload your 10-second trade video.
 - Take the LinkTradeNetwork Skill Challenge and compete to win cash prizes.
 - Join Interactive Training directly inside LinkTradeNetwork with no separate Zoom or Teams login required.
-
-Dashboard:
-https://linktradenetwork.com/dashboard/
 
 Skill Challenge:
 https://linktradenetwork.com/SkillChallenge/
@@ -291,7 +332,7 @@ LinkTradeNetwork Team
   await transporter.sendMail({
     from: `"LinkTradeNetwork" <${SMTP_EMAIL.value()}>`,
     to,
-    subject: "Welcome to LinkTradeNetwork",
+    subject: "Welcome to LinkTradeNetwork — Complete Your Profile",
     text,
     html,
   });
