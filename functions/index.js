@@ -14,6 +14,11 @@ const FROM_EMAIL = "LinkTradeNetwork Team <team@linktradenetwork.com>";
 const REPLY_TO = "team@linktradenetwork.com";
 const OTP_TTL_MINUTES = 10;
 
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
 function cleanEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
@@ -24,29 +29,59 @@ function makeCode() {
 
 function htmlWrap(title, body) {
   return `
-  <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;background:#ffffff">
+  <div style="
+    font-family:Arial,sans-serif;
+    max-width:620px;
+    margin:0 auto;
+    background:#ffffff;
+  ">
 
-    <div style="background:#ea6a00;padding:22px;text-align:center;border-radius:10px 10px 0 0">
+    <div style="
+      background:#ea6a00;
+      padding:22px;
+      text-align:center;
+      border-radius:10px 10px 0 0;
+    ">
 
-      <h2 style="color:#fff;margin:0;font-size:24px">
+      <h2 style="
+        color:#fff;
+        margin:0;
+        font-size:24px;
+      ">
         LinkTradeNetwork
       </h2>
 
-      <p style="color:#fff;margin:6px 0 0;font-weight:700">
+      <p style="
+        color:#fff;
+        margin:6px 0 0;
+        font-weight:700;
+      ">
         Trades on the Rise
       </p>
 
     </div>
 
-    <div style="padding:26px;border:1px solid #e2e8f0;border-top:0;border-radius:0 0 10px 10px">
+    <div style="
+      padding:26px;
+      border:1px solid #e2e8f0;
+      border-top:0;
+      border-radius:0 0 10px 10px;
+    ">
 
-      <h2 style="color:#172033;margin-top:0">
+      <h2 style="
+        color:#172033;
+        margin-top:0;
+      ">
         ${title}
       </h2>
 
       ${body}
 
-      <p style="font-size:12px;color:#64748b;margin-top:26px">
+      <p style="
+        font-size:12px;
+        color:#64748b;
+        margin-top:26px;
+      ">
         LinkTradeNetwork Team<br>
         <a href="mailto:${REPLY_TO}">
           ${REPLY_TO}
@@ -55,7 +90,8 @@ function htmlWrap(title, body) {
 
     </div>
 
-  </div>`;
+  </div>
+  `;
 }
 
 
@@ -140,38 +176,27 @@ exports.requestVerificationCode = onCall(
       .doc(email)
       .set(
         {
-
           email,
-
           firstName,
-
           lastName,
-
           fullName,
-
           code,
-
           verified: false,
-
           expiresAt,
 
           userAgent:
             String(data.userAgent || ""),
 
           createdAt:
-            admin.firestore.FieldValue
-              .serverTimestamp(),
+            admin.firestore.FieldValue.serverTimestamp(),
 
           updatedAt:
-            admin.firestore.FieldValue
-              .serverTimestamp()
-
+            admin.firestore.FieldValue.serverTimestamp()
         },
 
         {
           merge: true
         }
-
       );
 
 
@@ -189,7 +214,6 @@ exports.requestVerificationCode = onCall(
         Your LinkTradeNetwork verification code is:
       </p>
 
-
       <div style="
         font-size:38px;
         font-weight:800;
@@ -205,12 +229,10 @@ exports.requestVerificationCode = onCall(
         ${code}
       </div>
 
-
       <p>
         This code expires in
         <b>${OTP_TTL_MINUTES} minutes</b>.
       </p>
-
 
       <p>
         If you did not request this,
@@ -223,27 +245,17 @@ exports.requestVerificationCode = onCall(
 
 
     await sendEmail(
-
       RESEND_API_KEY.value(),
-
       email,
-
       "Your LinkTradeNetwork verification code",
-
       html,
-
       `Your LinkTradeNetwork verification code is ${code}. It expires in ${OTP_TTL_MINUTES} minutes.`
-
     );
 
 
     return {
-
       success: true,
-
-      message:
-        "Verification code sent."
-
+      message: "Verification code sent."
     };
 
   }
@@ -266,10 +278,8 @@ exports.verifySignupCode = onCall(
     const data =
       request.data || {};
 
-
     const email =
       cleanEmail(data.email);
-
 
     const code =
       String(data.code || "").trim();
@@ -337,17 +347,13 @@ exports.verifySignupCode = onCall(
     await ref.set(
 
       {
-
         verified: true,
 
         verifiedAt:
-          admin.firestore.FieldValue
-            .serverTimestamp(),
+          admin.firestore.FieldValue.serverTimestamp(),
 
         updatedAt:
-          admin.firestore.FieldValue
-            .serverTimestamp()
-
+          admin.firestore.FieldValue.serverTimestamp()
       },
 
       {
@@ -358,11 +364,8 @@ exports.verifySignupCode = onCall(
 
 
     return {
-
       success: true,
-
       verified: true
-
     };
 
   }
@@ -386,22 +389,17 @@ exports.createVerifiedUser = onCall(
     const data =
       request.data || {};
 
-
     const email =
       cleanEmail(data.email);
-
 
     const password =
       String(data.password || "").trim();
 
-
     const firstName =
       String(data.firstName || "").trim();
 
-
     const lastName =
       String(data.lastName || "").trim();
-
 
     const fullName =
       String(
@@ -506,7 +504,6 @@ exports.createVerifiedUser = onCall(
       .collection("users")
       .doc(userRecord.uid)
       .set(
-
         {
 
           uid:
@@ -526,12 +523,10 @@ exports.createVerifiedUser = onCall(
           role: "",
 
           createdAt:
-            admin.firestore.FieldValue
-              .serverTimestamp(),
+            admin.firestore.FieldValue.serverTimestamp(),
 
           updatedAt:
-            admin.firestore.FieldValue
-              .serverTimestamp(),
+            admin.firestore.FieldValue.serverTimestamp(),
 
           signInCount: 0
 
@@ -540,7 +535,6 @@ exports.createVerifiedUser = onCall(
         {
           merge: true
         }
-
       );
 
 
@@ -558,468 +552,249 @@ exports.createVerifiedUser = onCall(
         Hi ${firstName || "there"},
       </p>
 
-
-      <p style="
-        font-size:17px;
-        line-height:1.6;
-        color:#172033;
-      ">
-
-        <b>
-          Your account is verified and you're officially
-          part of LinkTradeNetwork.
-        </b>
-
+      <p>
+        Your account is verified and ready to use.
       </p>
 
 
-      <p style="
-        font-size:16px;
-        line-height:1.6;
-        color:#475569;
-      ">
-
-        LinkTradeNetwork is the
-        <b>
-          career and training platform built for the skilled trades.
-        </b>
-
-        Learn, showcase your skills, challenge your knowledge,
-        connect with the trade community, and grow your career.
-
-      </p>
-
-
-      <div style="
-        background:#172033;
-        border-radius:12px;
-        padding:16px;
-        text-align:center;
-        margin:20px 0;
-      ">
-
-        <div style="
-          color:#ffffff;
-          font-size:17px;
-          font-weight:900;
-          line-height:1.5;
-        ">
-
-          LEARN • SHOW YOUR SKILLS • COMPETE • CONNECT • GROW
-
-        </div>
-
-      </div>
-
-
       <!-- =================================================
-           UPLOAD 10 SECOND VIDEO
-           ================================================= -->
-
-      <div style="
-        background:#172033;
-        border:3px solid #ea6a00;
-        border-radius:12px;
-        padding:22px;
-        margin:22px 0;
-        text-align:center;
-      ">
-
-
-        <div style="
-          font-size:34px;
-          margin-bottom:8px;
-        ">
-          🎥
-        </div>
-
-
-        <div style="
-          color:#ffffff;
-          font-size:21px;
-          line-height:1.25;
-          font-weight:900;
-          margin-bottom:10px;
-        ">
-
-          UPLOAD YOUR
-          <span style="color:#ff8a1f">
-            10-SECOND TRADE VIDEO
-          </span>
-
-        </div>
-
-
-        <p style="
-          color:#e2e8f0;
-          line-height:1.6;
-          margin:0 0 18px;
-          font-size:15px;
-        ">
-
-          Show the LinkTradeNetwork community what you can do.
-
-          Upload a 10-second video of your work,
-          skills, trade tips, projects, or something
-          you've learned on the job.
-
-        </p>
-
-
-        <a
-
-          href="https://www.linktradenetwork.com/dashboard/"
-
-          style="
-            display:inline-block;
-            background:#ea6a00;
-            color:#ffffff;
-            padding:14px 24px;
-            border-radius:8px;
-            text-decoration:none;
-            font-weight:900;
-            font-size:15px;
-          "
-
-        >
-
-          🎥 UPLOAD YOUR 10-SECOND VIDEO →
-
-        </a>
-
-
-      </div>
-
-
-      <!-- =================================================
-           SKILL CHALLENGE
+           START HERE
            ================================================= -->
 
       <div style="
         background:#fff7ed;
-        border:3px solid #ea6a00;
-        border-radius:12px;
-        padding:22px;
-        margin:22px 0;
-        text-align:center;
+        border:1px solid #fed7aa;
+        border-radius:10px;
+        padding:18px;
+        margin:18px 0;
       ">
 
 
-        <div style="
-          font-size:36px;
-          margin-bottom:8px;
-        ">
-          🏆
-        </div>
-
-
-        <div style="
-          color:#172033;
-          font-size:22px;
-          line-height:1.25;
-          font-weight:900;
-          margin-bottom:10px;
-        ">
-
-          TAKE THE SKILL CHALLENGE
-          <br>
-
-          <span style="
-            color:#ea6a00;
-            font-size:25px;
-          ">
-
-            &amp; COMPETE TO WIN
-
-          </span>
-
-        </div>
-
-
         <p style="
-          color:#475569;
-          line-height:1.6;
-          margin:0 0 18px;
-          font-size:15px;
+          font-size:18px;
+          color:#172033;
+          margin-top:0;
+          margin-bottom:18px;
         ">
-
-          Think you know your trade?
-
-          Test your knowledge in the
-          <b>LinkTradeNetwork Skill Challenge</b>,
-          compete against other members,
-          and earn your chance to advance
-          and <b>win cash prizes.</b>
-
+          <b>Start here:</b>
         </p>
 
 
+        <!-- =============================================
+             UPLOAD 10 SECOND VIDEO
+             ============================================= -->
+
+        <div style="
+          background:#ffffff;
+          border:2px solid #ea6a00;
+          border-radius:10px;
+          padding:16px;
+          margin:0 0 16px;
+        ">
+
+          <p style="
+            font-size:17px;
+            margin:0 0 8px;
+            color:#172033;
+          ">
+            🎥 <b>Upload Your 10-Second Trade Video</b>
+          </p>
+
+          <p style="
+            color:#475569;
+            line-height:1.5;
+            margin:0 0 12px;
+          ">
+            Show your skills, your work, a trade tip,
+            a project, or something you've learned on the job.
+          </p>
+
+          <a
+            href="https://www.linktradenetwork.com/dashboard/"
+            style="
+              display:inline-block;
+              background:#ea6a00;
+              color:#ffffff;
+              padding:11px 17px;
+              border-radius:7px;
+              text-decoration:none;
+              font-weight:800;
+            "
+          >
+            Upload Your 10-Second Video →
+          </a>
+
+        </div>
+
+
+        <!-- =============================================
+             SKILL CHALLENGE
+             ============================================= -->
+
+        <div style="
+          background:#ffffff;
+          border:2px solid #ea6a00;
+          border-radius:10px;
+          padding:16px;
+          margin:0 0 16px;
+        ">
+
+          <p style="
+            font-size:17px;
+            margin:0 0 8px;
+            color:#172033;
+          ">
+            🏆 <b>Take the Skill Challenge &amp; Win</b>
+          </p>
+
+          <p style="
+            color:#475569;
+            line-height:1.5;
+            margin:0 0 12px;
+          ">
+            Test your trade knowledge,
+            compete against other LinkTradeNetwork members,
+            advance through the challenge,
+            and compete for cash prizes.
+          </p>
+
+          <a
+            href="https://www.linktradenetwork.com/SkillChallenge/"
+            style="
+              display:inline-block;
+              background:#172033;
+              color:#ffffff;
+              padding:11px 17px;
+              border-radius:7px;
+              text-decoration:none;
+              font-weight:800;
+            "
+          >
+            Take the Skill Challenge →
+          </a>
+
+        </div>
+
+
+        <!-- =============================================
+             INTERACTIVE TRAINING
+             ============================================= -->
+
+        <div style="
+          background:#ffffff;
+          border:2px solid #ea6a00;
+          border-radius:10px;
+          padding:16px;
+          margin:0 0 20px;
+        ">
+
+          <p style="
+            font-size:17px;
+            margin:0 0 8px;
+            color:#172033;
+          ">
+            🎓 <b>Join Interactive Training</b>
+          </p>
+
+          <p style="
+            color:#475569;
+            line-height:1.5;
+            margin:0 0 12px;
+          ">
+            Join live skilled-trades training directly
+            inside LinkTradeNetwork.
+            No separate Zoom or Teams login is required.
+          </p>
+
+          <a
+            href="https://www.linktradenetwork.com/interactive-training/"
+            style="
+              display:inline-block;
+              background:#ea6a00;
+              color:#ffffff;
+              padding:11px 17px;
+              border-radius:7px;
+              text-decoration:none;
+              font-weight:800;
+            "
+          >
+            Open Interactive Training →
+          </a>
+
+        </div>
+
+
+        <!-- =============================================
+             ORIGINAL START HERE ITEMS
+             ============================================= -->
+
+        <p>
+          ✅ Go to <b>Edit Profile</b>
+          and complete your information.
+        </p>
+
+        <p>
+          ✅ Mark whether you are an
+          <b>Apprentice/Student</b>
+          or an
+          <b>Instructor</b>.
+        </p>
+
+        <p>
+          ✅ <b>Instructors:</b>
+          add your instructor/class code
+          so students can connect to your class.
+        </p>
+
+        <p>
+          ✅ <b>Students/Apprentices:</b>
+          enter the instructor code provided by
+          your instructor or trade school.
+        </p>
+
+        <p>
+          ✅ Students can use
+          <b>Track My Progress</b>
+          to follow training units,
+          hours, and assignments.
+        </p>
+
+        <p>
+          ✅ Instructors can use the
+          <b>Instructor Dashboard</b>
+          to review students,
+          training progress,
+          assignments,
+          and class activity.
+        </p>
+
+
+      </div>
+
+
+      <!-- =================================================
+           DASHBOARD BUTTON
+           ================================================= -->
+
+      <p style="
+        text-align:center;
+        margin:24px 0;
+      ">
+
         <a
-
-          href="https://www.linktradenetwork.com/SkillChallenge/"
-
+          href="https://www.linktradenetwork.com/dashboard/"
           style="
             display:inline-block;
             background:#ea6a00;
-            color:#ffffff;
+            color:#fff;
             padding:14px 24px;
             border-radius:8px;
             text-decoration:none;
-            font-weight:900;
-            font-size:15px;
+            font-weight:800;
           "
-
         >
-
-          🏆 TAKE THE SKILL CHALLENGE →
-
+          Go to Dashboard
         </a>
-
-
-      </div>
-
-
-      <!-- =================================================
-           INTERACTIVE TRAINING
-           ================================================= -->
-
-      <div style="
-        background:#f8fafc;
-        border:1px solid #e2e8f0;
-        border-radius:10px;
-        padding:18px;
-        margin:18px 0;
-      ">
-
-
-        <p style="
-          font-size:18px;
-          margin:0 0 8px;
-          color:#172033;
-        ">
-
-          <b>
-            🎓 Join Interactive Training
-          </b>
-
-        </p>
-
-
-        <p style="
-          margin:0;
-          line-height:1.6;
-          color:#475569;
-        ">
-
-          Join live skilled-trades training directly
-          inside LinkTradeNetwork.
-
-          No separate Zoom or Teams login is required.
-
-        </p>
-
-
-      </div>
-
-
-      <!-- =================================================
-           TRADE PROFILE
-           ================================================= -->
-
-      <div style="
-        background:#f8fafc;
-        border:1px solid #e2e8f0;
-        border-radius:10px;
-        padding:18px;
-        margin:18px 0;
-      ">
-
-
-        <p style="
-          font-size:18px;
-          margin:0 0 8px;
-          color:#172033;
-        ">
-
-          <b>
-            👤 Build Your Trade Profile
-          </b>
-
-        </p>
-
-
-        <p style="
-          margin:0;
-          line-height:1.6;
-          color:#475569;
-        ">
-
-          Go to <b>Edit Profile</b> and add your trade,
-          experience, skills, certifications,
-          accomplishments, and real work.
-
-        </p>
-
-
-      </div>
-
-
-      <!-- =================================================
-           APPRENTICES / STUDENTS
-           ================================================= -->
-
-      <div style="
-        background:#f8fafc;
-        border:1px solid #e2e8f0;
-        border-radius:10px;
-        padding:18px;
-        margin:18px 0;
-      ">
-
-
-        <p style="
-          font-size:18px;
-          margin:0 0 8px;
-          color:#172033;
-        ">
-
-          <b>
-            📈 Apprentices &amp; Students
-          </b>
-
-        </p>
-
-
-        <p style="
-          margin:0;
-          line-height:1.6;
-          color:#475569;
-        ">
-
-          Use <b>Track My Progress</b>
-          to follow your training units,
-          hours, skills, assignments,
-          and accomplishments.
-
-        </p>
-
-
-        <p style="
-          margin:10px 0 0;
-          line-height:1.6;
-          color:#475569;
-        ">
-
-          Enter the instructor code provided
-          by your instructor or trade school
-          to connect with your class.
-
-        </p>
-
-
-      </div>
-
-
-      <!-- =================================================
-           INSTRUCTORS
-           ================================================= -->
-
-      <div style="
-        background:#f8fafc;
-        border:1px solid #e2e8f0;
-        border-radius:10px;
-        padding:18px;
-        margin:18px 0;
-      ">
-
-
-        <p style="
-          font-size:18px;
-          margin:0 0 8px;
-          color:#172033;
-        ">
-
-          <b>
-            👨‍🏫 Instructors
-          </b>
-
-        </p>
-
-
-        <p style="
-          margin:0;
-          line-height:1.6;
-          color:#475569;
-        ">
-
-          Add your instructor/class code
-          and use the <b>Instructor Dashboard</b>
-          to connect with students,
-          review training progress,
-          assignments, and class activity.
-
-        </p>
-
-
-      </div>
-
-
-      <!-- =================================================
-           MAIN DASHBOARD
-           ================================================= -->
-
-      <p style="
-        text-align:center;
-        margin:28px 0;
-      ">
-
-
-        <a
-
-          href="https://www.linktradenetwork.com/dashboard/"
-
-          style="
-            display:inline-block;
-            background:#172033;
-            color:#ffffff;
-            padding:15px 28px;
-            border-radius:8px;
-            text-decoration:none;
-            font-weight:900;
-            font-size:16px;
-          "
-
-        >
-
-          ENTER LINKTRADENETWORK →
-
-        </a>
-
-
-      </p>
-
-
-      <p style="
-        text-align:center;
-        font-size:18px;
-        font-weight:900;
-        color:#172033;
-        margin-top:26px;
-      ">
-
-        Learn It. Build It. Show It. Grow It.
-
-      </p>
-
-
-      <p style="
-        text-align:center;
-        color:#ea6a00;
-        font-weight:900;
-        font-size:17px;
-      ">
-
-        Trades on the Rise
 
       </p>
 
@@ -1051,40 +826,50 @@ exports.createVerifiedUser = onCall(
 
 Your account is verified and ready to use.
 
-LinkTradeNetwork is the career and training platform built for the skilled trades.
-
 START HERE:
 
 1. UPLOAD YOUR 10-SECOND TRADE VIDEO
-Show the LinkTradeNetwork community your work, skills, projects, trade tips, or something you learned on the job.
+
+Show your skills, your work, a trade tip, a project, or something you've learned on the job.
 
 Upload your video:
 https://www.linktradenetwork.com/dashboard/
 
-2. TAKE THE SKILL CHALLENGE & COMPETE TO WIN
-Test your trade knowledge, compete against other members, advance through the challenge, and compete for cash prizes.
+
+2. TAKE THE SKILL CHALLENGE & WIN
+
+Test your trade knowledge, compete against other LinkTradeNetwork members, advance through the challenge, and compete for cash prizes.
 
 Take the Skill Challenge:
 https://www.linktradenetwork.com/SkillChallenge/
 
+
 3. JOIN INTERACTIVE TRAINING
-Participate in live skilled-trades training directly inside LinkTradeNetwork.
 
-4. BUILD YOUR TRADE PROFILE
-Add your trade, experience, skills, certifications, accomplishments, and real work.
+Join live skilled-trades training directly inside LinkTradeNetwork. No separate Zoom or Teams login is required.
 
-5. TRACK YOUR PROGRESS
-Apprentices and students can track training units, hours, skills, and assignments.
+Interactive Training:
+https://www.linktradenetwork.com/interactive-training/
 
-6. INSTRUCTOR DASHBOARD
-Instructors can connect with students and manage training progress, assignments, and class activity.
 
-Enter LinkTradeNetwork:
+4. Go to Edit Profile and complete your information.
+
+5. Mark whether you are an Apprentice/Student or an Instructor.
+
+6. Instructors: add your instructor/class code so students can connect to your class.
+
+7. Students/Apprentices: enter the instructor code provided by your instructor or trade school.
+
+8. Students can use Track My Progress to follow training units, hours, and assignments.
+
+9. Instructors can use the Instructor Dashboard to review students, training progress, assignments, and class activity.
+
+
+Go to Dashboard:
 https://www.linktradenetwork.com/dashboard/
 
-Learn It. Build It. Show It. Grow It.
 
-Trades on the Rise.
+Thank you for joining LinkTradeNetwork.
 
 LinkTradeNetwork Team
 team@linktradenetwork.com`
@@ -1106,8 +891,7 @@ team@linktradenetwork.com`
           userRecord.uid,
 
         accountCreatedAt:
-          admin.firestore.FieldValue
-            .serverTimestamp()
+          admin.firestore.FieldValue.serverTimestamp()
 
       },
 
@@ -1136,7 +920,7 @@ team@linktradenetwork.com`
 
 
 /* =========================================================
-   MEMBER COUNT
+   GET MEMBER COUNT
    ========================================================= */
 
 exports.getMemberCount = onCall(
