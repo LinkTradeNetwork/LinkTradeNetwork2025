@@ -162,7 +162,7 @@ async function sendWelcomeEmail({ to, fullName }) {
       <div style="text-align:center;margin:24px 0 30px">
 
         <a
-          href="https://linktradenetwork.com/dashboard/"
+          href="https://linktradenetwork.com/front.html"
           style="
             background:#ea6a00;
             color:white;
@@ -238,7 +238,7 @@ async function sendWelcomeEmail({ to, fullName }) {
       <div style="text-align:center;margin:28px 0">
 
         <a
-          href="https://linktradenetwork.com/SkillChallenge/"
+          href="https://linktradenetwork.com/front.html"
           style="
             background:#172033;
             color:white;
@@ -254,7 +254,7 @@ async function sendWelcomeEmail({ to, fullName }) {
         </a>
 
         <a
-          href="https://linktradenetwork.com/interactive-training/"
+          href="https://linktradenetwork.com/front.html"
           style="
             background:#3d5a80;
             color:white;
@@ -307,8 +307,8 @@ Instructors: add your instructor/class information so students can connect with 
 4. Save Your Profile
 Once your profile is complete, you are ready to start using LinkTradeNetwork.
 
-Go to Dashboard and Edit Profile:
-https://linktradenetwork.com/dashboard/
+Go to the LinkTradeNetwork Sign-Up Sheet:
+https://linktradenetwork.com/front.html
 
 AFTER YOUR PROFILE IS COMPLETE:
 
@@ -319,11 +319,11 @@ AFTER YOUR PROFILE IS COMPLETE:
 - Take the LinkTradeNetwork Skill Challenge and compete to win cash prizes.
 - Join Interactive Training directly inside LinkTradeNetwork with no separate Zoom or Teams login required.
 
-Skill Challenge:
-https://linktradenetwork.com/SkillChallenge/
+Skill Challenge Sign-Up:
+https://linktradenetwork.com/front.html
 
-Interactive Training:
-https://linktradenetwork.com/interactive-training/
+Interactive Training Sign-Up:
+https://linktradenetwork.com/front.html
 
 Welcome aboard,
 LinkTradeNetwork Team
