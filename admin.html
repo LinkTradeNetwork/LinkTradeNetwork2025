@@ -1,3 +1,6 @@
+Pasted text(20260823-165848).txt
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +9,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>LTN Admin Dashboard</title>
 
-  <!-- LTN FORCE UPDATE VERSION: admin-skill-challenge-v27 -->
+  <!-- LTN FORCE UPDATE VERSION: admin-skill-challenge-v28 -->
 
   <style>
     :root {
@@ -1086,8 +1089,12 @@
         <span>Perfect Scores</span>
       </div>
       <div class="challenge-summary-card">
-        <strong id="challengeFastestTime">0.00s</strong>
-        <span>Fastest Completion</span>
+        <strong id="challengeAverageTime">0.00s</strong>
+        <span>Avg. Completion Time</span>
+      </div>
+      <div class="challenge-summary-card">
+        <strong id="challengeAverageScore">0%</strong>
+        <span>Avg. Score %</span>
       </div>
     </div>
 
@@ -1631,13 +1638,21 @@
       .map(getChallengeTimeSeconds)
       .filter(value => value > 0);
 
-    const fastest = times.length ? Math.min(...times) : 0;
+    const averageTime = times.length
+      ? times.reduce((sum, value) => sum + value, 0) / times.length
+      : 0;
+
+    const averageScorePercent = total
+      ? ranked.reduce((sum, item) => sum + getChallengePercent(item), 0) / total
+      : 0;
 
     document.getElementById("challengeTotalAttempts").textContent = total;
     document.getElementById("challengeTopScore").textContent = topPercent + "%";
     document.getElementById("challengePerfectScores").textContent = perfectScores;
-    document.getElementById("challengeFastestTime").textContent =
-      fastest ? fastest.toFixed(2) + "s" : "0.00s";
+    document.getElementById("challengeAverageTime").textContent =
+      averageTime ? averageTime.toFixed(2) + "s" : "0.00s";
+    document.getElementById("challengeAverageScore").textContent =
+      averageScorePercent ? averageScorePercent.toFixed(1) + "%" : "0%";
   }
 
   function renderPaginatedTable(type, data, tableId, renderRow) {
