@@ -1,3 +1,8 @@
+Library
+/
+Pasted text(20260823-172333).txt
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -917,16 +922,26 @@
   let attemptDocRef = null;
 
   const NEC_QUESTION_BANK = [
-    {q:"What does NEC stand for?",answers:["National Electrical Code","National Energy Circuit","Network Electrical Control","National Equipment Code"],correct:0},
-    {q:"Which conductor is normally used as the equipment grounding conductor?",answers:["White","Gray","Green or bare","Orange"],correct:2},
-    {q:"What device is intended to protect people from ground-fault shock hazards?",answers:["GFCI","Contactor","Transformer","Disconnect only"],correct:0},
-    {q:"A circuit breaker is primarily used for what purpose?",answers:["Overcurrent protection","Voltage boosting","Power-factor correction","Frequency control"],correct:0},
-    {q:"Which conductor is commonly identified by white or gray insulation?",answers:["Grounded conductor","Equipment grounding conductor","Ungrounded conductor only","Bonding jumper only"],correct:0},
-    {q:"Which protection is designed to detect certain dangerous arcing conditions?",answers:["AFCI","GFCI only","Fuse puller","Isolation relay"],correct:0},
-    {q:"What is the main purpose of an equipment grounding conductor?",answers:["Provide a low-impedance fault-current path","Carry normal load current","Increase circuit voltage","Replace the grounded conductor"],correct:0},
-    {q:"Which item is an overcurrent protective device?",answers:["Circuit breaker","Receptacle","Junction box","Raceway"],correct:0},
-    {q:"What is a raceway used for?",answers:["Routing and protecting conductors","Measuring voltage","Generating power","Testing insulation"],correct:0},
-    {q:"Which term refers to joining metallic parts to establish electrical continuity?",answers:["Bonding","Insulating","Transforming","Rectifying"],correct:0}
+    {q:"Using NEC Table 430.250, what is the full-load current of a 10 hp, 460V, 3-phase motor?",answers:["14A","17.5A","21A","28A"],correct:0},
+    {q:"A continuous-duty motor has a table full-load current of 14A. What is the minimum branch-circuit conductor ampacity?",answers:["14A","17.5A","20A","35A"],correct:1},
+    {q:"For a continuous-duty motor, branch-circuit conductors are generally sized at not less than what percent of motor full-load current?",answers:["100%","115%","125%","250%"],correct:2},
+    {q:"Using NEC Table 430.250, what is the full-load current of a 15 hp, 230V, 3-phase motor?",answers:["21A","28A","42A","54A"],correct:2},
+    {q:"A 15 hp, 230V, 3-phase motor has a table current of 42A. What minimum conductor ampacity is required at 125%?",answers:["42A","48.3A","52.5A","105A"],correct:2},
+    {q:"Using NEC Table 430.248, what is the full-load current of a 5 hp, 230V, single-phase motor?",answers:["14A","22A","28A","40A"],correct:2},
+    {q:"A 5 hp, 230V, single-phase motor has a table current of 28A. What minimum conductor ampacity is required at 125%?",answers:["28A","32.2A","35A","70A"],correct:2},
+    {q:"Motor overload protection is generally based on which current value?",answers:["Motor nameplate current","Table 430.250 current only","Circuit-breaker rating","Feeder ampacity"],correct:0},
+    {q:"Motor branch-circuit conductor sizing is generally based on which current value?",answers:["Motor nameplate current only","The applicable NEC motor full-load current table","Disconnect rating","Overload relay setting"],correct:1},
+    {q:"For a motor with a service factor of 1.15 or greater, overload protection is generally permitted up to what percent of nameplate current?",answers:["100%","115%","125%","250%"],correct:2},
+    {q:"For a motor without a 1.15 service factor or 40°C-or-less temperature rise, overload protection is generally set no higher than what percent of nameplate current?",answers:["100%","115%","125%","175%"],correct:1},
+    {q:"An inverse-time circuit breaker for a motor is generally permitted at up to what percent of table full-load current?",answers:["125%","175%","250%","300%"],correct:2},
+    {q:"A motor has a table full-load current of 14A. What is 250% for an inverse-time circuit-breaker calculation?",answers:["17.5A","28A","35A","40A"],correct:2},
+    {q:"A motor disconnecting means must generally have an ampere rating of at least what percent of motor full-load current?",answers:["100%","115%","125%","250%"],correct:1},
+    {q:"A motor controller must generally have a horsepower rating not lower than what?",answers:["One-half the motor horsepower","The motor horsepower","125% of motor horsepower","The feeder horsepower"],correct:1},
+    {q:"For a feeder supplying several motors, which value is added to the sum of the other motor full-load currents?",answers:["100% of the largest motor","115% of the largest motor","125% of the largest motor","250% of the largest motor"],correct:2},
+    {q:"Two motors have full-load currents of 28A and 14A. What minimum feeder ampacity is required?",answers:["42A","45.5A","49A","52.5A"],correct:2},
+    {q:"Which NEC article primarily covers motors, motor circuits, and controllers?",answers:["Article 250","Article 310","Article 430","Article 440"],correct:2},
+    {q:"Which NEC article primarily covers air-conditioning and refrigeration equipment, including hermetic motor-compressors?",answers:["Article 422","Article 430 only","Article 440","Article 450"],correct:2},
+    {q:"Unless an exception applies, the motor disconnecting means must generally be located where?",answers:["Only at the service","In sight from the motor and driven machinery","Inside the motor controller","Anywhere in the same building"],correct:1}
   ];
 
   let quizQuestions=[], quizIndex=0, quizScore=0, quizTotalTimeMs=0;
