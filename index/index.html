@@ -1,128 +1,1154 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <!-- VERSION: INDEX-LTN-CLEAN-2026-09-05 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6CYFMPH84F"></script>
-  <script>
-    window.dataLayer=window.dataLayer||[];
-    function gtag(){dataLayer.push(arguments)}
-    gtag('js',new Date());
-    gtag('config','G-6CYFMPH84F');
-  </script>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="LinkTradeNetwork helps skilled-trade students and apprentices track progress, show verified work, learn online, and connect with schools and employers.">
-  <meta property="og:title" content="LinkTradeNetwork | Trades on the Rise">
-  <meta property="og:description" content="Track progress. Show verified skills. Connect with opportunities in the skilled trades.">
-  <meta name="theme-color" content="#e96708">
-  <title>LinkTradeNetwork | Skilled Trades Training & Career Platform</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root{--orange:#e96708;--orange-dark:#bc4d00;--orange-soft:#fff2e8;--navy:#111b2e;--navy2:#1c2942;--ink:#142033;--text:#475569;--muted:#64748b;--line:#dde4ed;--bg:#f7f9fc;--white:#fff;--green:#16834a;--max:1160px;--shadow:0 20px 60px rgba(15,23,42,.12)}
-    *{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{font-family:Barlow,system-ui,sans-serif;color:var(--ink);background:var(--white);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
-    a{color:inherit} .container{width:min(var(--max),calc(100% - 40px));margin:auto}
-    a:focus-visible{outline:3px solid var(--orange);outline-offset:4px}
-    h1,h2,h3{font-family:"Barlow Condensed",sans-serif;line-height:1;text-transform:uppercase;letter-spacing:-.025em}
-    h1{font-size:clamp(48px,7.2vw,86px);color:#fff;max-width:760px}
-    h2{font-size:clamp(38px,5vw,60px)} h3{font-size:27px}
-    p{color:var(--text)}
-    .topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
-    .nav{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:28px}
-    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;min-width:max-content}
-    .mark{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:#fff;display:grid;place-items:center;font:900 21px "Barlow Condensed";box-shadow:0 10px 24px rgba(233,103,8,.25)}
-    .brand-copy strong{font:900 25px "Barlow Condensed";display:block;line-height:.95}.brand-copy span{font-size:12px;color:var(--muted);font-weight:700}
-    .links{display:flex;align-items:center;gap:25px}.links a{text-decoration:none;font-size:15px;font-weight:700}.links a:hover{color:var(--orange)}
-    .login{border:1px solid var(--line);padding:11px 17px;border-radius:999px}.join{background:var(--orange);color:#fff!important;padding:12px 19px;border-radius:999px}
-    .hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#10192a 0%,#182743 60%,#263a5e 100%);padding:88px 0 76px}
-    .hero:after{content:"";position:absolute;width:560px;height:560px;border-radius:50%;right:-180px;top:-210px;background:rgba(233,103,8,.22)}
-    .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1.12fr .88fr;align-items:center;gap:68px}
-    .eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:18px;color:var(--orange);font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-    .hero .eyebrow{color:#ffb16e}.dot{width:8px;height:8px;border-radius:50%;background:currentColor}
-    .hero-lead{font-size:clamp(20px,2.2vw,25px);line-height:1.45;color:#e9eef7;max-width:700px;margin:24px 0 28px}
-    .hero-lead strong{color:#fff}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:14px 22px;border-radius:12px;text-decoration:none;font-weight:800;line-height:1.15;transition:.2s}
-    .btn:hover{transform:translateY(-2px)}.btn-orange{background:var(--orange);color:#fff;box-shadow:0 12px 28px rgba(233,103,8,.3)}.btn-white{background:#fff;color:var(--navy)}.btn-outline-light{border:1px solid rgba(255,255,255,.42);color:#fff}.btn-outline{border:1px solid var(--line);background:#fff;color:var(--navy)}
-    .hero-note{margin-top:22px;color:#bfccdf;font-size:15px}.hero-note strong{color:#fff}
-    .profile{background:#fff;border-radius:24px;padding:25px;box-shadow:0 28px 70px rgba(0,0,0,.28);transform:rotate(1deg)}
-    .profile-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--line)}
-    .person{display:flex;align-items:center;gap:12px}.avatar{width:48px;height:48px;border-radius:14px;background:var(--orange-soft);color:var(--orange);display:grid;place-items:center;font-weight:900}.person strong{display:block}.person small{color:var(--muted)}
-    .verified{font-size:12px;color:var(--green);background:#eaf8f0;padding:7px 10px;border-radius:999px;font-weight:800;white-space:nowrap}
-    .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:18px 0}.metric{background:var(--bg);padding:15px;border-radius:14px}.metric strong{font:900 28px "Barlow Condensed";display:block}.metric span{font-size:13px;color:var(--muted);font-weight:700}
-    .progress-label{display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin:12px 0 6px}.bar{height:9px;background:#e8edf4;border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--orange),#ffad63);border-radius:inherit}
-    .trust{background:var(--orange);color:#fff}.trust-grid{display:grid;grid-template-columns:repeat(4,1fr)}.trust-item{padding:22px;text-align:center;border-right:1px solid rgba(255,255,255,.25)}.trust-item:last-child{border:0}.trust-item strong{font:900 25px "Barlow Condensed";display:block;text-transform:uppercase}.trust-item span{font-size:14px;color:#fff4e8}
-    .section{padding:86px 0}.section.alt{background:var(--bg)}.section-head{max-width:760px;margin-bottom:36px}.section-head p{font-size:19px;margin-top:17px}
-    .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:0 10px 32px rgba(15,23,42,.05)}
-    .num{width:44px;height:44px;border-radius:12px;background:var(--orange-soft);color:var(--orange);display:grid;place-items:center;font-weight:900;margin-bottom:19px}.card h3{margin-bottom:10px}.card p{font-size:16px}
-    .feature-layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:54px;align-items:center}
-    .feature-list{display:grid;gap:13px;margin-top:25px}.feature-row{display:flex;align-items:flex-start;gap:12px;color:var(--text)}.check{width:25px;height:25px;flex:0 0 25px;border-radius:50%;background:var(--orange-soft);color:var(--orange);display:grid;place-items:center;font-size:13px;font-weight:900}
-    .dashboard{background:var(--navy);color:#fff;border-radius:24px;padding:27px;box-shadow:var(--shadow)}.dash-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.dash-title strong{font:900 28px "Barlow Condensed";text-transform:uppercase}.tag{font-size:12px;background:rgba(233,103,8,.2);border:1px solid rgba(255,165,89,.4);color:#ffc28e;padding:6px 9px;border-radius:999px;font-weight:800}
-    .dash-row{padding:14px 0;border-bottom:1px solid rgba(255,255,255,.12)}.dash-row:last-child{border:0}.dash-row strong{display:block}.dash-row span{font-size:14px;color:#b9c5d7}
-    .audience{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.audience-card{border-top:5px solid var(--orange)}.audience-card ul{list-style:none;margin:17px 0 22px}.audience-card li{padding:7px 0;color:var(--text);font-size:15px}.audience-card li:before{content:"✓";color:var(--orange);font-weight:900;margin-right:9px}
-    .challenge{background:linear-gradient(120deg,#151f34,#243759);color:#fff;border-radius:28px;padding:42px;display:grid;grid-template-columns:1.15fr .85fr;gap:42px;align-items:center;box-shadow:var(--shadow)}
-    .challenge h2{color:#fff}.challenge p{color:#d6deea;margin-top:15px}.challenge .eyebrow{color:#ffb16e}.challenge-hook{font:900 clamp(24px,3vw,38px) "Barlow Condensed";text-transform:uppercase;margin:20px 0;color:#fff}.challenge-hook span{color:#ff9c49}
-    .challenge-card{background:#fff;color:var(--ink);border-radius:19px;padding:24px}.challenge-card h3{margin-bottom:12px}.challenge-row{display:flex;justify-content:space-between;gap:15px;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}.challenge-row:last-of-type{border:0}.challenge-row span{color:var(--muted)}.challenge-row strong{color:var(--navy)}
-    .progress-count{margin-top:18px}.progress-count .bar{height:12px}.progress-count .bar span{width:45%}.progress-count small{display:block;color:var(--muted);margin-top:8px;font-weight:700}
-    .final{padding:78px 0;background:linear-gradient(125deg,var(--orange),var(--orange-dark));text-align:center}.final h2{color:#fff}.final p{color:#fff4e8;font-size:19px;max-width:660px;margin:16px auto 0}.final .actions{justify-content:center}
-    footer{background:#0c1424;color:#fff;padding:38px 0}.footer-grid{display:flex;justify-content:space-between;align-items:center;gap:28px;flex-wrap:wrap}.footer-links{display:flex;gap:20px;flex-wrap:wrap}.footer-links a{color:#c5d0e0;text-decoration:none;font-size:14px}.footer-links a:hover{color:#fff}.copyright{color:#8fa0b8;font-size:13px;margin-top:22px}
-    @media(max-width:960px){.links a:not(.login):not(.join){display:none}.hero-grid,.feature-layout,.challenge{grid-template-columns:1fr}.hero{padding-top:64px}.profile{max-width:620px;transform:none}.pillars,.audience{grid-template-columns:1fr 1fr}.trust-grid{grid-template-columns:repeat(2,1fr)}.trust-item:nth-child(2){border-right:0}}
-    @media(max-width:650px){body{font-size:16px}.container{width:min(var(--max),calc(100% - 28px))}.nav{min-height:70px}.brand-copy span,.login{display:none}.brand-copy strong{font-size:21px}.mark{width:44px;height:44px}.join{padding:11px 14px;font-size:14px}.hero{padding:52px 0}.hero-grid{gap:38px}.actions,.btn{width:100%}.pillars,.audience,.trust-grid{grid-template-columns:1fr}.trust-item{border-right:0;border-bottom:1px solid rgba(255,255,255,.22)}.section{padding:64px 0}.challenge{padding:28px 21px}.metrics{grid-template-columns:1fr 1fr}.footer-grid{align-items:flex-start;flex-direction:column}}
-  </style>
-</head>
-<body>
-  <header class="topbar">
-    <div class="container nav">
-      <a class="brand" href="/" aria-label="LinkTradeNetwork home"><span class="mark">LTN</span><span class="brand-copy"><strong>LinkTradeNetwork</strong><span>Trades on the Rise</span></span></a>
-      <nav class="links" aria-label="Main navigation"><a href="#platform">Platform</a><a href="#training">Interactive Training</a><a href="#schools">Trade Schools</a><a href="#challenge">Skill Challenge</a><a class="login" href="/front/">Sign In</a><a class="join" href="/front/">Join Free</a></nav>
-    </div>
-  </header>
-  <main>
-    <section class="hero">
-      <div class="container hero-grid">
-        <div>
-          <div class="eyebrow"><span class="dot"></span>The skilled trades platform</div>
-          <h1>Build skills. Show your work. Get connected.</h1>
-          <p class="hero-lead"><strong>LinkTradeNetwork brings skilled-trade students, instructors and employers together.</strong> Track progress, learn through live Interactive Training, post work videos and build a verified trade profile—all in one free platform.</p>
-          <div class="actions"><a class="btn btn-orange" href="/front/">Create Your Free Profile</a><a class="btn btn-outline-light" href="#schools">Bring Your Trade School to LTN</a></div>
-          <p class="hero-note"><strong>Free to join.</strong> Built for electrical, low voltage, HVAC, plumbing, construction and more.</p>
+  <head>
+    <!-- VERSION: INDEX-LTN-CLEAN-2026-09-05 -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-6CYFMPH84F"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-6CYFMPH84F");
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="LinkTradeNetwork helps skilled-trade students and apprentices track progress, show verified work, learn online, and connect with schools and employers."
+    />
+    <meta property="og:title" content="LinkTradeNetwork | Trades on the Rise" />
+    <meta
+      property="og:description"
+      content="Track progress. Show verified skills. Connect with opportunities in the skilled trades."
+    />
+    <meta name="theme-color" content="#e96708" />
+    <title>LinkTradeNetwork | Skilled Trades Training & Career Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --orange: #e96708;
+        --orange-dark: #bc4d00;
+        --orange-soft: #fff2e8;
+        --navy: #111b2e;
+        --navy2: #1c2942;
+        --ink: #142033;
+        --text: #475569;
+        --muted: #64748b;
+        --line: #dde4ed;
+        --bg: #f7f9fc;
+        --white: #fff;
+        --green: #16834a;
+        --max: 1160px;
+        --shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: Barlow, system-ui, sans-serif;
+        color: var(--ink);
+        background: var(--white);
+        font-size: 17px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: inherit;
+      }
+      .container {
+        width: min(var(--max), calc(100% - 40px));
+        margin: auto;
+      }
+      a:focus-visible {
+        outline: 3px solid var(--orange);
+        outline-offset: 4px;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: "Barlow Condensed", sans-serif;
+        line-height: 1;
+        text-transform: uppercase;
+        letter-spacing: -0.025em;
+      }
+      h1 {
+        font-size: clamp(48px, 7.2vw, 86px);
+        color: #fff;
+        max-width: 760px;
+      }
+      h2 {
+        font-size: clamp(38px, 5vw, 60px);
+      }
+      h3 {
+        font-size: 27px;
+      }
+      p {
+        color: var(--text);
+      }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.96);
+        border-bottom: 1px solid var(--line);
+        backdrop-filter: blur(12px);
+      }
+      .nav {
+        min-height: 78px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 28px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        min-width: max-content;
+      }
+      .mark {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font: 900 21px "Barlow Condensed";
+        box-shadow: 0 10px 24px rgba(233, 103, 8, 0.25);
+      }
+      .brand-copy strong {
+        font: 900 25px "Barlow Condensed";
+        display: block;
+        line-height: 0.95;
+      }
+      .brand-copy span {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .links {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+      }
+      .links a {
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .links a:hover {
+        color: var(--orange);
+      }
+      .login {
+        border: 1px solid var(--line);
+        padding: 11px 17px;
+        border-radius: 999px;
+      }
+      .join {
+        background: var(--orange);
+        color: #fff !important;
+        padding: 12px 19px;
+        border-radius: 999px;
+      }
+      .hero {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(
+          125deg,
+          #10192a 0%,
+          #182743 60%,
+          #263a5e 100%
+        );
+        padding: 88px 0 76px;
+      }
+      .hero:after {
+        content: "";
+        position: absolute;
+        width: 560px;
+        height: 560px;
+        border-radius: 50%;
+        right: -180px;
+        top: -210px;
+        background: rgba(233, 103, 8, 0.22);
+      }
+      .hero-grid {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 1.12fr 0.88fr;
+        align-items: center;
+        gap: 68px;
+      }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 18px;
+        color: var(--orange);
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .hero .eyebrow {
+        color: #ffb16e;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      .hero-lead {
+        font-size: clamp(20px, 2.2vw, 25px);
+        line-height: 1.45;
+        color: #e9eef7;
+        max-width: 700px;
+        margin: 24px 0 28px;
+      }
+      .hero-lead strong {
+        color: #fff;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 52px;
+        padding: 14px 22px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 800;
+        line-height: 1.15;
+        transition: 0.2s;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+      .btn-orange {
+        background: var(--orange);
+        color: #fff;
+        box-shadow: 0 12px 28px rgba(233, 103, 8, 0.3);
+      }
+      .btn-white {
+        background: #fff;
+        color: var(--navy);
+      }
+      .btn-outline-light {
+        border: 1px solid rgba(255, 255, 255, 0.42);
+        color: #fff;
+      }
+      .btn-outline {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--navy);
+      }
+      .hero-note {
+        margin-top: 22px;
+        color: #bfccdf;
+        font-size: 15px;
+      }
+      .hero-note strong {
+        color: #fff;
+      }
+      .profile {
+        background: #fff;
+        border-radius: 24px;
+        padding: 25px;
+        box-shadow: 0 28px 70px rgba(0, 0, 0, 0.28);
+        transform: rotate(1deg);
+      }
+      .profile-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--line);
+      }
+      .person {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: var(--orange-soft);
+        color: var(--orange);
+        display: grid;
+        place-items: center;
+        font-weight: 900;
+      }
+      .person strong {
+        display: block;
+      }
+      .person small {
+        color: var(--muted);
+      }
+      .verified {
+        font-size: 12px;
+        color: var(--green);
+        background: #eaf8f0;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin: 18px 0;
+      }
+      .metric {
+        background: var(--bg);
+        padding: 15px;
+        border-radius: 14px;
+      }
+      .metric strong {
+        font: 900 28px "Barlow Condensed";
+        display: block;
+      }
+      .metric span {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 800;
+        margin: 12px 0 6px;
+      }
+      .bar {
+        height: 9px;
+        background: #e8edf4;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .bar span {
+        display: block;
+        height: 100%;
+        background: linear-gradient(90deg, var(--orange), #ffad63);
+        border-radius: inherit;
+      }
+      .trust {
+        background: var(--orange);
+        color: #fff;
+      }
+      .trust-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .trust-item {
+        padding: 22px;
+        text-align: center;
+        border-right: 1px solid rgba(255, 255, 255, 0.25);
+      }
+      .trust-item:last-child {
+        border: 0;
+      }
+      .trust-item strong {
+        font: 900 25px "Barlow Condensed";
+        display: block;
+        text-transform: uppercase;
+      }
+      .trust-item span {
+        font-size: 14px;
+        color: #fff4e8;
+      }
+      .section {
+        padding: 86px 0;
+      }
+      .section.alt {
+        background: var(--bg);
+      }
+      .section-head {
+        max-width: 760px;
+        margin-bottom: 36px;
+      }
+      .section-head p {
+        font-size: 19px;
+        margin-top: 17px;
+      }
+      .pillars {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 10px 32px rgba(15, 23, 42, 0.05);
+      }
+      .num {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: var(--orange-soft);
+        color: var(--orange);
+        display: grid;
+        place-items: center;
+        font-weight: 900;
+        margin-bottom: 19px;
+      }
+      .card h3 {
+        margin-bottom: 10px;
+      }
+      .card p {
+        font-size: 16px;
+      }
+      .feature-layout {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 54px;
+        align-items: center;
+      }
+      .feature-list {
+        display: grid;
+        gap: 13px;
+        margin-top: 25px;
+      }
+      .feature-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        color: var(--text);
+      }
+      .check {
+        width: 25px;
+        height: 25px;
+        flex: 0 0 25px;
+        border-radius: 50%;
+        background: var(--orange-soft);
+        color: var(--orange);
+        display: grid;
+        place-items: center;
+        font-size: 13px;
+        font-weight: 900;
+      }
+      .dashboard {
+        background: var(--navy);
+        color: #fff;
+        border-radius: 24px;
+        padding: 27px;
+        box-shadow: var(--shadow);
+      }
+      .dash-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+      .dash-title strong {
+        font: 900 28px "Barlow Condensed";
+        text-transform: uppercase;
+      }
+      .tag {
+        font-size: 12px;
+        background: rgba(233, 103, 8, 0.2);
+        border: 1px solid rgba(255, 165, 89, 0.4);
+        color: #ffc28e;
+        padding: 6px 9px;
+        border-radius: 999px;
+        font-weight: 800;
+      }
+      .dash-row {
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      .dash-row:last-child {
+        border: 0;
+      }
+      .dash-row strong {
+        display: block;
+      }
+      .dash-row span {
+        font-size: 14px;
+        color: #b9c5d7;
+      }
+      .audience {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+      .audience-card {
+        border-top: 5px solid var(--orange);
+      }
+      .audience-card ul {
+        list-style: none;
+        margin: 17px 0 22px;
+      }
+      .audience-card li {
+        padding: 7px 0;
+        color: var(--text);
+        font-size: 15px;
+      }
+      .audience-card li:before {
+        content: "✓";
+        color: var(--orange);
+        font-weight: 900;
+        margin-right: 9px;
+      }
+      .school-onboarding {
+        margin-top: 22px;
+        padding: 28px;
+        border-radius: 20px;
+        background: var(--orange-soft);
+        border: 1px solid #ffd6b8;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+      .school-onboarding h3 {
+        margin-bottom: 12px;
+      }
+      .setup-steps {
+        display: grid;
+        gap: 10px;
+        list-style: none;
+        counter-reset: setup;
+      }
+      .setup-steps li {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        color: var(--text);
+        font-size: 15px;
+        counter-increment: setup;
+      }
+      .setup-steps li:before {
+        content: counter(setup);
+        width: 27px;
+        height: 27px;
+        flex: 0 0 27px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--orange);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 900;
+      }
+      .school-value {
+        display: grid;
+        gap: 13px;
+      }
+      .school-value p {
+        font-size: 15px;
+      }
+      .school-value strong {
+        color: var(--ink);
+      }
+      .challenge {
+        background: linear-gradient(120deg, #151f34, #243759);
+        color: #fff;
+        border-radius: 28px;
+        padding: 42px;
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 42px;
+        align-items: center;
+        box-shadow: var(--shadow);
+      }
+      .challenge h2 {
+        color: #fff;
+      }
+      .challenge p {
+        color: #d6deea;
+        margin-top: 15px;
+      }
+      .challenge .eyebrow {
+        color: #ffb16e;
+      }
+      .challenge-hook {
+        font: 900 clamp(24px, 3vw, 38px) "Barlow Condensed";
+        text-transform: uppercase;
+        margin: 20px 0;
+        color: #fff;
+      }
+      .challenge-hook span {
+        color: #ff9c49;
+      }
+      .challenge-card {
+        background: #fff;
+        color: var(--ink);
+        border-radius: 19px;
+        padding: 24px;
+      }
+      .challenge-card h3 {
+        margin-bottom: 12px;
+      }
+      .challenge-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+        font-size: 15px;
+      }
+      .challenge-row:last-of-type {
+        border: 0;
+      }
+      .challenge-row span {
+        color: var(--muted);
+      }
+      .challenge-row strong {
+        color: var(--navy);
+      }
+      .progress-count {
+        margin-top: 18px;
+      }
+      .progress-count .bar {
+        height: 12px;
+      }
+      .progress-count .bar span {
+        width: 45%;
+      }
+      .progress-count small {
+        display: block;
+        color: var(--muted);
+        margin-top: 8px;
+        font-weight: 700;
+      }
+      .final {
+        padding: 78px 0;
+        background: linear-gradient(125deg, var(--orange), var(--orange-dark));
+        text-align: center;
+      }
+      .final h2 {
+        color: #fff;
+      }
+      .final p {
+        color: #fff4e8;
+        font-size: 19px;
+        max-width: 660px;
+        margin: 16px auto 0;
+      }
+      .final .actions {
+        justify-content: center;
+      }
+      footer {
+        background: #0c1424;
+        color: #fff;
+        padding: 38px 0;
+      }
+      .footer-grid {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+      .footer-links {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .footer-links a {
+        color: #c5d0e0;
+        text-decoration: none;
+        font-size: 14px;
+      }
+      .footer-links a:hover {
+        color: #fff;
+      }
+      .copyright {
+        color: #8fa0b8;
+        font-size: 13px;
+        margin-top: 22px;
+      }
+      @media (max-width: 960px) {
+        .links a:not(.login):not(.join) {
+          display: none;
+        }
+        .hero-grid,
+        .feature-layout,
+        .challenge {
+          grid-template-columns: 1fr;
+        }
+        .hero {
+          padding-top: 64px;
+        }
+        .profile {
+          max-width: 620px;
+          transform: none;
+        }
+        .pillars,
+        .audience {
+          grid-template-columns: 1fr 1fr;
+        }
+        .school-onboarding {
+          grid-template-columns: 1fr;
+        }
+        .trust-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .trust-item:nth-child(2) {
+          border-right: 0;
+        }
+      }
+      @media (max-width: 650px) {
+        body {
+          font-size: 16px;
+        }
+        .container {
+          width: min(var(--max), calc(100% - 28px));
+        }
+        .nav {
+          min-height: 70px;
+        }
+        .brand-copy span,
+        .login {
+          display: none;
+        }
+        .brand-copy strong {
+          font-size: 21px;
+        }
+        .mark {
+          width: 44px;
+          height: 44px;
+        }
+        .join {
+          padding: 11px 14px;
+          font-size: 14px;
+        }
+        .hero {
+          padding: 52px 0;
+        }
+        .hero-grid {
+          gap: 38px;
+        }
+        .actions,
+        .btn {
+          width: 100%;
+        }
+        .pillars,
+        .audience,
+        .trust-grid {
+          grid-template-columns: 1fr;
+        }
+        .trust-item {
+          border-right: 0;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+        }
+        .section {
+          padding: 64px 0;
+        }
+        .challenge {
+          padding: 28px 21px;
+        }
+        .metrics {
+          grid-template-columns: 1fr 1fr;
+        }
+        .footer-grid {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container nav">
+        <a class="brand" href="/" aria-label="LinkTradeNetwork home"
+          ><span class="mark">LTN</span
+          ><span class="brand-copy"
+            ><strong>LinkTradeNetwork</strong
+            ><span>Trades on the Rise</span></span
+          ></a
+        >
+        <nav class="links" aria-label="Main navigation">
+          <a href="#platform">Platform</a
+          ><a href="#training">Interactive Training</a
+          ><a href="#schools">Trade Schools</a
+          ><a href="#challenge">Skill Challenge</a
+          ><a class="login" href="/front/">Sign In</a
+          ><a class="join" href="/front/">Join Free</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div>
+            <div class="eyebrow">
+              <span class="dot"></span>The skilled trades platform
+            </div>
+            <h1>Build skills. Show your work. Get connected.</h1>
+            <p class="hero-lead">
+              <strong
+                >LinkTradeNetwork brings skilled-trade students, instructors and
+                employers together.</strong
+              >
+              Track progress, learn through live Interactive Training, post work
+              videos and build a verified trade profile—all in one free
+              platform.
+            </p>
+            <div class="actions">
+              <a class="btn btn-orange" href="/front/"
+                >Create Your Free Profile</a
+              ><a class="btn btn-outline-light" href="#schools"
+                >Bring Your Trade School to LTN</a
+              >
+            </div>
+            <p class="hero-note">
+              <strong>Free to join.</strong> Built for electrical, low voltage,
+              HVAC, plumbing, construction and more.
+            </p>
+          </div>
+          <div
+            class="profile"
+            aria-label="Sample LinkTradeNetwork apprentice profile"
+          >
+            <div class="profile-head">
+              <div class="person">
+                <span class="avatar">LTN</span>
+                <div>
+                  <strong>Apprentice Trade Profile</strong
+                  ><small>Skills, hours and real work proof</small>
+                </div>
+              </div>
+              <span class="verified">Verified progress</span>
+            </div>
+            <div class="metrics">
+              <div class="metric">
+                <strong>1,250</strong><span>Hours tracked</span>
+              </div>
+              <div class="metric">
+                <strong>12</strong><span>Work uploads</span>
+              </div>
+              <div class="metric">
+                <strong>4</strong><span>Skills completed</span>
+              </div>
+              <div class="metric">
+                <strong>2</strong><span>Certifications</span>
+              </div>
+            </div>
+            <div class="progress-label">
+              <span>Training progress</span><span>67%</span>
+            </div>
+            <div class="bar"><span style="width: 67%"></span></div>
+            <div class="progress-label">
+              <span>Profile strength</span><span>82%</span>
+            </div>
+            <div class="bar"><span style="width: 82%"></span></div>
+          </div>
         </div>
-        <div class="profile" aria-label="Sample LinkTradeNetwork apprentice profile">
-          <div class="profile-head"><div class="person"><span class="avatar">LTN</span><div><strong>Apprentice Trade Profile</strong><small>Skills, hours and real work proof</small></div></div><span class="verified">Verified progress</span></div>
-          <div class="metrics"><div class="metric"><strong>1,250</strong><span>Hours tracked</span></div><div class="metric"><strong>12</strong><span>Work uploads</span></div><div class="metric"><strong>4</strong><span>Skills completed</span></div><div class="metric"><strong>2</strong><span>Certifications</span></div></div>
-          <div class="progress-label"><span>Training progress</span><span>67%</span></div><div class="bar"><span style="width:67%"></span></div>
-          <div class="progress-label"><span>Profile strength</span><span>82%</span></div><div class="bar"><span style="width:82%"></span></div>
+      </section>
+      <div class="trust">
+        <div class="container trust-grid">
+          <div class="trust-item">
+            <strong>$0 to join</strong><span>Free access while LTN grows</span>
+          </div>
+          <div class="trust-item">
+            <strong>Track progress</strong
+            ><span>Hours, skills and certifications</span>
+          </div>
+          <div class="trust-item">
+            <strong>Show proof</strong
+            ><span>Photos, videos and completed work</span>
+          </div>
+          <div class="trust-item">
+            <strong>Learn live</strong
+            ><span>Training built into the platform</span>
+          </div>
         </div>
       </div>
-    </section>
-    <div class="trust"><div class="container trust-grid"><div class="trust-item"><strong>$0 to join</strong><span>Free access while LTN grows</span></div><div class="trust-item"><strong>Track progress</strong><span>Hours, skills and certifications</span></div><div class="trust-item"><strong>Show proof</strong><span>Photos, videos and completed work</span></div><div class="trust-item"><strong>Learn live</strong><span>Training built into the platform</span></div></div></div>
 
-    <section class="section" id="platform">
-      <div class="container"><div class="section-head"><div class="eyebrow"><span class="dot"></span>More than a job board</div><h2>Your trade experience should be seen.</h2><p>A resume says where you worked. LinkTradeNetwork helps show what you learned, what you completed and what you can do.</p></div>
-        <div class="pillars"><article class="card"><div class="num">01</div><h3>Track progress</h3><p>Record apprenticeship hours, training units, skills and certifications in one organized profile.</p></article><article class="card"><div class="num">02</div><h3>Show real proof</h3><p>Upload work photos, short videos and jobsite examples that demonstrate actual experience.</p></article><article class="card"><div class="num">03</div><h3>Connect and grow</h3><p>Connect with instructors, trade schools, contractors, employers and apprenticeship opportunities.</p></article></div>
+      <section class="section" id="platform">
+        <div class="container">
+          <div class="section-head">
+            <div class="eyebrow">
+              <span class="dot"></span>More than a job board
+            </div>
+            <h2>Your trade experience should be seen.</h2>
+            <p>
+              A resume says where you worked. LinkTradeNetwork helps show what
+              you learned, what you completed and what you can do.
+            </p>
+          </div>
+          <div class="pillars">
+            <article class="card">
+              <div class="num">01</div>
+              <h3>Track progress</h3>
+              <p>
+                Record apprenticeship hours, training units, skills and
+                certifications in one organized profile.
+              </p>
+            </article>
+            <article class="card">
+              <div class="num">02</div>
+              <h3>Show real proof</h3>
+              <p>
+                Upload work photos, short videos and jobsite examples that
+                demonstrate actual experience.
+              </p>
+            </article>
+            <article class="card">
+              <div class="num">03</div>
+              <h3>Connect and grow</h3>
+              <p>
+                Connect with instructors, trade schools, contractors, employers
+                and apprenticeship opportunities.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section alt" id="training">
+        <div class="container feature-layout">
+          <div>
+            <div class="eyebrow">
+              <span class="dot"></span>Interactive Training
+            </div>
+            <h2>Teach and learn inside LinkTradeNetwork.</h2>
+            <p style="font-size: 19px; margin-top: 18px">
+              Instructors can run live trade classes without sending students to
+              a separate meeting platform.
+            </p>
+            <div class="feature-list">
+              <div class="feature-row">
+                <span class="check">✓</span
+                ><span
+                  >Live video, microphone, screen sharing and whiteboard</span
+                >
+              </div>
+              <div class="feature-row">
+                <span class="check">✓</span
+                ><span>Attendance, assignments, quizzes and certificates</span>
+              </div>
+              <div class="feature-row">
+                <span class="check">✓</span
+                ><span>Class files, announcements and student questions</span>
+              </div>
+              <div class="feature-row">
+                <span class="check">✓</span
+                ><span>Training records connected to student progress</span>
+              </div>
+            </div>
+            <div class="actions">
+              <a class="btn btn-orange" href="/front/"
+                >Explore Interactive Training</a
+              >
+            </div>
+          </div>
+          <div class="dashboard">
+            <div class="dash-title">
+              <strong>Instructor Center</strong
+              ><span class="tag">Built into LTN</span>
+            </div>
+            <div class="dash-row">
+              <strong>Live Classroom</strong
+              ><span>Teach students and host skilled-trade webinars</span>
+            </div>
+            <div class="dash-row">
+              <strong>Student Progress</strong
+              ><span>Review hours, training units and submitted evidence</span>
+            </div>
+            <div class="dash-row">
+              <strong>Instructor Approval</strong
+              ><span>Approve, reject or request corrections</span>
+            </div>
+            <div class="dash-row">
+              <strong>Trade Passport</strong
+              ><span>Export verified unit-by-unit progress</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="schools">
+        <div class="container">
+          <div class="section-head">
+            <div class="eyebrow"><span class="dot"></span>Choose your path</div>
+            <h2>Built for the people moving the trades forward.</h2>
+          </div>
+          <div class="audience">
+            <article class="card audience-card">
+              <h3>Students & Apprentices</h3>
+              <ul>
+                <li>Build a professional trade profile</li>
+                <li>Track hours and completed skills</li>
+                <li>Upload work photos and videos</li>
+                <li>Find training and opportunities</li>
+              </ul>
+              <a class="btn btn-orange" href="/front/">Join Free</a>
+            </article>
+            <article class="card audience-card">
+              <h3>Schools & Instructors</h3>
+              <ul>
+                <li>Connect students using a school code</li>
+                <li>Teach through Interactive Training</li>
+                <li>Review evidence and progress</li>
+                <li>Build verified Trade Passports</li>
+              </ul>
+              <a
+                class="btn btn-orange"
+                href="mailto:Team@LinkTradeNetwork.com?subject=Bring%20Our%20Trade%20School%20to%20LTN"
+                >Bring Your School to LTN</a
+              >
+            </article>
+            <article class="card audience-card">
+              <h3>Contractors & Employers</h3>
+              <ul>
+                <li>See more than a standard resume</li>
+                <li>Review skills and certifications</li>
+                <li>View real work examples</li>
+                <li>Connect with emerging talent</li>
+              </ul>
+              <a class="btn btn-outline" href="/front/">Find Trade Workers</a>
+            </article>
+          </div>
+          <div class="school-onboarding">
+            <div>
+              <h3>Simple School Setup</h3>
+              <ol class="setup-steps">
+                <li>Create a free instructor account</li>
+                <li>Receive your unique school code</li>
+                <li>Share the code with your students</li>
+                <li>Review student hours, skills and submitted evidence</li>
+              </ol>
+            </div>
+            <div class="school-value">
+              <div>
+                <h3>Free for Schools During Beta</h3>
+                <p>
+                  Includes student profiles, progress tracking, Interactive
+                  Training, instructor review tools and downloadable Trade
+                  Passport reports.
+                </p>
+              </div>
+              <p>
+                <strong>Give students proof of their progress.</strong> Export a
+                Trade Passport PDF showing approved hours, completed training
+                units, verified skills and supporting evidence—ready to share
+                with instructors and potential employers.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section alt" id="challenge">
+        <div class="container">
+          <div class="challenge">
+            <div>
+              <div class="eyebrow">
+                <span class="dot"></span>September Skill Challenge #001
+              </div>
+              <h2>Think you know the NEC? Prove it.</h2>
+              <p>
+                Take five timed, closed-book NEC questions. The best scores
+                advance to a live final on LinkTradeNetwork Interactive Training
+                for cash prizes.
+              </p>
+              <div class="challenge-hook">
+                <span>100 enter.</span> 6 advance. 2 win cash.
+              </div>
+              <div class="actions">
+                <a class="btn btn-orange" href="/front/"
+                  >Join Free & Take the Challenge</a
+                >
+              </div>
+            </div>
+            <div class="challenge-card">
+              <h3>NEC Qualifier</h3>
+              <div class="challenge-row">
+                <span>Qualifying period</span><strong>Sept. 1–30, 2026</strong>
+              </div>
+              <div class="challenge-row">
+                <span>Questions</span><strong>5 random</strong>
+              </div>
+              <div class="challenge-row">
+                <span>Time per question</span><strong>8 seconds</strong>
+              </div>
+              <div class="challenge-row">
+                <span>Prizes</span><strong>$200 / $100</strong>
+              </div>
+              <div class="progress-count">
+                <div class="bar"><span></span></div>
+                <small>45 have played · Goal: 100 participants</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="final">
+        <div class="container">
+          <h2>Start building your trade future today.</h2>
+          <p>
+            Create your free LinkTradeNetwork profile, show what you can do and
+            connect with the skilled-trades community.
+          </p>
+          <div class="actions">
+            <a class="btn btn-white" href="/front/"
+              >Join LinkTradeNetwork Free</a
+            ><a
+              class="btn btn-outline-light"
+              href="mailto:Team@LinkTradeNetwork.com"
+              >Contact LinkTradeNetwork</a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <a class="brand" href="/"
+            ><span class="mark">LTN</span
+            ><span class="brand-copy"
+              ><strong>LinkTradeNetwork</strong
+              ><span>Trades on the Rise</span></span
+            ></a
+          >
+          <div class="footer-links">
+            <a href="/front/">Sign Up</a><a href="/front/">Sign In</a
+            ><a href="#schools">Trade Schools</a
+            ><a
+              href="mailto:Team@LinkTradeNetwork.com?subject=LinkTradeNetwork%20Sponsorship"
+              >Sponsors</a
+            ><a
+              href="https://www.gofundme.com/f/help-build-future-of-skilled-trades-with-linktradenetwork"
+              target="_blank"
+              rel="noopener"
+              >Support LTN</a
+            ><a href="/terms/">Terms & Conditions</a>
+          </div>
+        </div>
+        <div class="copyright">
+          © 2026 LinkTradeNetwork. All rights reserved.
+        </div>
       </div>
-    </section>
-
-    <section class="section alt" id="training">
-      <div class="container feature-layout"><div><div class="eyebrow"><span class="dot"></span>Interactive Training</div><h2>Teach and learn inside LinkTradeNetwork.</h2><p style="font-size:19px;margin-top:18px">Instructors can run live trade classes without sending students to a separate meeting platform.</p><div class="feature-list"><div class="feature-row"><span class="check">✓</span><span>Live video, microphone, screen sharing and whiteboard</span></div><div class="feature-row"><span class="check">✓</span><span>Attendance, assignments, quizzes and certificates</span></div><div class="feature-row"><span class="check">✓</span><span>Class files, announcements and student questions</span></div><div class="feature-row"><span class="check">✓</span><span>Training records connected to student progress</span></div></div><div class="actions"><a class="btn btn-orange" href="/front/">Explore Interactive Training</a></div></div>
-        <div class="dashboard"><div class="dash-title"><strong>Instructor Center</strong><span class="tag">Built into LTN</span></div><div class="dash-row"><strong>Live Classroom</strong><span>Teach students and host skilled-trade webinars</span></div><div class="dash-row"><strong>Student Progress</strong><span>Review hours, training units and submitted evidence</span></div><div class="dash-row"><strong>Instructor Approval</strong><span>Approve, reject or request corrections</span></div><div class="dash-row"><strong>Trade Passport</strong><span>Export verified unit-by-unit progress</span></div></div>
-      </div>
-    </section>
-
-    <section class="section" id="schools">
-      <div class="container"><div class="section-head"><div class="eyebrow"><span class="dot"></span>Choose your path</div><h2>Built for the people moving the trades forward.</h2></div>
-        <div class="audience"><article class="card audience-card"><h3>Students & Apprentices</h3><ul><li>Build a professional trade profile</li><li>Track hours and completed skills</li><li>Upload work photos and videos</li><li>Find training and opportunities</li></ul><a class="btn btn-orange" href="/front/">Join Free</a></article><article class="card audience-card"><h3>Schools & Instructors</h3><ul><li>Connect students using a school code</li><li>Teach through Interactive Training</li><li>Review evidence and progress</li><li>Build verified Trade Passports</li></ul><a class="btn btn-orange" href="mailto:Team@LinkTradeNetwork.com?subject=Bring%20Our%20Trade%20School%20to%20LTN">Bring Your School to LTN</a></article><article class="card audience-card"><h3>Contractors & Employers</h3><ul><li>See more than a standard resume</li><li>Review skills and certifications</li><li>View real work examples</li><li>Connect with emerging talent</li></ul><a class="btn btn-outline" href="/front/">Find Trade Workers</a></article></div>
-      </div>
-    </section>
-
-    <section class="section alt" id="challenge">
-      <div class="container"><div class="challenge"><div><div class="eyebrow"><span class="dot"></span>September Skill Challenge #001</div><h2>Think you know the NEC? Prove it.</h2><p>Take five timed, closed-book NEC questions. The best scores advance to a live final on LinkTradeNetwork Interactive Training for cash prizes.</p><div class="challenge-hook"><span>100 enter.</span> 6 advance. 2 win cash.</div><div class="actions"><a class="btn btn-orange" href="/front/">Join Free & Take the Challenge</a></div></div><div class="challenge-card"><h3>NEC Qualifier</h3><div class="challenge-row"><span>Qualifying period</span><strong>Sept. 1–30, 2026</strong></div><div class="challenge-row"><span>Questions</span><strong>5 random</strong></div><div class="challenge-row"><span>Time per question</span><strong>8 seconds</strong></div><div class="challenge-row"><span>Prizes</span><strong>$200 / $100</strong></div><div class="progress-count"><div class="bar"><span></span></div><small>45 have played · Goal: 100 participants</small></div></div></div></div>
-    </section>
-
-    <section class="final"><div class="container"><h2>Start building your trade future today.</h2><p>Create your free LinkTradeNetwork profile, show what you can do and connect with the skilled-trades community.</p><div class="actions"><a class="btn btn-white" href="/front/">Join LinkTradeNetwork Free</a><a class="btn btn-outline-light" href="mailto:Team@LinkTradeNetwork.com">Contact LinkTradeNetwork</a></div></div></section>
-  </main>
-  <footer><div class="container"><div class="footer-grid"><a class="brand" href="/"><span class="mark">LTN</span><span class="brand-copy"><strong>LinkTradeNetwork</strong><span>Trades on the Rise</span></span></a><div class="footer-links"><a href="/front/">Sign Up</a><a href="/front/">Sign In</a><a href="#schools">Trade Schools</a><a href="mailto:Team@LinkTradeNetwork.com?subject=LinkTradeNetwork%20Sponsorship">Sponsors</a><a href="https://www.gofundme.com/f/help-build-future-of-skilled-trades-with-linktradenetwork" target="_blank" rel="noopener">Support LTN</a><a href="/terms/">Terms & Conditions</a></div></div><div class="copyright">© 2026 LinkTradeNetwork. All rights reserved.</div></div></footer>
-</body>
+    </footer>
+  </body>
 </html>
