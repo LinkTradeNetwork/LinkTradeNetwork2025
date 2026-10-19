@@ -4,173 +4,394 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>LTN Vision | Smart Glasses</title>
+
   <style>
+    :root {
+      --ink: #142033;
+      --orange: #e96508;
+      --muted: #657083;
+      --paper: #faf8f5;
+    }
+
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      background: #fff8f2;
-      color: #111b2e;
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
     }
+
+    a { color: inherit; }
 
     header {
-      padding: 20px;
-      background: #111b2e;
+      max-width: 1280px;
+      margin: auto;
+      padding: 26px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      border-bottom: 1px solid #deded9;
     }
 
-    header a {
-      color: white;
+    .logo {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -0.7px;
       text-decoration: none;
-      font-weight: bold;
+    }
+
+    .orange { color: var(--orange); }
+
+    .back {
+      font-size: 13px;
+      text-decoration: none;
+      color: var(--muted);
     }
 
     main {
-      max-width: 950px;
+      max-width: 1280px;
       margin: auto;
-      padding: 45px 20px;
-      text-align: center;
+      padding: 66px 40px 44px;
     }
 
-    h1 {
-      font-size: clamp(48px, 9vw, 78px);
-      margin: 0 0 12px;
-      line-height: 1.1;
+    .hero {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 64px;
+      align-items: center;
     }
 
-    .orange { color: #e96708; }
-
-    .intro {
-      font-size: 23px;
-      margin-bottom: 28px;
+    .visual {
+      position: relative;
+      min-height: 470px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(
+        ellipse at center, #ffffff 0%, #f0ece5 75%
+      );
+      border-radius: 28px;
+      padding: 45px 22px;
+      overflow: hidden;
     }
 
-    img {
-      display: block;
+    .visual::before {
+      content: "VISION";
+      position: absolute;
+      top: 32px;
+      left: 28px;
+      font-size: clamp(60px, 8vw, 112px);
+      letter-spacing: -7px;
+      font-weight: 900;
+      color: #e4e0d9;
+    }
+
+    .visual img {
+      position: relative;
       width: 100%;
-      max-width: 750px;
       height: auto;
-      margin: auto;
-      border-radius: 18px;
+      margin-top: 45px;
+      filter: drop-shadow(0 25px 16px #14203326);
+    }
+
+    .visual-label {
+      position: absolute;
+      bottom: 24px;
+      left: 28px;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--muted);
     }
 
     .caption {
-      font-size: 13px;
-      color: #596579;
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin: 14px 7px;
     }
 
-    .purchase {
-      margin-top: 35px;
-      padding: 32px 22px;
-      background: #111b2e;
-      color: white;
-      border-radius: 18px;
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 22px;
     }
 
-    h2 {
-      margin-top: 0;
-      font-size: 30px;
+    h1 {
+      font-size: clamp(48px, 5.3vw, 74px);
+      letter-spacing: -3px;
+      line-height: 1.02;
+      margin: 0 0 22px;
+    }
+
+    .lead {
+      font-size: 20px;
+      line-height: 1.5;
+      color: var(--muted);
+      max-width: 350px;
+      margin: 0 0 30px;
+    }
+
+    .product-label {
+      font-size: 14px;
+      font-weight: bold;
+      margin: 0 0 9px;
     }
 
     .price {
-      margin: 12px 0 0;
-      font-size: 46px;
-      font-weight: bold;
-      line-height: 1.2;
+      font-size: 45px;
+      letter-spacing: -2px;
+      font-weight: 700;
+      margin: 0;
     }
 
-    .shipping { margin-top: 8px; }
+    .currency {
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-left: 7px;
+    }
 
-    .button {
-      display: inline-block;
-      margin: 12px 0;
-      padding: 16px 25px;
-      background: #e96708;
+    .shipping {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin: 7px 0 25px;
+    }
+
+    .buy {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--orange);
+      padding: 19px 23px;
       color: white;
       border-radius: 10px;
       text-decoration: none;
-      font-size: 19px;
+      font-size: 16px;
       font-weight: bold;
     }
 
-    .button:hover { background: #bc4d00; }
+    .buy:hover { background: #c65100; }
 
     a:focus-visible {
-      outline: 3px solid #ffb16e;
+      outline: 3px solid var(--orange);
       outline-offset: 5px;
     }
 
-    .email {
-      color: #ffb16e;
-      overflow-wrap: anywhere;
+    .checkout-note {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      text-align: center;
+      margin: 12px 0 23px;
     }
 
-    .small { font-size: 14px; }
+    .summary {
+      border-top: 1px solid #dddeda;
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      gap: 12px;
+    }
+
+    .summary strong {
+      font-size: 15px;
+      white-space: nowrap;
+    }
+
+    .tax {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 7px 0 0;
+    }
+
+    .details {
+      margin-top: 65px;
+      border-top: 1px solid #deded9;
+      padding: 26px 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+    }
+
+    .details h2 {
+      font-size: 14px;
+      margin: 0 0 8px;
+    }
+
+    .details p {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .details a {
+      overflow-wrap: anywhere;
+      text-underline-offset: 3px;
+    }
 
     footer {
-      padding: 25px;
-      text-align: center;
-      font-size: 13px;
-      color: #596579;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 0 30px;
+      border-top: 1px solid #deded9;
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 800px) {
+      header { padding: 22px; }
+      .logo { font-size: 18px; }
+      .back { font-size: 11px; }
+      main { padding: 30px 22px; }
+
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+
+      .visual { min-height: 320px; }
+      .visual::before { font-size: 88px; }
+      .visual img { max-width: 550px; }
+
+      .copy {
+        max-width: 550px;
+        width: 100%;
+        margin: auto;
+      }
+
+      h1 { font-size: 58px; }
+      .lead { font-size: 18px; }
+
+      .details {
+        margin-top: 40px;
+        grid-template-columns: 1fr;
+        gap: 23px;
+      }
+
+      footer {
+        margin: 0 22px;
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 
 <body>
   <header>
-    <a href="/">← Back to LinkTradeNetwork</a>
+    <a class="logo" href="/">
+      Link<span class="orange">Trade</span>Network
+    </a>
+
+    <a class="back" href="/">← Back to the network</a>
   </header>
 
   <main>
-    <h1>L<span class="orange">T</span>N VISION</h1>
+    <div class="hero">
+      <div>
+        <div class="visual">
+          <img
+            src="./glasses.png"
+            alt="LTN Vision concept smart glasses with black frames,
+                 orange accents and LTN branding"
+          >
 
-    <p class="intro">A new view of everyday possibilities.</p>
+          <span class="visual-label">
+            LTN VISION / SMART GLASSES
+          </span>
+        </div>
 
-    <img
-      src="./glasses.png"
-      alt="LTN Vision concept glasses with black frames,
-           orange accents and LTN branding"
-    >
+        <p class="caption">
+          Concept image. Final appearance and features may differ.
+        </p>
+      </div>
 
-    <p class="caption">
-      Concept image. Final appearance and features may differ.
-    </p>
+      <div class="copy">
+        <p class="eyebrow">Introducing LTN Vision</p>
 
-    <section class="purchase" aria-labelledby="purchase-heading">
-      <h2 id="purchase-heading">LTN Vision Smart Glasses</h2>
+        <h1>
+          A new view.<br>
+          A new <span class="orange">vision.</span>
+        </h1>
 
-      <p class="price">$135 <span class="small">USD</span></p>
+        <p class="lead">
+          A new view of everyday possibilities.
+        </p>
 
-      <p class="shipping">
-        Plus $8 flat shipping · United States only
-      </p>
+        <p class="product-label">LTN Vision Smart Glasses</p>
 
-      <p>
-        One pair: $143 before any applicable tax.
-      </p>
+        <p class="price">
+          $135<span class="currency">USD</span>
+        </p>
 
-      <a
-        class="button"
-        href="https://buy.stripe.com/dRm14m51EbG86EL6iYgbm00"
-      >
-        Buy LTN Vision →
-      </a>
+        <p class="shipping">
+          + $8 flat shipping within the United States
+        </p>
 
-      <p class="small">
-        Continue to Stripe to enter your shipping address,
-        review your total, and pay.
-      </p>
-
-      <p>
-        Questions? Email
-        <a class="email" href="mailto:Team@LinkTradeNetwork.com">
-          Team@LinkTradeNetwork.com
+        <a
+          class="buy"
+          href="https://buy.stripe.com/dRm14m51EbG86EL6iYgbm00"
+        >
+          <span>Buy LTN Vision</span>
+          <span aria-hidden="true">↗</span>
         </a>
-      </p>
+
+        <p class="checkout-note">
+          Continue to Stripe to review your order and pay.
+        </p>
+
+        <div class="summary">
+          <span>One pair + standard shipping</span>
+          <strong>$143 USD</strong>
+        </div>
+
+        <p class="tax">Before any applicable tax.</p>
+      </div>
+    </div>
+
+    <section class="details" aria-label="Order information">
+      <div>
+        <h2>A simple purchase</h2>
+        <p>
+          $135 for one pair of LTN Vision smart glasses.
+          One-time purchase.
+        </p>
+      </div>
+
+      <div>
+        <h2>U.S. shipping</h2>
+        <p>
+          $8 flat shipping. Enter your delivery address
+          during checkout.
+        </p>
+      </div>
+
+      <div>
+        <h2>Questions before you buy?</h2>
+        <p>
+          Contact our team at<br>
+          <a href="mailto:Team@LinkTradeNetwork.com">
+            Team@LinkTradeNetwork.com
+          </a>
+        </p>
+      </div>
     </section>
   </main>
 
-  <footer>© 2026 LinkTradeNetwork · LTN Vision</footer>
+  <footer>
+    <span>© 2026 LinkTradeNetwork · LTN Vision</span>
+    <span>A new view of everyday possibilities.</span>
+  </footer>
 </body>
 </html>
